@@ -159,7 +159,7 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
                           background: `color-mix(in oklch, ${color} ${Math.round(a * 85)}%, transparent)`,
                         }}
                       >
-                        {Math.abs(v) < 0.05 ? "0" : v.toFixed(0)}
+                        {Math.abs(v) < 0.5 ? "0" : v.toFixed(0)}
                       </td>
                     );
                   })}
