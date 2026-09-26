@@ -126,7 +126,15 @@ export function MicrographAnalyzer({ inputs, setInputs, out, geo, setGeo, active
       const res = await fetch("/api/analyze-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image, modality, sample, scale, inputs, outputs: out, geometry: geo }),
+        body: JSON.stringify({
+          image,
+          modality,
+          sample,
+          scale,
+          inputs,
+          outputs: Object.fromEntries(Object.entries(out).filter(([, v]) => typeof v === "number")),
+          geometry: geo,
+        }),
         signal: ac.signal,
       });
       setRemaining(res.headers.get("X-RateLimit-Remaining"));
