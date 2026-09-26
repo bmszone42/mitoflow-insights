@@ -16,4 +16,6 @@
 - Static domain content lives in `src/lib/mito/reference.ts`, separate from the model, so reference
   text can change without touching the math.
 - Workspace UI is one route (`src/routes/index.tsx`) holding the input state, with section
-  components under `src/components/mito/`; state is session only, no backend.
+  components under `src/components/mito/`; scenarios persist in browser IndexedDB (`src/lib/mito/scenarios.ts`), no accounts.
+
+- AI interpretation runs through one streaming server route `src/routes/api/interpret.ts` (Responses API, openai/gpt-6-astra) so the gateway key stays server-side.

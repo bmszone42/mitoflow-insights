@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Simulator } from "@/components/mito/Simulator";
 import { StructureModeler } from "@/components/mito/StructureModeler";
 import { ReferenceLibrary } from "@/components/mito/ReferenceLibrary";
+import { Scenarios } from "@/components/mito/Scenarios";
+import { Interpreter } from "@/components/mito/Interpreter";
+import type { Scenario } from "@/lib/mito/scenarios";
 import { defaultInputs, simulate, type Inputs } from "@/lib/mito/model";
 
 export const Route = createFileRoute("/")({
@@ -32,6 +35,14 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
   const out = useMemo(() => simulate(inputs), [inputs]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState<Scenario["interpretation"]>(undefined);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const onLoad = (s: Scenario) => {
+    setInputs({ ...defaultInputs, ...s.inputs });
+    setActiveId(s.id);
+    setLoaded(s.interpretation);
+  };
 
   return (
     <div className="min-h-screen px-4 py-6 sm:px-8">
@@ -68,6 +79,23 @@ function Index() {
           </TabsList>
           <TabsContent value="sim" className="mt-4">
             <Simulator inputs={inputs} setInputs={setInputs} out={out} />
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+              <Scenarios
+                inputs={inputs}
+                out={out}
+                onLoad={onLoad}
+                activeId={activeId}
+                setActiveId={setActiveId}
+                refreshKey={refreshKey}
+              />
+              <Interpreter
+                inputs={inputs}
+                out={out}
+                activeId={activeId}
+                initial={loaded}
+                onSaved={() => setRefreshKey((k) => k + 1)}
+              />
+            </div>
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
             <StructureModeler out={out} />
