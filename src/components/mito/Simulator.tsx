@@ -206,7 +206,7 @@ export function Simulator({
   const sweep = redSweep.map((r, k) => ({
     dose: r.dose,
     redATP: r.atp,
-    nirATP: nirSweep[k].atp,
+    nirATP: nirSweep[k]?.atp ?? 0,
     redROS: r.superoxide,
   }));
 
@@ -249,7 +249,7 @@ export function Simulator({
                     min={c.min}
                     max={c.max}
                     step={c.step}
-                    onValueChange={(v) => set(c.key, v[0])}
+                    onValueChange={(v) => set(c.key, v[0] ?? inputs[c.key])}
                   />
                   <p className="text-[11px] text-muted-foreground">{c.hint}</p>
                 </div>

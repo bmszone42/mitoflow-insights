@@ -93,7 +93,7 @@ export function StructureModeler({ out }: { out: Outputs }) {
               min={c.min}
               max={c.max}
               step={c.step}
-              onValueChange={(v) => setGeoKey(c.k, v[0])}
+              onValueChange={(v) => setGeoKey(c.k, v[0] ?? geo[c.k])}
             />
           </div>
         ))}
@@ -260,9 +260,9 @@ export function StructureModeler({ out }: { out: Outputs }) {
           <div className="panel p-4">
             <div className="mono-label">Selected element</div>
             <h3 className="mt-1 text-sm font-semibold text-primary">
-              {complexInfo[selected].title}
+              {(complexInfo[selected] ?? complexInfo["CIV"]!).title}
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">{complexInfo[selected].body}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{(complexInfo[selected] ?? complexInfo["CIV"]!).body}</p>
           </div>
           <div className="panel space-y-2 p-4">
             <div className="mono-label">Legend</div>
