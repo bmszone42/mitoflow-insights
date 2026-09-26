@@ -97,8 +97,14 @@ export function MicrographAnalyzer({ inputs, setInputs, out, geo, setGeo, active
 
   const onFile = async (file: File | undefined) => {
     if (!file) return;
-    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) return toast.error("Use a PNG, JPEG or WebP image.");
-    if (file.size > 8 * 1024 * 1024) return toast.error("Image must be under 8 MB.");
+    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
+      toast.error("Use a PNG, JPEG or WebP image.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Image must be under 8 MB.");
+      return;
+    }
     try {
       setImage(await resize(file, 1600, 0.85));
       setThumb(await resize(file, 240, 0.7));
@@ -161,7 +167,10 @@ export function MicrographAnalyzer({ inputs, setInputs, out, geo, setGeo, active
   const save = async () => {
     if (!activeId || !thumb) return;
     const s = (await listScenarios()).find((x) => x.id === activeId);
-    if (!s) return toast.error("Active scenario not found");
+    if (!s) {
+      toast.error("Active scenario not found");
+      return;
+    }
     await putScenario({ ...s, micrograph: { thumb, analysis: text, at: Date.now() }, updatedAt: Date.now() });
     onSaved();
     toast.success(`Saved into ${s.name}`);
