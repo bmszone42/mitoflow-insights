@@ -19,3 +19,5 @@
   components under `src/components/mito/`; scenarios persist in browser IndexedDB (`src/lib/mito/scenarios.ts`), no accounts.
 
 - AI interpretation runs through one streaming server route `src/routes/api/interpret.ts` (Responses API, openai/gpt-6-astra) so the gateway key stays server-side.
+- Both AI routes (`/api/interpret`, `/api/suggest`) go through `src/lib/mito/rate-limit.server.ts` (in-memory, per instance) so abuse limits live in one place; move to a database if strict limits are needed.
+- `inputRanges` in `src/lib/mito/model.ts` is the source of slider ranges for clamping AI suggestions and for comparison labels.

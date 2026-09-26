@@ -117,3 +117,21 @@ API: POST /api/interpret, body { condition: string, inputs: Record<string,number
 - ✅ Sensitivity tab: tornado chart per output, driver by output heatmap, full-range sweep with baseline marker
 - ✅ Drivers: NADH/NAD+, succinate, oxygen, labile iron, 660 nm and 810 nm dose; perturbation as share of range
 - ❌ Two-driver interaction surface (e.g. iron by light dose)
+
+## Update: comparison, AI limits, AI slider suggestions
+- ✅ Compare two saved scenarios: inputs and outputs side by side with change and percent, ROS log bar chart, Fe-S and iron bars, saved AI notes in two columns
+- ✅ AI usage limits: 10 per 10 minutes and 40 per day per visitor (by IP), 300 per day overall, 2000 character condition, 16 KB body, 10 second button cooldown, remaining counter
+- ✅ Suggest settings: AI maps a described condition to slider values with reasons and confidence, clamped to slider ranges, apply one or all
+- ❌ Durable rate limits (needs a database; current counters are per server instance and reset on restart)
+- ❌ Workspace AI spending cap (recommended before publishing)
+
+### API: POST /api/suggest
+Body: { condition: string (3 to 2000 chars), inputs: Record<string, number> }
+Response 200: { suggestions: [{ key, value, reason, confidence: "low" | "medium" | "high" }] }
+Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes to wait), 402 credits used up. Header X-RateLimit-Remaining on every response.
+
+### Security before deployment
+- AI endpoints are public; limits are in-memory only. For strict limits, store counters in Lovable Cloud.
+- Set a workspace AI spending cap so a burst of traffic cannot drain credits.
+- Keys never reach the browser; all AI calls are server side. Inputs validated with zod and suggestions clamped server side.
+- Scenario data stays in each visitor's browser (IndexedDB); nothing personal is stored on the server.
