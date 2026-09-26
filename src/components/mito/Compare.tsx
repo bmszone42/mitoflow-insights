@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -41,20 +41,19 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
   const [items, setItems] = useState<Scenario[]>([]);
   const [aId, setA] = useState<string>("");
   const [bId, setB] = useState<string>("");
+  const sel = useRef({ a: "", b: "" });
+  sel.current = { a: aId, b: bId };
 
   useEffect(() => {
     listScenarios()
       .then((l) => {
         setItems(l);
         const ids = new Set(l.map((x) => x.id));
-        setB((pb) => {
-          const b = pb && ids.has(pb) ? pb : (l[0]?.id ?? "");
-          setA((pa) => {
-            if (pa && ids.has(pa) && (pa !== b || l.length < 2)) return pa;
-            return l.find((x) => x.id !== b)?.id ?? b;
-          });
-          return b;
-        });
+        const b = sel.current.b && ids.has(sel.current.b) ? sel.current.b : (l[0]?.id ?? "");
+        const pa = sel.current.a;
+        const a = pa && ids.has(pa) && (pa !== b || l.length < 2) ? pa : (l.find((x) => x.id !== b)?.id ?? b);
+        setA(a);
+        setB(b);
       })
       .catch(() => setItems([]));
   }, [refreshKey]);
