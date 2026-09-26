@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiInterpretRouteImport } from './routes/api/interpret'
+import { Route as ApiSuggestRouteImport } from './routes/api/suggest'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const ApiInterpretRoute = ApiInterpretRouteImport.update({
   path: '/api/interpret',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSuggestRoute = ApiSuggestRouteImport.update({
+  id: '/api/suggest',
+  path: '/api/suggest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/interpret': typeof ApiInterpretRoute
+  '/api/suggest': typeof ApiSuggestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/interpret': typeof ApiInterpretRoute
+  '/api/suggest': typeof ApiSuggestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/interpret': typeof ApiInterpretRoute
+  '/api/suggest': typeof ApiSuggestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/interpret'
+  fullPaths: '/' | '/api/interpret' | '/api/suggest'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/interpret'
-  id: '__root__' | '/' | '/api/interpret'
+  to: '/' | '/api/interpret' | '/api/suggest'
+  id: '__root__' | '/' | '/api/interpret' | '/api/suggest'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiInterpretRoute: typeof ApiInterpretRoute
+  ApiSuggestRoute: typeof ApiSuggestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInterpretRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/suggest': {
+      id: '/api/suggest'
+      path: '/api/suggest'
+      fullPath: '/api/suggest'
+      preLoaderRoute: typeof ApiSuggestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiInterpretRoute: ApiInterpretRoute,
+  ApiSuggestRoute: ApiSuggestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
