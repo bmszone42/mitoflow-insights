@@ -38,7 +38,7 @@ export function Interpreter({
     setCondition(initial?.condition ?? "");
     setText(initial?.text ?? "");
     setError(null);
-  }, [initial, activeId]);
+  }, [initial]);
 
   useEffect(() => {
     if (cooldownUntil <= Date.now()) return;

@@ -46,8 +46,13 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
     listScenarios()
       .then((l) => {
         setItems(l);
-        setA((p) => p || l[1]?.id || l[0]?.id || "");
-        setB((p) => p || l[0]?.id || "");
+        const ids = new Set(l.map((x) => x.id));
+        const b0 = l[0]?.id ?? "";
+        setB((p) => (p && ids.has(p) ? p : b0));
+        setA((p) => {
+          const keep = p && ids.has(p) && (p !== b0 || l.length < 2) ? p : "";
+          return keep || l.find((x) => x.id !== b0)?.id || b0;
+        });
       })
       .catch(() => setItems([]));
   }, [refreshKey]);
