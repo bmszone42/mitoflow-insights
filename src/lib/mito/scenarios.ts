@@ -8,6 +8,7 @@ export type Scenario = {
   inputs: Inputs;
   snapshot: { atpFlux?: number; superoxide?: number; hydrogenPeroxide?: number; fesIntact?: number; freeIron?: number; emission71THz?: number };
   interpretation?: { condition: string; text: string; at: number };
+  micrograph?: { thumb: string; analysis: string; at: number };
   createdAt: number;
   updatedAt: number;
 };

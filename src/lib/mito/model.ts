@@ -283,3 +283,27 @@ export const inputRanges: Record<keyof Inputs, { min: number; max: number; label
   antioxidantCapacity: { min: 0.2, max: 2, label: "Antioxidant capacity", unit: "rel" },
   uncoupling: { min: 0, max: 1, label: "Uncoupling", unit: "fraction" },
 };
+
+// Structure view geometry (SVG units, roughly nm-scaled). Source of ranges for the Structure
+// sliders and for clamping micrograph-derived AI suggestions.
+export type Geometry = {
+  cristaeCount: number;
+  cristaeDepth: number;
+  junctionWidth: number;
+  matrixWidth: number;
+  length: number;
+};
+export const defaultGeometry: Geometry = {
+  cristaeCount: 9,
+  cristaeDepth: 62,
+  junctionWidth: 10,
+  matrixWidth: 150,
+  length: 420,
+};
+export const geometryRanges: Record<keyof Geometry, { min: number; max: number; step: number; label: string }> = {
+  cristaeCount: { min: 2, max: 22, step: 1, label: "Cristae count" },
+  cristaeDepth: { min: 20, max: 110, step: 1, label: "Crista depth" },
+  junctionWidth: { min: 4, max: 34, step: 1, label: "Junction width" },
+  matrixWidth: { min: 110, max: 230, step: 1, label: "Matrix width" },
+  length: { min: 240, max: 620, step: 10, label: "Organelle length" },
+};
