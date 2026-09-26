@@ -7,6 +7,7 @@ import { StructureModeler } from "@/components/mito/StructureModeler";
 import { Sensitivity } from "@/components/mito/Sensitivity";
 import { ReferenceLibrary } from "@/components/mito/ReferenceLibrary";
 import { Scenarios } from "@/components/mito/Scenarios";
+import { Compare } from "@/components/mito/Compare";
 import { Interpreter } from "@/components/mito/Interpreter";
 import type { Scenario } from "@/lib/mito/scenarios";
 import { defaultInputs, simulate, type Inputs } from "@/lib/mito/model";
@@ -92,11 +93,15 @@ function Index() {
               />
               <Interpreter
                 inputs={inputs}
+                setInputs={setInputs}
                 out={out}
                 activeId={activeId}
                 initial={loaded}
                 onSaved={() => setRefreshKey((k) => k + 1)}
               />
+            </div>
+            <div className="mt-4">
+              <Compare refreshKey={refreshKey} />
             </div>
           </TabsContent>
           <TabsContent value="sens" className="mt-4">
