@@ -306,15 +306,21 @@ export function Simulator({
         <div className="grid gap-4 xl:grid-cols-2">
           <div className="panel p-4">
             <h3 className="text-sm font-semibold">ROS species, steady state</h3>
-            <p className="mono-label mt-1">mixed units, log scale</p>
+            <p className="mono-label mt-1">log10 concentration in pM</p>
             <div className="mt-3 h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={rosData}>
                   <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="name" stroke={chartStyle.axis} fontSize={11} />
-                  <YAxis scale="log" domain={["auto", "auto"]} stroke={chartStyle.axis} fontSize={11} />
-                  <Tooltip {...tooltipProps()} />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  <YAxis stroke={chartStyle.axis} fontSize={11} domain={[-4, "auto"]} />
+                  <Tooltip
+                    {...tooltipProps()}
+                    formatter={(_v, _n, item) => [
+                      (item?.payload as { label?: string })?.label ?? "",
+                      "concentration",
+                    ]}
+                  />
+                  <Bar dataKey="log" radius={[4, 4, 0, 0]}>
                     {rosData.map((d) => (
                       <Cell key={d.name} fill={d.fill} />
                     ))}
@@ -322,6 +328,10 @@ export function Simulator({
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Hover a bar for the actual concentration. Hydroxyl radical sits many orders lower
+              because it reacts within nanometres of where it forms.
+            </p>
           </div>
 
           <div className="panel p-4">
