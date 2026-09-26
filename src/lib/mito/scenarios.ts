@@ -6,7 +6,7 @@ export type Scenario = {
   name: string;
   notes: string;
   inputs: Inputs;
-  snapshot: Record<string, number>;
+  snapshot: { atpFlux?: number; superoxide?: number; hydrogenPeroxide?: number; fesIntact?: number; freeIron?: number; emission71THz?: number };
   interpretation?: { condition: string; text: string; at: number };
   createdAt: number;
   updatedAt: number;

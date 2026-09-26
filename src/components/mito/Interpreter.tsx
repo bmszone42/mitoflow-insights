@@ -16,7 +16,7 @@ export function Interpreter({
   inputs: Inputs;
   out: Outputs;
   activeId: string | null;
-  initial?: { condition: string; text: string };
+  initial?: { condition: string; text: string } | undefined;
   onSaved: () => void;
 }) {
   const [condition, setCondition] = useState("");
