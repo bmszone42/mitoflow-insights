@@ -192,14 +192,19 @@ export function Simulator({
   setInputs: (i: Inputs) => void;
   out: Outputs;
 }) {
+  // All species compared in pM so a single log10 axis stays readable.
   const rosData = [
-    { name: "O2•-", value: out.superoxide, unit: "nM", fill: "var(--color-chart-1)" },
-    { name: "H2O2", value: out.hydrogenPeroxide, unit: "nM", fill: "var(--color-chart-4)" },
-    { name: "•OH", value: out.hydroxylRadical, unit: "pM", fill: "var(--color-chart-5)" },
-    { name: "ONOO-", value: out.peroxynitrite, unit: "nM", fill: "var(--color-chart-2)" },
-    { name: "1O2", value: out.singletOxygen, unit: "pM", fill: "var(--color-chart-3)" },
-    { name: "LOO•", value: out.lipidPeroxyl, unit: "nM", fill: "var(--color-chart-5)" },
-  ].map((d) => ({ ...d, value: Number(d.value.toFixed(3)) }));
+    { name: "O2•-", pm: out.superoxide * 1e3, fill: "var(--color-chart-1)" },
+    { name: "H2O2", pm: out.hydrogenPeroxide * 1e3, fill: "var(--color-chart-4)" },
+    { name: "•OH", pm: out.hydroxylRadical, fill: "var(--color-chart-5)" },
+    { name: "ONOO-", pm: out.peroxynitrite * 1e3, fill: "var(--color-chart-2)" },
+    { name: "1O2", pm: out.singletOxygen, fill: "var(--color-chart-3)" },
+    { name: "LOO•", pm: out.lipidPeroxyl * 1e3, fill: "var(--color-chart-5)" },
+  ].map((d) => ({
+    ...d,
+    log: Number(Math.log10(Math.max(d.pm, 1e-4)).toFixed(2)),
+    label: d.pm >= 1e3 ? `${(d.pm / 1e3).toFixed(2)} nM` : `${d.pm.toPrecision(3)} pM`,
+  }));
 
   const redSweep = doseSweep(inputs, "red");
   const nirSweep = doseSweep(inputs, "nir");
