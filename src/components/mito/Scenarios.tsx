@@ -29,6 +29,7 @@ export function Scenarios({
   activeId,
   setActiveId,
   refreshKey,
+  onChanged,
 }: {
   inputs: Inputs;
   out: Outputs;
@@ -36,6 +37,7 @@ export function Scenarios({
   activeId: string | null;
   setActiveId: (id: string | null) => void;
   refreshKey: number;
+  onChanged?: () => void;
 }) {
   const [items, setItems] = useState<Scenario[]>([]);
   const [name, setName] = useState("");
@@ -65,6 +67,7 @@ export function Scenarios({
     setName("");
     toast.success(existing ? "Scenario updated" : "Scenario saved");
     refresh();
+    onChanged?.();
   };
 
   const rename = async (s: Scenario) => {
@@ -72,6 +75,7 @@ export function Scenarios({
     if (!n) return;
     await putScenario({ ...s, name: n, updatedAt: Date.now() });
     refresh();
+    onChanged?.();
   };
 
   const remove = async (s: Scenario) => {
@@ -79,6 +83,7 @@ export function Scenarios({
     await deleteScenario(s.id);
     if (activeId === s.id) setActiveId(null);
     refresh();
+    onChanged?.();
   };
 
   const exportAll = () => {
@@ -97,6 +102,7 @@ export function Scenarios({
       for (const s of list) await putScenario(s);
       toast.success(`Imported ${list.length} scenario(s)`);
       refresh();
+      onChanged?.();
     } catch {
       toast.error("Could not read that file");
     }

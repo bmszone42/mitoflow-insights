@@ -40,6 +40,7 @@ function Index() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<Scenario["interpretation"]>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [compareKey, setCompareKey] = useState(0);
   const onLoad = (s: Scenario) => {
     setInputs({ ...defaultInputs, ...s.inputs });
     setActiveId(s.id);
@@ -90,6 +91,7 @@ function Index() {
                 activeId={activeId}
                 setActiveId={setActiveId}
                 refreshKey={refreshKey}
+                onChanged={() => setCompareKey((k) => k + 1)}
               />
               <Interpreter
                 inputs={inputs}
@@ -101,7 +103,7 @@ function Index() {
               />
             </div>
             <div className="mt-4">
-              <Compare refreshKey={refreshKey} />
+              <Compare refreshKey={refreshKey + compareKey} />
             </div>
           </TabsContent>
           <TabsContent value="sens" className="mt-4">
