@@ -1,0 +1,108 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { createOpenAI } from "@ai-sdk/openai";
+import { streamText } from "ai";
+import { z } from "zod";
+import { createLovableAiGatewayRunIdFetch } from "@/lib/mito/run-id.server";
+
+const Body = z.object({
+  condition: z.string().trim().min(3).max(4000),
+  inputs: z.record(z.string(), z.number()),
+  outputs: z.record(z.string(), z.number()),
+});
+
+const SYSTEM = `You are a mitochondrial redox biologist interpreting a lumped steady-state model.
+Given an experimental condition, the model inputs and the predicted outputs, write a concise mechanistic interpretation in Markdown with these sections:
+## ROS changes (which species, which site: CI forward/reverse electron transport, CIII Qo, SOD2/Prx3 handling, Fenton, peroxynitrite)
+## Fe-S clusters and aconitase
+## Iron handling (labile pool, Fenton risk, IRP/ferritin, frataxin/ISC)
+## Photon response (CCO absorption at 660/810 nm, NO photodissociation, position on the biphasic dose curve; treat the 71 THz band only as a relative reporter, never an absolute radiometric value)
+## Caveats and suggested measurements
+Ground every claim in the numbers given. Label speculation explicitly. Never use em dashes. Keep it under about 450 words.`;
+
+export const Route = createFileRoute("/api/interpret")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const parsed = Body.safeParse(await request.json().catch(() => null));
+        if (!parsed.success) return Response.json({ error: "Invalid request" }, { status: 400 });
+        const apiKey = process.env["LOVABLE_API_KEY"];
+        if (!apiKey) return Response.json({ error: "AI is not configured" }, { status: 500 });
+
+        const runIdFetch = createLovableAiGatewayRunIdFetch(
+          request.headers.get("X-Lovable-AIG-Run-ID") ?? undefined,
+        );
+        const provider = createOpenAI({
+          baseURL: "https://ai.gateway.lovable.dev/v1",
+          apiKey,
+          headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+          fetch: runIdFetch.fetch,
+        });
+        const { condition, inputs, outputs } = parsed.data;
+        const fmt = (o: Record<string, number>) =>
+          Object.entries(o)
+            .map(([k, v]) => `${k}: ${Number(v.toPrecision(4))}`)
+            .join("\n");
+
+        let upstreamError: { status: number; message: string } | null = null;
+        const result = streamText({
+          model: provider.responses("openai/gpt-6-astra"),
+          system: SYSTEM,
+          prompt: `Experimental condition:\n${condition}\n\nModel inputs:\n${fmt(inputs)}\n\nModel outputs:\n${fmt(outputs)}`,
+          abortSignal: request.signal,
+          maxRetries: 0,
+          providerOptions: {
+            openai: {
+              forceReasoning: true,
+              reasoningEffort: "medium",
+              reasoningSummary: "auto",
+              store: false,
+              include: ["reasoning.encrypted_content"],
+            },
+          },
+          onError: ({ error }) => {
+            const e = error as { statusCode?: number; message?: string };
+            upstreamError = { status: e.statusCode ?? 500, message: e.message ?? "AI request failed" };
+          },
+        });
+
+        // Peek at the first chunk so upstream status errors surface before headers are sent.
+        const reader = result.textStream.getReader();
+        const first = await reader.read().catch(() => ({ done: true, value: undefined }));
+        if (first.done && upstreamError) {
+          const { status, message } = upstreamError as { status: number; message: string };
+          const friendly =
+            status === 429
+              ? "Rate limited. Please wait a moment and try again."
+              : status === 402
+                ? "AI credits are used up. Add credits in Settings, Plans and credits."
+                : message;
+          return Response.json({ error: friendly }, { status });
+        }
+        const enc = new TextEncoder();
+        const body = new ReadableStream<Uint8Array>({
+          async start(c) {
+            if (!first.done && first.value) c.enqueue(enc.encode(first.value));
+            try {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                c.enqueue(enc.encode(value));
+              }
+            } catch {
+              c.enqueue(enc.encode("\n\n[Stream interrupted]"));
+            }
+            c.close();
+          },
+          cancel: (r) => reader.cancel(r),
+        });
+        const headers = new Headers({
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-cache, no-transform",
+        });
+        const rid = runIdFetch.getRunId();
+        if (rid) headers.set("X-Lovable-AIG-Run-ID", rid);
+        return new Response(body, { headers });
+      },
+    },
+  },
+});
