@@ -3,9 +3,10 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayRunIdFetch } from "@/lib/mito/run-id.server";
+import { checkLimit, clientKey, readLimitedJson } from "@/lib/mito/rate-limit.server";
 
 const Body = z.object({
-  condition: z.string().trim().min(3).max(4000),
+  condition: z.string().trim().min(3).max(2000),
   inputs: z.record(z.string(), z.number()),
   outputs: z.record(z.string(), z.number()),
 });
@@ -23,8 +24,14 @@ export const Route = createFileRoute("/api/interpret")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const parsed = Body.safeParse(await request.json().catch(() => null));
-        if (!parsed.success) return Response.json({ error: "Invalid request" }, { status: 400 });
+        const raw = await readLimitedJson(request);
+        if (raw.tooLarge) return Response.json({ error: "Request too large" }, { status: 413 });
+        const parsed = Body.safeParse(raw.json);
+        if (!parsed.success)
+          return Response.json({ error: "Describe the condition in 3 to 2000 characters." }, { status: 400 });
+        const lim = checkLimit(clientKey(request));
+        const rlHeaders = { "X-RateLimit-Remaining": String(lim.remaining) };
+        if (!lim.ok) return Response.json({ error: lim.message }, { status: 429, headers: rlHeaders });
         const apiKey = process.env["LOVABLE_API_KEY"];
         if (!apiKey) return Response.json({ error: "AI is not configured" }, { status: 500 });
 
@@ -76,7 +83,7 @@ export const Route = createFileRoute("/api/interpret")({
               : status === 402
                 ? "AI credits are used up. Add credits in Settings, Plans and credits."
                 : message;
-          return Response.json({ error: friendly }, { status });
+          return Response.json({ error: friendly }, { status, headers: rlHeaders });
         }
         const enc = new TextEncoder();
         const body = new ReadableStream<Uint8Array>({
@@ -98,6 +105,7 @@ export const Route = createFileRoute("/api/interpret")({
         const headers = new Headers({
           "Content-Type": "text/plain; charset=utf-8",
           "Cache-Control": "no-cache, no-transform",
+          ...rlHeaders,
         });
         const rid = runIdFetch.getRunId();
         if (rid) headers.set("X-Lovable-AIG-Run-ID", rid);
