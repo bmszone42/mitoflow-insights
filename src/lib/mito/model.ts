@@ -268,3 +268,18 @@ export function sweep(base: Inputs, key: keyof Inputs, n = 40) {
     return row;
   });
 }
+
+// Slider ranges for every input: single source for clamping AI suggestions.
+export const inputRanges: Record<keyof Inputs, { min: number; max: number; label: string; unit: string }> = {
+  nadhRatio: { min: 0, max: 1, label: "NADH / NAD+ pool", unit: "fraction" },
+  succinate: { min: 0, max: 2, label: "Succinate drive", unit: "rel" },
+  oxygen: { min: 0.5, max: 120, label: "Oxygen", unit: "µM" },
+  deltaPsi: { min: 90, max: 210, label: "Membrane potential", unit: "mV" },
+  adp: { min: 0, max: 400, label: "ADP", unit: "µM" },
+  labileIron: { min: 0, max: 20, label: "Labile iron", unit: "µM" },
+  nitricOxide: { min: 0, max: 400, label: "Nitric oxide", unit: "nM" },
+  redDose: { min: 0, max: 60, label: "660 nm dose", unit: "J/cm2" },
+  nirDose: { min: 0, max: 60, label: "810 nm dose", unit: "J/cm2" },
+  antioxidantCapacity: { min: 0.2, max: 2, label: "Antioxidant capacity", unit: "rel" },
+  uncoupling: { min: 0, max: 1, label: "Uncoupling", unit: "fraction" },
+};

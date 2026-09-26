@@ -1,8 +1,8 @@
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
+> published git history: force pushing, or rebasing/amending/squashing commits
+> that are already pushed: as it rewrites history on Lovable's side and the
 > user will likely lose their project history.
 >
 > Commits you push to the connected branch sync back to Lovable and show up in
@@ -19,3 +19,5 @@
   components under `src/components/mito/`; scenarios persist in browser IndexedDB (`src/lib/mito/scenarios.ts`), no accounts.
 
 - AI interpretation runs through one streaming server route `src/routes/api/interpret.ts` (Responses API, openai/gpt-6-astra) so the gateway key stays server-side.
+- Both AI routes (`/api/interpret`, `/api/suggest`) go through `src/lib/mito/rate-limit.server.ts` (in-memory, per instance) so abuse limits live in one place; move to a database if strict limits are needed.
+- `inputRanges` in `src/lib/mito/model.ts` is the source of slider ranges for clamping AI suggestions and for comparison labels.
