@@ -99,3 +99,15 @@ parameter comment block and to this file.
 
 Educational and research tool only. Not a medical device and not for diagnosis or treatment. If
 clinical claims or patient data are ever introduced, HIPAA and GDPR review is required first.
+
+
+## Update: scenarios and AI interpretation
+- ✅ Save, update, rename, delete, load scenarios in IndexedDB (this browser only)
+- ✅ Export and import scenarios as JSON
+- ✅ AI mechanistic interpretation of an experimental condition, streamed, grounded in current inputs and outputs
+- ✅ Save interpretation into the active scenario
+- ✅ Friendly errors for rate limit (429) and out of credits (402)
+- ❌ Rate limiting per visitor on /api/interpret before publishing (security)
+- ❌ Scenario comparison view
+
+API: POST /api/interpret, body { condition: string, inputs: Record<string,number>, outputs: Record<string,number> }, returns streamed text/plain Markdown. Security: key stays server-side; input validated with zod (condition max 4000 chars); add abuse limits before publishing.
