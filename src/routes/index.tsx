@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Simulator } from "@/components/mito/Simulator";
 import { StructureModeler } from "@/components/mito/StructureModeler";
+import { Sensitivity } from "@/components/mito/Sensitivity";
 import { ReferenceLibrary } from "@/components/mito/ReferenceLibrary";
 import { Scenarios } from "@/components/mito/Scenarios";
 import { Interpreter } from "@/components/mito/Interpreter";
@@ -74,6 +75,7 @@ function Index() {
         <Tabs defaultValue="sim">
           <TabsList>
             <TabsTrigger value="sim">Simulator</TabsTrigger>
+            <TabsTrigger value="sens">Sensitivity</TabsTrigger>
             <TabsTrigger value="structure">Structure</TabsTrigger>
             <TabsTrigger value="library">Reference</TabsTrigger>
           </TabsList>
@@ -96,6 +98,9 @@ function Index() {
                 onSaved={() => setRefreshKey((k) => k + 1)}
               />
             </div>
+          </TabsContent>
+          <TabsContent value="sens" className="mt-4">
+            <Sensitivity inputs={inputs} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
             <StructureModeler out={out} />

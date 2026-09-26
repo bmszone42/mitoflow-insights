@@ -111,3 +111,9 @@ clinical claims or patient data are ever introduced, HIPAA and GDPR review is re
 - ❌ Scenario comparison view
 
 API: POST /api/interpret, body { condition: string, inputs: Record<string,number>, outputs: Record<string,number> }, returns streamed text/plain Markdown. Security: key stays server-side; input validated with zod (condition max 4000 chars); add abuse limits before publishing.
+
+
+## Update: sensitivity analysis
+- ✅ Sensitivity tab: tornado chart per output, driver by output heatmap, full-range sweep with baseline marker
+- ✅ Drivers: NADH/NAD+, succinate, oxygen, labile iron, 660 nm and 810 nm dose; perturbation as share of range
+- ❌ Two-driver interaction surface (e.g. iron by light dose)
