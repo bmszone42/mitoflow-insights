@@ -47,11 +47,13 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
       .then((l) => {
         setItems(l);
         const ids = new Set(l.map((x) => x.id));
-        const b0 = l[0]?.id ?? "";
-        setB((p) => (p && ids.has(p) ? p : b0));
-        setA((p) => {
-          const keep = p && ids.has(p) && (p !== b0 || l.length < 2) ? p : "";
-          return keep || l.find((x) => x.id !== b0)?.id || b0;
+        setB((pb) => {
+          const b = pb && ids.has(pb) ? pb : (l[0]?.id ?? "");
+          setA((pa) => {
+            if (pa && ids.has(pa) && (pa !== b || l.length < 2)) return pa;
+            return l.find((x) => x.id !== b)?.id ?? b;
+          });
+          return b;
         });
       })
       .catch(() => setItems([]));
