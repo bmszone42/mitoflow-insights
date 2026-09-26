@@ -211,3 +211,60 @@ export function doseSweep(base: Inputs, wavelength: "red" | "nir") {
     };
   });
 }
+
+// ---------- Sensitivity analysis ----------
+// Drivers are perturbed by a fraction of their full slider range (not of the
+// baseline), so zero-baseline inputs such as photon dose still register.
+export type DriverDef = { key: keyof Inputs; label: string; min: number; max: number; group: string };
+export const sensitivityDrivers: DriverDef[] = [
+  { key: "nadhRatio", label: "NADH / NAD+", min: 0, max: 1, group: "Electron flux" },
+  { key: "succinate", label: "Succinate drive", min: 0, max: 2, group: "Electron flux" },
+  { key: "oxygen", label: "Oxygen", min: 0.5, max: 120, group: "Electron flux" },
+  { key: "labileIron", label: "Labile iron", min: 0, max: 20, group: "Iron" },
+  { key: "redDose", label: "660 nm dose", min: 0, max: 60, group: "Photon" },
+  { key: "nirDose", label: "810 nm dose", min: 0, max: 60, group: "Photon" },
+];
+export type SensOutputKey =
+  | "superoxide" | "hydrogenPeroxide" | "hydroxylRadical" | "peroxynitrite"
+  | "lipidPeroxyl" | "fesIntact" | "aconitaseActivity" | "freeIron";
+export const sensOutputs: { key: SensOutputKey; label: string }[] = [
+  { key: "superoxide", label: "O2•-" },
+  { key: "hydrogenPeroxide", label: "H2O2" },
+  { key: "hydroxylRadical", label: "•OH" },
+  { key: "peroxynitrite", label: "ONOO-" },
+  { key: "lipidPeroxyl", label: "LOO•" },
+  { key: "fesIntact", label: "Fe-S intact" },
+  { key: "aconitaseActivity", label: "Aconitase" },
+  { key: "freeIron", label: "Free Fe2+" },
+];
+
+const pctChange = (v: number, b: number) => (b === 0 ? 0 : ((v - b) / Math.abs(b)) * 100);
+
+/** Percent change of every output when each driver moves down / up by delta * range. */
+export function sensitivity(base: Inputs, delta = 0.2) {
+  const b = simulate(base);
+  return sensitivityDrivers.map((d) => {
+    const step = delta * (d.max - d.min);
+    const lo = simulate({ ...base, [d.key]: Math.max(d.min, base[d.key] - step) });
+    const hi = simulate({ ...base, [d.key]: Math.min(d.max, base[d.key] + step) });
+    const down = {} as Record<SensOutputKey, number>;
+    const up = {} as Record<SensOutputKey, number>;
+    for (const o of sensOutputs) {
+      down[o.key] = pctChange(lo[o.key], b[o.key]);
+      up[o.key] = pctChange(hi[o.key], b[o.key]);
+    }
+    return { driver: d, down, up };
+  });
+}
+
+/** Sweep one driver across its range, returning all sensitivity outputs. */
+export function sweep(base: Inputs, key: keyof Inputs, n = 40) {
+  const d = sensitivityDrivers.find((x) => x.key === key)!;
+  return Array.from({ length: n + 1 }, (_, i) => {
+    const x = d.min + ((d.max - d.min) * i) / n;
+    const o = simulate({ ...base, [key]: x });
+    const row: Record<string, number> = { x };
+    for (const s of sensOutputs) row[s.key] = o[s.key];
+    return row;
+  });
+}
