@@ -671,7 +671,7 @@ export function Simulator({
                   orientation="right"
                   stroke={chartStyle.axis}
                   fontSize={11}
-                  domain={[0, 100]}
+                  domain={[0, 140]}
                   unit="%"
                 />
                 <Tooltip
