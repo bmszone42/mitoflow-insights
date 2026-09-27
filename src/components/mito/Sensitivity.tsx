@@ -567,6 +567,10 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
               0,
             );
             return `${committedCells.length} of ${grid.cells.flat().length} cells are Committed. The lowest dose that commits any cell is ${minDose.toFixed(0)} J/cm2; without light, iron alone commits above ${maxIronNoLight.toFixed(0)} µM.${clLine}`;
+          })()}{" "}
+          {(() => {
+            const fmt = (v: number | null) => (v === null ? "never within 60 J/cm2" : `${v.toFixed(0)} J/cm2`);
+            return `At the map's highest iron, the 30% ox CL threshold is crossed at ${fmt(noCrossing.now)} with your current NO (${inputs.nitricOxide.toFixed(0)} nM), at ${fmt(noCrossing.low)} with NO at 0, and at ${fmt(noCrossing.high)} with NO at 400 nM.`;
           })()}
         </p>
         <p className="mt-1 text-[11px] text-muted-foreground">
