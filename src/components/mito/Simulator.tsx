@@ -572,7 +572,9 @@ export function Simulator({
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             Curves peak near 10 J/cm2 at 660 nm and 20 J/cm2 at 810 nm, then decline, matching the
-            biphasic Arndt-Schulz response of cytochrome c oxidase.
+            biphasic Arndt-Schulz response of cytochrome c oxidase. The solid red and dashed amber lines show
+            the hours to reach Committed after an acute GPx4 block at each dose (0 to 48 h scale); a gap means
+            the cells never commit within 48 h.
           </p>
         </div>
 
