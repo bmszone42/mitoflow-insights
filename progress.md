@@ -223,3 +223,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - [x] doseSweep rows now carry aconitase and freeIron; the ROS and Fe-S dose chart plots Fe-S intact, aconitase and free Fe2+ (percent of zero-dose) on the right axis with the 3 and 30 J/cm2 markers
 - [x] Fitted estimates under the markers extended: at 3 J/cm2 Fe-S 93.5%, aconitase 93.5%, free Fe2+ +4.1%; at 30 J/cm2 Fe-S 90.5%, aconitase 90.5%, free Fe2+ +25.1% (660 nm)
 - [x] High-dose re-run: 60 J/cm2 660 nm gives Fe-S 90.0% / acon 90.0% / free Fe 4.39 µM; 60 J/cm2 810 nm gives 90.9% / 90.9% / 4.20 µM; combined 60+60 gives 88.6% / 88.6% / 4.73 µM. No divergence, Fe-S erosion stays light-driven
+
+## H2O2-specific Fe-S attack term (done)
+- [x] model.ts: cluster attack is now kAcon x superoxide + kH2o2Fes x H2O2 (kH2o2Fes 1e4 M-1 s-1 effective, shaped after Jang & Imlay 2007, unfitted); GPx4 also clears matrix H2O2 weakly (kGpx4h2o2 = 0.2 x gpx4) so the GPx4 slider modulates cluster loss
+- [x] Calibrated so the H2O2 term does not dominate: default Fe-S 90.0% (was 94.1% with superoxide only)
+- [x] Re-ran iron x light map: Fe-S 90.0% no light, 83.3% at 60 J/cm2 660 nm, 81.1% at 60+60 combined; GPx4 blocked worsens to 82.7% at 60 J; aconitase tracks Fe-S; free iron gains ~1.6 µM from released cluster iron at high dose
