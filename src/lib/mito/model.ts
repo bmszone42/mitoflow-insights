@@ -495,6 +495,52 @@ export function doseSweep(base: Inputs, wavelength: "red" | "nir") {
   });
 }
 
+// ---------- Ferroptosis time course after acute GPx4 block ----------
+// Integrates dP/dt = vInit + (kProp - kRemove) * P from the pre-block steady
+// state, with GPx4 forced to 0 at t = 0 (RSL3 / ML162-like acute block).
+// Rates reuse the same lumped terms as the steady-state ferroptosis module,
+// and the Primed / Committed thresholds match simulate(): propagation ratio
+// 0.4 / 0.8 or oxidized cardiolipin 10% / 30% (Dixon 2012, Stockwell 2017).
+
+export interface TimePoint {
+  t: number; // hours since GPx4 block
+  plooh: number; // nM
+  cardiolipinOx: number; // %
+  state: FerroptosisState;
+}
+
+export function timeCourse(inputs: Inputs, hours = 48, steps = 96): TimePoint[] {
+  const pre = simulate(inputs);
+  const blocked = simulate({ ...inputs, gpx4: 0 });
+  const pufa = inputs.cardiolipinPufa;
+  const kRemove = blocked.ploohRemoval.fsp1 + blocked.ploohRemoval.basal;
+  const kProp = blocked.propagationRatio * (kRemove + blocked.ploohRemoval.gpx4);
+  const vInit = blocked.plooh * Math.max(kRemove - kProp, 0.02 * kRemove);
+  const net = kProp - kRemove; // s-1
+  const dt = (hours * 3600) / steps;
+  let p = pre.plooh;
+  const pts: TimePoint[] = [];
+  for (let k = 0; k <= steps; k++) {
+    const ox = (100 * p * pufa) / (p * pufa + 400);
+    const state: FerroptosisState =
+      blocked.propagationRatio >= 0.8 || ox >= 30
+        ? "Committed"
+        : blocked.propagationRatio >= 0.4 || ox >= 10
+          ? "Primed"
+          : "Protected";
+    pts.push({ t: Number(((k * hours) / steps).toFixed(2)), plooh: p, cardiolipinOx: ox, state });
+    p = Math.max(0, p + (vInit + net * p) * dt);
+  }
+  return pts;
+}
+
+// First hour at which the trajectory reaches Committed, or null if it never
+// does within the window. Used for the dose chart overlay.
+export function timeToCommitted(inputs: Inputs, hours = 48): number | null {
+  const hit = timeCourse(inputs, hours, 48).find((p) => p.state === "Committed");
+  return hit ? hit.t : null;
+}
+
 // ---------- Sensitivity analysis ----------
 // Drivers are perturbed by a fraction of their full slider range (not of the
 // baseline), so zero-baseline inputs such as photon dose still register.
