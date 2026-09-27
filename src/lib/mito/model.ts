@@ -89,6 +89,14 @@ function photonResponse(redDose: number, nirDose: number) {
   return 1 + red + nir;
 }
 
+// Direct (NO-independent) photon effect on superoxide leak: low-dose signaling
+// burst plus a saturating high-dose stress term. Returns a multiplier >= 1.
+function photonLeak(redDose: number, nirDose: number) {
+  const burst = (d: number, opt: number, a: number) => (d <= 0 ? 0 : a * (d / opt) * Math.exp(1 - d / opt));
+  const stress = (d: number, half: number, a: number) => (a * d * d) / (d * d + half * half);
+  return 1 + burst(redDose, 3, 0.3) + burst(nirDose, 3, 0.35) + stress(redDose, 35, 0.8) + stress(nirDose, 35, 1.0);
+}
+
 // NO photodissociation from the CIV binuclear centre releases inhibition.
 function noAfterPhotolysis(no: number, redDose: number, nirDose: number) {
   const released = 1 - 0.55 * (1 - Math.exp(-(redDose + nirDose) / 12));
@@ -119,13 +127,15 @@ export function simulate(i: Inputs): Outputs {
   const res = i.succinate > 1.0 ? 1 + 1.8 * (i.succinate - 1.0) : 1; // reverse electron transport
   const leakCIII = 0.003 * (fluxCI + fluxCII) * psiBrake * leakPsi;
   const o2Term = i.oxygen / (i.oxygen + 10);
-  const vO2minus = (leakCI * res + leakCIII) * o2Term;
+  const vO2minus = (leakCI * res + leakCIII) * o2Term * photonLeak(i.redDose, i.nirDose);
 
   // --- Dismutation and downstream ROS ---
   const kSod = 1e4 * i.antioxidantCapacity ** 0.3; // s-1 pseudo-first-order
   const superoxideM = vO2minus / kSod; // µM steady state
   const kPrx = 1.2 * i.antioxidantCapacity; // s-1 effective H2O2 removal
-  const h2o2 = (0.9 * kSod * superoxideM) / (kPrx + 1e-6);
+  // Direct flavin-photosensitized H2O2 source (µM s-1), stronger at 660 than 810 nm.
+  const vH2O2Photo = 2e-4 * (i.redDose + 0.3 * i.nirDose) * o2Term;
+  const h2o2 = (0.9 * kSod * superoxideM + vH2O2Photo) / (kPrx + 1e-6);
 
   // Fenton chemistry with the labile iron pool (feedback from cluster loss).
   const kAcon = 1e7 * 1e-6; // µM-1 s-1
