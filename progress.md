@@ -257,3 +257,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - New panel "Labile iron dose response" after the light dose comparison: free Fe2+ (µM, left axis) and Fe-S intact / aconitase (%, right axis) versus the iron slider 0-20 µM, solid lines at the active light dose and dashed with no light, "now" marker at the current iron.
 - Caption reports the chelator (zero-iron) endpoint live: free Fe2+ and Fe-S intact with the active light dose, so DFO/DFOm's effect is readable at a glance.
 - Verified in the browser with Erastin + 660 nm applied: free Fe2+ rises linearly and gains under light from released cluster iron; Fe-S lines split between light and no light while iron alone barely moves them; typecheck clean, no page errors.
+
+## Oxidized cardiolipin lines on the risk versus light dose chart ✅
+- The "Ferroptosis risk versus light dose" chart now plots oxidized cardiolipin (%) for 660 nm (solid) and 810 nm (dashed) alongside the risk curves, on the same 0-100 axis.
+- A dashed red reference line at 30% marks the Committed threshold with an in-chart label; the caption explains that crossing that line means cells commit at that dose.
+- Verified in the browser at defaults: risk ~19 and ox CL ~5.8% stay flat across the dose range, so no dose commits at baseline; typecheck clean, build OK, no page errors.

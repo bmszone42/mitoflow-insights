@@ -881,7 +881,13 @@ function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
     const dose = k * 2.5;
     const red = simulate({ ...inputs, redDose: dose });
     const nir = simulate({ ...inputs, nirDose: dose });
-    return { dose, red: Number(red.ferroptosisRisk.toFixed(1)), nir: Number(nir.ferroptosisRisk.toFixed(1)) };
+    return {
+      dose,
+      red: Number(red.ferroptosisRisk.toFixed(1)),
+      nir: Number(nir.ferroptosisRisk.toFixed(1)),
+      clRed: Number(red.cardiolipinOx.toFixed(1)),
+      clNir: Number(nir.cardiolipinOx.toFixed(1)),
+    };
   });
   const baseRisk = riskCurve[0]!;
   const activeDose = inputs.redDose > 0 ? inputs.redDose : inputs.nirDose;
@@ -982,13 +988,16 @@ function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
               <Tooltip {...tooltipProps()} />
               <Line type="monotone" dataKey="red" name="Risk, 660 nm" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="nir" name="Risk, 810 nm" stroke="var(--color-chart-1)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+              <Line type="monotone" dataKey="clRed" name="Ox CL, 660 nm (%)" stroke="var(--color-chart-3)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="clNir" name="Ox CL, 810 nm (%)" stroke="var(--color-chart-2)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+              <ReferenceLine y={30} stroke="var(--color-destructive)" strokeDasharray="6 4" label={{ value: "Committed 30% ox CL", position: "insideTopRight", fontSize: 10, fill: "var(--color-destructive)" }} />
               {activeDose > 0 && (
                 <ReferenceLine x={activeDose} stroke="var(--color-foreground)" strokeDasharray="4 3" label={{ value: "now", position: "top", fontSize: 10, fill: "var(--color-foreground)" }} />
               )}
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-[11px] text-muted-foreground">{verdict} Light lowers lipid peroxyl radicals through NO photorelease but raises superoxide and H2O2 directly, so the net sign depends on iron and dose.</p>
+        <p className="text-[11px] text-muted-foreground">{verdict} Light lowers lipid peroxyl radicals through NO photorelease but raises superoxide and H2O2 directly, so the net sign depends on iron and dose. The ox CL curves show oxidized cardiolipin on the same 0 to 100 axis; where they climb past the dashed 30% line, cells cross Committed at that dose.</p>
       </div>
       <div className="mt-4 space-y-1">
         <div className="mono-label">Ferroptosis risk versus labile iron</div>
