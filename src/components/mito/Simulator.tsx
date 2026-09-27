@@ -382,6 +382,24 @@ export function Simulator({
           <p className="text-[11px] text-muted-foreground">
             Erastin lowers GPx4 to 0.2, RSL3 to 0, ferrostatin-1 raises FSP1 to 2, chelator empties labile iron. Other sliders stay as set.
           </p>
+          <div className="mono-label pt-1">Combination presets</div>
+          <div className="flex flex-wrap gap-1.5">
+            {comboPresets.map((d) => (
+              <Button
+                key={d.name}
+                variant="outline"
+                size="sm"
+                className="h-7 border-primary/50 px-2 text-[11px] text-primary"
+                title={d.note}
+                onClick={() => setInputs({ ...inputs, ...d.patch })}
+              >
+                {d.name}
+              </Button>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Drug patch plus a 10 J/cm2 dose at 660 nm where light is part of the pair. Adjust the light sliders after clicking if you want a different dose.
+          </p>
         </div>
         {groups.map((g) => (
           <div key={g.id} className="space-y-4">
