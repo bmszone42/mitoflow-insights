@@ -334,7 +334,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // for the wider cluster pool so antioxidant capacity (Prx3, GPx1, GPx4)
   // modulates cluster loss. Both terms unfitted; shapes follow Imlay 2003.
   const kAcon = 3.5e7 * 1e-6; // µM-1 s-1 effective
-  const kH2o2Fes = 2e4 * 1e-6; // µM-1 s-1 effective, H2O2-specific
+  const kH2o2Fes = 1e4 * 1e-6; // µM-1 s-1 effective, H2O2-specific
   const clusterAttack = kAcon * superoxideM + kH2o2Fes * h2o2; // s-1
   const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // ISC assembly (ISCU/NFS1/frataxin)
   const fesIntact = kRepair / (kRepair + clusterAttack);
