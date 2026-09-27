@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiAnalyzeImageRouteImport } from './routes/api/analyze-image'
+import { Route as ApiExplainSensitivityRouteImport } from './routes/api/explain-sensitivity'
 import { Route as ApiInterpretRouteImport } from './routes/api/interpret'
 import { Route as ApiSuggestRouteImport } from './routes/api/suggest'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const ApiAnalyzeImageRoute = ApiAnalyzeImageRouteImport.update({
   id: '/api/analyze-image',
   path: '/api/analyze-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiExplainSensitivityRoute = ApiExplainSensitivityRouteImport.update({
+  id: '/api/explain-sensitivity',
+  path: '/api/explain-sensitivity',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiInterpretRoute = ApiInterpretRouteImport.update({
@@ -38,12 +44,14 @@ const ApiSuggestRoute = ApiSuggestRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
+  '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/interpret': typeof ApiInterpretRoute
   '/api/suggest': typeof ApiSuggestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
+  '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/interpret': typeof ApiInterpretRoute
   '/api/suggest': typeof ApiSuggestRoute
 }
@@ -51,21 +59,38 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
+  '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/interpret': typeof ApiInterpretRoute
   '/api/suggest': typeof ApiSuggestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/analyze-image' | '/api/interpret' | '/api/suggest'
+  fullPaths:
+    | '/'
+    | '/api/analyze-image'
+    | '/api/explain-sensitivity'
+    | '/api/interpret'
+    | '/api/suggest'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/analyze-image' | '/api/interpret' | '/api/suggest'
+  to:
+    | '/'
+    | '/api/analyze-image'
+    | '/api/explain-sensitivity'
+    | '/api/interpret'
+    | '/api/suggest'
   id:
-    '__root__' | '/' | '/api/analyze-image' | '/api/interpret' | '/api/suggest'
+    | '__root__'
+    | '/'
+    | '/api/analyze-image'
+    | '/api/explain-sensitivity'
+    | '/api/interpret'
+    | '/api/suggest'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiAnalyzeImageRoute: typeof ApiAnalyzeImageRoute
+  ApiExplainSensitivityRoute: typeof ApiExplainSensitivityRoute
   ApiInterpretRoute: typeof ApiInterpretRoute
   ApiSuggestRoute: typeof ApiSuggestRoute
 }
@@ -84,6 +109,13 @@ declare module '@tanstack/react-router' {
       path: '/api/analyze-image'
       fullPath: '/api/analyze-image'
       preLoaderRoute: typeof ApiAnalyzeImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/explain-sensitivity': {
+      id: '/api/explain-sensitivity'
+      path: '/api/explain-sensitivity'
+      fullPath: '/api/explain-sensitivity'
+      preLoaderRoute: typeof ApiExplainSensitivityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/interpret': {
@@ -106,6 +138,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiAnalyzeImageRoute: ApiAnalyzeImageRoute,
+  ApiExplainSensitivityRoute: ApiExplainSensitivityRoute,
   ApiInterpretRoute: ApiInterpretRoute,
   ApiSuggestRoute: ApiSuggestRoute,
 }

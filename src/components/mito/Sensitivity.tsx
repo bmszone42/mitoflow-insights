@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { Button } from "@/components/ui/button";
 import {
   Bar,
   BarChart,
@@ -38,6 +40,20 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   const [delta, setDelta] = useState(0.2);
   const [output, setOutput] = useState<SensOutputKey>("superoxide");
   const [driver, setDriver] = useState<keyof Inputs>("labileIron");
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [now, setNow] = useState(0);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    if (cooldownUntil <= Date.now()) return;
+    const t = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(t);
+  }, [cooldownUntil]);
+  const cooling = Math.max(0, Math.ceil((cooldownUntil - Math.max(now, Date.now())) / 1000));
 
   const sens = useMemo(() => sensitivity(inputs, delta), [inputs, delta]);
   const sweepData = useMemo(
@@ -64,6 +80,51 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   );
   const dDef = sensitivityDrivers.find((d) => d.key === driver)!;
   const outLabel = sensOutputs.find((o) => o.key === output)!.label;
+
+  const explain = async () => {
+    setBusy(true);
+    setError(null);
+    setText("");
+    setCooldownUntil(Date.now() + 10_000);
+    setNow(Date.now());
+    const ac = new AbortController();
+    abortRef.current = ac;
+    try {
+      const res = await fetch("/api/explain-sensitivity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          delta,
+          inputs,
+          rows: sens.map((s) => ({
+            driver: s.driver.label,
+            group: s.driver.group,
+            down: s.down,
+            up: s.up,
+          })),
+        }),
+        signal: ac.signal,
+      });
+      const r = res.headers.get("X-RateLimit-Remaining");
+      if (r !== null) setRemaining(Number(r));
+      if (!res.ok || !res.body) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error ?? `Request failed (${res.status})`);
+      }
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        setText((t) => t + dec.decode(value, { stream: true }));
+      }
+    } catch (e) {
+      if ((e as Error).name !== "AbortError") setError((e as Error).message);
+    } finally {
+      setBusy(false);
+      abortRef.current = null;
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -228,6 +289,41 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
           Left axis: ROS on a log scale. Right axis: Fe-S intact (%) and free Fe2+ (µM). Dashed line
           marks the current baseline.
         </p>
+      </section>
+
+      <section className="panel p-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="mono-label">Explain these results (AI)</div>
+          {remaining !== null && (
+            <span className="font-mono text-[10px] text-muted-foreground">{remaining} of 10 left (10 min)</span>
+          )}
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Sends the sensitivity table above to the AI and streams back an explanation of the dominant
+          drivers, key parameter interactions and what they imply for ROS and Fe-S outputs.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button onClick={explain} disabled={busy || cooling > 0 || remaining === 0}>
+            {busy ? "Explaining..." : "Explain these results"}
+          </Button>
+          {busy && (
+            <Button variant="outline" onClick={() => abortRef.current?.abort()}>
+              Stop
+            </Button>
+          )}
+          {!busy && cooling > 0 && (
+            <span className="text-[11px] text-muted-foreground">Ready in {cooling}s</span>
+          )}
+        </div>
+        {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+        {busy && !text && (
+          <p className="mt-3 animate-pulse text-xs text-muted-foreground">Thinking...</p>
+        )}
+        {text && (
+          <div className="prose prose-sm prose-invert mt-4 max-w-none text-sm [&_h2]:mt-4 [&_h2]:text-base [&_h2]:text-primary">
+            <ReactMarkdown>{text}</ReactMarkdown>
+          </div>
+        )}
       </section>
     </div>
   );

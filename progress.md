@@ -145,3 +145,9 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ❌ Show saved micrograph analyses in Compare
 - API: POST /api/analyze-image, JSON {image (data URL), modality, sample, scale, inputs, outputs, geometry}; returns text/plain stream ending in a fenced JSON block {geometry, sliders}. Shares AI usage limits; body cap about 3.3 MB.
 - Security: MIME and size checked on client and server, image never stored server side, users warned that images go to an AI provider.
+
+## Update: AI explanation of sensitivity results
+- ✅ Sensitivity tab: "Explain these results" panel streams an AI explanation of the sensitivity table (dominant drivers, key interactions, ROS and Fe-S implications, caveats)
+- ✅ New route POST /api/explain-sensitivity: zod-validated sensitivity payload, same rate limits, run-id pass-through and streaming as /api/interpret
+- ✅ Shares the per-visitor AI usage limits; 10 second cooldown and remaining counter in the panel
+- ❌ Save a sensitivity explanation into a scenario
