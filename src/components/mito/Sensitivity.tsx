@@ -357,7 +357,7 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
                     return (
                       <div
                         key={`${ri}-${ci}`}
-                        title={`Fe ${c.x.toFixed(1)} µM, ${grid.dy.label} ${c.y.toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${fmtVal(v)}`}
+                        title={`Fe ${(c["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(c["y"] ?? 0).toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${fmtVal(v)}`}
                         className="aspect-square rounded-[2px]"
                         style={{
                           background: cellColor(v),
