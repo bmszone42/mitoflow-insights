@@ -102,7 +102,8 @@ clinical claims or patient data are ever introduced, HIPAA and GDPR review is re
 
 
 ## Update: scenarios and AI interpretation
-- ✅ Save, update, rename, delete, load scenarios in IndexedDB (this browser only)
+- ✅ Save, update, rename, delete, load scenarios: in your account when signed in (any device), in this browser when signed out
+- ✅ Email/password and Google sign in (/auth), account button in header, one-click copy of browser scenarios into the account
 - ✅ Export and import scenarios as JSON
 - ✅ AI mechanistic interpretation of an experimental condition, streamed, grounded in current inputs and outputs
 - ✅ Save interpretation into the active scenario
@@ -134,7 +135,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - AI endpoints are public; limits are in-memory only. For strict limits, store counters in Lovable Cloud.
 - Set a workspace AI spending cap so a burst of traffic cannot drain credits.
 - Keys never reach the browser; all AI calls are server side. Inputs validated with zod and suggestions clamped server side.
-- Scenario data stays in each visitor's browser (IndexedDB); nothing personal is stored on the server.
+- Signed-in scenarios are stored in Lovable Cloud with row level security: each user can only read and change their own rows; no anonymous access. Signed-out scenarios stay in the browser. Before publishing: turn on leaked password protection and consider moving AI rate limits to the database.
 
 ## Micrograph analysis (Structure tab)
 - ✅ Upload or drop PNG, JPEG or WebP (8 MB max), resized in browser to 1600 px JPEG

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiAnalyzeImageRouteImport } from './routes/api/analyze-image'
 import { Route as ApiExplainSensitivityRouteImport } from './routes/api/explain-sensitivity'
 import { Route as ApiInterpretRouteImport } from './routes/api/interpret'
@@ -18,6 +19,11 @@ import { Route as ApiSuggestRouteImport } from './routes/api/suggest'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAnalyzeImageRoute = ApiAnalyzeImageRouteImport.update({
@@ -43,6 +49,7 @@ const ApiSuggestRoute = ApiSuggestRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/interpret': typeof ApiInterpretRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/interpret': typeof ApiInterpretRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/interpret': typeof ApiInterpretRoute
@@ -67,6 +76,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/interpret'
@@ -74,6 +84,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/interpret'
@@ -81,6 +92,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/interpret'
@@ -89,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   ApiAnalyzeImageRoute: typeof ApiAnalyzeImageRoute
   ApiExplainSensitivityRoute: typeof ApiExplainSensitivityRoute
   ApiInterpretRoute: typeof ApiInterpretRoute
@@ -102,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/analyze-image': {
@@ -137,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   ApiAnalyzeImageRoute: ApiAnalyzeImageRoute,
   ApiExplainSensitivityRoute: ApiExplainSensitivityRoute,
   ApiInterpretRoute: ApiInterpretRoute,
