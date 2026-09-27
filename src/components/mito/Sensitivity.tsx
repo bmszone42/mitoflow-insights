@@ -527,14 +527,32 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
           cardiolipin oxidized), ring = Primed (risk 50).{" "}
           {(() => {
             const committedCells = grid.cells.flat().filter((c) => (c["ferroptosisRisk"] ?? 0) >= 100);
+            const clCrossCells = grid.cells.flat().filter((c) => (c["cardiolipinOx"] ?? 0) >= 30);
+            const clLine =
+              clCrossCells.length === 0
+                ? " Oxidized cardiolipin stays below the 30% Committed threshold everywhere on this map."
+                : ` Oxidized cardiolipin first crosses the 30% Committed threshold at ${Math.min(
+                    ...clCrossCells.map((c) => c["y"] ?? 0),
+                  ).toFixed(0)} J/cm2 (at ${Math.min(
+                    ...clCrossCells
+                      .filter(
+                        (c) =>
+                          (c["y"] ?? 0) ===
+                          Math.min(...clCrossCells.map((d) => d["y"] ?? 0)),
+                      )
+                      .map((c) => c["x"] ?? 0),
+                  ).toFixed(0)} µM iron).`;
             if (committedCells.length === 0)
-              return "No cell on this map crosses Committed: light and iron together stay below the threshold at your current settings.";
+              return (
+                "No cell on this map crosses Committed: light and iron together stay below the threshold at your current settings." +
+                clLine
+              );
             const minDose = Math.min(...committedCells.map((c) => c["y"] ?? 0));
             const maxIronNoLight = Math.max(
               ...grid.cells[0]!.filter((c) => (c["ferroptosisRisk"] ?? 0) < 100).map((c) => c["x"] ?? 0),
               0,
             );
-            return `${committedCells.length} of ${grid.cells.flat().length} cells are Committed. The lowest dose that commits any cell is ${minDose.toFixed(0)} J/cm2; without light, iron alone commits above ${maxIronNoLight.toFixed(0)} µM.`;
+            return `${committedCells.length} of ${grid.cells.flat().length} cells are Committed. The lowest dose that commits any cell is ${minDose.toFixed(0)} J/cm2; without light, iron alone commits above ${maxIronNoLight.toFixed(0)} µM.${clLine}`;
           })()}
         </p>
         <p className="mt-1 text-[11px] text-muted-foreground">
