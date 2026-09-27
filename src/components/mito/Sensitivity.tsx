@@ -40,6 +40,20 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   const [delta, setDelta] = useState(0.2);
   const [output, setOutput] = useState<SensOutputKey>("superoxide");
   const [driver, setDriver] = useState<keyof Inputs>("labileIron");
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [now, setNow] = useState(0);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    if (cooldownUntil <= Date.now()) return;
+    const t = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(t);
+  }, [cooldownUntil]);
+  const cooling = Math.max(0, Math.ceil((cooldownUntil - Math.max(now, Date.now())) / 1000));
 
   const sens = useMemo(() => sensitivity(inputs, delta), [inputs, delta]);
   const sweepData = useMemo(
