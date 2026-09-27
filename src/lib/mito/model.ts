@@ -269,6 +269,23 @@ export function sweep(base: Inputs, key: keyof Inputs, n = 40) {
   });
 }
 
+/** Two-driver grid: each axis spans the driver's range, each cell runs the full model. */
+export function grid2d(base: Inputs, keyX: keyof Inputs, keyY: keyof Inputs, n = 21) {
+  const dx = sensitivityDrivers.find((d) => d.key === keyX)!;
+  const dy = sensitivityDrivers.find((d) => d.key === keyY)!;
+  const xs = Array.from({ length: n }, (_, i) => dx.min + ((dx.max - dx.min) * i) / (n - 1));
+  const ys = Array.from({ length: n }, (_, i) => dy.min + ((dy.max - dy.min) * i) / (n - 1));
+  const cells = ys.map((y) =>
+    xs.map((x) => {
+      const o = simulate({ ...base, [keyX]: x, [keyY]: y });
+      const row = { x, y } as Record<string, number>;
+      for (const s of sensOutputs) row[s.key] = o[s.key];
+      return row;
+    }),
+  );
+  return { xs, ys, cells, dx, dy };
+}
+
 // Slider ranges for every input: single source for clamping AI suggestions.
 export const inputRanges: Record<keyof Inputs, { min: number; max: number; label: string; unit: string }> = {
   nadhRatio: { min: 0, max: 1, label: "NADH / NAD+ pool", unit: "fraction" },

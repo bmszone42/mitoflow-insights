@@ -151,3 +151,9 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ New route POST /api/explain-sensitivity: zod-validated sensitivity payload, same rate limits, run-id pass-through and streaming as /api/interpret
 - ✅ Shares the per-visitor AI usage limits; 10 second cooldown and remaining counter in the panel
 - ❌ Save a sensitivity explanation into a scenario
+
+## Update: two-input interaction map (Sensitivity tab)
+- ✅ "Interaction map: labile iron x light dose" panel: 21 x 21 grid over labile iron and 660 nm or 810 nm dose, any of the 8 sensitivity outputs, log coloring for ROS, linear for Fe-S/aconitase/free iron, baseline cell outlined, hover for exact values
+- ✅ New pure function grid2d(base, keyX, keyY, n) in src/lib/mito/model.ts; each axis spans the driver's slider range, each cell runs simulate
+- ✅ Browser verified: grid renders, switching light driver and output updates cells, no page errors
+- ❌ AI explanation of the interaction map (current Explain panel is one-driver-at-a-time)

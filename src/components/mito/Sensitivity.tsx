@@ -18,6 +18,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import {
+  grid2d,
   sensitivity,
   sensitivityDrivers,
   sensOutputs,
@@ -40,6 +41,8 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   const [delta, setDelta] = useState(0.2);
   const [output, setOutput] = useState<SensOutputKey>("superoxide");
   const [driver, setDriver] = useState<keyof Inputs>("labileIron");
+  const [lightKey, setLightKey] = useState<"redDose" | "nirDose">("redDose");
+  const [mapOutput, setMapOutput] = useState<SensOutputKey>("hydroxylRadical");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +83,25 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   );
   const dDef = sensitivityDrivers.find((d) => d.key === driver)!;
   const outLabel = sensOutputs.find((o) => o.key === output)!.label;
+
+  const grid = useMemo(() => grid2d(inputs, "labileIron", lightKey), [inputs, lightKey]);
+  const mapVals = grid.cells.flat().map((c) => c[mapOutput] ?? 0);
+  const isRos = ["superoxide", "hydrogenPeroxide", "hydroxylRadical", "peroxynitrite", "lipidPeroxyl"].includes(mapOutput);
+  const vMin = Math.min(...mapVals);
+  const vMax = Math.max(...mapVals);
+  const logMin = Math.log10(Math.max(vMin, 1e-9));
+  const logMax = Math.log10(Math.max(vMax, 1e-9));
+  const cellColor = (v: number) => {
+    const t = isRos
+      ? logMax === logMin
+        ? 0.5
+        : (Math.log10(Math.max(v, 1e-9)) - logMin) / (logMax - logMin)
+      : vMax === vMin
+        ? 0.5
+        : (v - vMin) / (vMax - vMin);
+    return `color-mix(in oklch, var(--accent) ${Math.round(10 + t * 85)}%, transparent)`;
+  };
+  const fmtVal = (v: number) => (Math.abs(v) < 0.01 ? v.toExponential(1) : v.toPrecision(3));
 
   const explain = async () => {
     setBusy(true);
@@ -288,6 +310,83 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
         <p className="mt-2 text-[11px] text-muted-foreground">
           Left axis: ROS on a log scale. Right axis: Fe-S intact (%) and free Fe2+ (µM). Dashed line
           marks the current baseline.
+        </p>
+      </section>
+
+      <section className="panel p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="mono-label">Interaction map: labile iron x light dose</div>
+          <div className="flex gap-2">
+            <Select value={lightKey} onValueChange={(v) => setLightKey(v as "redDose" | "nirDose")}>
+              <SelectTrigger className="h-8 w-[130px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="redDose">660 nm dose</SelectItem>
+                <SelectItem value="nirDose">810 nm dose</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={mapOutput} onValueChange={(v) => setMapOutput(v as SensOutputKey)}>
+              <SelectTrigger className="h-8 w-[130px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sensOutputs.map((o) => (
+                  <SelectItem key={o.key} value={o.key}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="mt-3 overflow-x-auto">
+          <div className="inline-block">
+            <div className="flex">
+              <div className="w-10" />
+              <div
+                className="grid flex-1 gap-px"
+                style={{ gridTemplateColumns: `repeat(${grid.xs.length}, minmax(0, 1fr))`, width: 560 }}
+              >
+                {[...grid.cells].reverse().map((row, ri) =>
+                  row.map((c, ci) => {
+                    const v = c[mapOutput] ?? 0;
+                    const isBase =
+                      ci === grid.xs.reduce((b, x, i) => (Math.abs(x - inputs.labileIron) < Math.abs(grid.xs[b]! - inputs.labileIron) ? i : b), 0) &&
+                      grid.ys.length - 1 - ri === grid.ys.reduce((b, y, i) => (Math.abs(y - inputs[lightKey]) < Math.abs(grid.ys[b]! - inputs[lightKey]) ? i : b), 0);
+                    return (
+                      <div
+                        key={`${ri}-${ci}`}
+                        title={`Fe ${(c["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(c["y"] ?? 0).toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${fmtVal(v)}`}
+                        className="aspect-square rounded-[2px]"
+                        style={{
+                          background: cellColor(v),
+                          outline: isBase ? "2px solid var(--foreground)" : undefined,
+                          outlineOffset: -1,
+                        }}
+                      />
+                    );
+                  }),
+                )}
+              </div>
+            </div>
+            <div className="mt-1 flex" style={{ paddingLeft: 40, width: 600 }}>
+              <div className="flex w-full justify-between font-mono text-[10px] text-muted-foreground">
+                {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+                  <span key={t}>{(grid.dx.min + (grid.dx.max - grid.dx.min) * t).toFixed(0)}</span>
+                ))}
+              </div>
+            </div>
+            <div className="mt-1 text-center font-mono text-[10px] text-muted-foreground" style={{ paddingLeft: 40, width: 600 }}>
+              Labile iron (µM)
+            </div>
+          </div>
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Rows: {grid.dy.label} from {grid.dy.min} to {grid.dy.max} J/cm2 (bottom to top). Brighter cells
+          mean higher {sensOutputs.find((o) => o.key === mapOutput)!.label}
+          {isRos ? " (log scale)" : ""}. The outlined cell is your current baseline. Hover any cell for
+          exact values.
         </p>
       </section>
 
