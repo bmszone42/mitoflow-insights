@@ -881,6 +881,55 @@ export function Simulator({
             Fe-S lines split as dose rises, while iron alone barely moves them.
           </p>
         </div>
+
+        <div className="panel p-4">
+          <h3 className="text-sm font-semibold">Nitric oxide dose response</h3>
+          <p className="mono-label mt-1">ONOO-, Fe-S integrity and oxidized cardiolipin versus the NO slider, at your active light dose</p>
+          <div className="mt-3 h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={noDoseCurve}>
+                <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="no" stroke={chartStyle.axis} fontSize={11} unit=" nM" />
+                <YAxis yAxisId="left" stroke={chartStyle.axis} fontSize={11} unit=" nM" />
+                <YAxis yAxisId="right" orientation="right" stroke={chartStyle.axis} fontSize={11} domain={[0, 100]} unit="%" />
+                <Tooltip
+                  {...tooltipProps()}
+                  formatter={(value: number, name: string) =>
+                    name.startsWith("ONOO-") ? [`${value.toFixed(3)} nM`, name] : [`${value.toFixed(1)}%`, name]
+                  }
+                />
+                <Line yAxisId="left" type="monotone" dataKey="onoo" name="ONOO-" stroke="var(--color-chart-2)" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="fes" name="Fe-S intact" stroke="var(--color-foreground)" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="clOx" name="Ox cardiolipin" stroke="var(--color-accent)" strokeWidth={2} dot={false} />
+                <ReferenceLine
+                  yAxisId="right"
+                  y={30}
+                  stroke="var(--color-destructive)"
+                  strokeDasharray="6 4"
+                  label={{ value: "Committed 30% ox CL", position: "insideTopRight", fontSize: 10, fill: "var(--color-destructive)" }}
+                />
+                {inputs.nitricOxide > 0 && (
+                  <ReferenceLine
+                    yAxisId="left"
+                    x={inputs.nitricOxide}
+                    stroke="var(--color-foreground)"
+                    strokeDasharray="4 3"
+                    label={{ value: "now", position: "top", fontSize: 10, fill: "var(--color-foreground)" }}
+                  />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Raising NO converts superoxide into peroxynitrite, so Fe-S erosion shifts from the superoxide
+            term to the ONOO- term and clusters keep eroding even as superoxide falls. The dashed red line
+            is the 30% oxidized cardiolipin Committed threshold: if the ox cardiolipin curve crosses it,
+            cells commit at that NO level.{" "}
+            {noDoseCurve.some((r) => r.clOx >= 30)
+              ? `Here the curve crosses Committed at ${noDoseCurve.find((r) => r.clOx >= 30)!.no.toFixed(0)} nM NO.`
+              : "Here the curve stays below Committed across the whole NO range."}
+          </p>
+        </div>
       </div>
     </div>
   );
