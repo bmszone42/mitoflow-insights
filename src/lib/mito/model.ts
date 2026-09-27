@@ -175,7 +175,7 @@ function noAfterPhotolysis(no: number, redDose: number, nirDose: number) {
 
 export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const ge = geometryEffects(geo ?? defaultGeometry);
-  const psi = psi + ge.psiShift; // cristae junctions trap protons locally
+  const psi = i.deltaPsi + ge.psiShift; // cristae junctions trap protons locally
   const photonGain = photonResponse(i.redDose, i.nirDose);
   const noEff = noAfterPhotolysis(i.nitricOxide, i.redDose, i.nirDose);
 
