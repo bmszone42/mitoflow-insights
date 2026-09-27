@@ -703,7 +703,7 @@ export function Simulator({
                   {...tooltipProps()}
                   formatter={(value: number, name: string) => [`${value >= 0 ? "+" : ""}${value.toFixed(1)}%`, name]}
                 />
-                <ReferenceLine yAxisId="left" y={0} stroke={chartStyle.axis} strokeDasharray="2 3" />
+                <ReferenceLine y={0} stroke={chartStyle.axis} strokeDasharray="2 3" />
                 <ReferenceLine x={3} stroke="var(--color-primary)" strokeDasharray="4 3" label={{ value: "3", position: "top", fontSize: 10, fill: "var(--color-primary)" }} />
                 <ReferenceLine x={30} stroke="var(--color-accent)" strokeDasharray="4 3" label={{ value: "30", position: "top", fontSize: 10, fill: "var(--color-accent)" }} />
                 <ReferenceLine x={60} stroke="var(--color-destructive)" strokeDasharray="4 3" label={{ value: "60", position: "top", fontSize: 10, fill: "var(--color-destructive)" }} />
