@@ -988,6 +988,9 @@ function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
               <Tooltip {...tooltipProps()} />
               <Line type="monotone" dataKey="red" name="Risk, 660 nm" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="nir" name="Risk, 810 nm" stroke="var(--color-chart-1)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+              <Line type="monotone" dataKey="clRed" name="Ox CL, 660 nm (%)" stroke="var(--color-chart-3)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="clNir" name="Ox CL, 810 nm (%)" stroke="var(--color-chart-2)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+              <ReferenceLine y={30} stroke="var(--color-destructive)" strokeDasharray="6 4" label={{ value: "Committed 30% ox CL", position: "insideTopRight", fontSize: 10, fill: "var(--color-destructive)" }} />
               {activeDose > 0 && (
                 <ReferenceLine x={activeDose} stroke="var(--color-foreground)" strokeDasharray="4 3" label={{ value: "now", position: "top", fontSize: 10, fill: "var(--color-foreground)" }} />
               )}
