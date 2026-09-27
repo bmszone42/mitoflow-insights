@@ -594,6 +594,8 @@ export const inputRanges: Record<keyof Inputs, { min: number; max: number; label
   nitricOxide: { min: 0, max: 400, label: "Nitric oxide", unit: "nM" },
   redDose: { min: 0, max: 60, label: "660 nm dose", unit: "J/cm2" },
   nirDose: { min: 0, max: 60, label: "810 nm dose", unit: "J/cm2" },
+  irradiance: { min: 1, max: 200, label: "Irradiance", unit: "mW/cm2" },
+  tissueDepth: { min: 0, max: 20, label: "Tissue depth", unit: "mm" },
   antioxidantCapacity: { min: 0.2, max: 2, label: "Antioxidant capacity", unit: "rel" },
   uncoupling: { min: 0, max: 1, label: "Uncoupling", unit: "fraction" },
   gpx4: { min: 0, max: 2, label: "GPx4 activity", unit: "rel" },
