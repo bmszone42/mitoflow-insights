@@ -18,6 +18,9 @@ const outRows: { key: keyof Outputs; label: string; unit: string }[] = [
   { key: "freeIron", label: "Free Fe2+", unit: "µM" },
   { key: "emission71THz", label: "71 THz (relative)", unit: "rel" },
   { key: "redoxStress", label: "Redox stress", unit: "index" },
+  { key: "plooh", label: "PLOOH", unit: "nM" },
+  { key: "cardiolipinOx", label: "Cardiolipin oxidized", unit: "%" },
+  { key: "ferroptosisRisk", label: "Ferroptosis risk", unit: "/100" },
 ];
 const rosKeys = ["superoxide", "hydrogenPeroxide", "peroxynitrite", "lipidPeroxyl"] as const;
 const tip = {
