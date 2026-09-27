@@ -237,8 +237,18 @@ export function Simulator({
     label: d.pm >= 1e3 ? `${(d.pm / 1e3).toFixed(2)} nM` : `${d.pm.toPrecision(3)} pM`,
   }));
 
+  const [doseWl, setDoseWl] = useState<"red" | "nir">("red");
   const redSweep = doseSweep(inputs, "red");
   const nirSweep = doseSweep(inputs, "nir");
+  const speciesSweep = (doseWl === "red" ? redSweep : nirSweep).map((r) => ({
+    ...r,
+    // log10 of pM so all species share one axis; floor avoids -Infinity
+    logH2o2: Number(Math.log10(Math.max(r.h2o2, 1e-4)).toFixed(2)),
+    logHydroxyl: Number(Math.log10(Math.max(r.hydroxyl, 1e-4)).toFixed(2)),
+    logPn: Number(Math.log10(Math.max(r.peroxynitrite, 1e-4)).toFixed(2)),
+    logSinglet: Number(Math.log10(Math.max(r.singletOxygen, 1e-4)).toFixed(2)),
+    logLoo: Number(Math.log10(Math.max(r.lipidPeroxyl, 1e-4)).toFixed(2)),
+  }));
   const sweep = redSweep.map((r, k) => ({
     dose: r.dose,
     redATP: r.atp,
