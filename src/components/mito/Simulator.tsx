@@ -264,10 +264,10 @@ export function Simulator({
   const activeSweep = doseWl === "red" ? redSweep : nirSweep;
   // Fitted estimates at the study reference doses (3 and 30 J/cm2):
   // percent change in superoxide and H2O2 versus zero dose.
-  const dose0 = activeSweep[0];
+  const dose0 = activeSweep[0]!;
   const fittedAt = (target: number) => {
     const row = activeSweep.reduce((best, r) =>
-      Math.abs(r.dose - target) < Math.abs(best.dose - target) ? r : best, activeSweep[0]);
+      Math.abs(r.dose - target) < Math.abs(best.dose - target) ? r : best, activeSweep[0]!);
     const pct = (v: number, b: number) => (b > 0 ? ((v - b) / b) * 100 : 0);
     return {
       o2: pct(row.superoxide, dose0.superoxide),
