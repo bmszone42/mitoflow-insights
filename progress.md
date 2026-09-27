@@ -218,3 +218,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 
 ## Drug presets (done)
 - [x] Simulator input column: one-click preset buttons (erastin sets GPx4 0.2, RSL3 sets GPx4 0, ferrostatin-1 sets FSP1 2, iron chelator DFO/DFOm sets labile iron 0); other sliders untouched, presets combine
+
+## Fe-S / aconitase / free iron on the dose chart (done)
+- [x] doseSweep rows now carry aconitase and freeIron; the ROS and Fe-S dose chart plots Fe-S intact, aconitase and free Fe2+ (percent of zero-dose) on the right axis with the 3 and 30 J/cm2 markers
+- [x] Fitted estimates under the markers extended: at 3 J/cm2 Fe-S 93.5%, aconitase 93.5%, free Fe2+ +4.1%; at 30 J/cm2 Fe-S 90.5%, aconitase 90.5%, free Fe2+ +25.1% (660 nm)
+- [x] High-dose re-run: 60 J/cm2 660 nm gives Fe-S 90.0% / acon 90.0% / free Fe 4.39 µM; 60 J/cm2 810 nm gives 90.9% / 90.9% / 4.20 µM; combined 60+60 gives 88.6% / 88.6% / 4.73 µM. No divergence, Fe-S erosion stays light-driven

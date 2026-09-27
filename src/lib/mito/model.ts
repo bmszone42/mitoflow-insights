@@ -495,6 +495,8 @@ export function doseSweep(base: Inputs, wavelength: "red" | "nir") {
       singletOxygen: Number(out.singletOxygen.toFixed(4)),
       lipidPeroxyl: Number((out.lipidPeroxyl * 1e3).toFixed(3)),
       fesIntact: Number((out.fesIntact * 100).toFixed(2)),
+      aconitase: Number(out.aconitaseActivity.toFixed(2)),
+      freeIron: Number(out.freeIron.toFixed(3)),
     };
   });
 }

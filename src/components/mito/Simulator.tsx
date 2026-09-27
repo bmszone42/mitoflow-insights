@@ -272,6 +272,9 @@ export function Simulator({
     return {
       o2: pct(row.superoxide, dose0.superoxide),
       h2o2: pct(row.h2o2, dose0.h2o2),
+      fes: row.fesIntact,
+      acon: row.aconitase,
+      fe: pct(row.freeIron, dose0.freeIron),
     };
   };
   const fit3 = fittedAt(3);
@@ -285,6 +288,8 @@ export function Simulator({
     logPn: Number(Math.log10(Math.max(r.peroxynitrite, 1e-4)).toFixed(2)),
     logSinglet: Number(Math.log10(Math.max(r.singletOxygen, 1e-4)).toFixed(2)),
     logLoo: Number(Math.log10(Math.max(r.lipidPeroxyl, 1e-4)).toFixed(2)),
+    // free iron as percent of the zero-dose value so it shares the right axis
+    freeFePct: dose0.freeIron > 0 ? (r.freeIron / dose0.freeIron) * 100 : 100,
   }));
   const sweep = redSweep.map((r, k) => ({
     dose: r.dose,
@@ -666,13 +671,13 @@ export function Simulator({
                   orientation="right"
                   stroke={chartStyle.axis}
                   fontSize={11}
-                  domain={[0, 100]}
+                  domain={[0, 140]}
                   unit="%"
                 />
                 <Tooltip
                   {...tooltipProps()}
                   formatter={(value: number, name: string) =>
-                    name === "Fe-S intact"
+                    name === "Fe-S intact" || name === "Aconitase" || name === "Free Fe2+ (rel)"
                       ? [`${value.toFixed(1)}%`, name]
                       : [`${(10 ** value).toPrecision(3)} pM`, name]
                   }
@@ -684,6 +689,8 @@ export function Simulator({
                 <Line yAxisId="left" type="monotone" dataKey="logSinglet" name="1O2" stroke="var(--color-chart-3)" strokeWidth={2} dot={false} />
                 <Line yAxisId="left" type="monotone" dataKey="logLoo" name="LOO•" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
                 <Line yAxisId="right" type="monotone" dataKey="fesIntact" name="Fe-S intact" stroke="var(--color-foreground)" strokeDasharray="5 3" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="aconitase" name="Aconitase" stroke="var(--color-accent)" strokeDasharray="2 3" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="freeFePct" name="Free Fe2+ (rel)" stroke="var(--color-destructive)" strokeDasharray="8 3" strokeWidth={2} dot={false} />
                 <ReferenceLine
                   yAxisId="left"
                   x={3}
@@ -705,17 +712,19 @@ export function Simulator({
             <p>
               <span className="font-medium text-primary">3 J/cm2 (low-dose burst):</span>{" "}
               fitted estimate O2•- {fit3.o2 >= 0 ? "+" : ""}{fit3.o2.toFixed(0)}%, H2O2{" "}
-              {fit3.h2o2 >= 0 ? "+" : ""}{fit3.h2o2.toFixed(0)}%
+              {fit3.h2o2 >= 0 ? "+" : ""}{fit3.h2o2.toFixed(0)}%, Fe-S {fit3.fes.toFixed(1)}%,
+              aconitase {fit3.acon.toFixed(1)}%, free Fe2+ {fit3.fe >= 0 ? "+" : ""}{fit3.fe.toFixed(1)}%
             </p>
             <p>
               <span className="font-medium text-accent">30 J/cm2 (high-dose stress):</span>{" "}
               fitted estimate O2•- {fit30.o2 >= 0 ? "+" : ""}{fit30.o2.toFixed(0)}%, H2O2{" "}
-              {fit30.h2o2 >= 0 ? "+" : ""}{fit30.h2o2.toFixed(0)}%
+              {fit30.h2o2 >= 0 ? "+" : ""}{fit30.h2o2.toFixed(0)}%, Fe-S {fit30.fes.toFixed(1)}%,
+              aconitase {fit30.acon.toFixed(1)}%, free Fe2+ {fit30.fe >= 0 ? "+" : ""}{fit30.fe.toFixed(1)}%
             </p>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Species are plotted as log10 of pM so they share one axis; Fe-S intact uses the right
-            axis. Superoxide and H2O2 rise with dose through the direct photon effect; peroxynitrite
+            Species are plotted as log10 of pM so they share one axis; Fe-S intact, aconitase and
+            free Fe2+ (percent of the zero-dose value) use the right axis. Superoxide and H2O2 rise with dose through the direct photon effect; peroxynitrite
             falls as NO is photodissociated from complex IV. Markers are our own fitted estimates,
             shaped after Chen 2011 (low-dose burst) and Huang 2013 (high-dose stress), not measured values.
           </p>
