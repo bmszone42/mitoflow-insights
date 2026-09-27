@@ -110,6 +110,16 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
   };
   const fmtVal = (v: number) => (Math.abs(v) < 0.01 ? v.toExponential(1) : v.toPrecision(3));
 
+  // Study points at 3 and 30 J/cm2 (Chen 2011, Huang 2013): nearest grid row
+  // plus Fe-S erosion at that dose with the current non-light inputs.
+  const nearestDose = (target: number) =>
+    grid.ys.reduce((b, y) => (Math.abs(y - target) < Math.abs(b - target) ? y : b), grid.ys[0]!);
+  const studyRows = [3, 30].map((d) => {
+    const dose = nearestDose(d);
+    const o = simulate({ ...inputs, [lightKey]: dose });
+    return { dose, fes: o.fesIntact * 100, acon: o.aconitaseActivity };
+  });
+
   const mapPayload = () => {
     const dx = grid.dx;
     const dy = grid.dy;
