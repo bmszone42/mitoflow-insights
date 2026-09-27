@@ -215,3 +215,6 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 ## Stronger Fe-S damage term (done)
 - [x] model.ts: effective cluster attack rate raised 3.5x (kAcon 1e7 to 3.5e7 M-1 s-1), lumping superoxide, H2O2 and peroxynitrite attack on the cluster pool, so light-driven superoxide visibly erodes Fe-S
 - [x] Re-ran the iron x light map: Fe-S intact now falls from 94.1% (no light) to 90.0% at 60 J/cm2 660 nm and 88.6% at 60+60 J/cm2; aconitase tracks it; free iron gains ~1 µM from released cluster iron at high dose
+
+## Drug presets (done)
+- [x] Simulator input column: one-click preset buttons (erastin sets GPx4 0.2, RSL3 sets GPx4 0, ferrostatin-1 sets FSP1 2, iron chelator DFO/DFOm sets labile iron 0); other sliders untouched, presets combine
