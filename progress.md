@@ -195,3 +195,10 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 ## AI interpretation of the interaction map
 - ✅ "Interpret this map (AI)" button on the iron x light map sends iron-only, light-only, combined effects and synergy for every output plus a coarse grid
 - ✅ Streams into the AI panel; on success a new scenario (inputs, snapshot, interpretation) is saved automatically and appears in Scenarios and Compare
+
+## Ferroptosis time course (done)
+- [x] timeCourse() in model.ts: integrates dP/dt = vInit + (kProp - kRemove)*P after acute GPx4 block (gpx4=0 at t=0), exact exponential step (Euler was unstable at hour-scale dt), 48 h window, Primed/Committed thresholds match simulate()
+- [x] timeToCommitted() helper for overlays
+- [x] Simulator: "Ferroptosis time course" panel, cardiolipin oxidation vs hours with Primed (10%) and Committed (30%) reference lines and a badge with transition times
+- [x] Photon dose chart: time-to-Committed lines for 660 and 810 nm on a hidden 0-48 h axis; gaps mean no commitment within 48 h
+- [x] Verified at defaults: Primed at 0.5 h, plateaus ~13% oxidized cardiolipin, never Committed (FSP1 + basal hold it); no page errors
