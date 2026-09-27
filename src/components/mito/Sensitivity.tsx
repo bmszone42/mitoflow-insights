@@ -464,9 +464,16 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
                 {[...grid.cells].reverse().map((row, ri) =>
                   row.map((c, ci) => {
                     const v = c[mapOutput] ?? 0;
+                    const rowDose = grid.ys[grid.ys.length - 1 - ri]!;
                     const isBase =
                       ci === grid.xs.reduce((b, x, i) => (Math.abs(x - inputs.labileIron) < Math.abs(grid.xs[b]! - inputs.labileIron) ? i : b), 0) &&
                       grid.ys.length - 1 - ri === grid.ys.reduce((b, y, i) => (Math.abs(y - inputs[lightKey]) < Math.abs(grid.ys[b]! - inputs[lightKey]) ? i : b), 0);
+                    const studyBorder =
+                      rowDose === studyRows[0]!.dose
+                        ? "2px dashed var(--foreground)"
+                        : rowDose === studyRows[1]!.dose
+                          ? "2px solid var(--foreground)"
+                          : undefined;
                     return (
                       <div
                         key={`${ri}-${ci}`}
@@ -476,6 +483,7 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
                           background: cellColor(v),
                           outline: isBase ? "2px solid var(--foreground)" : undefined,
                           outlineOffset: -1,
+                          borderTop: studyBorder,
                         }}
                       />
                     );
