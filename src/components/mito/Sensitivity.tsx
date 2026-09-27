@@ -81,6 +81,51 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   const dDef = sensitivityDrivers.find((d) => d.key === driver)!;
   const outLabel = sensOutputs.find((o) => o.key === output)!.label;
 
+  const explain = async () => {
+    setBusy(true);
+    setError(null);
+    setText("");
+    setCooldownUntil(Date.now() + 10_000);
+    setNow(Date.now());
+    const ac = new AbortController();
+    abortRef.current = ac;
+    try {
+      const res = await fetch("/api/explain-sensitivity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          delta,
+          inputs,
+          rows: sens.map((s) => ({
+            driver: s.driver.label,
+            group: s.driver.group,
+            down: s.down,
+            up: s.up,
+          })),
+        }),
+        signal: ac.signal,
+      });
+      const r = res.headers.get("X-RateLimit-Remaining");
+      if (r !== null) setRemaining(Number(r));
+      if (!res.ok || !res.body) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error ?? `Request failed (${res.status})`);
+      }
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        setText((t) => t + dec.decode(value, { stream: true }));
+      }
+    } catch (e) {
+      if ((e as Error).name !== "AbortError") setError((e as Error).message);
+    } finally {
+      setBusy(false);
+      abortRef.current = null;
+    }
+  };
+
   return (
     <div className="space-y-4">
       <section className="panel flex flex-wrap items-end gap-6 p-4">
