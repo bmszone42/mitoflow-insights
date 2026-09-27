@@ -18,8 +18,43 @@ const Body = z.object({
         up: Cell,
       }),
     )
-    .max(20),
+    .max(20)
+    .default([]),
+  map: z
+    .object({
+      xLabel: z.string().max(60),
+      yLabel: z.string().max(60),
+      xRange: z.tuple([z.number(), z.number()]),
+      yRange: z.tuple([z.number(), z.number()]),
+      baseline: z.object({ x: z.number(), y: z.number() }),
+      shownOutput: z.string().max(40),
+      shownGrid: z.array(z.array(z.number()).max(9)).max(9),
+      outputs: z
+        .array(
+          z.object({
+            label: z.string().max(40),
+            base: z.number(),
+            xOnlyPct: z.number(),
+            yOnlyPct: z.number(),
+            bothPct: z.number(),
+            synergyPct: z.number(),
+            min: z.number(),
+            max: z.number(),
+          }),
+        )
+        .max(20),
+    })
+    .optional(),
 });
+
+const MAP_SYSTEM = `You are a mitochondrial redox biologist interpreting a two-input interaction map from a lumped steady-state model.
+Two inputs were varied jointly across their full ranges; every cell is a full model run. For each output you get: baseline value, percent change when only the x input goes from its minimum to its maximum (y at baseline), same for the y input only, percent change with both at maximum, and synergy = both minus the sum of the single effects (positive = synergistic, negative = antagonistic or saturating). A coarse grid of the displayed output is included (rows from low to high y, columns from low to high x).
+Write a concise explanation in Markdown with these sections:
+## What the map shows (the main gradient direction and which input dominates, with numbers)
+## Parameter interactions (synergy or antagonism per output, and the mechanism in the model, e.g. Fenton chemistry, NO photodissociation, chromophore-driven superoxide, Fe-S damage feedback)
+## Implications for ROS and Fe-S (where oxidative damage risk and Fe-S loss are highest, and safe or risky regions for light dosing at a given iron load)
+## Caveats (steady-state lumping, estimated coefficients, percent changes hide absolute scale)
+Ground every claim in the numbers given. Label speculation explicitly. Never use em dashes. Keep it under about 400 words.`;
 
 const SYSTEM = `You are a mitochondrial redox biologist explaining a local sensitivity analysis of a lumped steady-state model.
 Each driver was perturbed down and up by a fixed fraction of its full slider range around the baseline inputs; the numbers are percent changes in each output.
@@ -54,7 +89,9 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
           headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
           fetch: runIdFetch.fetch,
         });
-        const { delta, inputs, rows } = parsed.data;
+        const { delta, inputs, rows, map } = parsed.data;
+        if (!map && rows.length === 0)
+          return Response.json({ error: "Nothing to explain." }, { status: 400 });
         const fmt = (o: Record<string, number>) =>
           Object.entries(o)
             .map(([k, v]) => `${k}: ${Number(v.toPrecision(4))}`)
@@ -69,8 +106,15 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
         let upstreamError: { status: number; message: string } | null = null;
         const result = streamText({
           model: provider.responses("openai/gpt-6-astra"),
-          system: SYSTEM,
-          prompt: `Perturbation step: plus or minus ${(delta * 100).toFixed(0)}% of each driver's full range.\n\nBaseline inputs:\n${fmt(inputs)}\n\nSensitivity results (percent change per output):\n${table}`,
+          system: map ? MAP_SYSTEM : SYSTEM,
+          prompt: map
+            ? `x input: ${map.xLabel} from ${map.xRange[0]} to ${map.xRange[1]} (baseline ${map.baseline.x})\ny input: ${map.yLabel} from ${map.yRange[0]} to ${map.yRange[1]} (baseline ${map.baseline.y})\n\nBaseline inputs:\n${fmt(inputs)}\n\nPer-output interaction summary:\n${map.outputs
+                .map(
+                  (o) =>
+                    `${o.label}: base ${Number(o.base.toPrecision(4))}, x only ${o.xOnlyPct.toFixed(1)}%, y only ${o.yOnlyPct.toFixed(1)}%, both ${o.bothPct.toFixed(1)}%, synergy ${o.synergyPct.toFixed(1)}%, range ${Number(o.min.toPrecision(3))} to ${Number(o.max.toPrecision(3))}`,
+                )
+                .join("\n")}\n\nDisplayed output ${map.shownOutput}, coarse grid:\n${map.shownGrid.map((r) => r.map((v) => Number(v.toPrecision(3))).join(" ")).join("\n")}`
+            : `Perturbation step: plus or minus ${(delta * 100).toFixed(0)}% of each driver's full range.\n\nBaseline inputs:\n${fmt(inputs)}\n\nSensitivity results (percent change per output):\n${table}`,
           abortSignal: request.signal,
           maxRetries: 0,
           providerOptions: {
