@@ -30,7 +30,8 @@ only, no account or database.
 - ❌ Time-course integration, currently steady-state only
 - ❌ Save, compare and export of model runs, needs a backend or file export
 - ❌ Ca2+ handling, mPTP threshold and cytochrome c release
-- ❌ Ferroptosis module with GPx4 and FSP1 explicit
+- ✅ Ferroptosis module with GPx4 and FSP1 explicit
+- ✅ Site-resolved ROS pathways: CI IF/IQ, CIII Qo, CII IIF, OGDH; SOD1/SOD2; saturable Prx3 with hyperoxidation; ONOO- CO2/Prx3/thiol sinks; Fenton with Fe2+ recycling plus ONOOH homolysis; sources and sinks panel in Simulator
 - ❌ Per-crista spatial gradients, current model is lumped
 - ❌ User supplied rate constants and custom species
 

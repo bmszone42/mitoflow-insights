@@ -26,6 +26,16 @@
  *    and a larger stress-type rise with MMP loss at >=30 J/cm2
  *    (Huang et al. 2013 J Biophotonics 6:829). Red light yields H2O2 directly
  *    via flavin photosensitization (Hockberger et al. 1999 PNAS 96:6255).
+ *  - Site-resolved O2•- production: CI sites IF and IQ (reverse electron
+ *    transport), CIII site IIIQo (half to IMS), CII site IIF, OGDH
+ *    (Brand 2016 Free Radic Biol Med 100:14; Quinlan et al. 2013 JBC 288:27103).
+ *    SOD1 in IMS, SOD2 in matrix. H2O2 cleared by saturable Prx3 with
+ *    hyperoxidation above ~5 µM (Cox et al. 2010 Antioxid Redox Signal 12:311),
+ *    GPx1, catalase and efflux. ONOO- sinks: CO2 (4.6e4 M-1 s-1 x 1.3 mM),
+ *    Prx3, GPx, thiols, ONOOH homolysis ~30% •OH yield (Radi 2013 Acc Chem Res
+ *    46:550). •OH from Fenton with an Fe2+ fraction set by reductants and O2•-
+ *    (Haber-Weiss recycling) plus ONOOH homolysis. Site rates are scaled
+ *    estimates matched to total leak ~0.2% of flux, not fitted values.
  *  - Ferroptosis: GPx4 reduces phospholipid hydroperoxides (PLOOH) with GSH,
  *    k ~ 1e7 M-1 s-1 (Ursini et al. 1985 BBA 839:62); FSP1 regenerates
  *    CoQ10H2 as a GPx4-independent radical-trapping antioxidant
@@ -100,7 +110,40 @@ export type Outputs = {
   ferroptosisState: FerroptosisState;
   ploohRemoval: { gpx4: number; fsp1: number; basal: number }; // s-1 each
   propagationRatio: number; // Fe-driven propagation / total removal
+  rosBudget: RosBudget;
 };
+
+// Per-pathway rates (µM/s) for the site-resolved ROS network.
+export type RosBudget = {
+  superoxideSources: Record<string, number>;
+  superoxideSinks: Record<string, number>;
+  superoxideIMS: number; // nM, intermembrane space pool
+  h2o2Sources: Record<string, number>;
+  h2o2Sinks: Record<string, number>;
+  prxHyperoxidized: number; // fraction of Prx3 hyperoxidized
+  peroxynitriteSinks: Record<string, number>;
+  hydroxylSources: Record<string, number>;
+  fe2Fraction: number; // Fe2+ share of the labile pool
+};
+
+// Keeps lipid peroxyl (and so ferroptosis) on its prior calibration after the ROS rebuild.
+const LOO_CAL = 1.15;
+
+// Smallest positive root of a steady-state balance f(x) = production - removal.
+function solveSteady(f: (x: number) => number) {
+  let lo = 0;
+  let hi = 1e-7;
+  while (f(hi) > 0 && hi < 1e6) {
+    lo = hi;
+    hi *= 1.5;
+  }
+  for (let k = 0; k < 60; k++) {
+    const mid = (lo + hi) / 2;
+    if (f(mid) > 0) lo = mid;
+    else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
 
 // Arndt-Schulz biphasic photon response for cytochrome c oxidase.
 function photonResponse(redDose: number, nirDose: number) {
@@ -147,24 +190,52 @@ export function simulate(i: Inputs): Outputs {
     Math.min(fluxCI + fluxCII, 80) * o2Sat * noInhib * photonGain * (0.4 + 0.6 * adpDrive);
   const atpFlux = fluxCIV * 2.4 * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive);
 
-  // --- Superoxide generation: site IQ / IF of CI, Qo of CIII ---
-  // Leak fraction rises steeply with deltaPsi and with reduced CoQ pool.
+  // --- Superoxide: site-resolved production (Brand 2016; Quinlan et al. 2013) ---
+  // Leak rises steeply with deltaPsi (reduced CoQ pool), damped by uncoupling.
   const leakPsi = Math.exp((i.deltaPsi - 150) / 22) * (1 - 0.6 * i.uncoupling);
-  const leakCI = 0.004 * fluxCI * i.nadhRatio * leakPsi;
-  const res = i.succinate > 1.0 ? 1 + 1.8 * (i.succinate - 1.0) : 1; // reverse electron transport
-  const leakCIII = 0.003 * (fluxCI + fluxCII) * psiBrake * leakPsi;
   const o2Term = i.oxygen / (i.oxygen + 10);
-  const vO2minus = (leakCI * res + leakCIII) * o2Term * photonLeak(i.redDose, i.nirDose);
+  const pLeak = photonLeak(i.redDose, i.nirDose); // flavin / semiquinone photoexcitation
+  // Complex I site IF: reduced FMN, set by NADH/NAD+ ratio (squared, two-electron flavin).
+  const vIF = 0.0055 * fluxCI * i.nadhRatio ** 2 * leakPsi * o2Term * pLeak;
+  // Complex I site IQ, reverse electron transport: needs succinate-reduced CoQ and high deltaPsi.
+  const retDrive = 1 / (1 + Math.exp(-(i.succinate - 0.9) / 0.15));
+  const vIQ = 0.012 * fluxCII * retDrive * Math.exp((i.deltaPsi - 160) / 10) * (1 - 0.8 * i.uncoupling) * o2Term;
+  // Complex III site IIIQo: unstable semiquinone, backpressure from high deltaPsi; half to IMS.
+  const vIIIQo = 0.003 * (fluxCI + fluxCII) * psiBrake * leakPsi * o2Term * pLeak;
+  // Complex II site IIF: flavin, highest at low succinate occupancy.
+  const vIIF = 0.0015 * fluxCII * (1 - i.succinate / (i.succinate + 0.3)) * o2Term;
+  // 2-oxoglutarate dehydrogenase (DLD flavin), NADH driven; ~40% leaves as O2•-, 60% as H2O2.
+  const vOGDHtotal = 0.0012 * fluxCI * i.nadhRatio ** 2 * o2Term * pLeak;
+  const vOGDH = 0.4 * vOGDHtotal;
+  const vMatrixO2 = vIF + vIQ + 0.5 * vIIIQo + vIIF + vOGDH;
+  const vImsO2 = 0.5 * vIIIQo;
 
-  // --- Dismutation and downstream ROS ---
-  const kSod = 1e4 * i.antioxidantCapacity ** 0.3; // s-1 pseudo-first-order
-  const superoxideM = vO2minus / kSod; // µM steady state
-  const kPrx = 1.2 * i.antioxidantCapacity; // s-1 effective H2O2 removal
-  // Direct flavin-photosensitized H2O2 source (µM s-1), stronger at 660 than 810 nm.
-  const vH2O2Photo = 2e-4 * (i.redDose + 0.3 * i.nirDose) * o2Term;
-  const h2o2 = (0.9 * kSod * superoxideM + vH2O2Photo) / (kPrx + 1e-6);
+  // Matrix sinks: SOD2 (2.3e9 M-1 s-1 x 10 µM), NO (1e10 M-1 s-1), aconitase [4Fe-4S] (1e7 M-1 s-1 x ~6 µM).
+  const kSod = 1e4 * i.antioxidantCapacity ** 0.3; // s-1
+  const kNoO2 = 1e4 * (noEff / 1000); // s-1
+  const kAconSink = 10 * 6; // s-1
+  const superoxideM = vMatrixO2 / (kSod + kNoO2 + kAconSink); // µM
+  // IMS sinks: SOD1 and cytochrome c reoxidation.
+  const kSod1 = 5e3 * i.antioxidantCapacity ** 0.3;
+  const superoxideIMS = vImsO2 / (kSod1 + 2e3 + kNoO2);
 
-  // Fenton chemistry with the labile iron pool (feedback from cluster loss).
+  // --- H2O2: sources and saturable Prx3 clearance (Cox et al. 2009, 2010) ---
+  const vDismutation = 0.5 * kSod * superoxideM + 0.25 * kSod1 * superoxideIMS; // 2 O2•- -> H2O2
+  const vOGDHh2o2 = 0.6 * vOGDHtotal;
+  const vH2O2Photo = 2e-4 * (i.redDose + 0.3 * i.nirDose) * o2Term; // flavin photosensitization
+  const vH2O2 = vDismutation + vOGDHh2o2 + vH2O2Photo;
+  const ac = i.antioxidantCapacity;
+  const prxVmax = 3 * ac; // µM s-1, limited by TrxR2 / NADPH recycling
+  const prxKm = 2; // µM
+  const hyper = (h: number) => 1 / (1 + (h / 5) ** 2); // Prx3 hyperoxidation above ~5 µM
+  const kGpx1 = 0.3 * ac;
+  const kCat = 0.02;
+  const kEfflux = 0.3; // diffusion to cytosol
+  const h2o2Removal = (h: number) => (prxVmax * h * hyper(h)) / (prxKm + h) + (kGpx1 + kCat + kEfflux) * h;
+  const h2o2 = solveSteady((h) => vH2O2 - h2o2Removal(h));
+  const prxReduced = hyper(h2o2) * (1 - h2o2 / (prxKm + h2o2) * 0.5);
+
+  // Fe-S cluster attack and labile iron feedback.
   const kAcon = 1e7 * 1e-6; // µM-1 s-1
   const clusterAttack = kAcon * superoxideM; // s-1
   const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // ISC assembly (ISCU/NFS1/frataxin)
@@ -172,19 +243,60 @@ export function simulate(i: Inputs): Outputs {
   const ironFromClusters = 4 * 6 * (1 - fesIntact); // ~6 µM cluster protein x 4 Fe
   const freeIron = i.labileIron + ironFromClusters;
 
+  // --- Peroxynitrite: formation and competing sinks (Radi 2013) ---
+  const vPN = kNoO2 * superoxideM; // µM s-1
+  const kPnCO2 = 0.046 * 1300; // 4.6e4 M-1 s-1 x 1.3 mM CO2
+  const kPnPrx = 300 * ac * prxReduced;
+  const kPnGpx = 10 * ac;
+  const kPnThiol = 30;
+  const kPnHomolysis = 0.9; // ONOOH isomerization / homolysis
+  const kPnTotal = kPnCO2 + kPnPrx + kPnGpx + kPnThiol + kPnHomolysis;
+  const onooM = vPN / kPnTotal; // µM
+  const peroxynitrite = onooM * 1e3; // nM
+
+  // --- Hydroxyl radical: Fenton, Haber-Weiss recycling, ONOOH homolysis ---
+  const kFeRed = 0.5 * ac + 1 * superoxideM * 1e3; // ascorbate/GSH + O2•- reduction of Fe3+
+  const kFeOx = 0.05 * (i.oxygen / 30);
   const kFenton = 1e-3; // µM-1 s-1 (1e3 M-1 s-1)
-  const vOH = kFenton * freeIron * h2o2;
+  const fe2Fraction = kFeRed / (kFeRed + kFeOx + kFenton * h2o2);
+  const vFenton = kFenton * freeIron * fe2Fraction * h2o2;
+  const vOHfromPN = 0.3 * kPnHomolysis * onooM;
+  const vOH = vFenton + vOHfromPN;
   const hydroxyl = vOH / 1e9; // µM, quenched within ~1 ns diffusion radius
 
-  const kPN = 1e4; // µM-1 s-1 (1e10 M-1 s-1)
-  const peroxynitrite = (kPN * superoxideM * (noEff / 1000)) / 0.5;
+  const rosBudget: RosBudget = {
+    superoxideSources: { "CI IF": vIF, "CI IQ (RET)": vIQ, "CIII Qo": vIIIQo, "CII IIF": vIIF, OGDH: vOGDH },
+    superoxideSinks: {
+      SOD2: kSod * superoxideM,
+      "NO (to ONOO-)": kNoO2 * superoxideM,
+      "Aconitase Fe-S": kAconSink * superoxideM,
+    },
+    superoxideIMS: superoxideIMS * 1e3,
+    h2o2Sources: { Dismutation: vDismutation, OGDH: vOGDHh2o2, "Flavin photo": vH2O2Photo },
+    h2o2Sinks: {
+      Prx3: (prxVmax * h2o2 * hyper(h2o2)) / (prxKm + h2o2),
+      GPx1: kGpx1 * h2o2,
+      Catalase: kCat * h2o2,
+      Efflux: kEfflux * h2o2,
+    },
+    prxHyperoxidized: 1 - hyper(h2o2),
+    peroxynitriteSinks: {
+      CO2: kPnCO2 * onooM,
+      Prx3: kPnPrx * onooM,
+      GPx: kPnGpx * onooM,
+      Thiols: kPnThiol * onooM,
+      Homolysis: kPnHomolysis * onooM,
+    },
+    hydroxylSources: { Fenton: vFenton, "ONOOH homolysis": vOHfromPN },
+    fe2Fraction,
+  };
 
   // Singlet oxygen: photosensitized (porphyrin/flavin) plus O2•- recombination.
   const singlet =
     (0.02 * (i.redDose + 0.4 * i.nirDose) * o2Term + 6 * superoxideM) * (1 / i.antioxidantCapacity);
 
   // Lipid peroxyl radicals / cardiolipin chain propagation.
-  const lipidPeroxyl = (40 * hydroxyl * 1e6 + 0.15 * peroxynitrite) / i.antioxidantCapacity;
+  const lipidPeroxyl = (LOO_CAL * (40 * hydroxyl * 1e6 + 0.15 * peroxynitrite)) / i.antioxidantCapacity;
 
   // --- Ferroptosis: PLOOH balance with GPx4 / FSP1 removal ---
   const pufa = i.cardiolipinPufa;
@@ -254,6 +366,7 @@ export function simulate(i: Inputs): Outputs {
     ferroptosisState,
     ploohRemoval: { gpx4: kGpx4, fsp1: kFsp1, basal: kBasal },
     propagationRatio,
+    rosBudget,
   };
 }
 
@@ -268,7 +381,7 @@ export function doseSweep(base: Inputs, wavelength: "red" | "nir") {
     return {
       dose,
       atp: Number(out.atpFlux.toFixed(1)),
-      superoxide: Number(out.superoxide.toFixed(2)),
+      superoxide: Number(out.superoxide.toPrecision(3)),
       emission: Number(out.emission71THz.toFixed(1)),
       // per-species curves, pM-normalized for a shared log axis
       h2o2: Number((out.hydrogenPeroxide * 1e3).toFixed(3)),
