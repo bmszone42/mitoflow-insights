@@ -454,6 +454,69 @@ export function Simulator({
             biphasic Arndt-Schulz response of cytochrome c oxidase.
           </p>
         </div>
+
+        <div className="panel p-4">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <h3 className="text-sm font-semibold">ROS and Fe-S dose response</h3>
+              <p className="mono-label mt-1">Each species versus delivered dose (log pM)</p>
+            </div>
+            <div className="flex gap-1">
+              {(["red", "nir"] as const).map((w) => (
+                <Button
+                  key={w}
+                  size="sm"
+                  variant={doseWl === w ? "default" : "outline"}
+                  onClick={() => setDoseWl(w)}
+                >
+                  {w === "red" ? "660 nm" : "810 nm"}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-3 h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={speciesSweep}>
+                <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="dose" stroke={chartStyle.axis} fontSize={11} unit=" J/cm2" />
+                <YAxis
+                  yAxisId="left"
+                  stroke={chartStyle.axis}
+                  fontSize={11}
+                  domain={[-4, "auto"]}
+                  tickFormatter={(v: number) => `1e${v}`}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  stroke={chartStyle.axis}
+                  fontSize={11}
+                  domain={[0, 100]}
+                  unit="%"
+                />
+                <Tooltip
+                  {...tooltipProps()}
+                  formatter={(value: number, name: string) =>
+                    name === "Fe-S intact"
+                      ? [`${value.toFixed(1)}%`, name]
+                      : [`${(10 ** value).toPrecision(3)} pM`, name]
+                  }
+                />
+                <Line yAxisId="left" type="monotone" dataKey="logH2o2" name="H2O2" stroke="var(--color-chart-4)" strokeWidth={2} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey="logHydroxyl" name="•OH" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey="logPn" name="ONOO-" stroke="var(--color-chart-2)" strokeWidth={2} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey="logSinglet" name="1O2" stroke="var(--color-chart-3)" strokeWidth={2} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey="logLoo" name="LOO•" stroke="var(--color-chart-1)" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="fesIntact" name="Fe-S intact" stroke="var(--color-foreground)" strokeDasharray="5 3" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Species are plotted as log10 of pM so they share one axis; Fe-S intact uses the right
+            axis. Superoxide and H2O2 rise with dose through the direct photon effect; peroxynitrite
+            falls as NO is photodissociated from complex IV.
+          </p>
+        </div>
       </div>
     </div>
   );
