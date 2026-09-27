@@ -26,6 +26,7 @@ import {
   type Inputs,
   type SensOutputKey,
 } from "@/lib/mito/model";
+import { sensitivityCsv } from "@/lib/mito/csv";
 
 const tip = {
   contentStyle: {
@@ -170,6 +171,20 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
           drivers starting at zero (like light dose) still show their effect. Values are clamped to
           the slider limits.
         </p>
+        <Button
+          variant="outline"
+          onClick={() => {
+            const csv = sensitivityCsv(inputs, delta, driver, lightKey);
+            const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "cristae-lab-sensitivity.csv";
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+        >
+          Download CSV report
+        </Button>
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
