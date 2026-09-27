@@ -84,6 +84,25 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   const dDef = sensitivityDrivers.find((d) => d.key === driver)!;
   const outLabel = sensOutputs.find((o) => o.key === output)!.label;
 
+  const grid = useMemo(() => grid2d(inputs, "labileIron", lightKey), [inputs, lightKey]);
+  const mapVals = grid.cells.flat().map((c) => c[mapOutput] ?? 0);
+  const isRos = ["superoxide", "hydrogenPeroxide", "hydroxylRadical", "peroxynitrite", "lipidPeroxyl"].includes(mapOutput);
+  const vMin = Math.min(...mapVals);
+  const vMax = Math.max(...mapVals);
+  const logMin = Math.log10(Math.max(vMin, 1e-9));
+  const logMax = Math.log10(Math.max(vMax, 1e-9));
+  const cellColor = (v: number) => {
+    const t = isRos
+      ? logMax === logMin
+        ? 0.5
+        : (Math.log10(Math.max(v, 1e-9)) - logMin) / (logMax - logMin)
+      : vMax === vMin
+        ? 0.5
+        : (v - vMin) / (vMax - vMin);
+    return `color-mix(in oklch, var(--accent) ${Math.round(10 + t * 85)}%, transparent)`;
+  };
+  const fmtVal = (v: number) => (Math.abs(v) < 0.01 ? v.toExponential(1) : v.toPrecision(3));
+
   const explain = async () => {
     setBusy(true);
     setError(null);
