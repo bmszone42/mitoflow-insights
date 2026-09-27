@@ -272,6 +272,9 @@ export function Simulator({
     return {
       o2: pct(row.superoxide, dose0.superoxide),
       h2o2: pct(row.h2o2, dose0.h2o2),
+      fes: row.fesIntact,
+      acon: row.aconitase,
+      fe: pct(row.freeIron, dose0.freeIron),
     };
   };
   const fit3 = fittedAt(3);
