@@ -291,6 +291,24 @@ export function Simulator({
     // free iron as percent of the zero-dose value so it shares the right axis
     freeFePct: dose0.freeIron > 0 ? (r.freeIron / dose0.freeIron) * 100 : 100,
   }));
+  // Labile iron dose response: free Fe2+ and Fe-S / aconitase versus the iron
+  // slider, with and without the active light dose. The zero-iron end is what
+  // a chelator preset (DFO/DFOm) drives the cell to.
+  const ironDoseCurve = Array.from({ length: 21 }, (_, k) => {
+    const iron = k;
+    const dark = simulate({ ...inputs, labileIron: iron, redDose: 0, nirDose: 0 });
+    const lit = simulate({ ...inputs, labileIron: iron });
+    return {
+      iron,
+      freeFeDark: Number(dark.freeIron.toFixed(3)),
+      freeFeLit: Number(lit.freeIron.toFixed(3)),
+      fesDark: Number((dark.fesIntact * 100).toFixed(1)),
+      fesLit: Number((lit.fesIntact * 100).toFixed(1)),
+      aconDark: Number(dark.aconitaseActivity.toFixed(1)),
+      aconLit: Number(lit.aconitaseActivity.toFixed(1)),
+    };
+  });
+  const chelatorRow = ironDoseCurve[0]!;
   const sweep = redSweep.map((r, k) => ({
     dose: r.dose,
     redATP: r.atp,
