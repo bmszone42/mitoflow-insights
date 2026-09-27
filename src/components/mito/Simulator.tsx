@@ -243,6 +243,7 @@ export function Simulator({
   const speciesSweep = (doseWl === "red" ? redSweep : nirSweep).map((r) => ({
     ...r,
     // log10 of pM so all species share one axis; floor avoids -Infinity
+    logSuperoxide: Number(Math.log10(Math.max(r.superoxide * 1e3, 1e-4)).toFixed(2)),
     logH2o2: Number(Math.log10(Math.max(r.h2o2, 1e-4)).toFixed(2)),
     logHydroxyl: Number(Math.log10(Math.max(r.hydroxyl, 1e-4)).toFixed(2)),
     logPn: Number(Math.log10(Math.max(r.peroxynitrite, 1e-4)).toFixed(2)),
@@ -502,6 +503,7 @@ export function Simulator({
                       : [`${(10 ** value).toPrecision(3)} pM`, name]
                   }
                 />
+                <Line yAxisId="left" type="monotone" dataKey="logSuperoxide" name="O2•-" stroke="var(--color-chart-1)" strokeWidth={2} dot={false} />
                 <Line yAxisId="left" type="monotone" dataKey="logH2o2" name="H2O2" stroke="var(--color-chart-4)" strokeWidth={2} dot={false} />
                 <Line yAxisId="left" type="monotone" dataKey="logHydroxyl" name="•OH" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
                 <Line yAxisId="left" type="monotone" dataKey="logPn" name="ONOO-" stroke="var(--color-chart-2)" strokeWidth={2} dot={false} />
