@@ -18,6 +18,8 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { defaultInputs, doseSweep, simulate, timeCourse, timeToCommitted, type Inputs, type Outputs } from "@/lib/mito/model";
+import { putScenario, type Scenario } from "@/lib/mito/scenarios";
+import { snapshotOf } from "./Scenarios";
 
 type ControlDef = {
   key: keyof Inputs;
