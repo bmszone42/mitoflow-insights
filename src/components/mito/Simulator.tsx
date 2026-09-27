@@ -331,6 +331,17 @@ export function Simulator({
     { id: "ferroptosis", title: "Ferroptosis defence", note: "Lipid hydroperoxide removal" },
   ];
 
+  // One-click drug presets. Values are relative model settings, not doses:
+  // erastin depletes GSH so GPx4 drops, RSL3 inhibits GPx4 directly,
+  // ferrostatin-1 adds radical trapping (FSP1-like), chelators (DFO/DFOm)
+  // empty the labile iron pool.
+  const drugPresets: { name: string; note: string; patch: Partial<Inputs> }[] = [
+    { name: "Erastin", note: "Cystine block, GSH falls", patch: { gpx4: 0.2 } },
+    { name: "RSL3", note: "Direct GPx4 inhibition", patch: { gpx4: 0 } },
+    { name: "Ferrostatin-1", note: "Radical trapping", patch: { fsp1: 2 } },
+    { name: "Iron chelator", note: "DFO / DFOm", patch: { labileIron: 0 } },
+  ];
+
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
       <div className="panel space-y-5 p-4">
@@ -339,6 +350,26 @@ export function Simulator({
           <Button variant="ghost" size="sm" onClick={() => setInputs(defaultInputs)}>
             Reset
           </Button>
+        </div>
+        <div className="space-y-1.5">
+          <div className="mono-label">Drug presets</div>
+          <div className="flex flex-wrap gap-1.5">
+            {drugPresets.map((d) => (
+              <Button
+                key={d.name}
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-[11px]"
+                title={d.note}
+                onClick={() => setInputs({ ...inputs, ...d.patch })}
+              >
+                {d.name}
+              </Button>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Erastin lowers GPx4 to 0.2, RSL3 to 0, ferrostatin-1 raises FSP1 to 2, chelator empties labile iron. Other sliders stay as set.
+          </p>
         </div>
         {groups.map((g) => (
           <div key={g.id} className="space-y-4">
