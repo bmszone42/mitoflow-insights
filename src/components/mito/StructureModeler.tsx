@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import type { Geometry, Outputs } from "@/lib/mito/model";
+import { geometryEffects, geometryRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
+import type { Overlay } from "./Cristae3D";
+
+const Cristae3D = lazy(() => import("./Cristae3D"));
 
 const complexInfo: Record<string, { title: string; body: string }> = {
   CI: {
@@ -34,16 +37,32 @@ const complexInfo: Record<string, { title: string; body: string }> = {
 
 export function StructureModeler({
   out,
+  inputs,
   geo,
   setGeo,
 }: {
   out: Outputs;
+  inputs: Inputs;
   geo: Geometry;
   setGeo: (g: Geometry) => void;
 }) {
   const [showComplexes, setShowComplexes] = useState(true);
   const [showRos, setShowRos] = useState(true);
   const [selected, setSelected] = useState<string>("CIV");
+  const [overlay, setOverlay] = useState<Overlay>("superoxide");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const ge = useMemo(() => geometryEffects(geo), [geo]);
+  const base = useMemo(() => simulate(inputs), [inputs]);
+  const readout: { label: string; v: number; b: number; unit: string; digits: number }[] = [
+    { label: "Electron flux (CIV)", v: out.fluxCIV, b: base.fluxCIV, unit: "e/s rel", digits: 1 },
+    { label: "ATP flux", v: out.atpFlux, b: base.atpFlux, unit: "rel", digits: 1 },
+    { label: "Local Δψ shift", v: ge.psiShift, b: 0, unit: "mV", digits: 1 },
+    { label: "O2•-", v: out.superoxide, b: base.superoxide, unit: "nM", digits: 3 },
+    { label: "H2O2", v: out.hydrogenPeroxide, b: base.hydrogenPeroxide, unit: "nM", digits: 1 },
+    { label: "•OH", v: out.hydroxylRadical, b: base.hydroxylRadical, unit: "pM", digits: 3 },
+    { label: "Fe-S intact", v: out.fesIntact * 100, b: base.fesIntact * 100, unit: "%", digits: 1 },
+  ];
 
   const surfaceArea = useMemo(() => {
     const perCrista = 2 * geo.cristaeDepth * 0.9 + 2 * geo.junctionWidth;
@@ -66,16 +85,23 @@ export function StructureModeler({
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
       <div className="panel space-y-5 p-4">
-        <h2 className="text-sm font-semibold">Geometry</h2>
+        <h2 className="text-sm font-semibold">Membrane shape</h2>
+        <p className="text-[11px] text-muted-foreground">
+          Outer membrane: length, width, swelling. Inner membrane: cristae count, depth, junction, shape, tip curvature.
+          Every change feeds the Simulator.
+        </p>
         {(
           [
-            { k: "cristaeCount", label: "Cristae count", min: 2, max: 22, step: 1 },
-            { k: "cristaeDepth", label: "Crista depth", min: 20, max: 110, step: 1 },
-            { k: "junctionWidth", label: "Junction width", min: 4, max: 34, step: 1 },
-            { k: "matrixWidth", label: "Matrix width", min: 110, max: 230, step: 1 },
-            { k: "length", label: "Organelle length", min: 240, max: 620, step: 10 },
+            "length",
+            "matrixWidth",
+            "swelling",
+            "cristaeCount",
+            "cristaeDepth",
+            "junctionWidth",
+            "cristaeShape",
+            "tipCurvature",
           ] as const
-        ).map((c) => (
+        ).map((k) => ({ k, ...geometryRanges[k] })).map((c) => (
           <div key={c.k} className="space-y-1.5">
             <div className="flex items-baseline justify-between">
               <span className="text-xs">{c.label}</span>
@@ -123,8 +149,64 @@ export function StructureModeler({
 
       <div className="space-y-4">
         <div className="panel overflow-hidden p-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold">3D cristae viewer</h2>
+            <div className="flex gap-1" role="group" aria-label="Color overlay">
+              {(
+                [
+                  ["superoxide", "Superoxide"],
+                  ["potential", "Local Δψ"],
+                  ["complexes", "Complex density"],
+                ] as const
+              ).map(([k, l]) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setOverlay(k)}
+                  className={`rounded border px-2 py-1 text-[11px] ${overlay === k ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
+            {mounted ? (
+              <Suspense fallback={<div className="h-[380px] animate-pulse rounded-md bg-secondary/40" />}>
+                <Cristae3D geo={geo} ge={ge} out={out} overlay={overlay} />
+              </Suspense>
+            ) : (
+              <div className="h-[380px] rounded-md bg-secondary/40" />
+            )}
+            <div className="space-y-2">
+              <div className="mono-label">Live outputs vs default shape</div>
+              {readout.map((r) => {
+                const pct = r.b === 0 ? null : ((r.v - r.b) / Math.abs(r.b)) * 100;
+                return (
+                  <div key={r.label} className="flex items-baseline justify-between gap-2 border-b border-border/50 pb-1">
+                    <span className="text-xs">{r.label}</span>
+                    <span className="text-right font-mono text-xs">
+                      {r.v !== 0 && Math.abs(r.v) < 0.01 ? r.v.toExponential(2) : r.v.toFixed(r.digits)} <span className="text-muted-foreground">{r.unit}</span>
+                      {pct !== null && Math.abs(pct) >= 0.1 && (
+                        <span className={`ml-1 ${pct > 0 ? "text-accent" : "text-primary"}`}>
+                          {pct > 0 ? "+" : ""}
+                          {pct.toFixed(0)}%
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+              <p className="pt-1 text-[11px] text-muted-foreground">
+                Capacity x{ge.capacity.toFixed(2)}, cyt c retention x{ge.cytcRetention.toFixed(2)}, ATP efficiency x
+                {ge.atpEfficiency.toFixed(2)}, leak x{ge.leak.toFixed(2)}. Strengths are estimates, not fitted data.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="panel overflow-hidden p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold">Structure view</h2>
+            <h2 className="text-sm font-semibold">2D cross section</h2>
             <div className="flex gap-2">
               <Badge variant="outline" className="font-mono text-[11px]">
                 71 THz {out.emission71THz.toFixed(0)}

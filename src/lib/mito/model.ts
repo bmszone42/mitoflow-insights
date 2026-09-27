@@ -173,35 +173,37 @@ function noAfterPhotolysis(no: number, redDose: number, nirDose: number) {
   return no * released;
 }
 
-export function simulate(i: Inputs): Outputs {
+export function simulate(i: Inputs, geo?: Geometry): Outputs {
+  const ge = geometryEffects(geo ?? defaultGeometry);
+  const psi = i.deltaPsi + ge.psiShift; // cristae junctions trap protons locally
   const photonGain = photonResponse(i.redDose, i.nirDose);
   const noEff = noAfterPhotolysis(i.nitricOxide, i.redDose, i.nirDose);
 
   // --- Electron transport (lumped Michaelis-Menten with backpressure) ---
-  const psiBrake = 1 / (1 + Math.exp((i.deltaPsi - 175) / 12)); // Q-cycle reverse pressure
+  const psiBrake = 1 / (1 + Math.exp((psi - 175) / 12)); // Q-cycle reverse pressure
   const adpDrive = i.adp / (i.adp + 40); // ANT/ATP synthase control
   const o2Sat = i.oxygen / (i.oxygen + 0.8); // CIV Km ~ 0.5-1 µM O2
   const noInhib = 1 / (1 + noEff / 120); // competitive NO inhibition of CIV
 
   const vmaxCI = 55;
-  const fluxCI = vmaxCI * i.nadhRatio * (0.35 + 0.65 * adpDrive);
-  const fluxCII = 30 * (i.succinate / (i.succinate + 0.5));
+  const fluxCI = vmaxCI * ge.capacity * i.nadhRatio * (0.35 + 0.65 * adpDrive);
+  const fluxCII = 30 * ge.capacity * (i.succinate / (i.succinate + 0.5));
   const fluxCIV =
-    Math.min(fluxCI + fluxCII, 80) * o2Sat * noInhib * photonGain * (0.4 + 0.6 * adpDrive);
-  const atpFlux = fluxCIV * 2.4 * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive);
+    Math.min(fluxCI + fluxCII, 80 * ge.capacity) * ge.cytcRetention * o2Sat * noInhib * photonGain * (0.4 + 0.6 * adpDrive);
+  const atpFlux = fluxCIV * 2.4 * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive) * ge.atpEfficiency;
 
   // --- Superoxide: site-resolved production (Brand 2016; Quinlan et al. 2013) ---
   // Leak rises steeply with deltaPsi (reduced CoQ pool), damped by uncoupling.
-  const leakPsi = Math.exp((i.deltaPsi - 150) / 22) * (1 - 0.6 * i.uncoupling);
+  const leakPsi = Math.exp((psi - 150) / 22) * (1 - 0.6 * i.uncoupling);
   const o2Term = i.oxygen / (i.oxygen + 10);
   const pLeak = photonLeak(i.redDose, i.nirDose); // flavin / semiquinone photoexcitation
   // Complex I site IF: reduced FMN, set by NADH/NAD+ ratio (squared, two-electron flavin).
-  const vIF = 0.0055 * fluxCI * i.nadhRatio ** 2 * leakPsi * o2Term * pLeak;
+  const vIF = 0.0055 * fluxCI * i.nadhRatio ** 2 * leakPsi * o2Term * pLeak * ge.leak;
   // Complex I site IQ, reverse electron transport: needs succinate-reduced CoQ and high deltaPsi.
   const retDrive = 1 / (1 + Math.exp(-(i.succinate - 0.9) / 0.15));
-  const vIQ = 0.012 * fluxCII * retDrive * Math.exp((i.deltaPsi - 160) / 10) * (1 - 0.8 * i.uncoupling) * o2Term;
+  const vIQ = 0.012 * fluxCII * retDrive * Math.exp((psi - 160) / 10) * (1 - 0.8 * i.uncoupling) * o2Term;
   // Complex III site IIIQo: unstable semiquinone, backpressure from high deltaPsi; half to IMS.
-  const vIIIQo = 0.003 * (fluxCI + fluxCII) * psiBrake * leakPsi * o2Term * pLeak;
+  const vIIIQo = 0.003 * (fluxCI + fluxCII) * psiBrake * leakPsi * o2Term * pLeak * ge.leak;
   // Complex II site IIF: flavin, highest at low succinate occupancy.
   const vIIF = 0.0015 * fluxCII * (1 - i.succinate / (i.succinate + 0.3)) * o2Term;
   // 2-oxoglutarate dehydrogenase (DLD flavin), NADH driven; ~40% leaves as O2•-, 60% as H2O2.
@@ -320,7 +322,7 @@ export function simulate(i: Inputs): Outputs {
   // --- 71 THz output band ---
   // Emission tracks coherent turnover: CIV flux, proton gradient and
   // ordered interfacial water. Peroxidation of cardiolipin dampens it.
-  const coherence = (fluxCIV / 60) * (i.deltaPsi / 160) * (1 - Math.min(0.6, lipidPeroxyl / 200)) * (1 - cardiolipinOx / 200);
+  const coherence = (fluxCIV / 60) * (psi / 160) * (1 - Math.min(0.6, lipidPeroxyl / 200)) * (1 - cardiolipinOx / 200);
   const emission71THz = Math.max(0, coherence * 100);
 
   const emissionSpectrum = Array.from({ length: 61 }, (_, k) => {
@@ -496,6 +498,9 @@ export const inputRanges: Record<keyof Inputs, { min: number; max: number; label
 // Structure view geometry (SVG units, roughly nm-scaled). Source of ranges for the Structure
 // sliders and for clamping micrograph-derived AI suggestions.
 export type Geometry = {
+  swelling: number; // outer-to-inner boundary membrane gap, nm
+  cristaeShape: number; // 0 lamellar, 1 tubular
+  tipCurvature: number; // 0 flat, 1 tightly curved (ATP synthase dimer rows)
   cristaeCount: number;
   cristaeDepth: number;
   junctionWidth: number;
@@ -503,6 +508,9 @@ export type Geometry = {
   length: number;
 };
 export const defaultGeometry: Geometry = {
+  swelling: 20,
+  cristaeShape: 0.2,
+  tipCurvature: 0.6,
   cristaeCount: 9,
   cristaeDepth: 62,
   junctionWidth: 10,
@@ -515,4 +523,38 @@ export const geometryRanges: Record<keyof Geometry, { min: number; max: number; 
   junctionWidth: { min: 4, max: 34, step: 1, label: "Junction width" },
   matrixWidth: { min: 110, max: 230, step: 1, label: "Matrix width" },
   length: { min: 240, max: 620, step: 10, label: "Organelle length" },
+  swelling: { min: 10, max: 60, step: 1, label: "Outer membrane swelling" },
+  cristaeShape: { min: 0, max: 1, step: 0.05, label: "Cristae shape (lamellar to tubular)" },
+  tipCurvature: { min: 0, max: 1, step: 0.05, label: "Cristae tip curvature" },
 };
+
+/*
+ * Geometry to bioenergetics coupling. All multipliers equal 1 at defaultGeometry.
+ * Strengths are our own estimates, bounded to ~0.5x-1.8x, shaped after:
+ *  - Cogliati et al. 2013 (Cell): cristae shape sets supercomplex assembly and respiratory efficiency.
+ *  - Frezza et al. 2006 (Cell): OPA1-dependent tight junctions retain cytochrome c.
+ *  - Paumard et al. 2002 (EMBO J): ATP synthase dimers bend cristae tips.
+ *  - Strauss et al. 2008 (EMBO J): tip curvature concentrates protons near ATP synthase.
+ */
+export type GeometryEffects = {
+  capacity: number; // Complex I-IV capacity from inner membrane area
+  psiShift: number; // mV added to local membrane potential
+  cytcRetention: number; // CIV electron supply from cyt c trapped in cristae
+  atpEfficiency: number;
+  leak: number; // superoxide leak multiplier
+  area: number; // relative inner membrane area
+};
+const clampN = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+export function geometryEffects(g: Geometry): GeometryEffects {
+  const d = defaultGeometry;
+  const shape = g.cristaeShape ?? d.cristaeShape;
+  const curv = g.tipCurvature ?? d.tipCurvature;
+  const swell = g.swelling ?? d.swelling;
+  const area = ((g.cristaeCount * g.cristaeDepth) / (d.cristaeCount * d.cristaeDepth)) * (1 - 0.25 * (shape - d.cristaeShape));
+  const capacity = clampN(Math.sqrt(Math.max(area, 0.01)), 0.5, 1.8);
+  const psiShift = clampN(8 * Math.log(d.junctionWidth / g.junctionWidth) + 6 * (curv - d.tipCurvature), -15, 15);
+  const cytcRetention = clampN((d.junctionWidth / g.junctionWidth) ** 0.3 * (1 - 0.006 * (swell - d.swelling)), 0.5, 1.3);
+  const atpEfficiency = clampN(0.6 + (0.4 / d.tipCurvature) * curv, 0.6, 1.3);
+  const leak = clampN(1 + 0.012 * (swell - d.swelling) + 0.3 * (shape - d.cristaeShape), 0.7, 1.8);
+  return { capacity, psiShift, cytcRetention, atpEfficiency, leak, area };
+}
