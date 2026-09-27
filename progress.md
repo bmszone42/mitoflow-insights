@@ -276,3 +276,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - Simulator: new "Nitric oxide dose response" chart sweeping NO 0-400 nM at the active light dose, plotting ONOO- (nM, left axis), Fe-S intact and oxidized cardiolipin (%, right axis), with a dashed red 30% Committed threshold line, a "now" marker at the current NO, and a caption reporting the NO level where ox CL first crosses Committed.
 - Iron x light map caption now reports the 30% ox CL crossing dose at the map's highest iron for three NO levels: 0 nM, current, and 400 nM, so NO's effect on the threshold is visible without re-rendering the map.
 - Typecheck clean.
+
+## Preset clicks save named scenarios ✅
+- Every Drug preset and Combination preset click now applies the patch AND saves a named scenario ("Preset: Erastin + 660 nm", etc.) with a full snapshot, so presets can be compared side by side in the Compare tab.
+- A "Saved scenario: ..." confirmation appears under the preset rows; the scenario list refreshes live.
+- Verified in the browser: clicking Erastin + 660 nm saved the scenario to IndexedDB and showed the confirmation.

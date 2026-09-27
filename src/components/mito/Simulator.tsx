@@ -18,6 +18,8 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { defaultInputs, doseSweep, simulate, timeCourse, timeToCommitted, type Inputs, type Outputs } from "@/lib/mito/model";
+import { putScenario, type Scenario } from "@/lib/mito/scenarios";
+import { snapshotOf } from "./Scenarios";
 
 type ControlDef = {
   key: keyof Inputs;
@@ -239,10 +241,12 @@ export function Simulator({
   inputs,
   setInputs,
   out,
+  onSaved,
 }: {
   inputs: Inputs;
   setInputs: (i: Inputs) => void;
   out: Outputs;
+  onSaved?: () => void;
 }) {
   // All species compared in pM so a single log10 axis stays readable.
   const rosData = [
@@ -390,6 +394,30 @@ export function Simulator({
     { name: "Erastin + chelator + light", note: "GPx4 down, iron emptied, 10 J/cm2 red light", patch: { gpx4: 0.2, labileIron: 0, redDose: 10 } },
   ];
 
+  // Apply a preset and save the result as a named scenario so presets can be
+  // compared side by side in the Compare tab.
+  const [savedPreset, setSavedPreset] = useState<string | null>(null);
+  const applyPreset = (name: string, patch: Partial<Inputs>) => {
+    const next = { ...inputs, ...patch };
+    setInputs(next);
+    const now = Date.now();
+    const scenario: Scenario = {
+      id: crypto.randomUUID(),
+      name: `Preset: ${name}`,
+      notes: `Saved automatically when the "${name}" preset was applied.`,
+      inputs: next,
+      snapshot: snapshotOf(simulate(next)),
+      createdAt: now,
+      updatedAt: now,
+    };
+    void putScenario(scenario)
+      .then(() => {
+        setSavedPreset(name);
+        onSaved?.();
+      })
+      .catch(() => setSavedPreset(null));
+  };
+
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
       <div className="panel space-y-5 p-4">
@@ -409,15 +437,18 @@ export function Simulator({
                 size="sm"
                 className="h-7 px-2 text-[11px]"
                 title={d.note}
-                onClick={() => setInputs({ ...inputs, ...d.patch })}
+                onClick={() => applyPreset(d.name, d.patch)}
               >
                 {d.name}
               </Button>
             ))}
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Erastin lowers GPx4 to 0.2, RSL3 to 0, ferrostatin-1 raises FSP1 to 2, chelator empties labile iron. Other sliders stay as set.
+            Erastin lowers GPx4 to 0.2, RSL3 to 0, ferrostatin-1 raises FSP1 to 2, chelator empties labile iron. Other sliders stay as set. Each click also saves a named scenario for the Compare tab.
           </p>
+          {savedPreset && (
+            <p className="text-[11px] text-primary">Saved scenario: Preset: {savedPreset}</p>
+          )}
           <div className="mono-label pt-1">Combination presets</div>
           <div className="flex flex-wrap gap-1.5">
             {comboPresets.map((d) => (
@@ -427,14 +458,14 @@ export function Simulator({
                 size="sm"
                 className="h-7 border-primary/50 px-2 text-[11px] text-primary"
                 title={d.note}
-                onClick={() => setInputs({ ...inputs, ...d.patch })}
+                onClick={() => applyPreset(d.name, d.patch)}
               >
                 {d.name}
               </Button>
             ))}
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Drug patch plus a 10 J/cm2 dose (660 nm unless the preset says otherwise; 810 nm presets zero the red dose so the near-infrared path is isolated). Adjust the light sliders after clicking if you want a different dose.
+            Drug patch plus a 10 J/cm2 dose (660 nm unless the preset says otherwise; 810 nm presets zero the red dose so the near-infrared path is isolated). Adjust the light sliders after clicking if you want a different dose. Each click saves a named scenario for the Compare tab.
           </p>
         </div>
         {groups.map((g) => (

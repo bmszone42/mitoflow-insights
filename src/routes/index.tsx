@@ -92,7 +92,7 @@ function Index() {
             <TabsTrigger value="library">Reference</TabsTrigger>
           </TabsList>
           <TabsContent value="sim" className="mt-4">
-            <Simulator inputs={inputs} setInputs={setInputs} out={out} />
+            <Simulator inputs={inputs} setInputs={setInputs} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
               <Scenarios
                 inputs={inputs}
