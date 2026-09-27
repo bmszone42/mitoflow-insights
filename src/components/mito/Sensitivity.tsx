@@ -314,6 +314,83 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
       </section>
 
       <section className="panel p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="mono-label">Interaction map: labile iron x light dose</div>
+          <div className="flex gap-2">
+            <Select value={lightKey} onValueChange={(v) => setLightKey(v as "redDose" | "nirDose")}>
+              <SelectTrigger className="h-8 w-[130px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="redDose">660 nm dose</SelectItem>
+                <SelectItem value="nirDose">810 nm dose</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={mapOutput} onValueChange={(v) => setMapOutput(v as SensOutputKey)}>
+              <SelectTrigger className="h-8 w-[130px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sensOutputs.map((o) => (
+                  <SelectItem key={o.key} value={o.key}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="mt-3 overflow-x-auto">
+          <div className="inline-block">
+            <div className="flex">
+              <div className="w-10" />
+              <div
+                className="grid flex-1 gap-px"
+                style={{ gridTemplateColumns: `repeat(${grid.xs.length}, minmax(0, 1fr))`, width: 560 }}
+              >
+                {[...grid.cells].reverse().map((row, ri) =>
+                  row.map((c, ci) => {
+                    const v = c[mapOutput] ?? 0;
+                    const isBase =
+                      ci === grid.xs.reduce((b, x, i) => (Math.abs(x - inputs.labileIron) < Math.abs(grid.xs[b]! - inputs.labileIron) ? i : b), 0) &&
+                      grid.ys.length - 1 - ri === grid.ys.reduce((b, y, i) => (Math.abs(y - inputs[lightKey]) < Math.abs(grid.ys[b]! - inputs[lightKey]) ? i : b), 0);
+                    return (
+                      <div
+                        key={`${ri}-${ci}`}
+                        title={`Fe ${c.x.toFixed(1)} µM, ${grid.dy.label} ${c.y.toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${fmtVal(v)}`}
+                        className="aspect-square rounded-[2px]"
+                        style={{
+                          background: cellColor(v),
+                          outline: isBase ? "2px solid var(--foreground)" : undefined,
+                          outlineOffset: -1,
+                        }}
+                      />
+                    );
+                  }),
+                )}
+              </div>
+            </div>
+            <div className="mt-1 flex" style={{ paddingLeft: 40, width: 600 }}>
+              <div className="flex w-full justify-between font-mono text-[10px] text-muted-foreground">
+                {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+                  <span key={t}>{(grid.dx.min + (grid.dx.max - grid.dx.min) * t).toFixed(0)}</span>
+                ))}
+              </div>
+            </div>
+            <div className="mt-1 text-center font-mono text-[10px] text-muted-foreground" style={{ paddingLeft: 40, width: 600 }}>
+              Labile iron (µM)
+            </div>
+          </div>
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Rows: {grid.dy.label} from {grid.dy.min} to {grid.dy.max} J/cm2 (bottom to top). Brighter cells
+          mean higher {sensOutputs.find((o) => o.key === mapOutput)!.label}
+          {isRos ? " (log scale)" : ""}. The outlined cell is your current baseline. Hover any cell for
+          exact values.
+        </p>
+      </section>
+
+      <section className="panel p-4">
         <div className="flex items-center justify-between gap-2">
           <div className="mono-label">Explain these results (AI)</div>
           {remaining !== null && (
