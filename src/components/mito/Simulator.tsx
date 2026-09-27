@@ -394,6 +394,30 @@ export function Simulator({
     { name: "Erastin + chelator + light", note: "GPx4 down, iron emptied, 10 J/cm2 red light", patch: { gpx4: 0.2, labileIron: 0, redDose: 10 } },
   ];
 
+  // Apply a preset and save the result as a named scenario so presets can be
+  // compared side by side in the Compare tab.
+  const [savedPreset, setSavedPreset] = useState<string | null>(null);
+  const applyPreset = (name: string, patch: Partial<Inputs>) => {
+    const next = { ...inputs, ...patch };
+    setInputs(next);
+    const now = Date.now();
+    const scenario: Scenario = {
+      id: crypto.randomUUID(),
+      name: `Preset: ${name}`,
+      notes: `Saved automatically when the "${name}" preset was applied.`,
+      inputs: next,
+      snapshot: snapshotOf(simulate(next)),
+      createdAt: now,
+      updatedAt: now,
+    };
+    void putScenario(scenario)
+      .then(() => {
+        setSavedPreset(name);
+        onSaved?.();
+      })
+      .catch(() => setSavedPreset(null));
+  };
+
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
       <div className="panel space-y-5 p-4">
