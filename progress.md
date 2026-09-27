@@ -232,3 +232,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 ## Study-point markers on the iron x light map (done)
 - [x] Sensitivity interaction map: dashed line at 3 J/cm2 and solid line at 30 J/cm2 (Chen 2011, Huang 2013) overlaid on the grid rows, plus a caption with Fe-S erosion at each dose computed live from the current inputs (default: 88.9% intact at 3 J, 84.2% at 30 J, aconitase tracks Fe-S)
 - [x] Verified in browser: lines render on the map, caption values match the model
+
+## Combination presets (done)
+- [x] Simulator input column: second preset row under Drug presets with named combo buttons: Erastin + 660 nm (GPx4 0.2 + 10 J/cm2), RSL3 + 660 nm (GPx4 0 + 10 J/cm2), Chelator + 660 nm (labile iron 0 + 10 J/cm2), Erastin + chelator (GPx4 0.2 + iron 0); presets still stack with whatever is set
+- [x] Verified in browser: buttons render and clicking applies the patches (Chelator + 660 nm shows labile iron 0, 660 nm dose 10 J/cm2); no page errors
