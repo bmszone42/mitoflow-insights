@@ -26,6 +26,16 @@
  *    and a larger stress-type rise with MMP loss at >=30 J/cm2
  *    (Huang et al. 2013 J Biophotonics 6:829). Red light yields H2O2 directly
  *    via flavin photosensitization (Hockberger et al. 1999 PNAS 96:6255).
+ *  - Site-resolved O2•- production: CI sites IF and IQ (reverse electron
+ *    transport), CIII site IIIQo (half to IMS), CII site IIF, OGDH
+ *    (Brand 2016 Free Radic Biol Med 100:14; Quinlan et al. 2013 JBC 288:27103).
+ *    SOD1 in IMS, SOD2 in matrix. H2O2 cleared by saturable Prx3 with
+ *    hyperoxidation above ~5 µM (Cox et al. 2010 Antioxid Redox Signal 12:311),
+ *    GPx1, catalase and efflux. ONOO- sinks: CO2 (4.6e4 M-1 s-1 x 1.3 mM),
+ *    Prx3, GPx, thiols, ONOOH homolysis ~30% •OH yield (Radi 2013 Acc Chem Res
+ *    46:550). •OH from Fenton with an Fe2+ fraction set by reductants and O2•-
+ *    (Haber-Weiss recycling) plus ONOOH homolysis. Site rates are scaled
+ *    estimates matched to total leak ~0.2% of flux, not fitted values.
  *  - Ferroptosis: GPx4 reduces phospholipid hydroperoxides (PLOOH) with GSH,
  *    k ~ 1e7 M-1 s-1 (Ursini et al. 1985 BBA 839:62); FSP1 regenerates
  *    CoQ10H2 as a GPx4-independent radical-trapping antioxidant
@@ -117,7 +127,7 @@ export type RosBudget = {
 };
 
 // Keeps lipid peroxyl (and so ferroptosis) on its prior calibration after the ROS rebuild.
-const LOO_CAL = 1;
+const LOO_CAL = 1.15;
 
 // Smallest positive root of a steady-state balance f(x) = production - removal.
 function solveSteady(f: (x: number) => number) {

@@ -346,6 +346,8 @@ export function Simulator({
           </div>
         </div>
 
+        <RosBudgetPanel out={out} />
+
         <FerroptosisPanel out={out} />
 
         <div className="grid gap-4 xl:grid-cols-2">
@@ -577,6 +579,53 @@ function FerroptosisPanel({ out }: { out: Outputs }) {
             </span>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function BudgetBar({ title, parts }: { title: string; parts: Record<string, number> }) {
+  const entries = Object.entries(parts);
+  const total = entries.reduce((a, [, v]) => a + v, 0) || 1;
+  const cls = ["bg-primary", "bg-accent", "bg-warning", "bg-destructive", "bg-muted-foreground"];
+  return (
+    <div className="space-y-1">
+      <div className="mono-label">{title}</div>
+      <div className="flex h-3 overflow-hidden rounded-full bg-muted">
+        {entries.map(([k, v], n) => (
+          <div key={k} className={cls[n % cls.length]} style={{ width: `${(v / total) * 100}%` }} title={`${k}: ${v.toExponential(2)} µM/s`} />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+        {entries.map(([k, v], n) => (
+          <span key={k} className="flex items-center gap-1">
+            <span className={`inline-block size-2 rounded-full ${cls[n % cls.length]}`} />
+            {k} {((v / total) * 100).toFixed(0)}%
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RosBudgetPanel({ out }: { out: Outputs }) {
+  const b = out.rosBudget;
+  return (
+    <div className="panel p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold">ROS sources and sinks</h3>
+        <span className="font-mono text-[11px] text-muted-foreground">
+          IMS O2•- {(b.superoxideIMS * 1e3).toPrecision(3)} pM · Prx3 hyperoxidized {(b.prxHyperoxidized * 100).toFixed(1)}% · Fe2+{" "}
+          {(b.fe2Fraction * 100).toFixed(0)}%
+        </span>
+      </div>
+      <div className="mt-3 grid gap-4 md:grid-cols-2">
+        <BudgetBar title="Superoxide sources" parts={b.superoxideSources} />
+        <BudgetBar title="Superoxide sinks (matrix)" parts={b.superoxideSinks} />
+        <BudgetBar title="H2O2 sources" parts={b.h2o2Sources} />
+        <BudgetBar title="H2O2 sinks" parts={b.h2o2Sinks} />
+        <BudgetBar title="Peroxynitrite sinks" parts={b.peroxynitriteSinks} />
+        <BudgetBar title="Hydroxyl radical sources" parts={b.hydroxylSources} />
       </div>
     </div>
   );
