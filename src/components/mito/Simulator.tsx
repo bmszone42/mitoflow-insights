@@ -881,7 +881,13 @@ function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
     const dose = k * 2.5;
     const red = simulate({ ...inputs, redDose: dose });
     const nir = simulate({ ...inputs, nirDose: dose });
-    return { dose, red: Number(red.ferroptosisRisk.toFixed(1)), nir: Number(nir.ferroptosisRisk.toFixed(1)) };
+    return {
+      dose,
+      red: Number(red.ferroptosisRisk.toFixed(1)),
+      nir: Number(nir.ferroptosisRisk.toFixed(1)),
+      clRed: Number(red.cardiolipinOx.toFixed(1)),
+      clNir: Number(nir.cardiolipinOx.toFixed(1)),
+    };
   });
   const baseRisk = riskCurve[0]!;
   const activeDose = inputs.redDose > 0 ? inputs.redDose : inputs.nirDose;
