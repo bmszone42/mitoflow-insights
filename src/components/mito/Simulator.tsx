@@ -458,14 +458,14 @@ export function Simulator({
                 size="sm"
                 className="h-7 border-primary/50 px-2 text-[11px] text-primary"
                 title={d.note}
-                onClick={() => setInputs({ ...inputs, ...d.patch })}
+                onClick={() => applyPreset(d.name, d.patch)}
               >
                 {d.name}
               </Button>
             ))}
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Drug patch plus a 10 J/cm2 dose (660 nm unless the preset says otherwise; 810 nm presets zero the red dose so the near-infrared path is isolated). Adjust the light sliders after clicking if you want a different dose.
+            Drug patch plus a 10 J/cm2 dose (660 nm unless the preset says otherwise; 810 nm presets zero the red dose so the near-infrared path is isolated). Adjust the light sliders after clicking if you want a different dose. Each click saves a named scenario for the Compare tab.
           </p>
         </div>
         {groups.map((g) => (
