@@ -723,8 +723,8 @@ export function Simulator({
             </p>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Species are plotted as log10 of pM so they share one axis; Fe-S intact uses the right
-            axis. Superoxide and H2O2 rise with dose through the direct photon effect; peroxynitrite
+            Species are plotted as log10 of pM so they share one axis; Fe-S intact, aconitase and
+            free Fe2+ (percent of the zero-dose value) use the right axis. Superoxide and H2O2 rise with dose through the direct photon effect; peroxynitrite
             falls as NO is photodissociated from complex IV. Markers are our own fitted estimates,
             shaped after Chen 2011 (low-dose burst) and Huang 2013 (high-dose stress), not measured values.
           </p>
