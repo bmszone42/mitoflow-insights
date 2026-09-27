@@ -816,6 +816,25 @@ function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
           ))}
         </div>
       </div>
+      <div className="mt-4 space-y-1">
+        <div className="mono-label">Ferroptosis risk versus light dose</div>
+        <div className="h-44">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={riskCurve}>
+              <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="dose" stroke={chartStyle.axis} fontSize={11} unit=" J/cm2" />
+              <YAxis stroke={chartStyle.axis} fontSize={11} domain={[0, 100]} />
+              <Tooltip {...tooltipProps()} />
+              <Line type="monotone" dataKey="red" name="Risk, 660 nm" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="nir" name="Risk, 810 nm" stroke="var(--color-chart-1)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+              {activeDose > 0 && (
+                <ReferenceLine x={activeDose} stroke="var(--color-foreground)" strokeDasharray="4 3" label={{ value: "now", position: "top", fontSize: 10, fill: "var(--color-foreground)" }} />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-[11px] text-muted-foreground">{verdict} Light lowers lipid peroxyl radicals through NO photorelease but raises superoxide and H2O2 directly, so the net sign depends on iron and dose.</p>
+      </div>
     </div>
   );
 }
