@@ -1,5 +1,6 @@
 import { openDB, type IDBPDatabase } from "idb";
 import type { Inputs } from "./model";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Scenario = {
   id: string;
@@ -13,6 +14,7 @@ export type Scenario = {
   updatedAt: number;
 };
 
+// Storage facade: signed in -> account (Lovable Cloud), signed out -> this browser (IndexedDB).
 let dbp: Promise<IDBPDatabase> | null = null;
 function db() {
   if (typeof indexedDB === "undefined") throw new Error("IndexedDB unavailable");
@@ -24,15 +26,59 @@ function db() {
   return dbp;
 }
 
-export async function listScenarios(): Promise<Scenario[]> {
+async function userId(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
+export async function listLocalScenarios(): Promise<Scenario[]> {
   const all = (await (await db()).getAll("scenarios")) as Scenario[];
   return all.sort((a, b) => b.updatedAt - a.updatedAt);
 }
+
+async function putCloud(uid: string, s: Scenario) {
+  const { error } = await supabase.from("scenarios").upsert(
+    {
+      id: s.id,
+      user_id: uid,
+      name: s.name,
+      data: s as never,
+      created_at: new Date(s.createdAt).toISOString(),
+      updated_at: new Date(s.updatedAt).toISOString(),
+    },
+    { onConflict: "user_id,id" },
+  );
+  if (error) throw error;
+}
+
+export async function listScenarios(): Promise<Scenario[]> {
+  const uid = await userId();
+  if (!uid) return listLocalScenarios();
+  const { data, error } = await supabase.from("scenarios").select("data").order("updated_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((r) => r.data as unknown as Scenario).filter(isScenario);
+}
 export async function putScenario(s: Scenario) {
+  const uid = await userId();
+  if (uid) return putCloud(uid, s);
   await (await db()).put("scenarios", s);
 }
 export async function deleteScenario(id: string) {
+  const uid = await userId();
+  if (uid) {
+    const { error } = await supabase.from("scenarios").delete().eq("id", id);
+    if (error) throw error;
+    return;
+  }
   await (await db()).delete("scenarios", id);
+}
+/** Copies browser scenarios into the signed-in account. Local copies are kept. */
+export async function copyLocalToAccount(): Promise<number> {
+  const uid = await userId();
+  if (!uid) throw new Error("Not signed in");
+  const local = await listLocalScenarios();
+  for (const s of local) await putCloud(uid, s);
+  return local.length;
 }
 export function isScenario(x: unknown): x is Scenario {
   const s = x as Scenario;
