@@ -241,10 +241,12 @@ export function Simulator({
   inputs,
   setInputs,
   out,
+  onSaved,
 }: {
   inputs: Inputs;
   setInputs: (i: Inputs) => void;
   out: Outputs;
+  onSaved?: () => void;
 }) {
   // All species compared in pM so a single log10 axis stays readable.
   const rosData = [
