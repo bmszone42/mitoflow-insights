@@ -509,6 +509,13 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
           {isRos ? " (log scale)" : ""}. The outlined cell is your current baseline. Hover any cell for
           exact values.
         </p>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Study points (Chen 2011, Huang 2013): dashed line {studyRows[0]!.dose.toFixed(0)} J/cm2, solid
+          line {studyRows[1]!.dose.toFixed(0)} J/cm2. Fe-S erosion at your current inputs:{" "}
+          {studyRows[0]!.fes.toFixed(1)}% intact at {studyRows[0]!.dose.toFixed(0)} J/cm2,{" "}
+          {studyRows[1]!.fes.toFixed(1)}% intact at {studyRows[1]!.dose.toFixed(0)} J/cm2 (aconitase
+          tracks Fe-S).
+        </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button size="sm" onClick={() => explain("map")} disabled={busy || cooling > 0 || remaining === 0}>
             {busy && source === "map" ? "Interpreting..." : "Interpret this map (AI)"}
