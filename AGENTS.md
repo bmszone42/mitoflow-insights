@@ -25,3 +25,4 @@
 
 - Ferroptosis math lives inside `simulate` in `src/lib/mito/model.ts` and exposes numeric outputs through `sensOutputs`, so Sensitivity, CSV and AI routes pick it up with no extra wiring.
 - Membrane geometry feeds `simulate(inputs, geo)` only through `geometryEffects` in `model.ts` (all multipliers 1 at `defaultGeometry`), and the 3D viewer `src/components/mito/Cristae3D.tsx` is lazy-loaded after mount so three.js never runs during SSR.
+- Light effects come only from `photoreceptor(i)` in `src/lib/mito/model.ts` (one downstream effect per chromophore), and the 71 THz output is a pumped coherence term inside `simulate`, so the photon chain stays auditable in one place.

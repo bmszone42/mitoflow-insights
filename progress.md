@@ -183,3 +183,10 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ Color overlays (superoxide, local membrane potential, complex density) and live outputs vs default shape
 - ❌ Structure sliders as a Sensitivity driver group
 - ❌ Geometry saved inside scenarios
+
+## Photoreceptor model (light) and 71 THz coherence
+- ✅ Light now follows a photoreceptor chain: tissue attenuation, absorption by CuA, heme a/a3, flavins and porphyrins, saturation at high irradiance, and one named effect per chromophore (NO release, Complex IV speed-up, flavin and semiquinone superoxide, direct H2O2, heating, photoinhibition)
+- ✅ New Simulator inputs: irradiance (mW/cm2) and tissue depth (mm)
+- ✅ Photoreceptor panel and 71 THz coherence panel (pump vs losses, threshold, coherent fraction)
+- ✅ 71 THz, coherent fraction, NO released and temperature rise added to Sensitivity, CSV and AI explanations
+- ❌ Calibrate chromophore strengths against measured action spectra and dose curves
