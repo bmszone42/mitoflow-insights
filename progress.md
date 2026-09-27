@@ -211,3 +211,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 ## Ferroptosis risk vs light dose curve (done)
 - [x] Ferroptosis panel now shows ferroptosis risk versus dose for 660 and 810 nm by default, with a "now" marker at the active dose and a protect/sensitize/neutral verdict versus no light
 - [x] Curve computed through simulate() per dose step (2.5 J/cm2), so it inherits the photoreceptor and ferroptosis math automatically
+
+## Stronger Fe-S damage term (done)
+- [x] model.ts: effective cluster attack rate raised 3.5x (kAcon 1e7 to 3.5e7 M-1 s-1), lumping superoxide, H2O2 and peroxynitrite attack on the cluster pool, so light-driven superoxide visibly erodes Fe-S
+- [x] Re-ran the iron x light map: Fe-S intact now falls from 94.1% (no light) to 90.0% at 60 J/cm2 660 nm and 88.6% at 60+60 J/cm2; aconitase tracks it; free iron gains ~1 µM from released cluster iron at high dose
