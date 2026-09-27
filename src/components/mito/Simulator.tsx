@@ -415,7 +415,7 @@ export function Simulator({
 
         <PhotoreceptorPanel out={out} />
 
-        <FerroptosisPanel out={out} />
+        <FerroptosisPanel out={out} inputs={inputs} />
 
         <div className="panel p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -744,7 +744,27 @@ export function Simulator({
 
 export { simulate };
 
-function FerroptosisPanel({ out }: { out: Outputs }) {
+function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
+  // Ferroptosis risk versus light dose at the current settings, so the panel
+  // shows whether light protects or sensitizes without leaving the tab.
+  const riskCurve = Array.from({ length: 25 }, (_, k) => {
+    const dose = k * 2.5;
+    const red = simulate({ ...inputs, redDose: dose });
+    const nir = simulate({ ...inputs, nirDose: dose });
+    return { dose, red: Number(red.ferroptosisRisk.toFixed(1)), nir: Number(nir.ferroptosisRisk.toFixed(1)) };
+  });
+  const baseRisk = riskCurve[0]!;
+  const activeDose = inputs.redDose > 0 ? inputs.redDose : inputs.nirDose;
+  const activeRisk = out.ferroptosisRisk;
+  const delta = activeRisk - baseRisk.red;
+  const verdict =
+    activeDose <= 0
+      ? "No light dose set. The curves show how risk would shift."
+      : delta < -1
+        ? `Light protects here: risk ${activeRisk.toFixed(0)} versus ${baseRisk.red.toFixed(0)} without light.`
+        : delta > 1
+          ? `Light sensitizes here: risk ${activeRisk.toFixed(0)} versus ${baseRisk.red.toFixed(0)} without light.`
+          : `Light is roughly neutral here: risk ${activeRisk.toFixed(0)} versus ${baseRisk.red.toFixed(0)} without light.`;
   const r = out.ploohRemoval;
   const total = r.gpx4 + r.fsp1 + r.basal;
   const share = [
