@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiAnalyzeImageRouteImport } from './routes/api/analyze-image'
 import { Route as ApiInterpretRouteImport } from './routes/api/interpret'
 import { Route as ApiSuggestRouteImport } from './routes/api/suggest'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAnalyzeImageRoute = ApiAnalyzeImageRouteImport.update({
+  id: '/api/analyze-image',
+  path: '/api/analyze-image',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiInterpretRoute = ApiInterpretRouteImport.update({
@@ -31,30 +37,35 @@ const ApiSuggestRoute = ApiSuggestRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/interpret': typeof ApiInterpretRoute
   '/api/suggest': typeof ApiSuggestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/interpret': typeof ApiInterpretRoute
   '/api/suggest': typeof ApiSuggestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/interpret': typeof ApiInterpretRoute
   '/api/suggest': typeof ApiSuggestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/interpret' | '/api/suggest'
+  fullPaths: '/' | '/api/analyze-image' | '/api/interpret' | '/api/suggest'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/interpret' | '/api/suggest'
-  id: '__root__' | '/' | '/api/interpret' | '/api/suggest'
+  to: '/' | '/api/analyze-image' | '/api/interpret' | '/api/suggest'
+  id:
+    '__root__' | '/' | '/api/analyze-image' | '/api/interpret' | '/api/suggest'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiAnalyzeImageRoute: typeof ApiAnalyzeImageRoute
   ApiInterpretRoute: typeof ApiInterpretRoute
   ApiSuggestRoute: typeof ApiSuggestRoute
 }
@@ -66,6 +77,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/analyze-image': {
+      id: '/api/analyze-image'
+      path: '/api/analyze-image'
+      fullPath: '/api/analyze-image'
+      preLoaderRoute: typeof ApiAnalyzeImageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/interpret': {
@@ -87,6 +105,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiAnalyzeImageRoute: ApiAnalyzeImageRoute,
   ApiInterpretRoute: ApiInterpretRoute,
   ApiSuggestRoute: ApiSuggestRoute,
 }

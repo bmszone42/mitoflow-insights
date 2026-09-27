@@ -3,15 +3,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import type { Outputs } from "@/lib/mito/model";
-
-type Geometry = {
-  cristaeCount: number;
-  cristaeDepth: number;
-  junctionWidth: number;
-  matrixWidth: number;
-  length: number;
-};
+import type { Geometry, Outputs } from "@/lib/mito/model";
 
 const complexInfo: Record<string, { title: string; body: string }> = {
   CI: {
@@ -40,14 +32,15 @@ const complexInfo: Record<string, { title: string; body: string }> = {
   },
 };
 
-export function StructureModeler({ out }: { out: Outputs }) {
-  const [geo, setGeo] = useState<Geometry>({
-    cristaeCount: 9,
-    cristaeDepth: 62,
-    junctionWidth: 10,
-    matrixWidth: 150,
-    length: 420,
-  });
+export function StructureModeler({
+  out,
+  geo,
+  setGeo,
+}: {
+  out: Outputs;
+  geo: Geometry;
+  setGeo: (g: Geometry) => void;
+}) {
   const [showComplexes, setShowComplexes] = useState(true);
   const [showRos, setShowRos] = useState(true);
   const [selected, setSelected] = useState<string>("CIV");

@@ -9,8 +9,9 @@ import { ReferenceLibrary } from "@/components/mito/ReferenceLibrary";
 import { Scenarios } from "@/components/mito/Scenarios";
 import { Compare } from "@/components/mito/Compare";
 import { Interpreter } from "@/components/mito/Interpreter";
+import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import type { Scenario } from "@/lib/mito/scenarios";
-import { defaultInputs, simulate, type Inputs } from "@/lib/mito/model";
+import { defaultGeometry, defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,6 +38,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
   const out = useMemo(() => simulate(inputs), [inputs]);
+  const [geo, setGeo] = useState<Geometry>(defaultGeometry);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<Scenario["interpretation"]>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -110,7 +112,18 @@ function Index() {
             <Sensitivity inputs={inputs} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
-            <StructureModeler out={out} />
+            <StructureModeler out={out} geo={geo} setGeo={setGeo} />
+            <div className="mt-4">
+              <MicrographAnalyzer
+                inputs={inputs}
+                setInputs={setInputs}
+                out={out}
+                geo={geo}
+                setGeo={setGeo}
+                activeId={activeId}
+                onSaved={() => setRefreshKey((k) => k + 1)}
+              />
+            </div>
           </TabsContent>
           <TabsContent value="library" className="mt-4">
             <ReferenceLibrary />

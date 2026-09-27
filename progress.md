@@ -135,3 +135,13 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - Set a workspace AI spending cap so a burst of traffic cannot drain credits.
 - Keys never reach the browser; all AI calls are server side. Inputs validated with zod and suggestions clamped server side.
 - Scenario data stays in each visitor's browser (IndexedDB); nothing personal is stored on the server.
+
+## Micrograph analysis (Structure tab)
+- ✅ Upload or drop PNG, JPEG or WebP (8 MB max), resized in browser to 1600 px JPEG
+- ✅ Optional modality, scale and sample fields
+- ✅ Streaming AI analysis: identified features with confidence, effects on ROS, Fe-S, iron, photon response, caveats
+- ✅ Suggested Structure geometry and model sliders, clamped, applied only on click
+- ✅ Save analysis and thumbnail into the active scenario (IndexedDB)
+- ❌ Show saved micrograph analyses in Compare
+- API: POST /api/analyze-image, JSON {image (data URL), modality, sample, scale, inputs, outputs, geometry}; returns text/plain stream ending in a fenced JSON block {geometry, sliders}. Shares AI usage limits; body cap about 3.3 MB.
+- Security: MIME and size checked on client and server, image never stored server side, users warned that images go to an AI provider.

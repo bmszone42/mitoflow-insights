@@ -21,3 +21,4 @@
 - AI interpretation runs through one streaming server route `src/routes/api/interpret.ts` (Responses API, openai/gpt-6-astra) so the gateway key stays server-side.
 - Both AI routes (`/api/interpret`, `/api/suggest`) go through `src/lib/mito/rate-limit.server.ts` (in-memory, per instance) so abuse limits live in one place; move to a database if strict limits are needed.
 - `inputRanges` in `src/lib/mito/model.ts` is the source of slider ranges for clamping AI suggestions and for comparison labels.
+- Micrograph analysis runs through `src/routes/api/analyze-image.ts` (Responses API, image sent inline as a resized JPEG data URL, never stored server side); Structure geometry state lives in `src/routes/index.tsx` and `geometryRanges` in `model.ts` clamps AI geometry suggestions.
