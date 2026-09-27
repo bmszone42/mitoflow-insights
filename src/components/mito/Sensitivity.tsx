@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { putScenario, type Scenario } from "@/lib/mito/scenarios";
+import { snapshotOf } from "./Scenarios";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,7 +40,7 @@ const tip = {
 };
 const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
 
-export function Sensitivity({ inputs }: { inputs: Inputs }) {
+export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () => void }) {
   const [delta, setDelta] = useState(0.2);
   const [output, setOutput] = useState<SensOutputKey>("superoxide");
   const [driver, setDriver] = useState<keyof Inputs>("labileIron");
@@ -51,6 +53,9 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [now, setNow] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
+  const [source, setSource] = useState<"table" | "map">("table");
+  const [savedName, setSavedName] = useState<string | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (cooldownUntil <= Date.now()) return;
@@ -104,10 +109,84 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   };
   const fmtVal = (v: number) => (Math.abs(v) < 0.01 ? v.toExponential(1) : v.toPrecision(3));
 
-  const explain = async () => {
+  const mapPayload = () => {
+    const dx = grid.dx;
+    const dy = grid.dy;
+    const at = (x: number, y: number) => simulate({ ...inputs, labileIron: x, [lightKey]: y });
+    const f00 = at(dx.min, dy.min);
+    const f10 = at(dx.max, dy.min);
+    const f01 = at(dx.min, dy.max);
+    const f11 = at(dx.max, dy.max);
+    const base = simulate(inputs);
+    const pc = (v: number, b: number) => ((v - b) / Math.abs(b)) * 100;
+    const outputs = sensOutputs
+      .filter((o) => Math.abs(f00[o.key]) > 1e-12)
+      .map((o) => {
+        const vals = grid.cells.flat().map((c) => c[o.key] ?? 0);
+        const xOnly = pc(f10[o.key], f00[o.key]);
+        const yOnly = pc(f01[o.key], f00[o.key]);
+        const both = pc(f11[o.key], f00[o.key]);
+        return {
+          label: o.label,
+          base: base[o.key],
+          xOnlyPct: xOnly,
+          yOnlyPct: yOnly,
+          bothPct: both,
+          synergyPct: both - xOnly - yOnly,
+          min: Math.min(...vals),
+          max: Math.max(...vals),
+        };
+      });
+    const idx = [0, 3, 6, 9, 12, 15, 18, 20].filter((i) => i < grid.xs.length);
+    return {
+      xLabel: `${dx.label} (µM)`,
+      yLabel: `${dy.label} (J/cm2)`,
+      xRange: [dx.min, dx.max] as [number, number],
+      yRange: [dy.min, dy.max] as [number, number],
+      baseline: { x: inputs.labileIron, y: inputs[lightKey] },
+      shownOutput: sensOutputs.find((o) => o.key === mapOutput)!.label,
+      shownGrid: idx.map((r) => idx.map((c) => grid.cells[r]![c]![mapOutput] ?? 0)),
+      outputs,
+    };
+  };
+
+  const autoSave = async (mode: "table" | "map", body: string) => {
+    const lightLabel = lightKey === "redDose" ? "660 nm" : "810 nm";
+    const outLbl = sensOutputs.find((o) => o.key === mapOutput)!.label;
+    const condition =
+      mode === "map"
+        ? `Interaction map: labile iron x ${lightLabel} dose, shown output ${outLbl}`
+        : `Sensitivity table, step ${(delta * 100).toFixed(0)}% of range`;
+    const now = Date.now();
+    const name = `${mode === "map" ? `Map: Fe x ${lightLabel} (${outLbl})` : "Sensitivity"} ${new Date(now).toLocaleString()}`;
+    const scenario: Scenario = {
+      id: crypto.randomUUID(),
+      name,
+      notes: `Saved automatically with the AI interpretation. ${condition}.`,
+      inputs,
+      snapshot: snapshotOf(simulate(inputs)),
+      interpretation: { condition, text: body, at: now },
+      createdAt: now,
+      updatedAt: now,
+    };
+    try {
+      await putScenario(scenario);
+      setSavedName(name);
+      onSaved?.();
+    } catch (e) {
+      setError(`Interpretation done, but saving the scenario failed: ${(e as Error).message}`);
+    }
+  };
+
+  const explain = async (mode: "table" | "map" = "table") => {
     setBusy(true);
     setError(null);
     setText("");
+    setSource(mode);
+    setSavedName(null);
+    if (mode === "map") panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    let full = "";
+    let ok = false;
     setCooldownUntil(Date.now() + 10_000);
     setNow(Date.now());
     const ac = new AbortController();
@@ -119,12 +198,16 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
         body: JSON.stringify({
           delta,
           inputs,
-          rows: sens.map((s) => ({
-            driver: s.driver.label,
-            group: s.driver.group,
-            down: s.down,
-            up: s.up,
-          })),
+          rows:
+            mode === "map"
+              ? []
+              : sens.map((s) => ({
+                  driver: s.driver.label,
+                  group: s.driver.group,
+                  down: s.down,
+                  up: s.up,
+                })),
+          ...(mode === "map" ? { map: mapPayload() } : {}),
         }),
         signal: ac.signal,
       });
@@ -139,14 +222,18 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        setText((t) => t + dec.decode(value, { stream: true }));
+        const chunk = dec.decode(value, { stream: true });
+        full += chunk;
+        setText((t) => t + chunk);
       }
+      ok = full.trim().length > 0 && !full.includes("[Stream interrupted]");
     } catch (e) {
       if ((e as Error).name !== "AbortError") setError((e as Error).message);
     } finally {
       setBusy(false);
       abortRef.current = null;
     }
+    if (ok) await autoSave(mode, full);
   };
 
   return (
@@ -403,11 +490,22 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
           {isRos ? " (log scale)" : ""}. The outlined cell is your current baseline. Hover any cell for
           exact values.
         </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button size="sm" onClick={() => explain("map")} disabled={busy || cooling > 0 || remaining === 0}>
+            {busy && source === "map" ? "Interpreting..." : "Interpret this map (AI)"}
+          </Button>
+          <span className="text-[11px] text-muted-foreground">
+            Sends iron-only, light-only and combined effects plus synergy for every output. The result is saved as a
+            new scenario automatically.
+          </span>
+        </div>
       </section>
 
-      <section className="panel p-4">
+      <section ref={panelRef} className="panel scroll-mt-4 p-4">
         <div className="flex items-center justify-between gap-2">
-          <div className="mono-label">Explain these results (AI)</div>
+          <div className="mono-label">
+            {source === "map" ? "Interaction map interpretation (AI)" : "Explain these results (AI)"}
+          </div>
           {remaining !== null && (
             <span className="font-mono text-[10px] text-muted-foreground">{remaining} of 10 left (10 min)</span>
           )}
@@ -417,7 +515,7 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
           drivers, key parameter interactions and what they imply for ROS and Fe-S outputs.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Button onClick={explain} disabled={busy || cooling > 0 || remaining === 0}>
+          <Button onClick={() => explain("table")} disabled={busy || cooling > 0 || remaining === 0}>
             {busy ? "Explaining..." : "Explain these results"}
           </Button>
           {busy && (
@@ -430,6 +528,9 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
           )}
         </div>
         {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+        {savedName && (
+          <p className="mt-3 text-xs text-primary">Saved as scenario "{savedName}". Open it in Scenarios or Compare.</p>
+        )}
         {busy && !text && (
           <p className="mt-3 animate-pulse text-xs text-muted-foreground">Thinking...</p>
         )}

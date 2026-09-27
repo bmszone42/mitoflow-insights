@@ -48,7 +48,7 @@ const Body = z.object({
 });
 
 const MAP_SYSTEM = `You are a mitochondrial redox biologist interpreting a two-input interaction map from a lumped steady-state model.
-Two inputs were varied jointly across their full ranges; every cell is a full model run. For each output you get: baseline value, percent change when only the x input goes from its minimum to its maximum (y at baseline), same for the y input only, percent change with both at maximum, and synergy = both minus the sum of the single effects (positive = synergistic, negative = antagonistic or saturating). A coarse grid of the displayed output is included (rows from low to high y, columns from low to high x).
+Two inputs were varied jointly across their full ranges; every cell is a full model run. For each output you get: the value at current settings, and, relative to the cell where both inputs are at their minimum, the percent change with only x at maximum, with only y at maximum, and with both at maximum, and synergy = both minus the sum of the single effects (positive = synergistic, negative = antagonistic or saturating). A coarse grid of the displayed output is included (rows from low to high y, columns from low to high x).
 Write a concise explanation in Markdown with these sections:
 ## What the map shows (the main gradient direction and which input dominates, with numbers)
 ## Parameter interactions (synergy or antagonism per output, and the mechanism in the model, e.g. Fenton chemistry, NO photodissociation, chromophore-driven superoxide, Fe-S damage feedback)

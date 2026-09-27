@@ -117,7 +117,7 @@ function Index() {
             </div>
           </TabsContent>
           <TabsContent value="sens" className="mt-4">
-            <Sensitivity inputs={inputs} />
+            <Sensitivity inputs={inputs} onSaved={() => setRefreshKey((k) => k + 1)} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
             <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} />
