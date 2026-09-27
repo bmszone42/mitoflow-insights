@@ -381,7 +381,7 @@ export function doseSweep(base: Inputs, wavelength: "red" | "nir") {
     return {
       dose,
       atp: Number(out.atpFlux.toFixed(1)),
-      superoxide: Number(out.superoxide.toFixed(2)),
+      superoxide: Number(out.superoxide.toPrecision(3)),
       emission: Number(out.emission71THz.toFixed(1)),
       // per-species curves, pM-normalized for a shared log axis
       h2o2: Number((out.hydrogenPeroxide * 1e3).toFixed(3)),
