@@ -251,3 +251,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - The Ferroptosis panel now plots risk against labile iron (0-20 µM) for four antioxidant states at the active light dose: current, GPx4 blocked, FSP1 blocked, both blocked, with a "now" marker at the current iron.
 - A caption reports light's tilt (protects / sensitizes / neutral, with the risk delta) for each state at the current iron, so blocking GPx4 or FSP1 shows how it flips light's protective effect.
 - Verified in the browser with Erastin + 660 nm applied: FSP1-blocked and both-blocked curves saturate at risk 100 while current stays Primed; typecheck clean, no page errors.
+
+## Labile iron dose chart in the Simulator ✅
+- New panel "Labile iron dose response" after the light dose comparison: free Fe2+ (µM, left axis) and Fe-S intact / aconitase (%, right axis) versus the iron slider 0-20 µM, solid lines at the active light dose and dashed with no light, "now" marker at the current iron.
+- Caption reports the chelator (zero-iron) endpoint live: free Fe2+ and Fe-S intact with the active light dose, so DFO/DFOm's effect is readable at a glance.
+- Verified in the browser with Erastin + 660 nm applied: free Fe2+ rises linearly and gains under light from released cluster iron; Fe-S lines split between light and no light while iron alone barely moves them; typecheck clean, no page errors.
