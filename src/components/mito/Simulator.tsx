@@ -291,6 +291,24 @@ export function Simulator({
     // free iron as percent of the zero-dose value so it shares the right axis
     freeFePct: dose0.freeIron > 0 ? (r.freeIron / dose0.freeIron) * 100 : 100,
   }));
+  // Labile iron dose response: free Fe2+ and Fe-S / aconitase versus the iron
+  // slider, with and without the active light dose. The zero-iron end is what
+  // a chelator preset (DFO/DFOm) drives the cell to.
+  const ironDoseCurve = Array.from({ length: 21 }, (_, k) => {
+    const iron = k;
+    const dark = simulate({ ...inputs, labileIron: iron, redDose: 0, nirDose: 0 });
+    const lit = simulate({ ...inputs, labileIron: iron });
+    return {
+      iron,
+      freeFeDark: Number(dark.freeIron.toFixed(3)),
+      freeFeLit: Number(lit.freeIron.toFixed(3)),
+      fesDark: Number((dark.fesIntact * 100).toFixed(1)),
+      fesLit: Number((lit.fesIntact * 100).toFixed(1)),
+      aconDark: Number(dark.aconitaseActivity.toFixed(1)),
+      aconLit: Number(lit.aconitaseActivity.toFixed(1)),
+    };
+  });
+  const chelatorRow = ironDoseCurve[0]!;
   const sweep = redSweep.map((r, k) => ({
     dose: r.dose,
     redATP: r.atp,
@@ -800,6 +818,49 @@ export function Simulator({
             photon effect on flavins and semiquinone; hydroxyl radical follows the labile iron pool, so it
             barely moves with light unless iron is high. Values at the markers are fitted estimates, not
             measured values.
+          </p>
+        </div>
+
+        <div className="panel p-4">
+          <h3 className="text-sm font-semibold">Labile iron dose response</h3>
+          <p className="mono-label mt-1">Free Fe2+ and Fe-S integrity versus the iron slider, with and without light</p>
+          <div className="mt-3 h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={ironDoseCurve}>
+                <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="iron" stroke={chartStyle.axis} fontSize={11} unit=" µM" />
+                <YAxis yAxisId="left" stroke={chartStyle.axis} fontSize={11} unit=" µM" />
+                <YAxis yAxisId="right" orientation="right" stroke={chartStyle.axis} fontSize={11} domain={[0, 100]} unit="%" />
+                <Tooltip
+                  {...tooltipProps()}
+                  formatter={(value: number, name: string) =>
+                    name.startsWith("Free Fe2+") ? [`${value.toFixed(2)} µM`, name] : [`${value.toFixed(1)}%`, name]
+                  }
+                />
+                <Line yAxisId="left" type="monotone" dataKey="freeFeLit" name="Free Fe2+ (light)" stroke="var(--color-destructive)" strokeWidth={2} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey="freeFeDark" name="Free Fe2+ (no light)" stroke="var(--color-destructive)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="fesLit" name="Fe-S intact (light)" stroke="var(--color-foreground)" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="fesDark" name="Fe-S intact (no light)" stroke="var(--color-foreground)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="aconLit" name="Aconitase (light)" stroke="var(--color-accent)" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="aconDark" name="Aconitase (no light)" stroke="var(--color-accent)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                {inputs.labileIron > 0 && (
+                  <ReferenceLine
+                    yAxisId="left"
+                    x={inputs.labileIron}
+                    stroke="var(--color-foreground)"
+                    strokeDasharray="4 3"
+                    label={{ value: "now", position: "top", fontSize: 10, fill: "var(--color-foreground)" }}
+                  />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Solid lines run at your active light dose, dashed lines with no light. The chelator preset
+            (DFO/DFOm) drives the cell to the zero-iron end: free Fe2+ {chelatorRow.freeFeLit.toFixed(2)} µM,
+            Fe-S {chelatorRow.fesLit.toFixed(1)}% intact. Free iron rises with the slider and gains a little
+            more under light from released cluster iron; Fe-S erosion is light-driven, so the dashed and solid
+            Fe-S lines split as dose rises, while iron alone barely moves them.
           </p>
         </div>
       </div>
