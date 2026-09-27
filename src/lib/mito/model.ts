@@ -352,7 +352,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // shapes follow Imlay 2003 and Radi 2013.
   const kAcon = 3.5e7 * 1e-6; // µM-1 s-1 effective
   const kH2o2Fes = 1e4 * 1e-6; // µM-1 s-1 effective, H2O2-specific
-  const kOnooFes = 1e5 * 1e-6; // µM-1 s-1 effective, ONOO- specific
+  const kOnooFes = 1e7 * 1e-6; // µM-1 s-1 effective, ONOO- specific (scaled up: model ONOO- steady state is nM-scale)
   const clusterAttack = kAcon * superoxideM + kH2o2Fes * h2o2 + kOnooFes * onooM; // s-1
   const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // ISC assembly (ISCU/NFS1/frataxin)
   const fesIntact = kRepair / (kRepair + clusterAttack);
