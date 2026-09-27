@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import {
   grid2d,
+  simulate,
   sensitivity,
   sensitivityDrivers,
   sensOutputs,
