@@ -309,6 +309,20 @@ export function Simulator({
     };
   });
   const chelatorRow = ironDoseCurve[0]!;
+  // Nitric oxide dose response: ONOO-, Fe-S integrity and oxidized cardiolipin
+  // versus the NO slider, at the active light dose. NO scavenges superoxide
+  // into ONOO-, so Fe-S erosion shifts from the superoxide term to the
+  // peroxynitrite term as NO rises.
+  const noDoseCurve = Array.from({ length: 21 }, (_, k) => {
+    const no = k * 20;
+    const o = simulate({ ...inputs, nitricOxide: no });
+    return {
+      no,
+      onoo: Number(o.peroxynitrite.toFixed(3)),
+      fes: Number((o.fesIntact * 100).toFixed(1)),
+      clOx: Number(o.cardiolipinOx.toFixed(1)),
+    };
+  });
   const sweep = redSweep.map((r, k) => ({
     dose: r.dose,
     redATP: r.atp,
