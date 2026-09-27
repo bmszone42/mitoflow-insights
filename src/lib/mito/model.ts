@@ -325,21 +325,6 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const h2o2 = solveSteady((h) => vH2O2 - h2o2Removal(h));
   const prxReduced = hyper(h2o2) * (1 - h2o2 / (prxKm + h2o2) * 0.5);
 
-  // Fe-S cluster attack and labile iron feedback.
-  // Superoxide term: effective rate for attack on aconitase (Flint 1993,
-  // ~1e7 M-1 s-1), strengthened 3.5x so light-driven superoxide visibly
-  // erodes clusters at photobiomodulation doses.
-  // H2O2 term: measured attack on dehydratase [4Fe-4S] clusters is
-  // ~5e3 M-1 s-1 (Jang & Imlay 2007); scaled up here as an effective rate
-  // for the wider cluster pool so antioxidant capacity (Prx3, GPx1, GPx4)
-  // modulates cluster loss. Both terms unfitted; shapes follow Imlay 2003.
-  const kAcon = 3.5e7 * 1e-6; // µM-1 s-1 effective
-  const kH2o2Fes = 1e4 * 1e-6; // µM-1 s-1 effective, H2O2-specific
-  const clusterAttack = kAcon * superoxideM + kH2o2Fes * h2o2; // s-1
-  const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // ISC assembly (ISCU/NFS1/frataxin)
-  const fesIntact = kRepair / (kRepair + clusterAttack);
-  const ironFromClusters = 4 * 6 * (1 - fesIntact); // ~6 µM cluster protein x 4 Fe
-  const freeIron = i.labileIron + ironFromClusters;
 
   // --- Peroxynitrite: formation and competing sinks (Radi 2013) ---
   const vPN = kNoO2 * superoxideM; // µM s-1
