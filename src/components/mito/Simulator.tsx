@@ -508,7 +508,7 @@ export function Simulator({
                 <Line yAxisId="left" type="monotone" dataKey="logHydroxyl" name="•OH" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
                 <Line yAxisId="left" type="monotone" dataKey="logPn" name="ONOO-" stroke="var(--color-chart-2)" strokeWidth={2} dot={false} />
                 <Line yAxisId="left" type="monotone" dataKey="logSinglet" name="1O2" stroke="var(--color-chart-3)" strokeWidth={2} dot={false} />
-                <Line yAxisId="left" type="monotone" dataKey="logLoo" name="LOO•" stroke="var(--color-chart-1)" strokeWidth={2} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey="logLoo" name="LOO•" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
                 <Line yAxisId="right" type="monotone" dataKey="fesIntact" name="Fe-S intact" stroke="var(--color-foreground)" strokeDasharray="5 3" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
