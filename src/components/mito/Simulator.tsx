@@ -301,6 +301,27 @@ export function Simulator({
   const tPrimed = course.find((p) => p.state !== "Protected")?.t ?? null;
   const tCommitted = course.find((p) => p.state === "Committed")?.t ?? null;
 
+  // Light dose comparison: percent change versus zero dose for each species,
+  // both wavelengths, so the curves share one linear axis.
+  const pctOf = (v: number, b: number) => (b > 0 ? ((v - b) / b) * 100 : 0);
+  const doseCmp = redSweep.map((r, k) => {
+    const n = nirSweep[k]!;
+    return {
+      dose: r.dose,
+      o2Red: pctOf(r.superoxide, redSweep[0]!.superoxide),
+      o2Nir: pctOf(n.superoxide, nirSweep[0]!.superoxide),
+      h2o2Red: pctOf(r.h2o2, redSweep[0]!.h2o2),
+      h2o2Nir: pctOf(n.h2o2, nirSweep[0]!.h2o2),
+      ohRed: pctOf(r.hydroxyl, redSweep[0]!.hydroxyl),
+      ohNir: pctOf(n.hydroxyl, nirSweep[0]!.hydroxyl),
+    };
+  });
+  const cmpAt = (target: number) =>
+    doseCmp.reduce((best, r) => (Math.abs(r.dose - target) < Math.abs(best.dose - target) ? r : best), doseCmp[0]!);
+  const cmp3 = cmpAt(3);
+  const cmp30 = cmpAt(30);
+  const cmp60 = cmpAt(60);
+
   const set = (key: keyof Inputs, value: number) => setInputs({ ...inputs, [key]: value });
 
   const groups: { id: ControlDef["group"]; title: string; note: string }[] = [
@@ -666,6 +687,54 @@ export function Simulator({
             axis. Superoxide and H2O2 rise with dose through the direct photon effect; peroxynitrite
             falls as NO is photodissociated from complex IV. Markers are our own fitted estimates,
             shaped after Chen 2011 (low-dose burst) and Huang 2013 (high-dose stress), not measured values.
+          </p>
+        </div>
+
+        <div className="panel p-4">
+          <h3 className="text-sm font-semibold">Light dose comparison</h3>
+          <p className="mono-label mt-1">Superoxide, H2O2 and hydroxyl radical, percent change versus no light</p>
+          <div className="mt-3 h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={doseCmp}>
+                <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="dose" stroke={chartStyle.axis} fontSize={11} unit=" J/cm2" />
+                <YAxis stroke={chartStyle.axis} fontSize={11} unit="%" />
+                <Tooltip
+                  {...tooltipProps()}
+                  formatter={(value: number, name: string) => [`${value >= 0 ? "+" : ""}${value.toFixed(1)}%`, name]}
+                />
+                <ReferenceLine y={0} stroke={chartStyle.axis} strokeDasharray="2 3" />
+                <ReferenceLine x={3} stroke="var(--color-primary)" strokeDasharray="4 3" label={{ value: "3", position: "top", fontSize: 10, fill: "var(--color-primary)" }} />
+                <ReferenceLine x={30} stroke="var(--color-accent)" strokeDasharray="4 3" label={{ value: "30", position: "top", fontSize: 10, fill: "var(--color-accent)" }} />
+                <ReferenceLine x={60} stroke="var(--color-destructive)" strokeDasharray="4 3" label={{ value: "60", position: "top", fontSize: 10, fill: "var(--color-destructive)" }} />
+                <Line type="monotone" dataKey="o2Red" name="O2•- 660 nm" stroke="var(--color-chart-1)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="o2Nir" name="O2•- 810 nm" stroke="var(--color-chart-1)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                <Line type="monotone" dataKey="h2o2Red" name="H2O2 660 nm" stroke="var(--color-chart-4)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="h2o2Nir" name="H2O2 810 nm" stroke="var(--color-chart-4)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                <Line type="monotone" dataKey="ohRed" name="•OH 660 nm" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="ohNir" name="•OH 810 nm" stroke="var(--color-chart-5)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-2 grid gap-1 text-xs text-muted-foreground sm:grid-cols-3">
+            <p>
+              <span className="font-medium text-primary">3 J/cm2:</span> O2•- +{cmp3.o2Red.toFixed(0)}%,
+              H2O2 +{cmp3.h2o2Red.toFixed(0)}%, •OH {cmp3.ohRed >= 0 ? "+" : ""}{cmp3.ohRed.toFixed(0)}% (660 nm)
+            </p>
+            <p>
+              <span className="font-medium text-accent">30 J/cm2:</span> O2•- +{cmp30.o2Red.toFixed(0)}%,
+              H2O2 +{cmp30.h2o2Red.toFixed(0)}%, •OH {cmp30.ohRed >= 0 ? "+" : ""}{cmp30.ohRed.toFixed(0)}% (660 nm)
+            </p>
+            <p>
+              <span className="font-medium text-destructive">60 J/cm2:</span> O2•- +{cmp60.o2Red.toFixed(0)}%,
+              H2O2 +{cmp60.h2o2Red.toFixed(0)}%, •OH {cmp60.ohRed >= 0 ? "+" : ""}{cmp60.ohRed.toFixed(0)}% (660 nm)
+            </p>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Solid lines are 660 nm, dashed are 810 nm. Superoxide and H2O2 rise together through the direct
+            photon effect on flavins and semiquinone; hydroxyl radical follows the labile iron pool, so it
+            barely moves with light unless iron is high. Values at the markers are fitted estimates, not
+            measured values.
           </p>
         </div>
       </div>
