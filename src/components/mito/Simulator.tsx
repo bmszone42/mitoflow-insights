@@ -997,7 +997,7 @@ function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-[11px] text-muted-foreground">{verdict} Light lowers lipid peroxyl radicals through NO photorelease but raises superoxide and H2O2 directly, so the net sign depends on iron and dose.</p>
+        <p className="text-[11px] text-muted-foreground">{verdict} Light lowers lipid peroxyl radicals through NO photorelease but raises superoxide and H2O2 directly, so the net sign depends on iron and dose. The ox CL curves show oxidized cardiolipin on the same 0 to 100 axis; where they climb past the dashed 30% line, cells cross Committed at that dose.</p>
       </div>
       <div className="mt-4 space-y-1">
         <div className="mono-label">Ferroptosis risk versus labile iron</div>
