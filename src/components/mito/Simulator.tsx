@@ -285,6 +285,8 @@ export function Simulator({
     logPn: Number(Math.log10(Math.max(r.peroxynitrite, 1e-4)).toFixed(2)),
     logSinglet: Number(Math.log10(Math.max(r.singletOxygen, 1e-4)).toFixed(2)),
     logLoo: Number(Math.log10(Math.max(r.lipidPeroxyl, 1e-4)).toFixed(2)),
+    // free iron as percent of the zero-dose value so it shares the right axis
+    freeFePct: dose0.freeIron > 0 ? (r.freeIron / dose0.freeIron) * 100 : 100,
   }));
   const sweep = redSweep.map((r, k) => ({
     dose: r.dose,
