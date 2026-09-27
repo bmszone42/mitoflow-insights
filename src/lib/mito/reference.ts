@@ -168,11 +168,15 @@ export const ironSteps = [
 export const photonNotes = [
   {
     title: "660 nm red",
-    body: "Absorbed by the oxidized heme a3-CuB binuclear centre and CuA of cytochrome c oxidase. Typical bioenergetic gain peaks near 8-12 J/cm2 and reverses above roughly 60 J/cm2 (Arndt-Schulz biphasic dose response).",
+    body: "Absorbed by the oxidized heme a3-CuB binuclear centre and CuA of cytochrome c oxidase. Heme a/a3 absorbs most strongly here, so 660 nm releases more NO per J/cm2, and its flavin tail makes H2O2 directly. It is attenuated fastest in tissue (about 0.35 per mm).",
   },
   {
     title: "810 nm near-infrared",
-    body: "Absorbed mainly by CuA, penetrates several millimetres of tissue, optimum near 15-25 J/cm2. Also photodissociates nitric oxide from the binuclear centre, lifting competitive inhibition of oxygen binding.",
+    body: "Absorbed mainly by CuA and reaches deeper (about 0.2 per mm). CuA excitation speeds Complex IV, raising the local proton gradient, which is why superoxide rises with the gain. High dose photoinhibits Complex IV.",
+  },
+  {
+    title: "Dose rate and 71 THz",
+    body: "At high irradiance chromophores saturate, so the same J/cm2 does less and heats more (reciprocity breakdown). The 71 THz band is modelled as a pumped coherent mode that switches on when metabolic plus photon pump exceeds losses from lipid peroxidation, oxidized cardiolipin and heat.",
   },
   {
     title: "Photon side effects",

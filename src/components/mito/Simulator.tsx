@@ -686,7 +686,7 @@ function PhotoreceptorPanel({ out }: { out: Outputs }) {
               <Metric label="Local Δψ" value={`+${pr.psiShift.toFixed(1)}`} unit="mV" />
               <Metric label="Flavin O2•- (CI, OGDH)" value={pct(pr.flavinLeak)} unit="" tone="warning" />
               <Metric label="Semiquinone O2•- (CIII)" value={pct(pr.semiquinoneLeak)} unit="" tone="warning" />
-              <Metric label="Heating" value={pr.tempRise.toFixed(2)} unit="K" tone={pr.tempRise > 1 ? "warning" : undefined} />
+              <Metric label="Heating" value={pr.tempRise.toFixed(2)} unit="K" tone={pr.tempRise > 1 ? "warning" : "primary"} />
             </div>
             <p className="text-[11px] text-muted-foreground">
               {(pr.saturation * 100).toFixed(0)}% of photons are wasted by chromophore saturation at this irradiance.
