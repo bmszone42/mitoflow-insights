@@ -370,6 +370,10 @@ export function Simulator({
     { name: "RSL3 + 660 nm", note: "GPx4 blocked plus 10 J/cm2 red light", patch: { gpx4: 0, redDose: 10 } },
     { name: "Chelator + 660 nm", note: "Labile iron emptied plus 10 J/cm2 red light", patch: { labileIron: 0, redDose: 10 } },
     { name: "Erastin + chelator", note: "GPx4 down and labile iron emptied", patch: { gpx4: 0.2, labileIron: 0 } },
+    { name: "Erastin + 810 nm", note: "GPx4 down plus 10 J/cm2 near-infrared", patch: { gpx4: 0.2, nirDose: 10, redDose: 0 } },
+    { name: "RSL3 + 810 nm", note: "GPx4 blocked plus 10 J/cm2 near-infrared", patch: { gpx4: 0, nirDose: 10, redDose: 0 } },
+    { name: "Chelator + 810 nm", note: "Labile iron emptied plus 10 J/cm2 near-infrared", patch: { labileIron: 0, nirDose: 10, redDose: 0 } },
+    { name: "Erastin + chelator + light", note: "GPx4 down, iron emptied, 10 J/cm2 red light", patch: { gpx4: 0.2, labileIron: 0, redDose: 10 } },
   ];
 
   return (
@@ -416,7 +420,7 @@ export function Simulator({
             ))}
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Drug patch plus a 10 J/cm2 dose at 660 nm where light is part of the pair. Adjust the light sliders after clicking if you want a different dose.
+            Drug patch plus a 10 J/cm2 dose (660 nm unless the preset says otherwise; 810 nm presets zero the red dose so the near-infrared path is isolated). Adjust the light sliders after clicking if you want a different dose.
           </p>
         </div>
         {groups.map((g) => (

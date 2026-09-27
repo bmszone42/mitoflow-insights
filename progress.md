@@ -235,7 +235,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 
 ## Combination presets (done)
 - [x] Simulator input column: second preset row under Drug presets with named combo buttons: Erastin + 660 nm (GPx4 0.2 + 10 J/cm2), RSL3 + 660 nm (GPx4 0 + 10 J/cm2), Chelator + 660 nm (labile iron 0 + 10 J/cm2), Erastin + chelator (GPx4 0.2 + iron 0); presets still stack with whatever is set
-- [x] Verified in browser: buttons render and clicking applies the patches (Chelator + 660 nm shows labile iron 0, 660 nm dose 10 J/cm2); no page errors
+- [x] Light variants added: Erastin + 810 nm, RSL3 + 810 nm, Chelator + 810 nm (each sets nirDose 10 J/cm2 and zeroes redDose so the near-infrared path is isolated) and Erastin + chelator + light (GPx4 0.2 + iron 0 + 10 J/cm2 red); caption updated to explain the 810 nm zeroing
+- [x] Verified in browser: buttons render and clicking applies the patches (Chelator + 660 nm shows labile iron 0, 660 nm dose 10 J/cm2); typecheck clean, build OK
 
 ## RSL3 + iron preset verification (Sep 27 2026)
 - ✅ Ran RSL3 (GPx4 = 0) with labile iron at 10 uM: Ferroptosis panel shows Committed, risk 100, cardiolipin oxidized 32.7%, time course badge "Primed 0.0 h / Committed 0.0 h" (GPx4 is already zero when the integration starts, so the crossing is immediate).
