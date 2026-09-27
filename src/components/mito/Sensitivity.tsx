@@ -92,6 +92,20 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
   const outLabel = sensOutputs.find((o) => o.key === output)!.label;
 
   const grid = useMemo(() => grid2d(inputs, "labileIron", lightKey), [inputs, lightKey]);
+  // Lowest light dose where oxidized cardiolipin crosses the 30% Committed
+  // threshold, at the map's highest iron, for three NO levels. Shows how NO
+  // shifts the crossing without re-rendering the map.
+  const noCrossing = useMemo(() => {
+    const maxIron = Math.max(...grid.xs);
+    const crossAt = (no: number) => {
+      for (const y of grid.ys) {
+        const o = simulate({ ...inputs, nitricOxide: no, labileIron: maxIron, [lightKey]: y });
+        if (o.cardiolipinOx >= 30) return y;
+      }
+      return null;
+    };
+    return { low: crossAt(0), now: crossAt(inputs.nitricOxide), high: crossAt(400) };
+  }, [grid, inputs, lightKey]);
   const mapVals = grid.cells.flat().map((c) => c[mapOutput] ?? 0);
   const isRos = ["superoxide", "hydrogenPeroxide", "hydroxylRadical", "peroxynitrite", "lipidPeroxyl"].includes(mapOutput);
   const vMin = Math.min(...mapVals);
@@ -553,6 +567,10 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
               0,
             );
             return `${committedCells.length} of ${grid.cells.flat().length} cells are Committed. The lowest dose that commits any cell is ${minDose.toFixed(0)} J/cm2; without light, iron alone commits above ${maxIronNoLight.toFixed(0)} µM.${clLine}`;
+          })()}{" "}
+          {(() => {
+            const fmt = (v: number | null) => (v === null ? "never within 60 J/cm2" : `${v.toFixed(0)} J/cm2`);
+            return `At the map's highest iron, the 30% ox CL threshold is crossed at ${fmt(noCrossing.now)} with your current NO (${inputs.nitricOxide.toFixed(0)} nM), at ${fmt(noCrossing.low)} with NO at 0, and at ${fmt(noCrossing.high)} with NO at 400 nM.`;
           })()}
         </p>
         <p className="mt-1 text-[11px] text-muted-foreground">
