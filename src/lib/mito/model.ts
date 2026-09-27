@@ -260,8 +260,8 @@ export function photoreceptor(i: Inputs): Photoreceptor {
 
 export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const ge = geometryEffects(geo ?? defaultGeometry);
-  const psi = i.deltaPsi + ge.psiShift + pr.psiShift; // cristae junctions trap protons locally
   const pr = photoreceptor(i);
+  const psi = i.deltaPsi + ge.psiShift + pr.psiShift; // cristae junctions trap protons locally
   const photonGain = 1 + pr.civGain;
   const noEff = i.nitricOxide * (1 - pr.noReleased);
 
