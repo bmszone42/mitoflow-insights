@@ -38,8 +38,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
-  const out = useMemo(() => simulate(inputs), [inputs]);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
+  const out = useMemo(() => simulate(inputs, geo), [inputs, geo]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<Scenario["interpretation"]>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -120,7 +120,7 @@ function Index() {
             <Sensitivity inputs={inputs} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
-            <StructureModeler out={out} geo={geo} setGeo={setGeo} />
+            <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} />
             <div className="mt-4">
               <MicrographAnalyzer
                 inputs={inputs}
