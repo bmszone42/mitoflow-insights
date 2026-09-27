@@ -175,3 +175,11 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ 660 nm / 810 nm toggle; doseSweep in model.ts now returns all species and fesIntact per dose point
 - ✅ Tooltip shows actual pM (or % for Fe-S), not the log value
 - ✅ Browser verified: both wavelengths render, toggle switches curves, no page errors
+
+## 3D cristae viewer
+- ✅ Rotatable 3D mitochondrion (outer membrane, inner boundary membrane, lamellar or tubular cristae) in the Structure tab
+- ✅ New shape sliders: outer membrane swelling, cristae shape, tip curvature
+- ✅ Shape now drives the model: capacity, local membrane potential, cyt c retention, ATP efficiency, superoxide leak
+- ✅ Color overlays (superoxide, local membrane potential, complex density) and live outputs vs default shape
+- ❌ Structure sliders as a Sensitivity driver group
+- ❌ Geometry saved inside scenarios

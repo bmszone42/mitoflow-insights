@@ -186,7 +186,7 @@ export function StructureModeler({
                   <div key={r.label} className="flex items-baseline justify-between gap-2 border-b border-border/50 pb-1">
                     <span className="text-xs">{r.label}</span>
                     <span className="text-right font-mono text-xs">
-                      {r.v.toFixed(r.digits)} <span className="text-muted-foreground">{r.unit}</span>
+                      {r.v !== 0 && Math.abs(r.v) < 0.01 ? r.v.toExponential(2) : r.v.toFixed(r.digits)} <span className="text-muted-foreground">{r.unit}</span>
                       {pct !== null && Math.abs(pct) >= 0.1 && (
                         <span className={`ml-1 ${pct > 0 ? "text-accent" : "text-primary"}`}>
                           {pct > 0 ? "+" : ""}

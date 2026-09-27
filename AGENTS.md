@@ -24,3 +24,4 @@
 - Micrograph analysis runs through `src/routes/api/analyze-image.ts` (Responses API, image sent inline as a resized JPEG data URL, never stored server side); Structure geometry state lives in `src/routes/index.tsx` and `geometryRanges` in `model.ts` clamps AI geometry suggestions.
 
 - Ferroptosis math lives inside `simulate` in `src/lib/mito/model.ts` and exposes numeric outputs through `sensOutputs`, so Sensitivity, CSV and AI routes pick it up with no extra wiring.
+- Membrane geometry feeds `simulate(inputs, geo)` only through `geometryEffects` in `model.ts` (all multipliers 1 at `defaultGeometry`), and the 3D viewer `src/components/mito/Cristae3D.tsx` is lazy-loaded after mount so three.js never runs during SSR.
