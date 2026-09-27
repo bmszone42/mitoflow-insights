@@ -23,6 +23,7 @@ only, no account or database.
 - ✅ NO photodissociation from the Complex IV binuclear centre
 - ✅ 71 THz reporter band with a 60 to 90 THz spectrum view
 - ✅ Photon dose sweep chart for ATP flux and superoxide
+- ✅ ROS and Fe-S dose response chart with 3 and 30 J/cm2 study markers and fitted estimates
 - ✅ Structure modeler: cristae count, depth, junction width, matrix width, length
 - ✅ Clickable complexes with annotations, ROS field overlay tied to redox stress
 - ✅ Reference library: ROS species, Fe-S clusters, iron route, photon notes
