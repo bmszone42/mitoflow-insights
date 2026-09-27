@@ -900,6 +900,30 @@ function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
         </div>
         <p className="text-[11px] text-muted-foreground">{verdict} Light lowers lipid peroxyl radicals through NO photorelease but raises superoxide and H2O2 directly, so the net sign depends on iron and dose.</p>
       </div>
+      <div className="mt-4 space-y-1">
+        <div className="mono-label">Ferroptosis risk versus labile iron</div>
+        <div className="h-44">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={ironCurve}>
+              <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="iron" stroke={chartStyle.axis} fontSize={11} unit=" µM" />
+              <YAxis stroke={chartStyle.axis} fontSize={11} domain={[0, 100]} />
+              <Tooltip {...tooltipProps()} />
+              <Line type="monotone" dataKey="current" name="Current" stroke="var(--color-chart-1)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="gpx4blocked" name="GPx4 blocked" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="fsp1blocked" name="FSP1 blocked" stroke="var(--color-chart-2)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="bothBlocked" name="Both blocked" stroke="var(--color-destructive)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+              {inputs.labileIron > 0 && (
+                <ReferenceLine x={inputs.labileIron} stroke="var(--color-foreground)" strokeDasharray="4 3" label={{ value: "now", position: "top", fontSize: 10, fill: "var(--color-foreground)" }} />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Curves run at your active light dose ({activeDose.toFixed(0)} J/cm2). Light's tilt at your current iron:{" "}
+          {tiltLines.join(" · ")}
+        </p>
+      </div>
     </div>
   );
 }
