@@ -518,6 +518,9 @@ export function timeCourse(inputs: Inputs, hours = 48, steps = 96): TimePoint[] 
   const vInit = blocked.plooh * Math.max(kRemove - kProp, 0.02 * kRemove);
   const net = kProp - kRemove; // s-1
   const dt = (hours * 3600) / steps;
+  // Exact per-step solution of dP/dt = vInit + net * P; an explicit Euler step
+  // is unstable here because net * dt >> 1 at hour-scale steps.
+  const grow = Math.exp(net * dt);
   let p = pre.plooh;
   const pts: TimePoint[] = [];
   for (let k = 0; k <= steps; k++) {
@@ -529,7 +532,7 @@ export function timeCourse(inputs: Inputs, hours = 48, steps = 96): TimePoint[] 
           ? "Primed"
           : "Protected";
     pts.push({ t: Number(((k * hours) / steps).toFixed(2)), plooh: p, cardiolipinOx: ox, state });
-    p = Math.max(0, p + (vInit + net * p) * dt);
+    p = Math.max(0, Math.abs(net) > 1e-9 ? (p + vInit / net) * grow - vInit / net : p + vInit * dt);
   }
   return pts;
 }
