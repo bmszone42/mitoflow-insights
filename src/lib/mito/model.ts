@@ -534,7 +534,11 @@ export function timeCourse(inputs: Inputs, hours = 48, steps = 96): TimePoint[] 
   // Exact per-step solution of dP/dt = vInit + net * P; an explicit Euler step
   // is unstable here because net * dt >> 1 at hour-scale steps.
   const grow = Math.exp(net * dt);
-  let p = pre.plooh;
+  // Physical ceiling: PLOOH saturates when essentially all PUFA cardiolipin is
+  // oxidized (ox -> 99%). Without this clamp the exact step overflows to
+  // Infinity when net * dt is large (acute block plus high iron).
+  const pSat = (99 * 400) / pufa;
+  let p = Math.min(pre.plooh, pSat);
   const pts: TimePoint[] = [];
   for (let k = 0; k <= steps; k++) {
     const ox = (100 * p * pufa) / (p * pufa + 400);
