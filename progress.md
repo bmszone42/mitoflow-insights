@@ -246,3 +246,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - Each map cell now carries a filled dot when it is Committed (risk 100: propagation ratio 0.8 or 30% cardiolipin oxidized) and a ring when Primed (risk 50); hover shows risk and CL ox % per cell.
 - A live caption reports how many of the 441 cells are Committed, the lowest light dose that commits any cell, and the iron level that commits without light.
 - Verified: at defaults 188/441 cells are Primed and none Committed; RSL3 + 10 µM iron commits 236/441; typecheck clean, no page errors.
+
+## Ferroptosis risk versus iron curve ✅
+- The Ferroptosis panel now plots risk against labile iron (0-20 µM) for four antioxidant states at the active light dose: current, GPx4 blocked, FSP1 blocked, both blocked, with a "now" marker at the current iron.
+- A caption reports light's tilt (protects / sensitizes / neutral, with the risk delta) for each state at the current iron, so blocking GPx4 or FSP1 shows how it flips light's protective effect.
+- Verified in the browser with Erastin + 660 nm applied: FSP1-blocked and both-blocked curves saturate at risk 100 while current stays Primed; typecheck clean, no page errors.

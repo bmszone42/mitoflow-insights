@@ -830,6 +830,31 @@ function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
         : delta > 1
           ? `Light sensitizes here: risk ${activeRisk.toFixed(0)} versus ${baseRisk.red.toFixed(0)} without light.`
           : `Light is roughly neutral here: risk ${activeRisk.toFixed(0)} versus ${baseRisk.red.toFixed(0)} without light.`;
+  // Risk versus labile iron under four antioxidant states, at the active
+  // light dose, so blocking GPx4 or FSP1 shows how it tilts light's effect.
+  const blockerStates = [
+    { key: "current", label: "Current", patch: {} },
+    { key: "gpx4blocked", label: "GPx4 blocked", patch: { gpx4: 0 } },
+    { key: "fsp1blocked", label: "FSP1 blocked", patch: { fsp1: 0 } },
+    { key: "bothBlocked", label: "Both blocked", patch: { gpx4: 0, fsp1: 0 } },
+  ] as const;
+  const ironCurve = Array.from({ length: 21 }, (_, k) => {
+    const iron = k;
+    const row: Record<string, number> = { iron };
+    for (const s of blockerStates) {
+      row[s.key] = Number(simulate({ ...inputs, ...s.patch, labileIron: iron }).ferroptosisRisk.toFixed(1));
+    }
+    return row;
+  });
+  // Tilt of light's effect at the current iron for each state: risk with the
+  // active dose minus risk with no light. Negative means light protects.
+  const tiltLines = blockerStates.map((s) => {
+    const withLight = simulate({ ...inputs, ...s.patch }).ferroptosisRisk;
+    const noLight = simulate({ ...inputs, ...s.patch, redDose: 0, nirDose: 0 }).ferroptosisRisk;
+    const d = withLight - noLight;
+    const word = d < -1 ? "protects" : d > 1 ? "sensitizes" : "neutral";
+    return `${s.label}: light ${word} (${d >= 0 ? "+" : ""}${d.toFixed(1)})`;
+  });
   const r = out.ploohRemoval;
   const total = r.gpx4 + r.fsp1 + r.basal;
   const share = [
@@ -899,6 +924,30 @@ function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
           </ResponsiveContainer>
         </div>
         <p className="text-[11px] text-muted-foreground">{verdict} Light lowers lipid peroxyl radicals through NO photorelease but raises superoxide and H2O2 directly, so the net sign depends on iron and dose.</p>
+      </div>
+      <div className="mt-4 space-y-1">
+        <div className="mono-label">Ferroptosis risk versus labile iron</div>
+        <div className="h-44">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={ironCurve}>
+              <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="iron" stroke={chartStyle.axis} fontSize={11} unit=" µM" />
+              <YAxis stroke={chartStyle.axis} fontSize={11} domain={[0, 100]} />
+              <Tooltip {...tooltipProps()} />
+              <Line type="monotone" dataKey="current" name="Current" stroke="var(--color-chart-1)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="gpx4blocked" name="GPx4 blocked" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="fsp1blocked" name="FSP1 blocked" stroke="var(--color-chart-2)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="bothBlocked" name="Both blocked" stroke="var(--color-destructive)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+              {inputs.labileIron > 0 && (
+                <ReferenceLine x={inputs.labileIron} stroke="var(--color-foreground)" strokeDasharray="4 3" label={{ value: "now", position: "top", fontSize: 10, fill: "var(--color-foreground)" }} />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Curves run at your active light dose ({activeDose.toFixed(0)} J/cm2). Light's tilt at your current iron:{" "}
+          {tiltLines.join(" · ")}
+        </p>
       </div>
     </div>
   );
