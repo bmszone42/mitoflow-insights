@@ -318,7 +318,10 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const kGpx1 = 0.3 * ac;
   const kCat = 0.02;
   const kEfflux = 0.3; // diffusion to cytosol
-  const h2o2Removal = (h: number) => (prxVmax * h * hyper(h)) / (prxKm + h) + (kGpx1 + kCat + kEfflux) * h;
+  // GPx4 also reduces H2O2 weakly (it is primarily a lipid peroxidase),
+  // so the GPx4 slider modulates matrix H2O2 and thereby Fe-S attack.
+  const kGpx4h2o2 = 0.2 * i.gpx4;
+  const h2o2Removal = (h: number) => (prxVmax * h * hyper(h)) / (prxKm + h) + (kGpx1 + kGpx4h2o2 + kCat + kEfflux) * h;
   const h2o2 = solveSteady((h) => vH2O2 - h2o2Removal(h));
   const prxReduced = hyper(h2o2) * (1 - h2o2 / (prxKm + h2o2) * 0.5);
 
