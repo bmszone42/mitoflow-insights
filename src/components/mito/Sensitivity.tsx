@@ -18,6 +18,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import {
+  grid2d,
   sensitivity,
   sensitivityDrivers,
   sensOutputs,
@@ -40,6 +41,8 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
   const [delta, setDelta] = useState(0.2);
   const [output, setOutput] = useState<SensOutputKey>("superoxide");
   const [driver, setDriver] = useState<keyof Inputs>("labileIron");
+  const [lightKey, setLightKey] = useState<"redDose" | "nirDose">("redDose");
+  const [mapOutput, setMapOutput] = useState<SensOutputKey>("hydroxylRadical");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
