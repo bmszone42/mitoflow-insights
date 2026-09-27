@@ -396,6 +396,56 @@ export function Simulator({
 
         <FerroptosisPanel out={out} />
 
+        <div className="panel p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 className="text-sm font-semibold">Ferroptosis time course</h3>
+              <p className="mono-label mt-1">Cardiolipin oxidation after an acute GPx4 block</p>
+            </div>
+            <Badge
+              variant={tCommitted !== null ? "destructive" : tPrimed !== null ? "secondary" : "outline"}
+              className="font-mono text-[11px]"
+            >
+              {tCommitted !== null
+                ? `Primed ${tPrimed?.toFixed(1)} h · Committed ${tCommitted.toFixed(1)} h`
+                : tPrimed !== null
+                  ? `Primed ${tPrimed.toFixed(1)} h · not Committed within 48 h`
+                  : "Stays Protected for 48 h"}
+            </Badge>
+          </div>
+          <div className="mt-3 h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={course}>
+                <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="t" stroke={chartStyle.axis} fontSize={11} unit=" h" />
+                <YAxis
+                  stroke={chartStyle.axis}
+                  fontSize={11}
+                  unit="%"
+                  domain={[0, (max: number) => Math.max(35, Math.ceil(max))]}
+                />
+                <Tooltip {...tooltipProps()} />
+                <ReferenceLine y={10} stroke="var(--color-warning)" strokeDasharray="4 3" label={{ value: "Primed", fill: chartStyle.axis, fontSize: 10, position: "insideTopRight" }} />
+                <ReferenceLine y={30} stroke="var(--color-destructive)" strokeDasharray="4 3" label={{ value: "Committed", fill: chartStyle.axis, fontSize: 10, position: "insideTopRight" }} />
+                <Line
+                  type="monotone"
+                  dataKey="cardiolipinOx"
+                  name="Cardiolipin oxidized %"
+                  stroke="var(--color-warning)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            GPx4 is set to zero at t = 0 (RSL3 / ML162-like block); FSP1 and basal scavenging keep removing PLOOH
+            while Fe2+-driven propagation builds it. The cell crosses Primed at 10% oxidized cardiolipin and
+            Committed at 30%. The dose chart above shows how red and near-infrared dose shift the time to
+            Committed.
+          </p>
+        </div>
+
         <div className="grid gap-4 xl:grid-cols-2">
           <div className="panel p-4">
             <h3 className="text-sm font-semibold">ROS species, steady state</h3>
@@ -494,6 +544,28 @@ export function Simulator({
                   strokeDasharray="4 3"
                   strokeWidth={2}
                   dot={false}
+                />
+                <YAxis yAxisId="hours" hide domain={[0, 48]} />
+                <Line
+                  yAxisId="hours"
+                  type="monotone"
+                  dataKey="redTTC"
+                  name="Time to Committed, 660 nm (h)"
+                  stroke="var(--color-destructive)"
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls={false}
+                />
+                <Line
+                  yAxisId="hours"
+                  type="monotone"
+                  dataKey="nirTTC"
+                  name="Time to Committed, 810 nm (h)"
+                  stroke="var(--color-warning)"
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  dot={false}
+                  connectNulls={false}
                 />
               </LineChart>
             </ResponsiveContainer>
