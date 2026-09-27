@@ -262,3 +262,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - The "Ferroptosis risk versus light dose" chart now plots oxidized cardiolipin (%) for 660 nm (solid) and 810 nm (dashed) alongside the risk curves, on the same 0-100 axis.
 - A dashed red reference line at 30% marks the Committed threshold with an in-chart label; the caption explains that crossing that line means cells commit at that dose.
 - Verified in the browser at defaults: risk ~19 and ox CL ~5.8% stay flat across the dose range, so no dose commits at baseline; typecheck clean, build OK, no page errors.
+
+## 30% ox CL threshold in the iron x light map caption ✅
+- The map's ferroptosis threshold caption now scans all 441 cells for cardiolipinOx >= 30 and reports the exact lowest light dose (and the iron level at that dose) where oxidized cardiolipin first crosses the Committed threshold, or states that it stays below 30% everywhere.
+- Typecheck clean.
