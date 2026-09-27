@@ -17,7 +17,7 @@ import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { defaultInputs, doseSweep, simulate, type Inputs, type Outputs } from "@/lib/mito/model";
+import { defaultInputs, doseSweep, simulate, timeCourse, timeToCommitted, type Inputs, type Outputs } from "@/lib/mito/model";
 
 type ControlDef = {
   key: keyof Inputs;
@@ -291,7 +291,15 @@ export function Simulator({
     redATP: r.atp,
     nirATP: nirSweep[k]?.atp ?? 0,
     redROS: r.superoxide,
+    // hours to reach Committed after an acute GPx4 block at this dose (null = never within 48 h)
+    redTTC: timeToCommitted({ ...inputs, redDose: r.dose }),
+    nirTTC: timeToCommitted({ ...inputs, nirDose: nirSweep[k]?.dose ?? 0 }),
   }));
+
+  // Ferroptosis time course after an acute GPx4 block at the current settings.
+  const course = timeCourse(inputs);
+  const tPrimed = course.find((p) => p.state !== "Protected")?.t ?? null;
+  const tCommitted = course.find((p) => p.state === "Committed")?.t ?? null;
 
   const set = (key: keyof Inputs, value: number) => setInputs({ ...inputs, [key]: value });
 
