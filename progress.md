@@ -266,3 +266,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 ## 30% ox CL threshold in the iron x light map caption ✅
 - The map's ferroptosis threshold caption now scans all 441 cells for cardiolipinOx >= 30 and reports the exact lowest light dose (and the iron level at that dose) where oxidized cardiolipin first crosses the Committed threshold, or states that it stays below 30% everywhere.
 - Typecheck clean.
+
+## Peroxynitrite-specific Fe-S attack term ✅
+- model.ts: kOnooFes = 1e7 * 1e-6 µM-1 s-1 effective added to clusterAttack; ONOO- oxidizes aconitase [4Fe-4S] at ~1e5 M-1 s-1 (Castro 1994, Hausladen & Fridovich 1994), scaled up because the model's ONOO- steady state is nM-scale. Fe-S block moved after the peroxynitrite calculation. Unfitted.
+- NO now modulates cluster loss: Fe-S 88.6% at 40 nM NO, 85.1% at 200 nM, 82.1% at 400 nM, 77.5% at 400 nM + 60 J/cm2 660 nm.
+- Iron x light map re-run: Fe-S 88.6% no light, 82.4% at 60 J/cm2 660 nm, 84.0% at 810 nm, 80.1% at 60+60 combined; aconitase tracks Fe-S; iron alone still does not move Fe-S. Typecheck clean.

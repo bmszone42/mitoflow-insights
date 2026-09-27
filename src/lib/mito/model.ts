@@ -325,21 +325,6 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const h2o2 = solveSteady((h) => vH2O2 - h2o2Removal(h));
   const prxReduced = hyper(h2o2) * (1 - h2o2 / (prxKm + h2o2) * 0.5);
 
-  // Fe-S cluster attack and labile iron feedback.
-  // Superoxide term: effective rate for attack on aconitase (Flint 1993,
-  // ~1e7 M-1 s-1), strengthened 3.5x so light-driven superoxide visibly
-  // erodes clusters at photobiomodulation doses.
-  // H2O2 term: measured attack on dehydratase [4Fe-4S] clusters is
-  // ~5e3 M-1 s-1 (Jang & Imlay 2007); scaled up here as an effective rate
-  // for the wider cluster pool so antioxidant capacity (Prx3, GPx1, GPx4)
-  // modulates cluster loss. Both terms unfitted; shapes follow Imlay 2003.
-  const kAcon = 3.5e7 * 1e-6; // µM-1 s-1 effective
-  const kH2o2Fes = 1e4 * 1e-6; // µM-1 s-1 effective, H2O2-specific
-  const clusterAttack = kAcon * superoxideM + kH2o2Fes * h2o2; // s-1
-  const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // ISC assembly (ISCU/NFS1/frataxin)
-  const fesIntact = kRepair / (kRepair + clusterAttack);
-  const ironFromClusters = 4 * 6 * (1 - fesIntact); // ~6 µM cluster protein x 4 Fe
-  const freeIron = i.labileIron + ironFromClusters;
 
   // --- Peroxynitrite: formation and competing sinks (Radi 2013) ---
   const vPN = kNoO2 * superoxideM; // µM s-1
@@ -351,6 +336,29 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const kPnTotal = kPnCO2 + kPnPrx + kPnGpx + kPnThiol + kPnHomolysis;
   const onooM = vPN / kPnTotal; // µM
   const peroxynitrite = onooM * 1e3; // nM
+
+  // Fe-S cluster attack and labile iron feedback.
+  // Superoxide term: effective rate for attack on aconitase (Flint 1993,
+  // ~1e7 M-1 s-1), strengthened 3.5x so light-driven superoxide visibly
+  // erodes clusters at photobiomodulation doses.
+  // H2O2 term: measured attack on dehydratase [4Fe-4S] clusters is
+  // ~5e3 M-1 s-1 (Jang & Imlay 2007); scaled up here as an effective rate
+  // for the wider cluster pool so antioxidant capacity (Prx3, GPx1, GPx4)
+  // modulates cluster loss.
+  // Peroxynitrite term: ONOO- oxidizes and inactivates aconitase [4Fe-4S]
+  // with k ~1e5 M-1 s-1 (Castro 1994, Hausladen & Fridovich 1994); used
+  // here as an effective rate on the cluster pool so NO availability
+  // modulates cluster loss through the ONOO- branch. All terms unfitted;
+  // shapes follow Imlay 2003 and Radi 2013.
+  const kAcon = 3.5e7 * 1e-6; // µM-1 s-1 effective
+  const kH2o2Fes = 1e4 * 1e-6; // µM-1 s-1 effective, H2O2-specific
+  const kOnooFes = 1e7 * 1e-6; // µM-1 s-1 effective, ONOO- specific (scaled up: model ONOO- steady state is nM-scale)
+  const clusterAttack = kAcon * superoxideM + kH2o2Fes * h2o2 + kOnooFes * onooM; // s-1
+  const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // ISC assembly (ISCU/NFS1/frataxin)
+  const fesIntact = kRepair / (kRepair + clusterAttack);
+  const ironFromClusters = 4 * 6 * (1 - fesIntact); // ~6 µM cluster protein x 4 Fe
+  const freeIron = i.labileIron + ironFromClusters;
+
 
   // --- Hydroxyl radical: Fenton, Haber-Weiss recycling, ONOOH homolysis ---
   const kFeRed = 0.5 * ac + 1 * superoxideM * 1e3; // ascorbate/GSH + O2•- reduction of Fe3+
