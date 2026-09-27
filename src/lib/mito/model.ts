@@ -21,6 +21,19 @@
  *  - Cytochrome c oxidase 660 nm / 810 nm absorption and NO photolysis
  *    (Karu 2010; Lane 2006 Nature 443:901) -> CIV rate gain up to ~1.4x
  *    at ~10-30 J/cm2, biphasic above ~60 J/cm2 (Arndt-Schulz behaviour).
+ *  - Direct photon ROS: 810 nm raises mitochondrial ROS independently of NO,
+ *    a modest burst peaking at ~3 J/cm2 (Chen et al. 2011 PLoS One 6:e22453)
+ *    and a larger stress-type rise with MMP loss at >=30 J/cm2
+ *    (Huang et al. 2013 J Biophotonics 6:829). Red light yields H2O2 directly
+ *    via flavin photosensitization (Hockberger et al. 1999 PNAS 96:6255).
+ *  - Ferroptosis: GPx4 reduces phospholipid hydroperoxides (PLOOH) with GSH,
+ *    k ~ 1e7 M-1 s-1 (Ursini et al. 1985 BBA 839:62); FSP1 regenerates
+ *    CoQ10H2 as a GPx4-independent radical-trapping antioxidant
+ *    (Bersuker et al. 2019 Nature 575:688; Doll et al. 2019 Nature 575:693).
+ *    Fe2+-catalysed PLOOH decomposition makes propagation autocatalytic;
+ *    commitment when it outpaces removal (Dixon et al. 2012 Cell 149:1060).
+ *    Cardiolipin peroxidation above ~10% primes cytochrome c release
+ *    (Kagan et al. 2005 Nat Chem Biol 1:223). Rate scaling here is lumped.
  *  - Mid-IR emission near 71 THz (≈4.22 µm, 2370 cm-1) tracked as a
  *    flux-proportional reporter band (Pokorny; Sahu et al. 2013 ordering
  *    in microtubule/mitochondrial water layers). Treated as a relative
