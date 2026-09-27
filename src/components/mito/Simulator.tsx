@@ -339,12 +339,19 @@ export function Simulator({
   // One-click drug presets. Values are relative model settings, not doses:
   // erastin depletes GSH so GPx4 drops, RSL3 inhibits GPx4 directly,
   // ferrostatin-1 adds radical trapping (FSP1-like), chelators (DFO/DFOm)
-  // empty the labile iron pool.
+  // empty the labile iron pool. Combo presets pair a drug with a 10 J/cm2
+  // 660 nm light dose as a starting point; tweak the sliders afterward.
   const drugPresets: { name: string; note: string; patch: Partial<Inputs> }[] = [
     { name: "Erastin", note: "Cystine block, GSH falls", patch: { gpx4: 0.2 } },
     { name: "RSL3", note: "Direct GPx4 inhibition", patch: { gpx4: 0 } },
     { name: "Ferrostatin-1", note: "Radical trapping", patch: { fsp1: 2 } },
     { name: "Iron chelator", note: "DFO / DFOm", patch: { labileIron: 0 } },
+  ];
+  const comboPresets: { name: string; note: string; patch: Partial<Inputs> }[] = [
+    { name: "Erastin + 660 nm", note: "GPx4 down plus 10 J/cm2 red light", patch: { gpx4: 0.2, redDose: 10 } },
+    { name: "RSL3 + 660 nm", note: "GPx4 blocked plus 10 J/cm2 red light", patch: { gpx4: 0, redDose: 10 } },
+    { name: "Chelator + 660 nm", note: "Labile iron emptied plus 10 J/cm2 red light", patch: { labileIron: 0, redDose: 10 } },
+    { name: "Erastin + chelator", note: "GPx4 down and labile iron emptied", patch: { gpx4: 0.2, labileIron: 0 } },
   ];
 
   return (
