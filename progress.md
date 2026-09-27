@@ -190,3 +190,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ Photoreceptor panel and 71 THz coherence panel (pump vs losses, threshold, coherent fraction)
 - ✅ 71 THz, coherent fraction, NO released and temperature rise added to Sensitivity, CSV and AI explanations
 - ❌ Calibrate chromophore strengths against measured action spectra and dose curves
+
+## AI interpretation of the interaction map
+- ✅ "Interpret this map (AI)" button on the iron x light map sends iron-only, light-only, combined effects and synergy for every output plus a coarse grid
+- ✅ Streams into the AI panel; on success a new scenario (inputs, snapshot, interpretation) is saved automatically and appears in Scenarios and Compare
