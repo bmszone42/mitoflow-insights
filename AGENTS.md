@@ -22,3 +22,5 @@
 - All AI routes (`/api/interpret`, `/api/suggest`, `/api/analyze-image`, `/api/explain-sensitivity`) go through `src/lib/mito/rate-limit.server.ts` (in-memory, per instance) so abuse limits live in one place; move to a database if strict limits are needed.
 - `inputRanges` in `src/lib/mito/model.ts` is the source of slider ranges for clamping AI suggestions and for comparison labels.
 - Micrograph analysis runs through `src/routes/api/analyze-image.ts` (Responses API, image sent inline as a resized JPEG data URL, never stored server side); Structure geometry state lives in `src/routes/index.tsx` and `geometryRanges` in `model.ts` clamps AI geometry suggestions.
+
+- Ferroptosis math lives inside `simulate` in `src/lib/mito/model.ts` and exposes numeric outputs through `sensOutputs`, so Sensitivity, CSV and AI routes pick it up with no extra wiring.

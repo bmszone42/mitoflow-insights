@@ -183,3 +183,22 @@ export const photonNotes = [
     body: "Treated as a relative mid-infrared reporter at ≈4.22 µm (2370 cm-1) that scales with cytochrome c oxidase turnover, membrane potential and ordered interfacial water. Cardiolipin peroxidation damps it, so the band is read as a coherence and coupling index rather than an absolute radiometric prediction.",
   },
 ];
+
+export const ferroptosisNotes = [
+  {
+    title: "GPx4",
+    body: "Selenoprotein that reduces phospholipid hydroperoxides to alcohols using GSH (k near 1e7 M-1 s-1). Inhibited by RSL3 and ML162; GSH depletion by erastin (system xc- block) disables it indirectly.",
+  },
+  {
+    title: "FSP1 (AIFM2)",
+    body: "NAD(P)H-dependent reductase that regenerates ubiquinol (CoQ10H2), a radical-trapping antioxidant. Protects independently of GPx4; inhibited by iFSP1.",
+  },
+  {
+    title: "ACSL4",
+    body: "Loads arachidonic and adrenic acid into membrane phospholipids, raising the PUFA substrate for peroxidation. Modeled as the cardiolipin PUFA fraction.",
+  },
+  {
+    title: "Cardiolipin peroxidation",
+    body: "Oxidized cardiolipin loosens cytochrome c binding; above roughly 10% oxidation cytochrome c release begins. Fe2+ decomposes lipid hydroperoxides into alkoxyl radicals, making propagation autocatalytic once it outpaces GPx4 and FSP1.",
+  },
+];

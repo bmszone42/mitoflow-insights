@@ -24,7 +24,7 @@ type ControlDef = {
   min: number;
   max: number;
   step: number;
-  group: "substrate" | "iron" | "photon";
+  group: "substrate" | "iron" | "photon" | "ferroptosis";
   hint: string;
 };
 
@@ -139,6 +139,36 @@ const controls: ControlDef[] = [
     group: "photon",
     hint: "CuA band, NO photodissociation",
   },
+  {
+    key: "gpx4",
+    label: "GPx4 activity",
+    unit: "rel",
+    min: 0,
+    max: 2,
+    step: 0.05,
+    group: "ferroptosis",
+    hint: "0 mimics RSL3 or ML162 inhibition",
+  },
+  {
+    key: "fsp1",
+    label: "FSP1 / CoQ10H2",
+    unit: "rel",
+    min: 0,
+    max: 2,
+    step: 0.05,
+    group: "ferroptosis",
+    hint: "GPx4-independent radical trapping",
+  },
+  {
+    key: "cardiolipinPufa",
+    label: "Cardiolipin PUFA fraction",
+    unit: "frac",
+    min: 0.2,
+    max: 1,
+    step: 0.01,
+    group: "ferroptosis",
+    hint: "ACSL4-driven substrate for peroxidation",
+  },
 ];
 
 const chartStyle = {
@@ -221,6 +251,7 @@ export function Simulator({
     { id: "substrate", title: "Bioenergetics", note: "Substrate supply and coupling" },
     { id: "iron", title: "Iron and defence", note: "Fenton substrate and scavenging" },
     { id: "photon", title: "Photon input", note: "Biphasic dose response" },
+    { id: "ferroptosis", title: "Ferroptosis defence", note: "Lipid hydroperoxide removal" },
   ];
 
   return (
@@ -302,6 +333,8 @@ export function Simulator({
             />
           </div>
         </div>
+
+        <FerroptosisPanel out={out} />
 
         <div className="grid gap-4 xl:grid-cols-2">
           <div className="panel p-4">
@@ -416,3 +449,59 @@ export function Simulator({
 }
 
 export { simulate };
+
+function FerroptosisPanel({ out }: { out: Outputs }) {
+  const r = out.ploohRemoval;
+  const total = r.gpx4 + r.fsp1 + r.basal;
+  const share = [
+    { name: "GPx4", v: r.gpx4, cls: "bg-primary" },
+    { name: "FSP1", v: r.fsp1, cls: "bg-accent" },
+    { name: "Basal", v: r.basal, cls: "bg-muted-foreground" },
+  ];
+  const ratioPct = Math.min(100, (out.propagationRatio / 1) * 100);
+  const variant =
+    out.ferroptosisState === "Committed" ? "destructive" : out.ferroptosisState === "Primed" ? "secondary" : "outline";
+  return (
+    <div className="panel p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold">Ferroptosis</h3>
+        <Badge variant={variant} className="font-mono text-[11px]">
+          {out.ferroptosisState} · risk {out.ferroptosisRisk.toFixed(0)}
+        </Badge>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <Metric label="PLOOH" value={out.plooh.toPrecision(3)} unit="nM" tone="warning" />
+        <Metric label="Cardiolipin oxidized" value={out.cardiolipinOx.toFixed(1)} unit="%" tone="warning" />
+        <Metric label="Propagation / removal" value={out.propagationRatio.toFixed(2)} unit="ratio" />
+      </div>
+      <div className="mt-4 space-y-1">
+        <div className="mono-label">Iron-driven propagation vs removal</div>
+        <div className="relative h-3 overflow-hidden rounded-full bg-muted">
+          <div className="h-full bg-warning" style={{ width: `${ratioPct}%` }} />
+          <div className="absolute inset-y-0 w-px bg-foreground" style={{ left: "40%" }} title="Primed" />
+          <div className="absolute inset-y-0 w-px bg-destructive" style={{ left: "80%" }} title="Committed" />
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Primed at 0.4 or 10% oxidized cardiolipin (cytochrome c release begins). Committed at 0.8 or 30%, when Fe2+
+          propagation outpaces GPx4 and FSP1.
+        </p>
+      </div>
+      <div className="mt-4 space-y-1">
+        <div className="mono-label">Share of PLOOH removal</div>
+        <div className="flex h-3 overflow-hidden rounded-full bg-muted">
+          {share.map((s) => (
+            <div key={s.name} className={s.cls} style={{ width: `${(s.v / total) * 100}%` }} title={s.name} />
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+          {share.map((s) => (
+            <span key={s.name} className="flex items-center gap-1">
+              <span className={`inline-block size-2 rounded-full ${s.cls}`} />
+              {s.name} {((s.v / total) * 100).toFixed(0)}%
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

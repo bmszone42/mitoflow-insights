@@ -21,6 +21,19 @@
  *  - Cytochrome c oxidase 660 nm / 810 nm absorption and NO photolysis
  *    (Karu 2010; Lane 2006 Nature 443:901) -> CIV rate gain up to ~1.4x
  *    at ~10-30 J/cm2, biphasic above ~60 J/cm2 (Arndt-Schulz behaviour).
+ *  - Direct photon ROS: 810 nm raises mitochondrial ROS independently of NO,
+ *    a modest burst peaking at ~3 J/cm2 (Chen et al. 2011 PLoS One 6:e22453)
+ *    and a larger stress-type rise with MMP loss at >=30 J/cm2
+ *    (Huang et al. 2013 J Biophotonics 6:829). Red light yields H2O2 directly
+ *    via flavin photosensitization (Hockberger et al. 1999 PNAS 96:6255).
+ *  - Ferroptosis: GPx4 reduces phospholipid hydroperoxides (PLOOH) with GSH,
+ *    k ~ 1e7 M-1 s-1 (Ursini et al. 1985 BBA 839:62); FSP1 regenerates
+ *    CoQ10H2 as a GPx4-independent radical-trapping antioxidant
+ *    (Bersuker et al. 2019 Nature 575:688; Doll et al. 2019 Nature 575:693).
+ *    Fe2+-catalysed PLOOH decomposition makes propagation autocatalytic;
+ *    commitment when it outpaces removal (Dixon et al. 2012 Cell 149:1060).
+ *    Cardiolipin peroxidation above ~10% primes cytochrome c release
+ *    (Kagan et al. 2005 Nat Chem Biol 1:223). Rate scaling here is lumped.
  *  - Mid-IR emission near 71 THz (≈4.22 µm, 2370 cm-1) tracked as a
  *    flux-proportional reporter band (Pokorny; Sahu et al. 2013 ordering
  *    in microtubule/mitochondrial water layers). Treated as a relative
@@ -39,6 +52,9 @@ export type Inputs = {
   nirDose: number; // J/cm2 at 810 nm
   antioxidantCapacity: number; // 0-2 scaling of Prx3/GPx/GSH system
   uncoupling: number; // 0-1 UCP/mild uncoupler
+  gpx4: number; // 0-2 relative GPx4 activity (0 = RSL3/ML162 inhibited)
+  fsp1: number; // 0-2 relative FSP1/CoQ10H2 capacity
+  cardiolipinPufa: number; // 0.2-1 fraction of PUFA acyl chains (ACSL4-driven)
 };
 
 export const defaultInputs: Inputs = {
@@ -53,7 +69,12 @@ export const defaultInputs: Inputs = {
   nirDose: 0,
   antioxidantCapacity: 1,
   uncoupling: 0.05,
+  gpx4: 1,
+  fsp1: 1,
+  cardiolipinPufa: 0.6,
 };
+
+export type FerroptosisState = "Protected" | "Primed" | "Committed";
 
 export type Outputs = {
   fluxCI: number;
@@ -73,6 +94,12 @@ export type Outputs = {
   emission71THz: number; // relative units
   emissionSpectrum: { freqTHz: number; intensity: number }[];
   redoxStress: number; // 0-100 composite index
+  plooh: number; // nM lumped phospholipid hydroperoxide
+  cardiolipinOx: number; // % cardiolipin oxidized
+  ferroptosisRisk: number; // 0-100, propagation / removal ratio
+  ferroptosisState: FerroptosisState;
+  ploohRemoval: { gpx4: number; fsp1: number; basal: number }; // s-1 each
+  propagationRatio: number; // Fe-driven propagation / total removal
 };
 
 // Arndt-Schulz biphasic photon response for cytochrome c oxidase.
@@ -159,10 +186,29 @@ export function simulate(i: Inputs): Outputs {
   // Lipid peroxyl radicals / cardiolipin chain propagation.
   const lipidPeroxyl = (40 * hydroxyl * 1e6 + 0.15 * peroxynitrite) / i.antioxidantCapacity;
 
+  // --- Ferroptosis: PLOOH balance with GPx4 / FSP1 removal ---
+  const pufa = i.cardiolipinPufa;
+  const vInit = pufa * 2500 * lipidPeroxyl; // nM s-1, LOO• chain initiation (lumped)
+  const kGpx4 = 0.05 * i.gpx4 * Math.sqrt(i.antioxidantCapacity); // needs GSH
+  const kFsp1 = 0.03 * i.fsp1;
+  const kBasal = 0.01; // vitamin E, other scavengers
+  const kRemove = kGpx4 + kFsp1 + kBasal;
+  const kProp = 0.004 * freeIron * pufa; // Fe2+-driven autocatalysis, s-1
+  const propagationRatio = kProp / kRemove;
+  const plooh = vInit / Math.max(kRemove - kProp, 0.02 * kRemove);
+  const cardiolipinOx = (100 * plooh * pufa) / (plooh * pufa + 400);
+  const ferroptosisRisk = Math.min(100, 100 * Math.max(propagationRatio / 0.8, cardiolipinOx / 30));
+  const ferroptosisState: FerroptosisState =
+    propagationRatio >= 0.8 || cardiolipinOx >= 30
+      ? "Committed"
+      : propagationRatio >= 0.4 || cardiolipinOx >= 10
+        ? "Primed"
+        : "Protected";
+
   // --- 71 THz output band ---
   // Emission tracks coherent turnover: CIV flux, proton gradient and
   // ordered interfacial water. Peroxidation of cardiolipin dampens it.
-  const coherence = (fluxCIV / 60) * (i.deltaPsi / 160) * (1 - Math.min(0.6, lipidPeroxyl / 200));
+  const coherence = (fluxCIV / 60) * (i.deltaPsi / 160) * (1 - Math.min(0.6, lipidPeroxyl / 200)) * (1 - cardiolipinOx / 200);
   const emission71THz = Math.max(0, coherence * 100);
 
   const emissionSpectrum = Array.from({ length: 61 }, (_, k) => {
@@ -202,6 +248,12 @@ export function simulate(i: Inputs): Outputs {
     emission71THz,
     emissionSpectrum,
     redoxStress,
+    plooh,
+    cardiolipinOx,
+    ferroptosisRisk,
+    ferroptosisState,
+    ploohRemoval: { gpx4: kGpx4, fsp1: kFsp1, basal: kBasal },
+    propagationRatio,
   };
 }
 
@@ -233,10 +285,14 @@ export const sensitivityDrivers: DriverDef[] = [
   { key: "labileIron", label: "Labile iron", min: 0, max: 20, group: "Iron" },
   { key: "redDose", label: "660 nm dose", min: 0, max: 60, group: "Photon" },
   { key: "nirDose", label: "810 nm dose", min: 0, max: 60, group: "Photon" },
+  { key: "gpx4", label: "GPx4 activity", min: 0, max: 2, group: "Ferroptosis" },
+  { key: "fsp1", label: "FSP1 / CoQ10H2", min: 0, max: 2, group: "Ferroptosis" },
+  { key: "cardiolipinPufa", label: "Cardiolipin PUFA", min: 0.2, max: 1, group: "Ferroptosis" },
 ];
 export type SensOutputKey =
   | "superoxide" | "hydrogenPeroxide" | "hydroxylRadical" | "peroxynitrite"
-  | "lipidPeroxyl" | "fesIntact" | "aconitaseActivity" | "freeIron";
+  | "lipidPeroxyl" | "fesIntact" | "aconitaseActivity" | "freeIron"
+  | "plooh" | "cardiolipinOx" | "ferroptosisRisk";
 export const sensOutputs: { key: SensOutputKey; label: string }[] = [
   { key: "superoxide", label: "O2•-" },
   { key: "hydrogenPeroxide", label: "H2O2" },
@@ -246,6 +302,9 @@ export const sensOutputs: { key: SensOutputKey; label: string }[] = [
   { key: "fesIntact", label: "Fe-S intact" },
   { key: "aconitaseActivity", label: "Aconitase" },
   { key: "freeIron", label: "Free Fe2+" },
+  { key: "plooh", label: "PLOOH" },
+  { key: "cardiolipinOx", label: "CL ox %" },
+  { key: "ferroptosisRisk", label: "Ferroptosis risk" },
 ];
 
 const pctChange = (v: number, b: number) => (b === 0 ? 0 : ((v - b) / Math.abs(b)) * 100);
@@ -309,6 +368,9 @@ export const inputRanges: Record<keyof Inputs, { min: number; max: number; label
   nirDose: { min: 0, max: 60, label: "810 nm dose", unit: "J/cm2" },
   antioxidantCapacity: { min: 0.2, max: 2, label: "Antioxidant capacity", unit: "rel" },
   uncoupling: { min: 0, max: 1, label: "Uncoupling", unit: "fraction" },
+  gpx4: { min: 0, max: 2, label: "GPx4 activity", unit: "rel" },
+  fsp1: { min: 0, max: 2, label: "FSP1 / CoQ10H2 capacity", unit: "rel" },
+  cardiolipinPufa: { min: 0.2, max: 1, label: "Cardiolipin PUFA fraction", unit: "fraction" },
 };
 
 // Structure view geometry (SVG units, roughly nm-scaled). Source of ranges for the Structure

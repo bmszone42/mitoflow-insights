@@ -165,3 +165,5 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ Browser verified: download fires, CSV parses, all sections present, no page errors
 
 - ✅ Direct NO-independent photon ROS: low-dose superoxide/H2O2 burst (~3 J/cm2) plus high-dose stress rise (>=30 J/cm2), flavin H2O2 term (Chen 2011, Huang 2013, Hockberger 1999)
+
+- ✅ Ferroptosis module: GPx4, FSP1, cardiolipin PUFA sliders; PLOOH, oxidized cardiolipin, risk and Protected/Primed/Committed state; removal share and threshold gauge; wired into Sensitivity, CSV, Compare, AI routes and Reference
