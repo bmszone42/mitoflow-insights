@@ -370,6 +370,10 @@ export function Simulator({
     { name: "RSL3 + 660 nm", note: "GPx4 blocked plus 10 J/cm2 red light", patch: { gpx4: 0, redDose: 10 } },
     { name: "Chelator + 660 nm", note: "Labile iron emptied plus 10 J/cm2 red light", patch: { labileIron: 0, redDose: 10 } },
     { name: "Erastin + chelator", note: "GPx4 down and labile iron emptied", patch: { gpx4: 0.2, labileIron: 0 } },
+    { name: "Erastin + 810 nm", note: "GPx4 down plus 10 J/cm2 near-infrared", patch: { gpx4: 0.2, nirDose: 10, redDose: 0 } },
+    { name: "RSL3 + 810 nm", note: "GPx4 blocked plus 10 J/cm2 near-infrared", patch: { gpx4: 0, nirDose: 10, redDose: 0 } },
+    { name: "Chelator + 810 nm", note: "Labile iron emptied plus 10 J/cm2 near-infrared", patch: { labileIron: 0, nirDose: 10, redDose: 0 } },
+    { name: "Erastin + chelator + light", note: "GPx4 down, iron emptied, 10 J/cm2 red light", patch: { gpx4: 0.2, labileIron: 0, redDose: 10 } },
   ];
 
   return (
