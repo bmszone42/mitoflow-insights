@@ -167,3 +167,9 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ Direct NO-independent photon ROS: low-dose superoxide/H2O2 burst (~3 J/cm2) plus high-dose stress rise (>=30 J/cm2), flavin H2O2 term (Chen 2011, Huang 2013, Hockberger 1999)
 
 - ✅ Ferroptosis module: GPx4, FSP1, cardiolipin PUFA sliders; PLOOH, oxidized cardiolipin, risk and Protected/Primed/Committed state; removal share and threshold gauge; wired into Sensitivity, CSV, Compare, AI routes and Reference
+
+## Update: per-species light dose response curve (Simulator)
+- ✅ New "ROS and Fe-S dose response" panel: every ROS species (O2•-, H2O2, •OH, ONOO-, 1O2, LOO•) versus delivered dose on a shared log10 pM axis, Fe-S intact on a right percent axis
+- ✅ 660 nm / 810 nm toggle; doseSweep in model.ts now returns all species and fesIntact per dose point
+- ✅ Tooltip shows actual pM (or % for Fe-S), not the log value
+- ✅ Browser verified: both wavelengths render, toggle switches curves, no page errors
