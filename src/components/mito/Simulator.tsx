@@ -420,7 +420,7 @@ export function Simulator({
             ))}
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Drug patch plus a 10 J/cm2 dose at 660 nm where light is part of the pair. Adjust the light sliders after clicking if you want a different dose.
+            Drug patch plus a 10 J/cm2 dose (660 nm unless the preset says otherwise; 810 nm presets zero the red dose so the near-infrared path is isolated). Adjust the light sliders after clicking if you want a different dose.
           </p>
         </div>
         {groups.map((g) => (
