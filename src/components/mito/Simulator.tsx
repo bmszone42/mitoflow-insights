@@ -686,6 +686,8 @@ export function Simulator({
                 <Line yAxisId="left" type="monotone" dataKey="logSinglet" name="1O2" stroke="var(--color-chart-3)" strokeWidth={2} dot={false} />
                 <Line yAxisId="left" type="monotone" dataKey="logLoo" name="LOO•" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
                 <Line yAxisId="right" type="monotone" dataKey="fesIntact" name="Fe-S intact" stroke="var(--color-foreground)" strokeDasharray="5 3" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="aconitase" name="Aconitase" stroke="var(--color-accent)" strokeDasharray="2 3" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="freeFePct" name="Free Fe2+ (rel)" stroke="var(--color-destructive)" strokeDasharray="8 3" strokeWidth={2} dot={false} />
                 <ReferenceLine
                   yAxisId="left"
                   x={3}
