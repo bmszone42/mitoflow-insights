@@ -92,6 +92,20 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
   const outLabel = sensOutputs.find((o) => o.key === output)!.label;
 
   const grid = useMemo(() => grid2d(inputs, "labileIron", lightKey), [inputs, lightKey]);
+  // Lowest light dose where oxidized cardiolipin crosses the 30% Committed
+  // threshold, at the map's highest iron, for three NO levels. Shows how NO
+  // shifts the crossing without re-rendering the map.
+  const noCrossing = useMemo(() => {
+    const maxIron = Math.max(...grid.xs);
+    const crossAt = (no: number) => {
+      for (const y of grid.ys) {
+        const o = simulate({ ...inputs, nitricOxide: no, labileIron: maxIron, [lightKey]: y });
+        if (o.cardiolipinOx >= 30) return y;
+      }
+      return null;
+    };
+    return { low: crossAt(0), now: crossAt(inputs.nitricOxide), high: crossAt(400) };
+  }, [grid, inputs, lightKey]);
   const mapVals = grid.cells.flat().map((c) => c[mapOutput] ?? 0);
   const isRos = ["superoxide", "hydrogenPeroxide", "hydroxylRadical", "peroxynitrite", "lipidPeroxyl"].includes(mapOutput);
   const vMin = Math.min(...mapVals);
