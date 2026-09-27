@@ -245,6 +245,41 @@ export function Sensitivity({ inputs }: { inputs: Inputs }) {
           marks the current baseline.
         </p>
       </section>
+
+      <section className="panel p-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="mono-label">Explain these results (AI)</div>
+          {remaining !== null && (
+            <span className="font-mono text-[10px] text-muted-foreground">{remaining} of 10 left (10 min)</span>
+          )}
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Sends the sensitivity table above to the AI and streams back an explanation of the dominant
+          drivers, key parameter interactions and what they imply for ROS and Fe-S outputs.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button onClick={explain} disabled={busy || cooling > 0 || remaining === 0}>
+            {busy ? "Explaining..." : "Explain these results"}
+          </Button>
+          {busy && (
+            <Button variant="outline" onClick={() => abortRef.current?.abort()}>
+              Stop
+            </Button>
+          )}
+          {!busy && cooling > 0 && (
+            <span className="text-[11px] text-muted-foreground">Ready in {cooling}s</span>
+          )}
+        </div>
+        {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+        {busy && !text && (
+          <p className="mt-3 animate-pulse text-xs text-muted-foreground">Thinking...</p>
+        )}
+        {text && (
+          <div className="prose prose-sm prose-invert mt-4 max-w-none text-sm [&_h2]:mt-4 [&_h2]:text-base [&_h2]:text-primary">
+            <ReactMarkdown>{text}</ReactMarkdown>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
