@@ -188,7 +188,7 @@ export function simulate(i: Inputs): Outputs {
 
   // --- Ferroptosis: PLOOH balance with GPx4 / FSP1 removal ---
   const pufa = i.cardiolipinPufa;
-  const vInit = pufa * (0.4 * lipidPeroxyl + 0.05 * hydroxyl * 1e6); // nM s-1
+  const vInit = pufa * 2500 * lipidPeroxyl; // nM s-1, LOO• chain initiation (lumped)
   const kGpx4 = 0.05 * i.gpx4 * Math.sqrt(i.antioxidantCapacity); // needs GSH
   const kFsp1 = 0.03 * i.fsp1;
   const kBasal = 0.01; // vitamin E, other scavengers
