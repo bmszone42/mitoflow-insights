@@ -261,7 +261,22 @@ export function Simulator({
   const [doseWl, setDoseWl] = useState<"red" | "nir">("red");
   const redSweep = doseSweep(inputs, "red");
   const nirSweep = doseSweep(inputs, "nir");
-  const speciesSweep = (doseWl === "red" ? redSweep : nirSweep).map((r) => ({
+  const activeSweep = doseWl === "red" ? redSweep : nirSweep;
+  // Fitted estimates at the study reference doses (3 and 30 J/cm2):
+  // percent change in superoxide and H2O2 versus zero dose.
+  const dose0 = activeSweep[0];
+  const fittedAt = (target: number) => {
+    const row = activeSweep.reduce((best, r) =>
+      Math.abs(r.dose - target) < Math.abs(best.dose - target) ? r : best, activeSweep[0]);
+    const pct = (v: number, b: number) => (b > 0 ? ((v - b) / b) * 100 : 0);
+    return {
+      o2: pct(row.superoxide, dose0.superoxide),
+      h2o2: pct(row.h2o2, dose0.h2o2),
+    };
+  };
+  const fit3 = fittedAt(3);
+  const fit30 = fittedAt(30);
+  const speciesSweep = activeSweep.map((r) => ({
     ...r,
     // log10 of pM so all species share one axis; floor avoids -Infinity
     logSuperoxide: Number(Math.log10(Math.max(r.superoxide * 1e3, 1e-4)).toFixed(2)),
