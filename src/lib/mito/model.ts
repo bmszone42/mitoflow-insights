@@ -549,7 +549,7 @@ export function timeCourse(inputs: Inputs, hours = 48, steps = 96): TimePoint[] 
           ? "Primed"
           : "Protected";
     pts.push({ t: Number(((k * hours) / steps).toFixed(2)), plooh: p, cardiolipinOx: ox, state });
-    p = Math.max(0, Math.abs(net) > 1e-9 ? (p + vInit / net) * grow - vInit / net : p + vInit * dt);
+    p = Math.min(pSat, Math.max(0, Math.abs(net) > 1e-9 ? (p + vInit / net) * grow - vInit / net : p + vInit * dt));
   }
   return pts;
 }
