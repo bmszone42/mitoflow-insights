@@ -2,7 +2,6 @@ import { Canvas } from "@react-three/fiber";
 import { Environment, Lightformer, OrbitControls, RoundedBox } from "@react-three/drei";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import type { OrbitControls as OrbitImpl } from "three-stdlib";
 import type { Geometry, GeometryEffects, Outputs } from "@/lib/mito/model";
 
 export type Overlay = "potential" | "superoxide" | "complexes";
@@ -133,7 +132,7 @@ export default function Cristae3D({
   out: Outputs;
   overlay: Overlay;
 }) {
-  const controls = useRef<OrbitImpl>(null);
+  const controls = useRef<{ reset: () => void } | null>(null);
   return (
     <div className="relative h-[380px] w-full overflow-hidden rounded-md sm:h-[460px]">
       <Canvas dpr={[1, 2]} camera={{ position: [0, 1.2, 6.5], fov: 45 }} aria-label="3D mitochondrion">
@@ -147,7 +146,7 @@ export default function Cristae3D({
           <Lightformer intensity={1} color="#8fd" position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
         </Environment>
         <Organelle geo={geo} ge={ge} out={out} overlay={overlay} />
-        <OrbitControls ref={controls} enablePan={false} minDistance={3} maxDistance={12} makeDefault />
+        <OrbitControls ref={controls as never} enablePan={false} minDistance={3} maxDistance={12} makeDefault />
       </Canvas>
       <button
         type="button"
