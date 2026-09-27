@@ -110,6 +110,16 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
   };
   const fmtVal = (v: number) => (Math.abs(v) < 0.01 ? v.toExponential(1) : v.toPrecision(3));
 
+  // Study points at 3 and 30 J/cm2 (Chen 2011, Huang 2013): nearest grid row
+  // plus Fe-S erosion at that dose with the current non-light inputs.
+  const nearestDose = (target: number) =>
+    grid.ys.reduce((b, y) => (Math.abs(y - target) < Math.abs(b - target) ? y : b), grid.ys[0]!);
+  const studyRows = [3, 30].map((d) => {
+    const dose = nearestDose(d);
+    const o = simulate({ ...inputs, [lightKey]: dose });
+    return { dose, fes: o.fesIntact * 100, acon: o.aconitaseActivity };
+  });
+
   const mapPayload = () => {
     const dx = grid.dx;
     const dy = grid.dy;
@@ -454,9 +464,16 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
                 {[...grid.cells].reverse().map((row, ri) =>
                   row.map((c, ci) => {
                     const v = c[mapOutput] ?? 0;
+                    const rowDose = grid.ys[grid.ys.length - 1 - ri]!;
                     const isBase =
                       ci === grid.xs.reduce((b, x, i) => (Math.abs(x - inputs.labileIron) < Math.abs(grid.xs[b]! - inputs.labileIron) ? i : b), 0) &&
                       grid.ys.length - 1 - ri === grid.ys.reduce((b, y, i) => (Math.abs(y - inputs[lightKey]) < Math.abs(grid.ys[b]! - inputs[lightKey]) ? i : b), 0);
+                    const studyBorder =
+                      rowDose === studyRows[0]!.dose
+                        ? "2px dashed var(--foreground)"
+                        : rowDose === studyRows[1]!.dose
+                          ? "2px solid var(--foreground)"
+                          : undefined;
                     return (
                       <div
                         key={`${ri}-${ci}`}
@@ -466,6 +483,7 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
                           background: cellColor(v),
                           outline: isBase ? "2px solid var(--foreground)" : undefined,
                           outlineOffset: -1,
+                          borderTop: studyBorder,
                         }}
                       />
                     );
@@ -490,6 +508,13 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
           mean higher {sensOutputs.find((o) => o.key === mapOutput)!.label}
           {isRos ? " (log scale)" : ""}. The outlined cell is your current baseline. Hover any cell for
           exact values.
+        </p>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Study points (Chen 2011, Huang 2013): dashed line {studyRows[0]!.dose.toFixed(0)} J/cm2, solid
+          line {studyRows[1]!.dose.toFixed(0)} J/cm2. Fe-S erosion at your current inputs:{" "}
+          {studyRows[0]!.fes.toFixed(1)}% intact at {studyRows[0]!.dose.toFixed(0)} J/cm2,{" "}
+          {studyRows[1]!.fes.toFixed(1)}% intact at {studyRows[1]!.dose.toFixed(0)} J/cm2 (aconitase
+          tracks Fe-S).
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button size="sm" onClick={() => explain("map")} disabled={busy || cooling > 0 || remaining === 0}>

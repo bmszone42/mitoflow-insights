@@ -228,3 +228,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - [x] model.ts: cluster attack is now kAcon x superoxide + kH2o2Fes x H2O2 (kH2o2Fes 1e4 M-1 s-1 effective, shaped after Jang & Imlay 2007, unfitted); GPx4 also clears matrix H2O2 weakly (kGpx4h2o2 = 0.2 x gpx4) so the GPx4 slider modulates cluster loss
 - [x] Calibrated so the H2O2 term does not dominate: default Fe-S 90.0% (was 94.1% with superoxide only)
 - [x] Re-ran iron x light map: Fe-S 90.0% no light, 83.3% at 60 J/cm2 660 nm, 81.1% at 60+60 combined; GPx4 blocked worsens to 82.7% at 60 J; aconitase tracks Fe-S; free iron gains ~1.6 µM from released cluster iron at high dose
+
+## Study-point markers on the iron x light map (done)
+- [x] Sensitivity interaction map: dashed line at 3 J/cm2 and solid line at 30 J/cm2 (Chen 2011, Huang 2013) overlaid on the grid rows, plus a caption with Fe-S erosion at each dose computed live from the current inputs (default: 88.9% intact at 3 J, 84.2% at 30 J, aconitase tracks Fe-S)
+- [x] Verified in browser: lines render on the map, caption values match the model
