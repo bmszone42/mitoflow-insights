@@ -674,7 +674,7 @@ export function Simulator({
                 <Tooltip
                   {...tooltipProps()}
                   formatter={(value: number, name: string) =>
-                    name === "Fe-S intact"
+                    name === "Fe-S intact" || name === "Aconitase" || name === "Free Fe2+ (rel)"
                       ? [`${value.toFixed(1)}%`, name]
                       : [`${(10 ** value).toPrecision(3)} pM`, name]
                   }
