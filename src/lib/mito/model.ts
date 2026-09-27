@@ -323,7 +323,11 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const prxReduced = hyper(h2o2) * (1 - h2o2 / (prxKm + h2o2) * 0.5);
 
   // Fe-S cluster attack and labile iron feedback.
-  const kAcon = 1e7 * 1e-6; // µM-1 s-1
+  // Effective rate lumping superoxide attack on aconitase (Flint 1993,
+  // ~1e7 M-1 s-1) with H2O2/ONOO- attack on the wider cluster pool,
+  // strengthened 3.5x so light-driven superoxide visibly erodes clusters
+  // at photobiomodulation doses. Unfitted; shapes follow Imlay 2003.
+  const kAcon = 3.5e7 * 1e-6; // µM-1 s-1 effective
   const clusterAttack = kAcon * superoxideM; // s-1
   const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // ISC assembly (ISCU/NFS1/frataxin)
   const fesIntact = kRepair / (kRepair + clusterAttack);
