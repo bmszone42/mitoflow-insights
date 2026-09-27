@@ -157,3 +157,9 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ New pure function grid2d(base, keyX, keyY, n) in src/lib/mito/model.ts; each axis spans the driver's slider range, each cell runs simulate
 - ✅ Browser verified: grid renders, switching light driver and output updates cells, no page errors
 - ❌ AI explanation of the interaction map (current Explain panel is one-driver-at-a-time)
+
+## Update: CSV export for sensitivity results
+- ✅ "Download CSV report" button in the Sensitivity tab exports cristae-lab-sensitivity.csv
+- ✅ New browser-safe module src/lib/mito/csv.ts: sections for baseline inputs, sensitivity table (48 rows), full-range sweep (41 rows) and iron x light interaction map (441 rows)
+- ✅ Pure client-side download, no server call, no AI usage
+- ✅ Browser verified: download fires, CSV parses, all sections present, no page errors
