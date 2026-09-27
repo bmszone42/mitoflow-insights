@@ -7,6 +7,7 @@ import {
   Cell,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -260,7 +261,22 @@ export function Simulator({
   const [doseWl, setDoseWl] = useState<"red" | "nir">("red");
   const redSweep = doseSweep(inputs, "red");
   const nirSweep = doseSweep(inputs, "nir");
-  const speciesSweep = (doseWl === "red" ? redSweep : nirSweep).map((r) => ({
+  const activeSweep = doseWl === "red" ? redSweep : nirSweep;
+  // Fitted estimates at the study reference doses (3 and 30 J/cm2):
+  // percent change in superoxide and H2O2 versus zero dose.
+  const dose0 = activeSweep[0]!;
+  const fittedAt = (target: number) => {
+    const row = activeSweep.reduce((best, r) =>
+      Math.abs(r.dose - target) < Math.abs(best.dose - target) ? r : best, activeSweep[0]!);
+    const pct = (v: number, b: number) => (b > 0 ? ((v - b) / b) * 100 : 0);
+    return {
+      o2: pct(row.superoxide, dose0.superoxide),
+      h2o2: pct(row.h2o2, dose0.h2o2),
+    };
+  };
+  const fit3 = fittedAt(3);
+  const fit30 = fittedAt(30);
+  const speciesSweep = activeSweep.map((r) => ({
     ...r,
     // log10 of pM so all species share one axis; floor avoids -Infinity
     logSuperoxide: Number(Math.log10(Math.max(r.superoxide * 1e3, 1e-4)).toFixed(2)),
@@ -534,13 +550,40 @@ export function Simulator({
                 <Line yAxisId="left" type="monotone" dataKey="logSinglet" name="1O2" stroke="var(--color-chart-3)" strokeWidth={2} dot={false} />
                 <Line yAxisId="left" type="monotone" dataKey="logLoo" name="LOO•" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
                 <Line yAxisId="right" type="monotone" dataKey="fesIntact" name="Fe-S intact" stroke="var(--color-foreground)" strokeDasharray="5 3" strokeWidth={2} dot={false} />
+                <ReferenceLine
+                  yAxisId="left"
+                  x={3}
+                  stroke="var(--color-primary)"
+                  strokeDasharray="4 3"
+                  label={{ value: "3 J/cm2", position: "insideTopLeft", fontSize: 10, fill: "var(--color-primary)" }}
+                />
+                <ReferenceLine
+                  yAxisId="left"
+                  x={30}
+                  stroke="var(--color-accent)"
+                  strokeDasharray="4 3"
+                  label={{ value: "30 J/cm2", position: "insideTopRight", fontSize: 10, fill: "var(--color-accent)" }}
+                />
               </LineChart>
             </ResponsiveContainer>
+          </div>
+          <div className="mt-2 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
+            <p>
+              <span className="font-medium text-primary">3 J/cm2 (low-dose burst):</span>{" "}
+              fitted estimate O2•- {fit3.o2 >= 0 ? "+" : ""}{fit3.o2.toFixed(0)}%, H2O2{" "}
+              {fit3.h2o2 >= 0 ? "+" : ""}{fit3.h2o2.toFixed(0)}%
+            </p>
+            <p>
+              <span className="font-medium text-accent">30 J/cm2 (high-dose stress):</span>{" "}
+              fitted estimate O2•- {fit30.o2 >= 0 ? "+" : ""}{fit30.o2.toFixed(0)}%, H2O2{" "}
+              {fit30.h2o2 >= 0 ? "+" : ""}{fit30.h2o2.toFixed(0)}%
+            </p>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             Species are plotted as log10 of pM so they share one axis; Fe-S intact uses the right
             axis. Superoxide and H2O2 rise with dose through the direct photon effect; peroxynitrite
-            falls as NO is photodissociated from complex IV.
+            falls as NO is photodissociated from complex IV. Markers are our own fitted estimates,
+            shaped after Chen 2011 (low-dose burst) and Huang 2013 (high-dose stress), not measured values.
           </p>
         </div>
       </div>
