@@ -118,7 +118,7 @@ export type Coherence = {
   pumpRatio: number;
   coherentFraction: number;
 };
-const THZ_CAL = 128; // relative units, sets default emission near its previous value
+const THZ_CAL = 200; // relative units, sets default emission near its previous value
 
 export type FerroptosisState = "Protected" | "Primed" | "Committed";
 
