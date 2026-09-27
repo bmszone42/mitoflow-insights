@@ -712,12 +712,14 @@ export function Simulator({
             <p>
               <span className="font-medium text-primary">3 J/cm2 (low-dose burst):</span>{" "}
               fitted estimate O2•- {fit3.o2 >= 0 ? "+" : ""}{fit3.o2.toFixed(0)}%, H2O2{" "}
-              {fit3.h2o2 >= 0 ? "+" : ""}{fit3.h2o2.toFixed(0)}%
+              {fit3.h2o2 >= 0 ? "+" : ""}{fit3.h2o2.toFixed(0)}%, Fe-S {fit3.fes.toFixed(1)}%,
+              aconitase {fit3.acon.toFixed(1)}%, free Fe2+ {fit3.fe >= 0 ? "+" : ""}{fit3.fe.toFixed(1)}%
             </p>
             <p>
               <span className="font-medium text-accent">30 J/cm2 (high-dose stress):</span>{" "}
               fitted estimate O2•- {fit30.o2 >= 0 ? "+" : ""}{fit30.o2.toFixed(0)}%, H2O2{" "}
-              {fit30.h2o2 >= 0 ? "+" : ""}{fit30.h2o2.toFixed(0)}%
+              {fit30.h2o2 >= 0 ? "+" : ""}{fit30.h2o2.toFixed(0)}%, Fe-S {fit30.fes.toFixed(1)}%,
+              aconitase {fit30.acon.toFixed(1)}%, free Fe2+ {fit30.fe >= 0 ? "+" : ""}{fit30.fe.toFixed(1)}%
             </p>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
