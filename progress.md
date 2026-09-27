@@ -163,3 +163,5 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ New browser-safe module src/lib/mito/csv.ts: sections for baseline inputs, sensitivity table (48 rows), full-range sweep (41 rows) and iron x light interaction map (441 rows)
 - ✅ Pure client-side download, no server call, no AI usage
 - ✅ Browser verified: download fires, CSV parses, all sections present, no page errors
+
+- ✅ Direct NO-independent photon ROS: low-dose superoxide/H2O2 burst (~3 J/cm2) plus high-dose stress rise (>=30 J/cm2), flavin H2O2 term (Chen 2011, Huang 2013, Hockberger 1999)
