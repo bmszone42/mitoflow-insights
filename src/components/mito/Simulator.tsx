@@ -415,7 +415,7 @@ export function Simulator({
 
         <PhotoreceptorPanel out={out} />
 
-        <FerroptosisPanel out={out} />
+        <FerroptosisPanel out={out} inputs={inputs} />
 
         <div className="panel p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -744,7 +744,27 @@ export function Simulator({
 
 export { simulate };
 
-function FerroptosisPanel({ out }: { out: Outputs }) {
+function FerroptosisPanel({ out, inputs }: { out: Outputs; inputs: Inputs }) {
+  // Ferroptosis risk versus light dose at the current settings, so the panel
+  // shows whether light protects or sensitizes without leaving the tab.
+  const riskCurve = Array.from({ length: 25 }, (_, k) => {
+    const dose = k * 2.5;
+    const red = simulate({ ...inputs, redDose: dose });
+    const nir = simulate({ ...inputs, nirDose: dose });
+    return { dose, red: Number(red.ferroptosisRisk.toFixed(1)), nir: Number(nir.ferroptosisRisk.toFixed(1)) };
+  });
+  const baseRisk = riskCurve[0]!;
+  const activeDose = inputs.redDose > 0 ? inputs.redDose : inputs.nirDose;
+  const activeRisk = out.ferroptosisRisk;
+  const delta = activeRisk - baseRisk.red;
+  const verdict =
+    activeDose <= 0
+      ? "No light dose set. The curves show how risk would shift."
+      : delta < -1
+        ? `Light protects here: risk ${activeRisk.toFixed(0)} versus ${baseRisk.red.toFixed(0)} without light.`
+        : delta > 1
+          ? `Light sensitizes here: risk ${activeRisk.toFixed(0)} versus ${baseRisk.red.toFixed(0)} without light.`
+          : `Light is roughly neutral here: risk ${activeRisk.toFixed(0)} versus ${baseRisk.red.toFixed(0)} without light.`;
   const r = out.ploohRemoval;
   const total = r.gpx4 + r.fsp1 + r.basal;
   const share = [
@@ -795,6 +815,25 @@ function FerroptosisPanel({ out }: { out: Outputs }) {
             </span>
           ))}
         </div>
+      </div>
+      <div className="mt-4 space-y-1">
+        <div className="mono-label">Ferroptosis risk versus light dose</div>
+        <div className="h-44">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={riskCurve}>
+              <CartesianGrid stroke={chartStyle.grid} strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="dose" stroke={chartStyle.axis} fontSize={11} unit=" J/cm2" />
+              <YAxis stroke={chartStyle.axis} fontSize={11} domain={[0, 100]} />
+              <Tooltip {...tooltipProps()} />
+              <Line type="monotone" dataKey="red" name="Risk, 660 nm" stroke="var(--color-chart-5)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="nir" name="Risk, 810 nm" stroke="var(--color-chart-1)" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+              {activeDose > 0 && (
+                <ReferenceLine x={activeDose} stroke="var(--color-foreground)" strokeDasharray="4 3" label={{ value: "now", position: "top", fontSize: 10, fill: "var(--color-foreground)" }} />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-[11px] text-muted-foreground">{verdict} Light lowers lipid peroxyl radicals through NO photorelease but raises superoxide and H2O2 directly, so the net sign depends on iron and dose.</p>
       </div>
     </div>
   );

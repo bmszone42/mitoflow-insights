@@ -207,3 +207,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - [x] Simulator: "Light dose comparison" panel plots percent change versus no light for O2•-, H2O2 and •OH, solid 660 nm and dashed 810 nm, markers at 3, 30 and 60 J/cm2 with fitted estimates at each marker
 - [x] Fixed a recharts yAxis id crash from the new panel's reference lines that took down the whole Simulator view
 - [x] Verified: superoxide and H2O2 rise together (+76% / +88% at 60 J/cm2, 660 nm), hydroxyl stays flat at default iron; no page errors
+
+## Ferroptosis risk vs light dose curve (done)
+- [x] Ferroptosis panel now shows ferroptosis risk versus dose for 660 and 810 nm by default, with a "now" marker at the active dose and a protect/sensitize/neutral verdict versus no light
+- [x] Curve computed through simulate() per dose step (2.5 J/cm2), so it inherits the photoreceptor and ferroptosis math automatically
