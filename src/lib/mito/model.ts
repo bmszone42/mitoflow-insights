@@ -44,6 +44,26 @@
  *    commitment when it outpaces removal (Dixon et al. 2012 Cell 149:1060).
  *    Cardiolipin peroxidation above ~10% primes cytochrome c release
  *    (Kagan et al. 2005 Nat Chem Biol 1:223). Rate scaling here is lumped.
+ *  - Photoreceptor model (replaces fitted dose curves): fluence at depth
+ *    = dose x exp(-mu_eff x depth), mu_eff ~0.35/mm at 660 nm and ~0.2/mm at
+ *    810 nm in soft tissue (Jacques 2013 Phys Med Biol 58:R37). Relative
+ *    absorption of CCO chromophores from the Karu action spectrum bands at
+ *    620/680/760/820 nm (Karu 1999 J Photochem Photobiol B 49:1): heme a/a3
+ *    dominates at 660 nm, CuA at 810 nm. Flavin (FMN) and porphyrin tails
+ *    absorb 660 nm only weakly and 810 nm hardly at all. Photon use saturates
+ *    with irradiance (reciprocity breakdown, Huang et al. 2009 Dose Response
+ *    7:358). NO photodissociation from heme a3-CuB, quantum yield ~0.1-0.3
+ *    (Lane 2006). CIV activation raises the local proton gradient
+ *    (Passarella 1984 FEBS Lett 175:95), which raises leak. Flavin
+ *    excitation yields H2O2 and CI IF superoxide (Hockberger 1999). High dose
+ *    CIV photoinhibition with MMP loss (Huang et al. 2013). Heating ~0.02
+ *    K per mW/cm2 at steady state for thin samples. Coefficients are our own
+ *    estimates; the sources set shapes and relative sizes, not fitted values.
+ *  - 71 THz coherence: Frohlich-type pumped mode (Frohlich 1968 Int J Quantum
+ *    Chem 2:641). Pump = CIV flux x membrane potential plus a share of
+ *    absorbed photon energy; losses = baseline damping plus lipid peroxyl,
+ *    oxidized cardiolipin and heat. The coherent fraction switches on above
+ *    pump/loss = 1. Hypothetical and relative, not radiometric.
  *  - Mid-IR emission near 71 THz (≈4.22 µm, 2370 cm-1) tracked as a
  *    flux-proportional reporter band (Pokorny; Sahu et al. 2013 ordering
  *    in microtubule/mitochondrial water layers). Treated as a relative
@@ -60,6 +80,8 @@ export type Inputs = {
   nitricOxide: number; // nM NO
   redDose: number; // J/cm2 at 660 nm
   nirDose: number; // J/cm2 at 810 nm
+  irradiance: number; // mW/cm2 at the surface (sets dose rate and exposure time)
+  tissueDepth: number; // mm of tissue above the mitochondria (0 = cultured cells)
   antioxidantCapacity: number; // 0-2 scaling of Prx3/GPx/GSH system
   uncoupling: number; // 0-1 UCP/mild uncoupler
   gpx4: number; // 0-2 relative GPx4 activity (0 = RSL3/ML162 inhibited)
@@ -77,12 +99,26 @@ export const defaultInputs: Inputs = {
   nitricOxide: 40,
   redDose: 0,
   nirDose: 0,
+  irradiance: 50,
+  tissueDepth: 0,
   antioxidantCapacity: 1,
   uncoupling: 0.05,
   gpx4: 1,
   fsp1: 1,
   cardiolipinPufa: 0.6,
 };
+
+export type Coherence = {
+  pumpMetabolic: number;
+  pumpPhoton: number;
+  lossBase: number;
+  lossLipid: number;
+  lossCardiolipin: number;
+  lossHeat: number;
+  pumpRatio: number;
+  coherentFraction: number;
+};
+const THZ_CAL = 128; // relative units, sets default emission near its previous value
 
 export type FerroptosisState = "Protected" | "Primed" | "Committed";
 
@@ -102,6 +138,11 @@ export type Outputs = {
   aconitaseActivity: number; // %
   freeIron: number; // µM after cluster loss feedback
   emission71THz: number; // relative units
+  coherentFraction: number; // 0-1 share of the 71 THz mode above threshold
+  coherence: Coherence;
+  tempRise: number; // K from light absorption
+  noReleased: number; // % of CIV-bound NO photoreleased
+  photoreceptor: Photoreceptor;
   emissionSpectrum: { freqTHz: number; intensity: number }[];
   redoxStress: number; // 0-100 composite index
   plooh: number; // nM lumped phospholipid hydroperoxide
@@ -145,39 +186,84 @@ function solveSteady(f: (x: number) => number) {
   return (lo + hi) / 2;
 }
 
-// Arndt-Schulz biphasic photon response for cytochrome c oxidase.
-function photonResponse(redDose: number, nirDose: number) {
-  const eff = (dose: number, optimum: number, gainMax: number) => {
-    if (dose <= 0) return 0;
-    const x = dose / optimum;
-    return gainMax * x * Math.exp(1 - x); // peaks at dose = optimum
+// ---------- Photoreceptor model ----------
+// Relative absorption per J/cm2 at the mitochondrion, by chromophore and wavelength.
+export const chromophores = {
+  cuA: { label: "CuA", red: 0.4, nir: 1.0 },
+  hemeA: { label: "Heme a/a3", red: 1.0, nir: 0.3 },
+  flavin: { label: "Flavins (FMN)", red: 0.25, nir: 0.02 },
+  porphyrin: { label: "Porphyrins", red: 0.3, nir: 0.03 },
+} as const;
+export type ChromophoreKey = keyof typeof chromophores;
+const MU_EFF = { red: 0.35, nir: 0.2 }; // mm-1
+const I_SAT = 120; // mW/cm2, half-saturation of photon use
+
+export type Photoreceptor = {
+  fluence: { red: number; nir: number }; // J/cm2 reaching the mitochondria
+  exposureTime: number; // s, longest of the two exposures
+  absorbed: Record<ChromophoreKey, number>; // effective absorbed dose, rel
+  saturation: number; // 0-1 share of photons wasted by saturation
+  noReleased: number; // fraction of CIV-bound NO released
+  civGain: number; // net fractional CIV rate gain
+  civActivation: number; // gain before photoinhibition and heat
+  photoinhibition: number; // multiplier <= 1
+  psiShift: number; // mV local rise from CIV activation
+  flavinLeak: number; // CI IF / OGDH superoxide multiplier
+  semiquinoneLeak: number; // CIII Qo superoxide multiplier
+  heatLeak: number; // leak multiplier from heating
+  tempRise: number; // K
+  h2o2Direct: number; // µM/s flavin-photosensitized H2O2 (before O2 term)
+  singletDirect: number; // porphyrin-sensitized 1O2 source, rel
+  photonPump: number; // share of absorbed energy feeding the 71 THz mode
+};
+
+export function photoreceptor(i: Inputs): Photoreceptor {
+  const depth = i.tissueDepth ?? 0;
+  const I0 = i.irradiance ?? 50;
+  const att = { red: Math.exp(-MU_EFF.red * depth), nir: Math.exp(-MU_EFF.nir * depth) };
+  const fluence = { red: i.redDose * att.red, nir: i.nirDose * att.nir };
+  const exposureTime = Math.max(i.redDose, i.nirDose) > 0 ? (1000 * Math.max(i.redDose, i.nirDose)) / I0 : 0;
+  const irrAt = { red: i.redDose > 0 ? I0 * att.red : 0, nir: i.nirDose > 0 ? I0 * att.nir : 0 };
+
+  const absorbed = {} as Record<ChromophoreKey, number>;
+  let wasted = 0;
+  let total = 0;
+  for (const k of Object.keys(chromophores) as ChromophoreKey[]) {
+    const c = chromophores[k];
+    const rate = c.red * irrAt.red + c.nir * irrAt.nir; // excitation rate, rel
+    const sat = 1 / (1 + rate / I_SAT); // excited-state saturation
+    const raw = c.red * fluence.red + c.nir * fluence.nir;
+    absorbed[k] = raw * sat;
+    wasted += raw * (1 - sat);
+    total += raw;
+  }
+  const saturation = total > 0 ? wasted / total : 0;
+
+  const ccoAbs = absorbed.cuA + absorbed.hemeA;
+  const noReleased = 0.6 * (1 - Math.exp(-(0.6 * absorbed.hemeA + 0.5 * absorbed.cuA) / 8));
+  const civActivation = 0.4 * (1 - Math.exp(-(absorbed.cuA + 0.6 * absorbed.hemeA) / 9));
+  const photoinhibition = Math.exp(-ccoAbs / 90);
+  const tempRise = 0.02 * (irrAt.red + irrAt.nir) * (1 - Math.exp(-exposureTime / 120));
+  const heatLeak = 1 + 0.25 * Math.max(0, tempRise - 1);
+  const civGain = Math.max(-0.5, civActivation * photoinhibition - 0.04 * Math.max(0, tempRise - 1));
+  const psiShift = 20 * civGain; // mV, CIV activation pumps more protons
+  const flavinLeak = 1 + 0.5 * (1 - Math.exp(-absorbed.flavin / 3));
+  const semiquinoneLeak = 1 + (0.9 * ccoAbs ** 2) / (ccoAbs ** 2 + 40 ** 2);
+  const h2o2Direct = 8e-4 * absorbed.flavin;
+  const singletDirect = 0.07 * absorbed.porphyrin;
+  const photonPump = 0.15 * (1 - Math.exp(-ccoAbs / 20));
+  return {
+    fluence, exposureTime, absorbed, saturation, noReleased, civGain, civActivation, photoinhibition,
+    psiShift, flavinLeak, semiquinoneLeak, heatLeak, tempRise, h2o2Direct, singletDirect, photonPump,
   };
-  // 660 nm: heme a3 / CuA absorption peak, optimum ~ 10 J/cm2
-  const red = eff(redDose, 10, 0.28);
-  // 810 nm: CuA band, deeper penetration, optimum ~ 20 J/cm2
-  const nir = eff(nirDose, 20, 0.22);
-  return 1 + red + nir;
-}
-
-// Direct (NO-independent) photon effect on superoxide leak: low-dose signaling
-// burst plus a saturating high-dose stress term. Returns a multiplier >= 1.
-function photonLeak(redDose: number, nirDose: number) {
-  const burst = (d: number, opt: number, a: number) => (d <= 0 ? 0 : a * (d / opt) * Math.exp(1 - d / opt));
-  const stress = (d: number, half: number, a: number) => (a * d * d) / (d * d + half * half);
-  return 1 + burst(redDose, 3, 0.3) + burst(nirDose, 3, 0.35) + stress(redDose, 35, 0.8) + stress(nirDose, 35, 1.0);
-}
-
-// NO photodissociation from the CIV binuclear centre releases inhibition.
-function noAfterPhotolysis(no: number, redDose: number, nirDose: number) {
-  const released = 1 - 0.55 * (1 - Math.exp(-(redDose + nirDose) / 12));
-  return no * released;
 }
 
 export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const ge = geometryEffects(geo ?? defaultGeometry);
-  const psi = i.deltaPsi + ge.psiShift; // cristae junctions trap protons locally
-  const photonGain = photonResponse(i.redDose, i.nirDose);
-  const noEff = noAfterPhotolysis(i.nitricOxide, i.redDose, i.nirDose);
+  const psi = i.deltaPsi + ge.psiShift + pr.psiShift; // cristae junctions trap protons locally
+  const pr = photoreceptor(i);
+  const photonGain = 1 + pr.civGain;
+  const noEff = i.nitricOxide * (1 - pr.noReleased);
 
   // --- Electron transport (lumped Michaelis-Menten with backpressure) ---
   const psiBrake = 1 / (1 + Math.exp((psi - 175) / 12)); // Q-cycle reverse pressure
@@ -194,20 +280,19 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
 
   // --- Superoxide: site-resolved production (Brand 2016; Quinlan et al. 2013) ---
   // Leak rises steeply with deltaPsi (reduced CoQ pool), damped by uncoupling.
-  const leakPsi = Math.exp((psi - 150) / 22) * (1 - 0.6 * i.uncoupling);
+  const leakPsi = Math.exp((psi - 150) / 22) * (1 - 0.6 * i.uncoupling) * pr.heatLeak;
   const o2Term = i.oxygen / (i.oxygen + 10);
-  const pLeak = photonLeak(i.redDose, i.nirDose); // flavin / semiquinone photoexcitation
   // Complex I site IF: reduced FMN, set by NADH/NAD+ ratio (squared, two-electron flavin).
-  const vIF = 0.0055 * fluxCI * i.nadhRatio ** 2 * leakPsi * o2Term * pLeak * ge.leak;
+  const vIF = 0.0055 * fluxCI * i.nadhRatio ** 2 * leakPsi * o2Term * pr.flavinLeak * ge.leak;
   // Complex I site IQ, reverse electron transport: needs succinate-reduced CoQ and high deltaPsi.
   const retDrive = 1 / (1 + Math.exp(-(i.succinate - 0.9) / 0.15));
   const vIQ = 0.012 * fluxCII * retDrive * Math.exp((psi - 160) / 10) * (1 - 0.8 * i.uncoupling) * o2Term;
   // Complex III site IIIQo: unstable semiquinone, backpressure from high deltaPsi; half to IMS.
-  const vIIIQo = 0.003 * (fluxCI + fluxCII) * psiBrake * leakPsi * o2Term * pLeak * ge.leak;
+  const vIIIQo = 0.003 * (fluxCI + fluxCII) * psiBrake * leakPsi * o2Term * pr.semiquinoneLeak * ge.leak;
   // Complex II site IIF: flavin, highest at low succinate occupancy.
   const vIIF = 0.0015 * fluxCII * (1 - i.succinate / (i.succinate + 0.3)) * o2Term;
   // 2-oxoglutarate dehydrogenase (DLD flavin), NADH driven; ~40% leaves as O2•-, 60% as H2O2.
-  const vOGDHtotal = 0.0012 * fluxCI * i.nadhRatio ** 2 * o2Term * pLeak;
+  const vOGDHtotal = 0.0012 * fluxCI * i.nadhRatio ** 2 * o2Term * pr.flavinLeak;
   const vOGDH = 0.4 * vOGDHtotal;
   const vMatrixO2 = vIF + vIQ + 0.5 * vIIIQo + vIIF + vOGDH;
   const vImsO2 = 0.5 * vIIIQo;
@@ -224,7 +309,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // --- H2O2: sources and saturable Prx3 clearance (Cox et al. 2009, 2010) ---
   const vDismutation = 0.5 * kSod * superoxideM + 0.25 * kSod1 * superoxideIMS; // 2 O2•- -> H2O2
   const vOGDHh2o2 = 0.6 * vOGDHtotal;
-  const vH2O2Photo = 2e-4 * (i.redDose + 0.3 * i.nirDose) * o2Term; // flavin photosensitization
+  const vH2O2Photo = pr.h2o2Direct * o2Term; // flavin photosensitization
   const vH2O2 = vDismutation + vOGDHh2o2 + vH2O2Photo;
   const ac = i.antioxidantCapacity;
   const prxVmax = 3 * ac; // µM s-1, limited by TrxR2 / NADPH recycling
@@ -295,7 +380,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
 
   // Singlet oxygen: photosensitized (porphyrin/flavin) plus O2•- recombination.
   const singlet =
-    (0.02 * (i.redDose + 0.4 * i.nirDose) * o2Term + 6 * superoxideM) * (1 / i.antioxidantCapacity);
+    (pr.singletDirect * o2Term + 6 * superoxideM) * (1 / i.antioxidantCapacity);
 
   // Lipid peroxyl radicals / cardiolipin chain propagation.
   const lipidPeroxyl = (LOO_CAL * (40 * hydroxyl * 1e6 + 0.15 * peroxynitrite)) / i.antioxidantCapacity;
@@ -319,11 +404,20 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
         ? "Primed"
         : "Protected";
 
-  // --- 71 THz output band ---
-  // Emission tracks coherent turnover: CIV flux, proton gradient and
-  // ordered interfacial water. Peroxidation of cardiolipin dampens it.
-  const coherence = (fluxCIV / 60) * (psi / 160) * (1 - Math.min(0.6, lipidPeroxyl / 200)) * (1 - cardiolipinOx / 200);
-  const emission71THz = Math.max(0, coherence * 100);
+  // --- 71 THz output band: Frohlich-type pumped coherent mode ---
+  const pumpMetabolic = (fluxCIV / 60) * (psi / 160);
+  const pump = pumpMetabolic + pr.photonPump;
+  const lossBase = 0.4;
+  const lossLipid = Math.min(0.5, lipidPeroxyl / 100);
+  const lossCardiolipin = cardiolipinOx / 60;
+  const lossHeat = 0.05 * pr.tempRise;
+  const loss = lossBase + lossLipid + lossCardiolipin + lossHeat;
+  const pumpRatio = pump / loss;
+  const coherentFraction = 1 / (1 + Math.exp(-(pumpRatio - 1) / 0.12));
+  const emission71THz = Math.max(0, THZ_CAL * pump * (0.3 + 0.7 * coherentFraction));
+  const coherence: Coherence = {
+    pumpMetabolic, pumpPhoton: pr.photonPump, lossBase, lossLipid, lossCardiolipin, lossHeat, pumpRatio, coherentFraction,
+  };
 
   const emissionSpectrum = Array.from({ length: 61 }, (_, k) => {
     const freqTHz = 60 + k * 0.5; // 60-90 THz window
@@ -361,6 +455,11 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
     freeIron,
     emission71THz,
     emissionSpectrum,
+    coherentFraction,
+    coherence,
+    tempRise: pr.tempRise,
+    noReleased: pr.noReleased * 100,
+    photoreceptor: pr,
     redoxStress,
     plooh,
     cardiolipinOx,
@@ -407,6 +506,8 @@ export const sensitivityDrivers: DriverDef[] = [
   { key: "labileIron", label: "Labile iron", min: 0, max: 20, group: "Iron" },
   { key: "redDose", label: "660 nm dose", min: 0, max: 60, group: "Photon" },
   { key: "nirDose", label: "810 nm dose", min: 0, max: 60, group: "Photon" },
+  { key: "irradiance", label: "Irradiance", min: 1, max: 200, group: "Photon" },
+  { key: "tissueDepth", label: "Tissue depth", min: 0, max: 20, group: "Photon" },
   { key: "gpx4", label: "GPx4 activity", min: 0, max: 2, group: "Ferroptosis" },
   { key: "fsp1", label: "FSP1 / CoQ10H2", min: 0, max: 2, group: "Ferroptosis" },
   { key: "cardiolipinPufa", label: "Cardiolipin PUFA", min: 0.2, max: 1, group: "Ferroptosis" },
@@ -414,7 +515,8 @@ export const sensitivityDrivers: DriverDef[] = [
 export type SensOutputKey =
   | "superoxide" | "hydrogenPeroxide" | "hydroxylRadical" | "peroxynitrite"
   | "lipidPeroxyl" | "fesIntact" | "aconitaseActivity" | "freeIron"
-  | "plooh" | "cardiolipinOx" | "ferroptosisRisk";
+  | "plooh" | "cardiolipinOx" | "ferroptosisRisk"
+  | "emission71THz" | "coherentFraction" | "noReleased" | "tempRise";
 export const sensOutputs: { key: SensOutputKey; label: string }[] = [
   { key: "superoxide", label: "O2•-" },
   { key: "hydrogenPeroxide", label: "H2O2" },
@@ -427,6 +529,10 @@ export const sensOutputs: { key: SensOutputKey; label: string }[] = [
   { key: "plooh", label: "PLOOH" },
   { key: "cardiolipinOx", label: "CL ox %" },
   { key: "ferroptosisRisk", label: "Ferroptosis risk" },
+  { key: "emission71THz", label: "71 THz" },
+  { key: "coherentFraction", label: "Coherent frac" },
+  { key: "noReleased", label: "NO released %" },
+  { key: "tempRise", label: "Temp rise" },
 ];
 
 const pctChange = (v: number, b: number) => (b === 0 ? 0 : ((v - b) / Math.abs(b)) * 100);
