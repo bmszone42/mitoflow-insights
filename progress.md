@@ -202,3 +202,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - [x] Simulator: "Ferroptosis time course" panel, cardiolipin oxidation vs hours with Primed (10%) and Committed (30%) reference lines and a badge with transition times
 - [x] Photon dose chart: time-to-Committed lines for 660 and 810 nm on a hidden 0-48 h axis; gaps mean no commitment within 48 h
 - [x] Verified at defaults: Primed at 0.5 h, plateaus ~13% oxidized cardiolipin, never Committed (FSP1 + basal hold it); no page errors
+
+## Light dose comparison panel (done)
+- [x] Simulator: "Light dose comparison" panel plots percent change versus no light for O2•-, H2O2 and •OH, solid 660 nm and dashed 810 nm, markers at 3, 30 and 60 J/cm2 with fitted estimates at each marker
+- [x] Fixed a recharts yAxis id crash from the new panel's reference lines that took down the whole Simulator view
+- [x] Verified: superoxide and H2O2 rise together (+76% / +88% at 60 J/cm2, 660 nm), hydroxyl stays flat at default iron; no page errors
