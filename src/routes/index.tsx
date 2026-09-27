@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { AccountButton } from "@/components/mito/AccountButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Simulator } from "@/components/mito/Simulator";
@@ -43,6 +44,10 @@ function Index() {
   const [loaded, setLoaded] = useState<Scenario["interpretation"]>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
   const [compareKey, setCompareKey] = useState(0);
+  const onAuthChange = useCallback(() => {
+    setActiveId(null);
+    setRefreshKey((k) => k + 1);
+  }, []);
   const onLoad = (s: Scenario) => {
     setInputs({ ...defaultInputs, ...s.inputs });
     setActiveId(s.id);
@@ -72,6 +77,9 @@ function Index() {
               71 THz {out.emission71THz.toFixed(0)}
             </Badge>
           </div>
+        </div>
+        <div className="mt-3">
+          <AccountButton onChange={onAuthChange} />
         </div>
       </header>
 
