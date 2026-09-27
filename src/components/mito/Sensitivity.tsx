@@ -474,18 +474,31 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
                         : rowDose === studyRows[1]!.dose
                           ? "2px solid var(--foreground)"
                           : undefined;
+                    // Ferroptosis thresholds from the same cell: risk 100 =
+                    // Committed (ratio 0.8 or 30% CL ox), risk 50 = Primed.
+                    const risk = c["ferroptosisRisk"] ?? 0;
+                    const clOx = c["cardiolipinOx"] ?? 0;
+                    const committed = risk >= 100;
+                    const primed = !committed && risk >= 50;
                     return (
                       <div
                         key={`${ri}-${ci}`}
-                        title={`Fe ${(c["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(c["y"] ?? 0).toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${fmtVal(v)}`}
-                        className="aspect-square rounded-[2px]"
+                        title={`Fe ${(c["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(c["y"] ?? 0).toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${fmtVal(v)} · risk ${risk.toFixed(0)} · CL ox ${clOx.toFixed(1)}%${committed ? " · Committed" : primed ? " · Primed" : ""}`}
+                        className="relative aspect-square rounded-[2px]"
                         style={{
                           background: cellColor(v),
                           outline: isBase ? "2px solid var(--foreground)" : undefined,
                           outlineOffset: -1,
                           borderTop: studyBorder,
                         }}
-                      />
+                      >
+                        {committed && (
+                          <span className="absolute inset-0 m-auto h-2 w-2 rounded-full bg-foreground" />
+                        )}
+                        {primed && (
+                          <span className="absolute inset-0 m-auto h-2 w-2 rounded-full border border-foreground" />
+                        )}
+                      </div>
                     );
                   }),
                 )}
@@ -508,6 +521,21 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
           mean higher {sensOutputs.find((o) => o.key === mapOutput)!.label}
           {isRos ? " (log scale)" : ""}. The outlined cell is your current baseline. Hover any cell for
           exact values.
+        </p>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Ferroptosis thresholds: filled dot = Committed (risk 100, propagation ratio 0.8 or 30%
+          cardiolipin oxidized), ring = Primed (risk 50).{" "}
+          {(() => {
+            const committedCells = grid.cells.flat().filter((c) => (c["ferroptosisRisk"] ?? 0) >= 100);
+            if (committedCells.length === 0)
+              return "No cell on this map crosses Committed: light and iron together stay below the threshold at your current settings.";
+            const minDose = Math.min(...committedCells.map((c) => c["y"] ?? 0));
+            const maxIronNoLight = Math.max(
+              ...grid.cells[0]!.filter((c) => (c["ferroptosisRisk"] ?? 0) < 100).map((c) => c["x"] ?? 0),
+              0,
+            );
+            return `${committedCells.length} of ${grid.cells.flat().length} cells are Committed. The lowest dose that commits any cell is ${minDose.toFixed(0)} J/cm2; without light, iron alone commits above ${maxIronNoLight.toFixed(0)} µM.`;
+          })()}
         </p>
         <p className="mt-1 text-[11px] text-muted-foreground">
           Study points (Chen 2011, Huang 2013): dashed line {studyRows[0]!.dose.toFixed(0)} J/cm2, solid

@@ -241,3 +241,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ Ran RSL3 (GPx4 = 0) with labile iron at 10 uM: Ferroptosis panel shows Committed, risk 100, cardiolipin oxidized 32.7%, time course badge "Primed 0.0 h / Committed 0.0 h" (GPx4 is already zero when the integration starts, so the crossing is immediate).
 - ✅ At 5 uM iron the curve stays Primed and never commits within 48 h; at 20 uM it saturates. The threshold behavior is continuous and plausible.
 - ❌ Found and fixed: with GPx4 blocked plus high iron, the exact integration step overflowed to Infinity and cardiolipin oxidation went NaN. PLOOH is now clamped at physical saturation (99% oxidized cardiolipin) in timeCourse().
+
+## Ferroptosis threshold overlay on the iron x light map ✅
+- Each map cell now carries a filled dot when it is Committed (risk 100: propagation ratio 0.8 or 30% cardiolipin oxidized) and a ring when Primed (risk 50); hover shows risk and CL ox % per cell.
+- A live caption reports how many of the 441 cells are Committed, the lowest light dose that commits any cell, and the iron level that commits without light.
+- Verified: at defaults 188/441 cells are Primed and none Committed; RSL3 + 10 µM iron commits 236/441; typecheck clean, no page errors.
