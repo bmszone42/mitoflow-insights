@@ -103,9 +103,9 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
           <SelectValue placeholder="Pick a scenario" />
         </SelectTrigger>
         <SelectContent>
-          {items.map((s) => (
+          {shown.map((s) => (
             <SelectItem key={s.id} value={s.id}>
-              {s.name}
+              {s.preset ? `${s.name} [${s.preset}]` : s.name}
             </SelectItem>
           ))}
         </SelectContent>
