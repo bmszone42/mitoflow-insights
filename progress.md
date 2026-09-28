@@ -400,3 +400,8 @@ says so in the caveats; they need validation against measured cluster loss data 
 - ✅ `poRatio(psi, uncoupling, path)` in reference.ts: sums live proton-based step yields, NADH path (CI+CIII+CIV) and FADH2 path (skips Complex I)
 - ✅ Steady state grid shows P/O (NADH) and P/O (FADH2) in ATP per O atom
 - ✅ Verified: 2.38 at defaults (2.5 x 0.95 coupling), 1.88 at 25% uncoupling, zero page errors
+
+## Compare: per-step ATP yield comparison (live)
+- ✅ The "ETC step energetics" table now uses live ATP yields per scenario (scaled by each run's membrane potential and uncoupling via liveAtpPerPair), with separate "A: ATP / pair" and "B: ATP / pair" columns.
+- ✅ New "Driver share" column: each step's share of the total ATP rate gap between the two scenarios; the top-driving step is highlighted and marked with *.
+- ✅ Verified in preview: RSL3 + 810 nm vs Erastin + chelator, driver shares sum across steps, zero page errors.
