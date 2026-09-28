@@ -172,11 +172,11 @@ export function StructureModeler({
           </div>
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
             {mounted ? (
-              <Suspense fallback={<div className="h-[380px] animate-pulse rounded-md bg-secondary/40" />}>
+              <Suspense fallback={<div className="h-[560px] animate-pulse rounded-md bg-secondary/40" />}>
                 <Cristae3D geo={geo} ge={ge} out={out} overlay={overlay} />
               </Suspense>
             ) : (
-              <div className="h-[380px] rounded-md bg-secondary/40" />
+              <div className="h-[560px] rounded-md bg-secondary/40" />
             )}
             <div className="space-y-2">
               <div className="mono-label">Live outputs vs default shape</div>
