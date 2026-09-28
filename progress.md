@@ -183,7 +183,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ Shape now drives the model: capacity, local membrane potential, cyt c retention, ATP efficiency, superoxide leak
 - ✅ Color overlays (superoxide, local membrane potential, complex density) and live outputs vs default shape
 - ❌ Structure sliders as a Sensitivity driver group
-- ❌ Geometry saved inside scenarios
+- ✅ Membrane geometry saved inside scenarios; loading restores it and Compare shows shape differences
 
 ## Photoreceptor model (light) and 71 THz coherence
 - ✅ Light now follows a photoreceptor chain: tissue attenuation, absorption by CuA, heme a/a3, flavins and porphyrins, saturation at high irradiance, and one named effect per chromophore (NO release, Complex IV speed-up, flavin and semiquinone superoxide, direct H2O2, heating, photoinhibition)
@@ -304,3 +304,12 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 
 ### Security before deployment
 - Bloom runs entirely in the browser and does not send model inputs or images elsewhere. Keep graphics dependencies updated and confirm acceptable performance on mobile before publishing.
+
+## Membrane shapes in scenarios
+- ✅ Save new and update capture all eight shape sliders with inputs and the matching output snapshot. Preset and AI map saves also capture the current shape.
+- ✅ Loading a scenario restores its saved shape; old scenarios without geometry load the default shape. Imported JSON retains saved geometry.
+- ✅ Compare shows A, B and the difference for every membrane shape parameter; output comparisons run each scenario with its own geometry.
+- ❌ Existing older runs cannot recover shapes that were never saved.
+
+### Security before deployment
+- Shape values from imported scenarios are bounded to the existing slider limits before being rendered or simulated. Scenario storage stays under the existing browser or owner-only account permissions; do not include personal images in exported scenario files without consent.

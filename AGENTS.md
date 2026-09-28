@@ -15,8 +15,7 @@
   block, so numbers stay auditable in one place.
 - Static domain content lives in `src/lib/mito/reference.ts`, separate from the model, so reference
   text can change without touching the math.
-- Workspace UI is one route (`src/routes/index.tsx`) holding the input state, with section
-  components under `src/components/mito/`; `src/lib/mito/scenarios.ts` is a storage facade: Cloud `scenarios` table (owner-only RLS, whole scenario in `data` jsonb) when signed in, browser IndexedDB when signed out, so callers never branch on auth.
+- Workspace UI keeps inputs and shape in `src/routes/index.tsx`, with components under `src/components/mito/`; `src/lib/mito/scenarios.ts` stores whole scenarios, including geometry, in owner-only Cloud rows or signed-out IndexedDB, with a default shape for legacy rows so comparisons remain reproducible.
 
 - AI interpretation runs through one streaming server route `src/routes/api/interpret.ts` (Responses API, openai/gpt-6-astra) so the gateway key stays server-side.
 - All AI routes (`/api/interpret`, `/api/suggest`, `/api/analyze-image`, `/api/explain-sensitivity`) go through `src/lib/mito/rate-limit.server.ts` (in-memory, per instance) so abuse limits live in one place; move to a database if strict limits are needed.
