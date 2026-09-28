@@ -1,6 +1,6 @@
-import { Html, RoundedBox } from "@react-three/drei";
+import { RoundedBox } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { Geometry, GeometryEffects, Outputs } from "@/lib/mito/model";
 import { FeSCluster, Inst, PAL, ramp, type Xf } from "./parts";
@@ -10,6 +10,45 @@ import type { Crista, Layout } from "./layout";
 export type Overlay = "potential" | "superoxide" | "complexes";
 
 const CUT = Math.PI * 0.42; // half-angle of the cutaway wedge facing the camera
+
+function Label3D({ text, position }: { text: string; position: [number, number, number] }) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    const scale = 2;
+    const fontSize = 22;
+    const padX = 14;
+    const padY = 8;
+    const font = `${fontSize}px monospace`;
+    if (!context) return new THREE.CanvasTexture(canvas);
+    context.font = font;
+    canvas.width = Math.ceil(context.measureText(text).width + padX * 2) * scale;
+    canvas.height = (fontSize + padY * 2) * scale;
+    context.scale(scale, scale);
+    context.font = font;
+    context.textBaseline = "middle";
+    context.fillStyle = "rgba(8, 28, 25, 0.9)";
+    context.strokeStyle = "rgba(78, 222, 174, 0.6)";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.roundRect(0.5, 0.5, canvas.width / scale - 1, canvas.height / scale - 1, 5);
+    context.fill();
+    context.stroke();
+    context.fillStyle = "#e7fff7";
+    context.fillText(text, padX, canvas.height / scale / 2);
+    const next = new THREE.CanvasTexture(canvas);
+    next.colorSpace = THREE.SRGBColorSpace;
+    next.minFilter = THREE.LinearFilter;
+    return next;
+  }, [text]);
+  useEffect(() => () => texture.dispose(), [texture]);
+  const aspect = texture.image.width / texture.image.height;
+  return (
+    <sprite position={position} scale={[0.28 * aspect, 0.28, 1]} renderOrder={20}>
+      <spriteMaterial map={texture} transparent depthTest={false} depthWrite={false} toneMapped={false} />
+    </sprite>
+  );
+}
 
 function capsuleProfile(R: number, H: number, n = 18) {
   const pts: THREE.Vector2[] = [];
@@ -290,9 +329,7 @@ export function Organelle({
   });
 
   const label = (text: string, p: [number, number, number]) => (
-    <Html position={p} center style={{ pointerEvents: "none", display: labels ? "block" : "none" }} zIndexRange={[10, 0]}>
-      <div className="whitespace-nowrap rounded border border-border bg-card/85 px-1.5 py-0.5 font-mono text-[10px] text-foreground">{text}</div>
-    </Html>
+    <Label3D key={text} text={text} position={p} />
   );
 
   const f0 = lay.focus;
@@ -463,16 +500,20 @@ export function Organelle({
         </instancedMesh>
       )}
 
-      {label("Outer membrane", [0, r + gap + 0.12, -0.2])}
-      {label("Inner boundary membrane", [-L * 0.3, -(r + 0.06), -0.3])}
-      {f0 && label("Crista", [f0.x, yAt(f0, 0.55), -f0.zExtent / 2])}
-      {f0 && label("Crista junction", [f0.x - 0.6, f0.top ? r + 0.05 : -r - 0.05, 0.15])}
-      {f0 && label("Complex I", [lay.ciPos[0] + 0.35, lay.ciPos[1] + 0.25, lay.ciPos[2] + 0.1])}
-      {f0 && label("Complex III", [f0.x + f0.thick / 2 + 0.55, yAt(f0, 0.5), zRows(f0)[2]!])}
-      {f0 && label("Complex IV", [f0.x + f0.thick / 2 + 0.35, yAt(f0, 0.68), zRows(f0)[2]!])}
-      {f0 && label("ATP synthase dimers", [f0.x, yAt(f0, 1) + (f0.top ? -0.1 : 0.1), f0.zExtent / 2])}
-      {label("mtDNA nucleoid", [dna.centers[0]![0]!, dna.centers[0]![1]! + 0.2, dna.centers[0]![2]!])}
-      {label("TCA / aconitase [4Fe-4S]", [tcaC[0] - 0.5, tcaC[1] - 0.3, tcaC[2]])}
+      {labels && (
+        <>
+          {label("Outer membrane", [0, r + gap + 0.12, -0.2])}
+          {label("Inner boundary membrane", [-L * 0.3, -(r + 0.06), -0.3])}
+          {f0 && label("Crista", [f0.x, yAt(f0, 0.55), -f0.zExtent / 2])}
+          {f0 && label("Crista junction", [f0.x - 0.6, f0.top ? r + 0.05 : -r - 0.05, 0.15])}
+          {f0 && label("Complex I", [lay.ciPos[0] + 0.35, lay.ciPos[1] + 0.25, lay.ciPos[2] + 0.1])}
+          {f0 && label("Complex III", [f0.x + f0.thick / 2 + 0.55, yAt(f0, 0.5), zRows(f0)[2] ?? 0])}
+          {f0 && label("Complex IV", [f0.x + f0.thick / 2 + 0.35, yAt(f0, 0.68), zRows(f0)[2] ?? 0])}
+          {f0 && label("ATP synthase dimers", [f0.x, yAt(f0, 1) + (f0.top ? -0.1 : 0.1), f0.zExtent / 2])}
+          {dna.centers[0] && label("mtDNA nucleoid", [dna.centers[0][0], dna.centers[0][1] + 0.2, dna.centers[0][2]])}
+          {label("TCA / aconitase [4Fe-4S]", [tcaC[0] - 0.5, tcaC[1] - 0.3, tcaC[2]])}
+        </>
+      )}
     </group>
   );
 }
