@@ -330,3 +330,18 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 
 ### Security before deployment
 - Batch saving uses the existing owner-only account storage or this browser's local storage. Confirm quotas and retention needs before collecting large numbers of runs.
+
+## NO crossing doses and peroxynitrite term in the AI map payload
+
+✅ The map interpretation payload now carries the nitric oxide context: current NO level, the map's
+highest labile iron, and the light dose where oxidized cardiolipin crosses the 30% Committed
+threshold at NO 0, current NO and 400 nM (null means it is never crossed in range).
+✅ It also carries a per NO level row of peroxynitrite, Fe-S intact, aconitase and oxidized
+cardiolipin, so the peroxynitrite driven Fe-S attack term is visible to the model.
+✅ The map prompt gained a "Nitric oxide and peroxynitrite" section and names the three separate
+Fe-S attack terms (superoxide, H2O2, peroxynitrite) so the interpretation says which one the
+numbers implicate.
+✅ Verified with a live call to /api/explain-sensitivity: the response reports the 12 J/cm2 crossing
+at the current NO level.
+❌ The peroxynitrite and H2O2 Fe-S rate constants stay effective and unfitted, and the prompt now
+says so in the caveats; they need validation against measured cluster loss data before clinical use.
