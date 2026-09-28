@@ -4,7 +4,7 @@ import { AccountButton } from "@/components/mito/AccountButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Simulator } from "@/components/mito/Simulator";
-import { PathwayMap, ThzHypotheses } from "@/components/mito/PathwayMap";
+import { PathwayMap, ThzHypotheses, EtcEnergyCard } from "@/components/mito/PathwayMap";
 import { StructureModeler } from "@/components/mito/StructureModeler";
 import { Sensitivity } from "@/components/mito/Sensitivity";
 import { ReferenceLibrary } from "@/components/mito/ReferenceLibrary";
