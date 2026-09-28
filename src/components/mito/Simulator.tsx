@@ -543,6 +543,16 @@ export function Simulator({
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
             <Metric label="ATP flux" value={out.atpFlux.toFixed(1)} unit="µM/s" />
+            <Metric
+              label="P/O ratio (NADH)"
+              value={poRatio(inputs.deltaPsi, inputs.uncoupling, "nadh").toFixed(2)}
+              unit="ATP/O"
+            />
+            <Metric
+              label="P/O ratio (FADH2)"
+              value={poRatio(inputs.deltaPsi, inputs.uncoupling, "fadh2").toFixed(2)}
+              unit="ATP/O"
+            />
             <Metric label="Complex IV flux" value={out.fluxCIV.toFixed(1)} unit="µM/s" />
             <Metric
               label="71 THz output"
