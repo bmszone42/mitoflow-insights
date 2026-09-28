@@ -293,7 +293,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                   })()}
                   <tr className="border-t border-border font-semibold">
                     <td className="py-1 font-sans">Whole chain ATP flux</td>
-                    <td></td><td></td>
+                    <td></td><td></td><td></td>
                     <td>{Number(oa.atpFlux.toPrecision(3))}</td>
                     <td>{Number(ob.atpFlux.toPrecision(3))}</td>
                     <td><Delta a={oa.atpFlux} b={ob.atpFlux} /></td>
