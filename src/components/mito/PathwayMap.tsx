@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { defaultInputs, simulate, type Outputs } from "@/lib/mito/model";
+import { defaultInputs, simulate, type Inputs, type Outputs } from "@/lib/mito/model";
 import { ATP_COST_EV, H_PER_ATP, atpPerPair, liveAtpPerPair, etcSteps } from "@/lib/mito/reference";
 
 type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" };
@@ -47,11 +47,14 @@ const COMPLEX_STEPS: Record<string, string[]> = {
   ci: ["Complex I"], cii: ["Complex II"], ciii: ["Complex III"], civ: ["Complex IV"], cytc: ["Cytochrome c"], q: ["Complex I to Q", "Complex II"],
 };
 
-export function PathwayMap({ out, highlight = [], source, onSelect, complex }: { out: Outputs; highlight?: string[]; source?: string | undefined; onSelect?: (id: string) => void; complex?: string | null }) {
+export function PathwayMap({ out, inputs, highlight = [], source, onSelect, complex }: { out: Outputs; inputs?: Inputs | undefined; highlight?: string[]; source?: string | undefined; onSelect?: (id: string) => void; complex?: string | null }) {
   const pre = complex ? COMPLEX_STEPS[complex] : undefined;
   const steps = pre ? etcSteps.filter((s) => pre.some((p) => s.step.startsWith(p))) : [];
   const hl = new Set(highlight);
   const base = useMemo(() => simulate(defaultInputs), []);
+  const psi = inputs?.deltaPsi ?? defaultInputs.deltaPsi;
+  const unc = inputs?.uncoupling ?? defaultInputs.uncoupling;
+  const live = psi !== defaultInputs.deltaPsi || unc !== defaultInputs.uncoupling;
   const pos = Object.fromEntries(NODES.map((n) => [n.id, n]));
   return (
     <section className="rounded-lg border border-border bg-card p-4">
