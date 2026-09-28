@@ -125,6 +125,17 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
               `${r.driver} (${r.group}): down -> ${fmt(r.down)} | up -> ${fmt(r.up)}`,
           )
           .join("\n");
+        const noBlock = (no: NonNullable<NonNullable<typeof map>["nitricOxide"]>| undefined) => {
+          if (!no) return "";
+          const dose = (v: number | null) =>
+            v === null ? "never within the mapped dose range" : `${Number(v.toPrecision(3))} J/cm2`;
+          return `\n\nNitric oxide context (current NO ${Number(no.currentNm.toPrecision(3))} nM; all rows evaluated at the map's highest labile iron, ${Number(no.atMaxIron.toPrecision(3))} µM).\nLight dose where oxidized cardiolipin crosses the 30% Committed threshold: NO at 0 -> ${dose(no.crossingDoses.no0)}; current NO -> ${dose(no.crossingDoses.current)}; NO at 400 nM -> ${dose(no.crossingDoses.no400)}.\nPeroxynitrite driven Fe-S attack term across NO levels:\n${no.levels
+            .map(
+              (l) =>
+                `NO ${Number(l.no.toPrecision(3))} nM: ONOO- ${Number(l.peroxynitrite.toPrecision(3))}, Fe-S intact ${l.fesIntactPct.toFixed(1)}%, aconitase ${l.aconitasePct.toFixed(1)}%, oxidized cardiolipin ${l.cardiolipinOxPct.toFixed(1)}%`,
+            )
+            .join("\n")}`;
+        };
 
         let upstreamError: { status: number; message: string } | null = null;
         const result = streamText({
