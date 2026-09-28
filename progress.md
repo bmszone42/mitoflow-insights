@@ -138,6 +138,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - Set a workspace AI spending cap so a burst of traffic cannot drain credits.
 - Keys never reach the browser; all AI calls are server side. Inputs validated with zod and suggestions clamped server side.
 - Signed-in scenarios are stored in Lovable Cloud with row level security: each user can only read and change their own rows; no anonymous access. Signed-out scenarios stay in the browser. Before publishing: turn on leaked password protection and consider moving AI rate limits to the database.
+- The 3D cleanup change is presentation-only and adds no data access, network requests, or deployment secrets.
 
 ## Micrograph analysis (Structure tab)
 - ✅ Upload or drop PNG, JPEG or WebP (8 MB max), resized in browser to 1600 px JPEG
@@ -182,6 +183,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ New shape sliders: outer membrane swelling, cristae shape, tip curvature
 - ✅ Shape now drives the model: capacity, local membrane potential, cyt c retention, ATP efficiency, superoxide leak
 - ✅ Color overlays (superoxide, local membrane potential, complex density) and live outputs vs default shape
+- ✅ Viewer cleanup fixed: HTML labels mount only while visible, selection clears safely on teardown, and the mitochondrion redraws after returning to Structure
 - ❌ Structure sliders as a Sensitivity driver group
 - ✅ Membrane geometry saved inside scenarios; loading restores it and Compare shows shape differences
 
