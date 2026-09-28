@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Outputs } from "@/lib/mito/model";
+import { etcSteps } from "@/lib/mito/reference";
 
 type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" };
 type Edge = { from: string; to: string; flux: (o: Outputs) => number; brake?: string };
@@ -150,6 +151,49 @@ export function ThzHypotheses({ out }: { out: Outputs }) {
         ))}
       </div>
       <p className="mt-3 text-[11px] text-muted-foreground">The 71 THz output is a relative reporter from a threshold model; it is a hypothesis, not a radiometric prediction.</p>
+    </section>
+  );
+}
+
+// Energy released at each electron transfer step, in eV per electron, with live flux context.
+export function EtcEnergyCard({ out }: { out: Outputs }) {
+  const maxEv = Math.max(...etcSteps.map((s) => Math.abs(s.ev)));
+  return (
+    <section className="rounded-lg border border-border bg-card p-4">
+      <div className="mono-label">Electron transport chain energetics</div>
+      <h3 className="text-sm font-semibold">
+        Energy per step, eV per electron · chain flux {(out.fluxCI + out.fluxCII).toFixed(1)} µM/s pairs
+      </h3>
+      <div className="mt-3 space-y-2">
+        {etcSteps.map((s) => (
+          <div key={s.step}>
+            <div className="flex items-baseline justify-between gap-2 text-xs">
+              <span>
+                <span className="font-semibold">{s.step}</span>{" "}
+                <span className="text-muted-foreground">
+                  {s.donor} → {s.acceptor}
+                </span>
+              </span>
+              <span className="font-mono">
+                {s.ev > 0 ? "+" : ""}
+                {s.ev.toFixed(2)} eV{s.protons > 0 ? ` · ${s.protons} H+` : ""}
+              </span>
+            </div>
+            <div className="mt-1 h-1.5 w-full rounded bg-secondary">
+              <div
+                className={`h-1.5 rounded ${s.ev >= 0 ? "bg-primary" : "bg-accent"}`}
+                style={{ width: `${Math.max(3, (Math.abs(s.ev) / maxEv) * 100)}%` }}
+              />
+            </div>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              E'm {s.emDonor} → {s.emAcceptor} mV. {s.note}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-[11px] text-muted-foreground">
+        eV = midpoint potential gap in volts per electron (Nicholls & Ferguson, Bioenergetics 4th ed.). Bars scale to the largest step; amber bars are slightly uphill steps driven by mass action.
+      </p>
     </section>
   );
 }

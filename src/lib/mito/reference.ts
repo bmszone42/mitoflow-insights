@@ -165,6 +165,112 @@ export const ironSteps = [
   },
 ];
 
+export type EtcStep = {
+  step: string;
+  donor: string;
+  acceptor: string;
+  emDonor: number; // midpoint potential E'm, mV
+  emAcceptor: number;
+  ev: number; // energy released per electron, eV (1 V = 1 eV per electron)
+  protons: number; // H+ pumped per electron pair
+  note: string;
+};
+
+// Midpoint potentials E'm (mV, pH 7) from standard bioenergetics tables
+// (Nicholls & Ferguson, Bioenergetics 4th ed.). eV = deltaE in volts per electron.
+export const etcSteps: EtcStep[] = [
+  {
+    step: "Complex I entry",
+    donor: "NADH/NAD+",
+    acceptor: "FMN",
+    emDonor: -320,
+    emAcceptor: -300,
+    ev: 0.02,
+    protons: 0,
+    note: "NADH binds and reduces FMN; the small gap keeps flavin superoxide low at rest.",
+  },
+  {
+    step: "Complex I Fe-S relay",
+    donor: "FMN",
+    acceptor: "[4Fe-4S] N2",
+    emDonor: -300,
+    emAcceptor: -40,
+    ev: 0.26,
+    protons: 4,
+    note: "Electrons cross N3-N7 to N2; the ~0.26 eV drop drives the four pumped protons.",
+  },
+  {
+    step: "Complex I to Q",
+    donor: "[4Fe-4S] N2",
+    acceptor: "Q/QH2",
+    emDonor: -40,
+    emAcceptor: 90,
+    ev: 0.13,
+    protons: 0,
+    note: "Two electrons plus two matrix protons reduce ubiquinone to ubiquinol.",
+  },
+  {
+    step: "Complex II (FADH2)",
+    donor: "Succinate/fumarate",
+    acceptor: "Q/QH2",
+    emDonor: 30,
+    emAcceptor: 90,
+    ev: -0.06,
+    protons: 0,
+    note: "Slightly uphill; driven by succinate mass action, so no protons are pumped.",
+  },
+  {
+    step: "Complex III Qo",
+    donor: "QH2",
+    acceptor: "Rieske [2Fe-2S] / cyt c1",
+    emDonor: 90,
+    emAcceptor: 280,
+    ev: 0.19,
+    protons: 4,
+    note: "Q-cycle bifurcation: one electron to Rieske, one back to Qi; semiquinone here leaks O2•-.",
+  },
+  {
+    step: "Cytochrome c shuttle",
+    donor: "cyt c1",
+    acceptor: "cytochrome c",
+    emDonor: 280,
+    emAcceptor: 235,
+    ev: -0.045,
+    protons: 0,
+    note: "Near-equilibrium shuttle; cardiolipin-bound cyt c is the ferroptosis peroxidase switch.",
+  },
+  {
+    step: "Complex IV CuA / heme a",
+    donor: "cytochrome c",
+    acceptor: "CuA / heme a",
+    emDonor: 235,
+    emAcceptor: 290,
+    ev: 0.055,
+    protons: 0,
+    note: "CuA is the main 810 nm chromophore; heme a/a3 absorbs 660 nm.",
+  },
+  {
+    step: "Complex IV to O2",
+    donor: "heme a3-CuB",
+    acceptor: "O2/H2O",
+    emDonor: 290,
+    emAcceptor: 820,
+    ev: 0.53,
+    protons: 2,
+    note: "The largest drop; 2 H+ pumped plus 2 chemical H+ per pair. NO binds here and light releases it.",
+  },
+  {
+    step: "Overall NADH to O2",
+    donor: "NADH/NAD+",
+    acceptor: "O2/H2O",
+    emDonor: -320,
+    emAcceptor: 820,
+    ev: 1.14,
+    protons: 10,
+    note: "1.14 eV per electron, about 52 kcal/mol per pair; roughly 40% is captured as ATP.",
+  },
+];
+
 export const photonNotes = [
   {
     title: "660 nm red",

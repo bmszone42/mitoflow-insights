@@ -4,7 +4,7 @@ import { AccountButton } from "@/components/mito/AccountButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Simulator } from "@/components/mito/Simulator";
-import { PathwayMap, ThzHypotheses } from "@/components/mito/PathwayMap";
+import { PathwayMap, ThzHypotheses, EtcEnergyCard } from "@/components/mito/PathwayMap";
 import { StructureModeler } from "@/components/mito/StructureModeler";
 import { Sensitivity } from "@/components/mito/Sensitivity";
 import { ReferenceLibrary } from "@/components/mito/ReferenceLibrary";
@@ -98,6 +98,9 @@ function Index() {
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <PathwayMap out={out} />
               <ThzHypotheses out={out} />
+            </div>
+            <div className="mt-4">
+              <EtcEnergyCard out={out} />
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
               <Scenarios

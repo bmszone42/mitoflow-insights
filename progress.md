@@ -345,3 +345,9 @@ numbers implicate.
 at the current NO level.
 ❌ The peroxynitrite and H2O2 Fe-S rate constants stay effective and unfitted, and the prompt now
 says so in the caveats; they need validation against measured cluster loss data before clinical use.
+
+## ETC step energetics (eV)
+- ✅ `etcSteps` table in `src/lib/mito/reference.ts`: nine electron transfer steps from NADH entry to O2 reduction, each with donor/acceptor midpoint potentials (E'm, mV), energy released per electron in eV, and protons pumped per pair (Nicholls & Ferguson, Bioenergetics 4th ed.).
+- ✅ `EtcEnergyCard` in `src/components/mito/PathwayMap.tsx`, mounted on the Simulator tab: per-step eV bars, H+ counts, live chain flux header; uphill steps (Complex II, cyt c shuttle) shown in amber.
+- ✅ Browser-verified: card visible, all rows render, zero page errors.
+- ❌ Midpoint potentials are standard-state values; in-situ potentials shift with Δψ and reduction state, not yet modeled per step.
