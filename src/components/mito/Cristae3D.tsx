@@ -53,7 +53,7 @@ const LEGEND: [string, string][] = [
   [PAL.s, "S"],
 ];
 
-export default function Cristae3D({ geo, ge, out, overlay, onPick, selected }: { geo: Geometry; ge: GeometryEffects; out: Outputs; overlay: Overlay; onPick?: ((id: PartId | null) => void) | undefined; selected?: PartId | null | undefined }) {
+export default function Cristae3D({ geo, ge, out, overlay, onPick, selected, inputs }: { geo: Geometry; ge: GeometryEffects; out: Outputs; overlay: Overlay; onPick?: ((id: PartId | null) => void) | undefined; selected?: PartId | null | undefined; inputs?: Inputs | undefined }) {
   const lay = useMemo(() => layout(geo), [geo]);
   const [view, setView] = useState<ViewPreset>("whole");
   const [n, setN] = useState(0);
@@ -83,7 +83,7 @@ export default function Cristae3D({ geo, ge, out, overlay, onPick, selected }: {
           <Lightformer intensity={1} color="#fcb" position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
           <Lightformer intensity={0.8} color="#9df" position={[5, -1, 1]} rotation-y={-Math.PI / 2} scale={[20, 1, 1]} />
         </Environment>
-        <Organelle geo={geo} ge={ge} out={out} overlay={overlay} lay={lay} labels={labels && view === "whole"} evLabels={view === "complex"} onPick={setSel} />
+        <Organelle geo={geo} ge={ge} out={out} overlay={overlay} lay={lay} labels={labels && view === "whole"} evLabels={view === "complex"} onPick={setSel} inputs={inputs} />
         <OrbitControls enablePan={false} minDistance={0.08} maxDistance={12} makeDefault />
         <CameraRig goal={goal} />
         <EffectComposer multisampling={0}>
