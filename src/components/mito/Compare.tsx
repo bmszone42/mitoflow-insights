@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
+import { ShapeSketch } from "@/components/mito/ShapeSketch";
 
 const outRows: { key: keyof Outputs; label: string; unit: string }[] = [
   { key: "atpFlux", label: "ATP flux", unit: "µM/s" },
@@ -210,6 +211,10 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
 
           <div className="mt-4 border-t border-border pt-3">
             <div className="mono-label mb-2">Membrane shape</div>
+            <div className="mb-3 grid gap-4 sm:grid-cols-2">
+              <ShapeSketch geo={ga} color="var(--primary)" label={`A: ${a.name}`} />
+              <ShapeSketch geo={gb} color="var(--accent)" label={`B: ${b.name}`} />
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[440px] text-xs">
                 <thead><tr className="text-left text-muted-foreground"><th className="py-1 font-normal">Shape</th><th className="font-normal">A</th><th className="font-normal">B</th><th className="font-normal">B vs A</th></tr></thead>
