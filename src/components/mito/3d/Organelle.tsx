@@ -167,6 +167,7 @@ export function Organelle({
   evLabels,
   onPick,
   inputs,
+  onStepClick,
 }: {
   geo: Geometry;
   ge: GeometryEffects;
@@ -177,6 +178,7 @@ export function Organelle({
   evLabels: boolean;
   onPick: (p: PartId) => void;
   inputs?: Inputs | undefined;
+  onStepClick?: ((stepIndex: number) => void) | undefined;
 }) {
   const { L, r, gap, cristae, yAt, zRows } = lay;
   const H = L / 2 - r;
@@ -555,7 +557,10 @@ export function Organelle({
               return spots.map(([i, y, dz, short]) => {
                 const s = etcSteps[i]!;
                 const live = liveAtpPerPair(s, psi, unc).proton;
-                return label(`${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${live.toFixed(2)} ATP/pr`, at(y, dz), 0.028);
+                const text = `${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${live.toFixed(2)} ATP/pr`;
+                return (
+                  <Label3D key={text} text={text} position={at(y, dz)} size={0.028} onClick={onStepClick ? () => onStepClick(i) : undefined} />
+                );
               });
             })()}
     </group>
