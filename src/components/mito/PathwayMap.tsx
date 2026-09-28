@@ -43,7 +43,7 @@ const Hh = 52;
 const fmt = (v: number, d = 1) => (v !== 0 && Math.abs(v) < 0.01 ? v.toExponential(1) : v.toFixed(d));
 
 // Live ROS/RNS, Fe-S, iron and Fenton loop. Arrow width follows each flux relative to default settings.
-export function PathwayMap({ out, highlight = [], source }: { out: Outputs; highlight?: string[]; source?: string }) {
+export function PathwayMap({ out, highlight = [], source }: { out: Outputs; highlight?: string[]; source?: string | undefined }) {
   const hl = new Set(highlight);
   const base = useMemo(() => simulate(defaultInputs), []);
   const pos = Object.fromEntries(NODES.map((n) => [n.id, n]));

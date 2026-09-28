@@ -15,7 +15,7 @@ import { Compare } from "@/components/mito/Compare";
 import { Interpreter } from "@/components/mito/Interpreter";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
-import { defaultGeometry, defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
+import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 
 export const Route = createFileRoute("/")({
   head: () => ({
