@@ -277,7 +277,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                       return { s, ya, yb, ra, rb, diff: rb - ra };
                     });
                     const totalAbs = rows.reduce((acc, r) => acc + Math.abs(r.diff), 0);
-                    const top = rows.reduce((best, r) => (Math.abs(r.diff) > Math.abs(best.diff) ? r : best), rows[0]);
+                    const top = rows.reduce((best, r) => (Math.abs(r.diff) > Math.abs(best.diff) ? r : best), rows[0]!);
                     return rows.map((r) => (
                       <tr key={r.s.step} className={`border-t border-border ${r === top && totalAbs > 0 ? "bg-primary/10" : ""}`}>
                         <td className="py-1 font-sans">{r.s.step}{r === top && totalAbs > 0 ? " *" : ""}</td>
