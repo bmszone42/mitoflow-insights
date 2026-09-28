@@ -214,7 +214,7 @@ export function EtcEnergyCard({ out }: { out: Outputs }) {
         eV = midpoint potential gap in volts per electron (Nicholls & Ferguson, Bioenergetics 4th ed.). Bars scale to the largest step; amber bars are slightly uphill steps driven by mass action.
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">
-        ATP per pair = pumped H+ / {H_PER_ATP} (3 for the synthase rotation + ~1 for Pi/ADP transport), or step energy (eV x 2 electrons) / {ATP_COST_EV} eV per ATP (~50 kJ/mol), clamped at 0 for uphill steps. Summed over the chain: {totalProton.toFixed(2)} ATP from protons, {totalEnergy.toFixed(2)} from eV drops, the modern ~2.5 ATP per NADH. Standard-state estimates, not per-step in-situ yields.
+        ATP per pair = pumped H+ / {H_PER_ATP} (3 for the synthase rotation + ~1 for Pi/ADP transport), or step energy (eV x 2 electrons) / {ATP_COST_EV} eV per ATP (~50 kJ/mol), clamped at 0 for uphill steps. Summed over the chain: {totalProton.toFixed(2)} ATP captured via protons (the modern ~2.5 ATP per NADH); the eV drops alone could in principle pay for {totalEnergy.toFixed(2)}, so about {Math.round((totalProton / totalEnergy) * 100)}% of the available energy is captured. Standard-state estimates, not per-step in-situ yields.
       </p>
     </section>
   );
