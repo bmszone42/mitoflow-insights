@@ -395,3 +395,8 @@ says so in the caveats; they need validation against measured cluster loss data 
 - ✅ EtcEnergyCard and the pathway map complex-yield box show live yields with a "Live yields at X mV, Y% uncoupled" line when sliders differ from defaults; standard-state value shown alongside
 - ✅ index.tsx passes `inputs` to all PathwayMap and EtcEnergyCard call sites
 - ✅ Verified: raising Mild uncoupling to 25% shows the live line, zero page errors
+
+## P/O ratio readout (2026-09-28)
+- ✅ `poRatio(psi, uncoupling, path)` in reference.ts: sums live proton-based step yields, NADH path (CI+CIII+CIV) and FADH2 path (skips Complex I)
+- ✅ Steady state grid shows P/O (NADH) and P/O (FADH2) in ATP per O atom
+- ✅ Verified: 2.38 at defaults (2.5 x 0.95 coupling), 1.88 at 25% uncoupling, zero page errors
