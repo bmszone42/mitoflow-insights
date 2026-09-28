@@ -322,3 +322,11 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 
 ### Security before deployment
 - Sensitivity analysis runs locally without sending settings to an external service. AI interpretations remain rate-limited server requests; validate biological claims before presenting results as guidance.
+
+## Save all eight combination presets
+- ✅ One button saves all eight combination presets as individually named, preset-tagged scenarios with the current membrane shape and their own model snapshots, without changing the active settings.
+- ✅ The button shows a saving state and reports how many saves succeeded; the scenario list and Compare refresh after saving.
+- ❌ Repeated clicks create additional scenario runs rather than replacing prior runs, matching individual preset clicks.
+
+### Security before deployment
+- Batch saving uses the existing owner-only account storage or this browser's local storage. Confirm quotas and retention needs before collecting large numbers of runs.
