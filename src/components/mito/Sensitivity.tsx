@@ -31,6 +31,7 @@ import {
   type SensOutputKey,
 } from "@/lib/mito/model";
 import { sensitivityCsv } from "@/lib/mito/csv";
+import { etcSteps } from "@/lib/mito/reference";
 
 const tip = {
   contentStyle: {
@@ -188,7 +189,7 @@ export function Sensitivity({ inputs, geo, onSaved }: { inputs: Inputs; geo: Geo
         photonEv810,
         activeWavelengthNm: lightKey === "dose810" ? 810 : 660,
         photonGainBase: base.photonGain,
-        photonGainMaxDose: (lightKey === "dose810" ? f01 : f01).photonGain,
+        photonGainMaxDose: f01.photonGain,
         vsPumpSteps: pumpSteps.map((s) => ({
           step: s.step,
           stepEv: s.ev,
