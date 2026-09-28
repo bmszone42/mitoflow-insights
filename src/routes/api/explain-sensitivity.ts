@@ -43,6 +43,25 @@ const Body = z.object({
           }),
         )
         .max(20),
+      lightPump: z
+        .object({
+          photonEv660: z.number(),
+          photonEv810: z.number(),
+          activeWavelengthNm: z.number(),
+          photonGainBase: z.number(),
+          photonGainMaxDose: z.number(),
+          vsPumpSteps: z
+            .array(
+              z.object({
+                step: z.string().max(60),
+                stepEv: z.number(),
+                ratio660: z.number(),
+                ratio810: z.number(),
+              }),
+            )
+            .max(12),
+        })
+        .optional(),
       nitricOxide: z
         .object({
           currentNm: z.number(),
@@ -76,6 +95,7 @@ Write a concise explanation in Markdown with these sections:
 ## Parameter interactions (synergy or antagonism per output, and the mechanism in the model, e.g. Fenton chemistry, NO photodissociation, chromophore-driven superoxide, Fe-S damage feedback)
 ## Implications for ROS and Fe-S (where oxidative damage risk and Fe-S loss are highest, and safe or risky regions for light dosing at a given iron load)
 ## Nitric oxide and peroxynitrite (only when the NO block is present: how NO shifts the light dose at which oxidized cardiolipin crosses the 30% Committed threshold at the map's highest iron, and how the peroxynitrite driven Fe-S attack term changes Fe-S intact and aconitase across the NO levels given. The model has three separate Fe-S attack terms, one each for superoxide, H2O2 and peroxynitrite, so say which of them the numbers implicate. A null crossing dose means the threshold is never crossed within the mapped dose range.)
+## Light pump energy (only when the light pump block is present: treat the absorbed photon as a separate energy source alongside the ETC. Compare the photon eV at 660 and 810 nm against each proton-pumping step's eV drop using the ratios given, state how many step-equivalents one photon carries, and relate the photon gain at baseline versus maximum mapped dose to the light-driven outputs on the map. Note that photon energy is absorbed by chromophores and converted to chemistry, not directly to proton pumping.)
 ## Caveats (steady-state lumping, estimated coefficients, percent changes hide absolute scale, the peroxynitrite and H2O2 Fe-S rate constants are effective and unfitted)
 Ground every claim in the numbers given. Label speculation explicitly. Never use em dashes. Keep it under about 400 words.`;
 
