@@ -332,7 +332,7 @@ export function Organelle({
   });
 
   const label = (text: string, p: [number, number, number], size?: number) => (
-    <Label3D key={text} text={text} position={p} size={size} />
+    <Label3D key={text} text={text} position={p} {...(size !== undefined ? { size } : {})} />
   );
 
   const f0 = lay.focus;
