@@ -4,7 +4,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
-import { ShapeSketch } from "@/components/mito/ShapeSketch";
+import { ShapeSketch, ShapeOverlay } from "@/components/mito/ShapeSketch";
 import { atpPerPair, etcSteps } from "@/lib/mito/reference";
 
 const outRows: { key: keyof Outputs; label: string; unit: string }[] = [
@@ -215,6 +215,9 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
             <div className="mb-3 grid gap-4 sm:grid-cols-2">
               <ShapeSketch geo={ga} color="var(--primary)" label={`A: ${a.name}`} />
               <ShapeSketch geo={gb} color="var(--accent)" label={`B: ${b.name}`} />
+            </div>
+            <div className="mb-3">
+              <ShapeOverlay geoA={ga} geoB={gb} colorA="var(--primary)" colorB="var(--accent)" labelA={a.name} labelB={b.name} />
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[440px] text-xs">
