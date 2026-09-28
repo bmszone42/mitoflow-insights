@@ -157,6 +157,16 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
             .join("\n")}`;
         };
 
+        const lpBlock = (lp: NonNullable<NonNullable<typeof map>["lightPump"]> | undefined) => {
+          if (!lp) return "";
+          return `\n\nLight pump energy context (photon as a separate energy source; active wavelength ${lp.activeWavelengthNm} nm).\nPhoton energy: 660 nm -> ${lp.photonEv660.toFixed(3)} eV, 810 nm -> ${lp.photonEv810.toFixed(3)} eV.\nPhoton eV versus each proton-pumping ETC step drop (ratio = photon eV / step eV):\n${lp.vsPumpSteps
+            .map(
+              (s) =>
+                `${s.step}: step ${s.stepEv.toFixed(3)} eV, 660 nm photon = ${s.ratio660.toFixed(1)}x step, 810 nm photon = ${s.ratio810.toFixed(1)}x step`,
+            )
+            .join("\n")}\nModel photon gain (CIV turnover multiplier from light): baseline ${Number(lp.photonGainBase.toPrecision(3))}, at maximum mapped dose ${Number(lp.photonGainMaxDose.toPrecision(3))}.`;
+        };
+
         let upstreamError: { status: number; message: string } | null = null;
         const result = streamText({
           model: provider.responses("openai/gpt-6-astra"),
