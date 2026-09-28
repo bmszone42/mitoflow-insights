@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { fesClusters, ferroptosisNotes, ironSteps, photonNotes, rosSpecies } from "@/lib/mito/reference";
+import { fesClusters, ferroptosisNotes, ironSteps, photonNotes, rosSpecies, warburgNotes } from "@/lib/mito/reference";
 
 export function ReferenceLibrary() {
   return (
@@ -89,6 +89,18 @@ export function ReferenceLibrary() {
             <h2 className="text-sm font-semibold">Ferroptosis defence</h2>
             <div className="mt-3 space-y-3">
               {ferroptosisNotes.map((p) => (
+                <div key={p.title}>
+                  <div className="mono-label">{p.title}</div>
+                  <p className="text-xs text-muted-foreground">{p.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="panel p-4">
+            <h2 className="text-sm font-semibold">Warburg effect and aerobic glycolysis</h2>
+            <div className="mt-3 space-y-3">
+              {warburgNotes.map((p) => (
                 <div key={p.title}>
                   <div className="mono-label">{p.title}</div>
                   <p className="text-xs text-muted-foreground">{p.body}</p>

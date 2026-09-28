@@ -343,6 +343,29 @@ export const photonNotes = [
   },
 ];
 
+export const warburgNotes = [
+  {
+    title: "The Warburg effect",
+    body: "Otto Warburg observed in the 1920s that tumour cells ferment glucose to lactate even when oxygen is plentiful (aerobic glycolysis), instead of oxidizing it fully through mitochondria. Glycolysis yields only 2 ATP per glucose against roughly 30 to 32 from full oxidation, so the cell trades efficiency for speed and biosynthetic carbon.",
+  },
+  {
+    title: "Why ferment when oxygen is available",
+    body: "Glycolysis runs about 10 to 100 times faster than respiration per unit of enzyme, and its intermediates feed the pentose phosphate pathway, serine and lipid synthesis needed for proliferation. Rapid ATP production per second can therefore favour fermentation despite the low yield per glucose.",
+  },
+  {
+    title: "Mitochondria are not broken",
+    body: "Warburg originally blamed irreversible respiratory injury, but most tumour mitochondria still respire; flux is rerouted, not lost. In this model that maps to lowering NADH and succinate supply while the chain itself stays intact: ATP flux falls, membrane potential and ROS shift, and the cell leans on glycolysis for the difference.",
+  },
+  {
+    title: "Redox and iron consequences",
+    body: "Aerobic glycolysis lowers electron flux through Complexes I and III, cutting superoxide and H2O2 at the source, while lactate export acidifies the microenvironment and changes iron handling. Less respiratory leak means less Fe-S cluster attack and a smaller Fenton substrate pool, one reason highly glycolytic cells can be harder to push into ferroptosis.",
+  },
+  {
+    title: "Exploring it here",
+    body: "Drop the NADH/NAD+ and succinate sliders to mimic a Warburg-shifted cell: watch ATP flux and the P/O readout fall, ROS and Fe-S erosion ease, and the 71 THz coherence signal dim with the lower pump. Raising them back models a differentiated, oxidative phenotype.",
+  },
+];
+
 export const ferroptosisNotes = [
   {
     title: "GPx4",
