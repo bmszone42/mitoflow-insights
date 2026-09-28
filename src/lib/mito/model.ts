@@ -578,6 +578,7 @@ export const sensitivityDrivers: DriverDef[] = [
   { key: "succinate", label: "Succinate drive", min: 0, max: 2, group: "Electron flux" },
   { key: "oxygen", label: "Oxygen", min: 0.5, max: 120, group: "Electron flux" },
   { key: "labileIron", label: "Labile iron", min: 0, max: 20, group: "Iron" },
+  { key: "nitricOxide", label: "Nitric oxide", min: 0, max: 400, group: "ROS / RNS" },
   { key: "redDose", label: "660 nm dose", min: 0, max: 60, group: "Photon" },
   { key: "nirDose", label: "810 nm dose", min: 0, max: 60, group: "Photon" },
   { key: "irradiance", label: "Irradiance", min: 1, max: 200, group: "Photon" },

@@ -315,3 +315,10 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 
 ### Security before deployment
 - Shape values from imported scenarios are bounded to the existing slider limits before being rendered or simulated. Scenario storage stays under the existing browser or owner-only account permissions; do not include personal images in exported scenario files without consent.
+
+## Nitric oxide sensitivity driver
+- ✅ Nitric oxide is a ROS / RNS driver from 0 to 400 nM, using the existing simulator slider limits. Its perturbations appear in the tornado chart and heatmap; its full-range sweep can be selected and exported in the CSV report.
+- ❌ The model's nitric oxide response remains an estimate and needs validation against measured dose-response data before clinical use.
+
+### Security before deployment
+- Sensitivity analysis runs locally without sending settings to an external service. AI interpretations remain rate-limited server requests; validate biological claims before presenting results as guidance.
