@@ -306,6 +306,20 @@ export function liveAtpPerPair(s: EtcStep, psi: number, uncoupling: number): { p
   };
 }
 
+/*
+ * P/O ratio: ATP made per oxygen atom reduced (one electron pair reduces one
+ * O atom, half an O2). Summed from the live proton-based step yields.
+ * NADH path pumps at Complexes I, III and IV; the succinate (FADH2) path
+ * enters at Complex II and skips the Complex I steps. Standard state gives
+ * the classic 2.5 and 1.5.
+ */
+export function poRatio(psi: number, uncoupling: number, path: "nadh" | "fadh2"): number {
+  const skip = path === "fadh2" ? "Complex I" : "\0";
+  return etcSteps
+    .filter((s) => !s.step.startsWith("Overall") && !s.step.startsWith(skip))
+    .reduce((acc, s) => acc + liveAtpPerPair(s, psi, uncoupling).proton, 0);
+}
+
 export const photonNotes = [
   {
     title: "660 nm red",
