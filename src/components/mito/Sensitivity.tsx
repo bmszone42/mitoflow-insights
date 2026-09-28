@@ -43,7 +43,12 @@ const tip = {
 };
 const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
 
-export function Sensitivity({ inputs, geo, onSaved }: { inputs: Inputs; geo: Geometry; onSaved?: () => void }) {
+const TERM_OUTPUT: Record<string, SensOutputKey> = {
+  light: "emission71THz", etc: "superoxide", h2o2: "hydrogenPeroxide", onoo: "peroxynitrite",
+  fes: "fesIntact", fe: "freeIron", oh: "hydroxylRadical", lipid: "cardiolipinOx", ferro: "ferroptosisRisk",
+};
+
+export function Sensitivity({ inputs, geo, onSaved, term }: { inputs: Inputs; geo: Geometry; onSaved?: () => void; term?: { id: string; n: number } | null }) {
   const [delta, setDelta] = useState(0.2);
   const [output, setOutput] = useState<SensOutputKey>("superoxide");
   const [driver, setDriver] = useState<keyof Inputs>("labileIron");
@@ -57,6 +62,10 @@ export function Sensitivity({ inputs, geo, onSaved }: { inputs: Inputs; geo: Geo
   const [now, setNow] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
   const [source, setSource] = useState<"table" | "map">("table");
+  useEffect(() => {
+    const k = term ? TERM_OUTPUT[term.id] : undefined;
+    if (k) setOutput(k);
+  }, [term]);
   const [savedName, setSavedName] = useState<string | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
 
@@ -92,6 +101,10 @@ export function Sensitivity({ inputs, geo, onSaved }: { inputs: Inputs; geo: Geo
   );
   const dDef = sensitivityDrivers.find((d) => d.key === driver)!;
   const outLabel = sensOutputs.find((o) => o.key === output)!.label;
+  const thzTop = tornado.slice(0, 3).map((t) => {
+    const s = sens.find((x) => x.driver.label === t.name)!;
+    return { name: t.name, up: s.up["emission71THz"], down: s.down["emission71THz"] };
+  });
 
   const grid = useMemo(() => grid2d(inputs, "labileIron", lightKey), [inputs, lightKey]);
   // Lowest light dose where oxidized cardiolipin crosses the 30% Committed
@@ -380,6 +393,12 @@ export function Sensitivity({ inputs, geo, onSaved }: { inputs: Inputs; geo: Geo
           </div>
           <p className="mt-2 text-[11px] text-muted-foreground">
             Pink bars raise the output, green bars lower it. Longest bars matter most.
+            {term && TERM_OUTPUT[term.id] ? " Set from the pathway map box you clicked." : ""}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground" data-testid="thz-caption">
+            71 THz for the top {outLabel} drivers:{" "}
+            {thzTop.map((t) => `${t.name} ${fmt(t.up)} up / ${fmt(t.down)} down`).join("; ")}.
+            {output === "emission71THz" ? "" : " A driver that moves both means this term and the 71 THz coherence share a lever."}
           </p>
         </section>
 

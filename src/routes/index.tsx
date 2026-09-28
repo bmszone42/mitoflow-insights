@@ -43,6 +43,11 @@ function Index() {
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
   const [tab, setTab] = useState("sim");
+  const [mapTerm, setMapTerm] = useState<{ id: string; n: number } | null>(null);
+  const selectTerm = (id: string) => {
+    setMapTerm((m) => ({ id, n: (m?.n ?? 0) + 1 }));
+    setTab("sens");
+  };
   const out = useMemo(() => simulate(inputs, geo), [inputs, geo]);
   const [picked, setPicked] = useState<PartId | null>(null);
   const pickedName = picked ? partInfo(picked, out, geometryEffects(geo)).name : undefined;
@@ -101,7 +106,7 @@ function Index() {
           <TabsContent value="sim" className="mt-4">
             <Simulator inputs={inputs} setInputs={setInputs} geo={geo} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} />
+              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} />
               <ThzHypotheses out={out} />
             </div>
             <div className="mt-4">
@@ -139,12 +144,15 @@ function Index() {
             </div>
           </TabsContent>
           <TabsContent value="sens" className="mt-4">
-            <Sensitivity inputs={inputs} geo={geo} onSaved={() => setRefreshKey((k) => k + 1)} />
+            <div className="mb-4">
+              <PathwayMap out={out} highlight={mapTerm ? [mapTerm.id] : []} source={undefined} onSelect={selectTerm} />
+            </div>
+            <Sensitivity inputs={inputs} geo={geo} term={mapTerm} onSaved={() => setRefreshKey((k) => k + 1)} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
             <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} onPick={setPicked} />
             <div className="mt-4">
-              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} />
+              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} />
             </div>
             <div className="mt-4">
               <MicrographAnalyzer

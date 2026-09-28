@@ -387,3 +387,4 @@ says so in the caveats; they need validation against measured cluster loss data 
 - [x] Compare gained a third shape sketch: ShapeOverlay draws both saved mitochondrion outlines in one SVG on a shared scale (A green, B pink) so size, cristae count and fold-shape differences line up directly (ShapeSketch.tsx, Compare.tsx).
 
 - ✅ Compare: "View A/B in 3D" loads a saved shape into the Structure tab 3D viewer
+- ✅ Pathway map boxes are clickable: they open Sensitivity, set the tornado to that term and show a 71 THz caption for its top drivers
