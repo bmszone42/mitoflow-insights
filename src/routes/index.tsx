@@ -99,6 +99,9 @@ function Index() {
               <PathwayMap out={out} />
               <ThzHypotheses out={out} />
             </div>
+            <div className="mt-4">
+              <EtcEnergyCard out={out} />
+            </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
               <Scenarios
                 inputs={inputs}
