@@ -290,3 +290,6 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ Every preset click now tags the saved scenario with its preset name (`preset` field on the Scenario type).
 - ✅ Compare tab has a "Presets only (n)" toggle that filters both pickers to preset-saved scenarios; picker entries show the preset tag.
 - ✅ Typecheck clean (bunx tsgo --noEmit).
+
+## Combo preset batch run
+- ✅ All 8 combination presets clicked and saved as tagged scenarios; Compare "Presets only" filter showed all 8 and lined up RSL3 + 660 nm vs Erastin + 660 nm with output and input deltas (browser verified).
