@@ -293,3 +293,11 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 
 ## Combo preset batch run
 - ✅ All 8 combination presets clicked and saved as tagged scenarios; Compare "Presets only" filter showed all 8 and lined up RSL3 + 660 nm vs Erastin + 660 nm with output and input deltas (browser verified).
+
+## Detailed mitochondrion graphics
+- ✅ 3D viewer rebuilt (src/components/mito/3d/): cutaway outer and inner membranes with lipid bilayer edge, lamellar cristae with OPA1/MICOS junction rings, CI, CII, CIII dimer, CIV, ATP synthase dimer rows, cytochrome c, ubiquinone, mtDNA nucleoids, TCA ring with aconitase [4Fe-4S], ball-and-stick [2Fe-2S] and [4Fe-4S] clusters
+- ✅ Live animated flows: electrons, protons, ROS puffs (scaled by superoxide), red/NIR photons to CIV, iron release sparks (scaled by Fe-S loss), 71 THz membrane shimmer (scaled by coherence)
+- ✅ Zoom presets (whole, crista, complex, Fe-S), labels toggle, click-for-details cards with live values
+- ✅ Pathway map (ROS/RNS, Fe-S, iron, Fenton loop) and 71 THz H1-H4 hypotheses card in the Simulator tab
+- ❌ Soft bloom post-processing (skipped to keep dependencies lean)
+- ❌ MOT and causal DAG figures as model features
