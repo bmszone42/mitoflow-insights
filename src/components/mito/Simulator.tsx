@@ -407,6 +407,7 @@ export function Simulator({
       name: `Preset: ${name}`,
       notes: `Saved automatically when the "${name}" preset was applied.`,
       inputs: next,
+      preset: name,
       snapshot: snapshotOf(simulate(next)),
       createdAt: now,
       updatedAt: now,
