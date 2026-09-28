@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
@@ -78,6 +78,22 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
   const gb = useMemo(() => (b ? scenarioGeometry(b) : null), [b]);
   const oa = useMemo(() => (ia && ga ? simulate(ia, ga) : null), [ia, ga]);
   const ob = useMemo(() => (ib && gb ? simulate(ib, gb) : null), [ib, gb]);
+
+  // Per-step ATP rates and driver shares, shared by the energetics table and its bar chart.
+  const etcRows = useMemo(() => {
+    if (!oa || !ob || !ia || !ib) return null;
+    const fluxOf = (o: Outputs, i: number) => (i <= 2 ? o.fluxCI : i === 3 ? o.fluxCII : o.fluxCIV);
+    const rows = etcSteps.map((s, i) => {
+      const ya = liveAtpPerPair(s, ia.deltaPsi, ia.uncoupling).proton;
+      const yb = liveAtpPerPair(s, ib.deltaPsi, ib.uncoupling).proton;
+      const ra = (ya * fluxOf(oa, i)) / 2;
+      const rb = (yb * fluxOf(ob, i)) / 2;
+      return { s, ya, yb, ra, rb, diff: rb - ra };
+    });
+    const totalAbs = rows.reduce((acc, r) => acc + Math.abs(r.diff), 0);
+    const top = rows.reduce((best, r) => (Math.abs(r.diff) > Math.abs(best.diff) ? r : best), rows[0]!);
+    return { rows, totalAbs, top };
+  }, [oa, ob, ia, ib]);
 
   if (shown.length < 2)
     return (
