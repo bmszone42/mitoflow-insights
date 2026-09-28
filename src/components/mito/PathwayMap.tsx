@@ -190,18 +190,27 @@ export function ThzHypotheses({ out }: { out: Outputs }) {
 }
 
 // Energy released at each electron transfer step, in eV per electron, with live flux context.
-export function EtcEnergyCard({ out }: { out: Outputs }) {
+export function EtcEnergyCard({ out, inputs }: { out: Outputs; inputs?: Inputs | undefined }) {
   const maxEv = Math.max(...etcSteps.map((s) => Math.abs(s.ev)));
   // Sum ATP over the individual steps only; the "Overall" row is the total itself.
   const steps = etcSteps.filter((s) => !s.step.startsWith("Overall"));
-  const totalProton = steps.reduce((acc, s) => acc + atpPerPair(s).proton, 0);
-  const totalEnergy = steps.reduce((acc, s) => acc + atpPerPair(s).energy, 0);
+  const psi = inputs?.deltaPsi ?? defaultInputs.deltaPsi;
+  const unc = inputs?.uncoupling ?? defaultInputs.uncoupling;
+  const live = psi !== defaultInputs.deltaPsi || unc !== defaultInputs.uncoupling;
+  const costEv = ATP_COST_EV * (psi / 160);
+  const totalProton = steps.reduce((acc, s) => acc + liveAtpPerPair(s, psi, unc).proton, 0);
+  const totalEnergy = steps.reduce((acc, s) => acc + liveAtpPerPair(s, psi, unc).energy, 0);
   return (
     <section className="rounded-lg border border-border bg-card p-4">
       <div className="mono-label">Electron transport chain energetics</div>
       <h3 className="text-sm font-semibold">
         Energy per step, eV per electron · chain flux {(out.fluxCI + out.fluxCII).toFixed(1)} µM/s pairs
       </h3>
+      {live && (
+        <p className="mt-1 text-[11px] text-primary" data-testid="etc-live">
+          Live yields at {psi.toFixed(0)} mV and {(unc * 100).toFixed(0)}% uncoupling: ATP costs {costEv.toFixed(2)} eV now.
+        </p>
+      )}
       <div className="mt-3 space-y-2">
         {etcSteps.map((s) => {
           const atp = atpPerPair(s);
