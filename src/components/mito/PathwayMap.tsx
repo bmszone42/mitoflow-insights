@@ -49,7 +49,7 @@ export function PathwayMap({ out }: { out: Outputs }) {
     <section className="rounded-lg border border-border bg-card p-4">
       <div className="mono-label">Pathway map</div>
       <h3 className="text-sm font-semibold">ROS/RNS, Fe-S and iron: the self-amplifying damage loop</h3>
-      <svg viewBox="0 0 600 310" className="mt-3 w-full" role="img" aria-label="Live pathway map">
+      <svg viewBox="0 0 600 310" overflow="visible" className="mt-3 w-full" role="img" aria-label="Live pathway map">
         <defs>
           <marker id="pm-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
             <path d="M0,0 L10,5 L0,10 z" className="fill-muted-foreground" />
@@ -76,7 +76,7 @@ export function PathwayMap({ out }: { out: Outputs }) {
             <g key={e.from + e.to}>
               <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth={w} markerEnd="url(#pm-arrow)" className={up ? "stroke-accent" : "stroke-muted-foreground"} strokeOpacity={0.75} />
               {e.brake && (
-                <text x={(x1 + x2) / 2 + 4} y={(y1 + y2) / 2 - 5} className="fill-primary font-mono text-[9px]">
+                <text x={(x1 + x2) / 2 + (Math.abs(dy) > Math.abs(dx) ? 6 : 0)} y={(y1 + y2) / 2 + (Math.abs(dy) > Math.abs(dx) ? 3 : -8)} textAnchor={Math.abs(dy) > Math.abs(dx) ? "start" : "middle"} className="fill-primary font-mono text-[9px]">
                   ⊣ {e.brake}
                 </text>
               )}

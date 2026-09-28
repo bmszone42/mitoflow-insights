@@ -289,12 +289,11 @@ export function Organelle({
     }
   });
 
-  const label = (text: string, p: [number, number, number]) =>
-    labels ? (
-      <Html position={p} center distanceFactor={6} style={{ pointerEvents: "none" }} zIndexRange={[10, 0]}>
-        <div className="whitespace-nowrap rounded border border-border bg-card/85 px-1.5 py-0.5 font-mono text-[10px] text-foreground">{text}</div>
-      </Html>
-    ) : null;
+  const label = (text: string, p: [number, number, number]) => (
+    <Html position={p} center style={{ pointerEvents: "none", display: labels ? "block" : "none" }} zIndexRange={[10, 0]}>
+      <div className="whitespace-nowrap rounded border border-border bg-card/85 px-1.5 py-0.5 font-mono text-[10px] text-foreground">{text}</div>
+    </Html>
+  );
 
   const f0 = lay.focus;
 
@@ -467,13 +466,13 @@ export function Organelle({
       {label("Outer membrane", [0, r + gap + 0.12, -0.2])}
       {label("Inner boundary membrane", [-L * 0.3, -(r + 0.06), -0.3])}
       {f0 && label("Crista", [f0.x, yAt(f0, 0.55), -f0.zExtent / 2])}
-      {f0 && label("Crista junction", [f0.x, f0.top ? r + 0.03 : -r - 0.03, 0.15])}
-      {f0 && label("Complex I", [lay.ciPos[0] + 0.05, lay.ciPos[1], lay.ciPos[2] + 0.08])}
-      {f0 && label("Complex III", [f0.x + f0.thick / 2 + 0.06, yAt(f0, 0.5), zRows(f0)[2]!])}
-      {f0 && label("Complex IV", [f0.x + f0.thick / 2 + 0.06, yAt(f0, 0.68), zRows(f0)[2]!])}
+      {f0 && label("Crista junction", [f0.x - 0.6, f0.top ? r + 0.05 : -r - 0.05, 0.15])}
+      {f0 && label("Complex I", [lay.ciPos[0] + 0.35, lay.ciPos[1] + 0.25, lay.ciPos[2] + 0.1])}
+      {f0 && label("Complex III", [f0.x + f0.thick / 2 + 0.55, yAt(f0, 0.5), zRows(f0)[2]!])}
+      {f0 && label("Complex IV", [f0.x + f0.thick / 2 + 0.35, yAt(f0, 0.68), zRows(f0)[2]!])}
       {f0 && label("ATP synthase dimers", [f0.x, yAt(f0, 1) + (f0.top ? -0.1 : 0.1), f0.zExtent / 2])}
       {label("mtDNA nucleoid", [dna.centers[0]![0]!, dna.centers[0]![1]! + 0.2, dna.centers[0]![2]!])}
-      {label("TCA / aconitase [4Fe-4S]", [tcaC[0], tcaC[1] - 0.22, tcaC[2]])}
+      {label("TCA / aconitase [4Fe-4S]", [tcaC[0] - 0.5, tcaC[1] - 0.3, tcaC[2]])}
     </group>
   );
 }
