@@ -285,3 +285,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 ## SNAP NO donor preset (done)
 - Drug presets: new "NO donor SNAP" button raises nitric oxide to 200 nM (S-nitroso-N-acetylpenicillamine releases NO that competes with O2 at Complex IV); other sliders untouched, click saves a named scenario like the other presets.
 - Verified in the browser: NO slider reads 200 nM, the "now" marker sits at 200 nM on the Nitric oxide dose response chart, ox cardiolipin crosses Committed at 360 nM, and the "Preset: NO donor SNAP" scenario appears in the list (Fe-S 85%, O2- 0.01 nM, ATP 26).
+
+## Preset tagging and Compare filter
+- ✅ Every preset click now tags the saved scenario with its preset name (`preset` field on the Scenario type).
+- ✅ Compare tab has a "Presets only (n)" toggle that filters both pickers to preset-saved scenarios; picker entries show the preset tag.
+- ✅ Typecheck clean (bunx tsgo --noEmit).
