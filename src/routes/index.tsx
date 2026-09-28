@@ -106,11 +106,11 @@ function Index() {
           <TabsContent value="sim" className="mt-4">
             <Simulator inputs={inputs} setInputs={setInputs} geo={geo} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
+              <PathwayMap out={out} inputs={inputs} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
               <ThzHypotheses out={out} />
             </div>
             <div className="mt-4">
-              <EtcEnergyCard out={out} />
+              <EtcEnergyCard out={out} inputs={inputs} />
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
               <Scenarios
@@ -145,14 +145,14 @@ function Index() {
           </TabsContent>
           <TabsContent value="sens" className="mt-4">
             <div className="mb-4">
-              <PathwayMap out={out} highlight={mapTerm ? [mapTerm.id] : []} source={undefined} onSelect={selectTerm} />
+              <PathwayMap out={out} inputs={inputs} highlight={mapTerm ? [mapTerm.id] : []} source={undefined} onSelect={selectTerm} />
             </div>
             <Sensitivity inputs={inputs} geo={geo} term={mapTerm} onSaved={() => setRefreshKey((k) => k + 1)} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
             <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} onPick={setPicked} />
             <div className="mt-4">
-              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
+              <PathwayMap out={out} inputs={inputs} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
             </div>
             <div className="mt-4">
               <MicrographAnalyzer
