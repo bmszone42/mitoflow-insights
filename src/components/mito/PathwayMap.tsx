@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Outputs } from "@/lib/mito/model";
+import { etcSteps } from "@/lib/mito/reference";
 
 type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" };
 type Edge = { from: string; to: string; flux: (o: Outputs) => number; brake?: string };
