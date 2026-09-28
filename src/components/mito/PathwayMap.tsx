@@ -79,9 +79,10 @@ export function PathwayMap({ out, highlight = [], source }: { out: Outputs; high
           const x2 = b.x - ox;
           const y2 = b.y - oy;
           const up = ratio > 1.05;
+          const lit = hl.has(e.from) && hl.has(e.to);
           return (
             <g key={e.from + e.to}>
-              <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth={w} markerEnd="url(#pm-arrow)" className={up ? "stroke-accent" : "stroke-muted-foreground"} strokeOpacity={0.75} />
+              <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth={w} markerEnd="url(#pm-arrow)" className={lit ? "stroke-primary" : up ? "stroke-accent" : "stroke-muted-foreground"} strokeOpacity={lit ? 1 : 0.75} />
               {e.brake && (
                 <text x={(x1 + x2) / 2 + (Math.abs(dy) > Math.abs(dx) ? 6 : 0)} y={(y1 + y2) / 2 + (Math.abs(dy) > Math.abs(dx) ? 3 : -8)} textAnchor={Math.abs(dy) > Math.abs(dx) ? "start" : "middle"} className="fill-primary font-mono text-[9px]">
                   ⊣ {e.brake}

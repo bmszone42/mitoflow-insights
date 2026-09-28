@@ -1,3 +1,4 @@
+import type { PartId } from "./3d/info";
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
@@ -40,11 +41,13 @@ export function StructureModeler({
   inputs,
   geo,
   setGeo,
+  onPick,
 }: {
   out: Outputs;
   inputs: Inputs;
   geo: Geometry;
   setGeo: (g: Geometry) => void;
+  onPick?: (id: PartId | null) => void;
 }) {
   const [showComplexes, setShowComplexes] = useState(true);
   const [showRos, setShowRos] = useState(true);
