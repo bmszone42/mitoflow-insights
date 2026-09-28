@@ -75,7 +75,8 @@ Write a concise explanation in Markdown with these sections:
 ## What the map shows (the main gradient direction and which input dominates, with numbers)
 ## Parameter interactions (synergy or antagonism per output, and the mechanism in the model, e.g. Fenton chemistry, NO photodissociation, chromophore-driven superoxide, Fe-S damage feedback)
 ## Implications for ROS and Fe-S (where oxidative damage risk and Fe-S loss are highest, and safe or risky regions for light dosing at a given iron load)
-## Caveats (steady-state lumping, estimated coefficients, percent changes hide absolute scale)
+## Nitric oxide and peroxynitrite (only when the NO block is present: how NO shifts the light dose at which oxidized cardiolipin crosses the 30% Committed threshold at the map's highest iron, and how the peroxynitrite driven Fe-S attack term changes Fe-S intact and aconitase across the NO levels given. The model has three separate Fe-S attack terms, one each for superoxide, H2O2 and peroxynitrite, so say which of them the numbers implicate. A null crossing dose means the threshold is never crossed within the mapped dose range.)
+## Caveats (steady-state lumping, estimated coefficients, percent changes hide absolute scale, the peroxynitrite and H2O2 Fe-S rate constants are effective and unfitted)
 Ground every claim in the numbers given. Label speculation explicitly. Never use em dashes. Keep it under about 400 words.`;
 
 const SYSTEM = `You are a mitochondrial redox biologist explaining a local sensitivity analysis of a lumped steady-state model.
