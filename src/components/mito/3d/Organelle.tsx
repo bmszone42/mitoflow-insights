@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { Geometry, GeometryEffects, Outputs } from "@/lib/mito/model";
+import { etcSteps } from "@/lib/mito/reference";
 import { FeSCluster, Inst, PAL, ramp, type Xf } from "./parts";
 import type { PartId } from "./info";
 import type { Crista, Layout } from "./layout";
@@ -11,7 +12,7 @@ export type Overlay = "potential" | "superoxide" | "complexes";
 
 const CUT = Math.PI * 0.42; // half-angle of the cutaway wedge facing the camera
 
-function Label3D({ text, position }: { text: string; position: [number, number, number] }) {
+function Label3D({ text, position, size = 0.28 }: { text: string; position: [number, number, number]; size?: number }) {
   const texture = useMemo(() => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -44,7 +45,7 @@ function Label3D({ text, position }: { text: string; position: [number, number, 
   useEffect(() => () => texture.dispose(), [texture]);
   const aspect = texture.image.width / texture.image.height;
   return (
-    <sprite position={position} scale={[0.28 * aspect, 0.28, 1]} renderOrder={20}>
+    <sprite position={position} scale={[size * aspect, size, 1]} renderOrder={20}>
       <spriteMaterial map={texture} transparent depthTest={false} depthWrite={false} toneMapped={false} />
     </sprite>
   );
@@ -151,6 +152,7 @@ export function Organelle({
   overlay,
   lay,
   labels,
+  evLabels,
   onPick,
 }: {
   geo: Geometry;
@@ -159,6 +161,7 @@ export function Organelle({
   overlay: Overlay;
   lay: Layout;
   labels: boolean;
+  evLabels: boolean;
   onPick: (p: PartId) => void;
 }) {
   const { L, r, gap, cristae, yAt, zRows } = lay;
@@ -328,8 +331,8 @@ export function Organelle({
     }
   });
 
-  const label = (text: string, p: [number, number, number]) => (
-    <Label3D key={text} text={text} position={p} />
+  const label = (text: string, p: [number, number, number], size?: number) => (
+    <Label3D key={text} text={text} position={p} {...(size !== undefined ? { size } : {})} />
   );
 
   const f0 = lay.focus;
@@ -514,6 +517,30 @@ export function Organelle({
           {label("TCA / aconitase [4Fe-4S]", [tcaC[0] - 0.5, tcaC[1] - 0.3, tcaC[2]])}
         </>
       )}
+
+      {/* Per-step eV drops along the focus crista's electron path */}
+      {evLabels && f0 &&
+            (() => {
+              const fx = f0.x + f0.thick / 2 + 0.03;
+              const z = zRows(f0)[2] ?? 0;
+              const a = yAt(f0, 0.25);
+              const b = yAt(f0, 0.5);
+              const c = yAt(f0, 0.68);
+              const at = (y: number, dz: number): [number, number, number] => [fx + 0.22, y, z + dz];
+              // key = etcSteps index, y = chain position, dz = fan-out so labels do not overlap
+              const spots: [number, number, number, string][] = [
+                [0, a - 0.06, -0.12, "CI entry"], // CI entry
+                [1, a, 0.1, "CI Fe-S"], // CI Fe-S relay
+                [2, a + (b - a) * 0.4, -0.1, "CI to Q"], // CI to Q
+                [4, b, 0.12, "CIII Qo"], // CIII Qo
+                [6, b + (c - b) * 0.5, -0.1, "CIV CuA"], // CIV CuA / heme a
+                [7, c, 0.1, "CIV to O2"], // CIV to O2
+              ];
+              return spots.map(([i, y, dz, short]) => {
+                const s = etcSteps[i]!;
+                return label(`${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV`, at(y, dz), 0.028);
+              });
+            })()}
     </group>
   );
 }
