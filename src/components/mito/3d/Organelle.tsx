@@ -568,7 +568,7 @@ export function Organelle({
                           onStepClick(i);
                         }}
                       >
-                        <planeGeometry args={[0.16, 0.06]} />
+                        <sphereGeometry args={[0.08, 8, 8]} />
                         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
                       </mesh>
                     )}
