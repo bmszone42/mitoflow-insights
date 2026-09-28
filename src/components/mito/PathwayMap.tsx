@@ -190,7 +190,7 @@ export function ThzHypotheses({ out }: { out: Outputs }) {
 }
 
 // Energy released at each electron transfer step, in eV per electron, with live flux context.
-export function EtcEnergyCard({ out, inputs }: { out: Outputs; inputs?: Inputs | undefined }) {
+export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs?: Inputs | undefined; focusStep?: number | null | undefined }) {
   const maxEv = Math.max(...etcSteps.map((s) => Math.abs(s.ev)));
   // Sum ATP over the individual steps only; the "Overall" row is the total itself.
   const steps = etcSteps.filter((s) => !s.step.startsWith("Overall"));
@@ -212,10 +212,12 @@ export function EtcEnergyCard({ out, inputs }: { out: Outputs; inputs?: Inputs |
         </p>
       )}
       <div className="mt-3 space-y-2">
-        {etcSteps.map((s) => {
+        {etcSteps.map((s, i) => {
           const atp = liveAtpPerPair(s, psi, unc);
+          const focused = focusStep === i;
           return (
-            <div key={s.step}>
+            <div key={s.step} data-testid={focused ? "step-detail" : undefined} className={focused ? "rounded-md border border-primary/70 bg-primary/10 p-2 -m-2" : undefined}>
+              {focused && <p className="mb-1 text-[11px] font-semibold text-primary">Selected from the 3D viewer. Live values follow the sliders.</p>}
               <div className="flex items-baseline justify-between gap-2 text-xs">
                 <span>
                   <span className="font-semibold">{s.step}</span>{" "}
