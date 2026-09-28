@@ -3,7 +3,7 @@ import { Environment, Lightformer, OrbitControls } from "@react-three/drei";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import type { Geometry, GeometryEffects, Outputs } from "@/lib/mito/model";
+import type { Geometry, GeometryEffects, Inputs, Outputs } from "@/lib/mito/model";
 import { Organelle, type Overlay } from "./3d/Organelle";
 import { PAL } from "./3d/parts";
 import { partInfo, type PartId } from "./3d/info";
