@@ -381,3 +381,5 @@ says so in the caveats; they need validation against measured cluster loss data 
 - ✅ Compare view gained an "ETC step energetics" table: per step the standard-state eV drop, ATP per pair, and each scenario's live ATP rate (ATP per pair x electron flux / 2, CI steps on CI flux, CII on its own, CIII/CIV/cyt c on CIV flux), with a B vs A delta column and a whole-chain ATP flux footer.
 - ✅ Different membrane shapes and pump states now show different per-step energy costs because the rates use each scenario's simulated fluxes.
 - ✅ Typecheck clean; browser-verified with two preset scenarios (RSL3 + 810 nm vs Erastin + chelator, -24% across pumping steps), zero page errors.
+
+- [x] AI map interpretation carries a light pump energy block: 660/810 nm photon eV (1240/lambda) versus each proton-pumping ETC step drop, plus photon gain at baseline and max mapped dose; new MAP_SYSTEM section instructs the AI to treat the photon as a separate energy source (Sensitivity.tsx, explain-sensitivity.ts).
