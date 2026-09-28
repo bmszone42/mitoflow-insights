@@ -134,7 +134,7 @@ export function FeSCluster({ kind, intact, scale = 1 }: { kind: "2Fe2S" | "4Fe4S
             metalness={a.fe ? 0.6 : 0.1}
             roughness={0.3}
             emissive={a.fe ? PAL.fe : PAL.s}
-            emissiveIntensity={a.fe ? 0.15 + (1 - intact) * 1.2 : 0.1}
+            emissiveIntensity={a.fe ? 0.4 + (1 - intact) * 2.2 : 0.1}
           />
         </mesh>
       ))}
