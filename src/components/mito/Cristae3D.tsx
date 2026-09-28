@@ -1,7 +1,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, OrbitControls } from "@react-three/drei";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Geometry, GeometryEffects, Outputs } from "@/lib/mito/model";
 import { Organelle, type Overlay } from "./3d/Organelle";
@@ -59,9 +59,6 @@ export default function Cristae3D({ geo, ge, out, overlay, onPick }: { geo: Geom
   const [n, setN] = useState(0);
   const [labels, setLabels] = useState(true);
   const [sel, setSelRaw] = useState<PartId | null>(null);
-  const onPickRef = useRef(onPick);
-  onPickRef.current = onPick;
-  useEffect(() => () => onPickRef.current?.(null), []);
   const setSel = (id: PartId | null) => {
     setSelRaw(id);
     onPick?.(id);

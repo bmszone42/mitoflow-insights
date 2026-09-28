@@ -183,7 +183,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ New shape sliders: outer membrane swelling, cristae shape, tip curvature
 - ✅ Shape now drives the model: capacity, local membrane potential, cyt c retention, ATP efficiency, superoxide leak
 - ✅ Color overlays (superoxide, local membrane potential, complex density) and live outputs vs default shape
-- ✅ Viewer cleanup fixed: HTML labels mount only while visible, selection clears safely on teardown, and the mitochondrion redraws after returning to Structure
+- ✅ Viewer cleanup fixed: labels now render as native 3D sprites instead of separate HTML roots, eliminating the tab teardown race so the mitochondrion redraws after returning to Structure
 - ❌ Structure sliders as a Sensitivity driver group
 - ✅ Membrane geometry saved inside scenarios; loading restores it and Compare shows shape differences
 
