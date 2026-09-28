@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { ShapeSketch } from "@/components/mito/ShapeSketch";
+import { atpPerPair, etcSteps } from "@/lib/mito/reference";
 
 const outRows: { key: keyof Outputs; label: string; unit: string }[] = [
   { key: "atpFlux", label: "ATP flux", unit: "µM/s" },
@@ -229,6 +230,51 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
               </table>
             </div>
             {(!a.geometry || !b.geometry) && <p className="mt-2 text-xs text-muted-foreground">Older scenarios without a saved shape use the default membrane shape.</p>}
+          </div>
+
+          <div className="mt-4 border-t border-border pt-3">
+            <div className="mono-label mb-1">ETC step energetics</div>
+            <p className="mb-2 text-xs text-muted-foreground">
+              Standard-state eV drops with each scenario's live electron flux routed through the step. ATP rate = ATP per pair x flux / 2, relative units. CI steps use CI flux, CII its own, CIII/CIV/cyt c use CIV flux.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[560px] text-xs">
+                <thead>
+                  <tr className="text-left text-muted-foreground">
+                    <th className="py-1 font-normal">Step</th>
+                    <th className="font-normal">eV / e-</th>
+                    <th className="font-normal">ATP / pair</th>
+                    <th className="font-normal">A: ATP rate</th>
+                    <th className="font-normal">B: ATP rate</th>
+                    <th className="font-normal">B vs A</th>
+                  </tr>
+                </thead>
+                <tbody className="font-mono">
+                  {etcSteps.map((s, i) => {
+                    // Route each step through the flux of its complex
+                    const fluxOf = (o: Outputs) => (i <= 2 ? o.fluxCI : i === 3 ? o.fluxCII : o.fluxCIV);
+                    const rate = (o: Outputs) => (atpPerPair(s).protons * fluxOf(o)) / 2;
+                    return (
+                      <tr key={s.step} className="border-t border-border">
+                        <td className="py-1 font-sans">{s.step}</td>
+                        <td>{s.ev > 0 ? "+" : ""}{s.ev}</td>
+                        <td>{atpPerPair(s).protons.toFixed(2)}</td>
+                        <td>{Number(rate(oa).toPrecision(3))}</td>
+                        <td>{Number(rate(ob).toPrecision(3))}</td>
+                        <td><Delta a={rate(oa)} b={rate(ob)} /></td>
+                      </tr>
+                    );
+                  })}
+                  <tr className="border-t border-border font-semibold">
+                    <td className="py-1 font-sans">Whole chain ATP flux</td>
+                    <td></td><td></td>
+                    <td>{Number(oa.atpFlux.toPrecision(3))}</td>
+                    <td>{Number(ob.atpFlux.toPrecision(3))}</td>
+                    <td><Delta a={oa.atpFlux} b={ob.atpFlux} /></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
