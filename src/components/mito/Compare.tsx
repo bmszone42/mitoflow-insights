@@ -135,7 +135,17 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
   return (
     <section className="panel p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="mono-label">Compare scenarios</div>
+        <div className="flex items-center gap-2">
+          <div className="mono-label">Compare scenarios</div>
+          {presetCount > 0 && (
+            <button
+              className={`rounded-md border px-2 py-1 text-[11px] ${presetsOnly ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+              onClick={() => setPresetsOnly(!presetsOnly)}
+            >
+              Presets only ({presetCount})
+            </button>
+          )}
+        </div>
         <div className="flex flex-wrap gap-3">
           {picker(aId, setA, "A")}
           {picker(bId, setB, "B")}
