@@ -405,3 +405,7 @@ says so in the caveats; they need validation against measured cluster loss data 
 - ✅ The "ETC step energetics" table now uses live ATP yields per scenario (scaled by each run's membrane potential and uncoupling via liveAtpPerPair), with separate "A: ATP / pair" and "B: ATP / pair" columns.
 - ✅ New "Driver share" column: each step's share of the total ATP rate gap between the two scenarios; the top-driving step is highlighted and marked with *.
 - ✅ Verified in preview: RSL3 + 810 nm vs Erastin + chelator, driver shares sum across steps, zero page errors.
+
+## 3D close-up: live eV / ATP labels
+- ✅ The Complex close-up eV labels in the 3D viewer now append the live ATP yield per pair (liveAtpPerPair scaled by the Membrane potential and Mild uncoupling sliders), wired through StructureModeler to Cristae3D to Organelle via a new inputs prop.
+- ✅ Verified in preview: raising Mild uncoupling to 0.25 dropped the CI Fe-S and CIII Qo labels from 0.95 to 0.75 ATP/pr and ATP flux from 51.7 to 40.8 uM/s, zero page errors.

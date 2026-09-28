@@ -2,8 +2,8 @@ import { RoundedBox } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import type { Geometry, GeometryEffects, Outputs } from "@/lib/mito/model";
-import { etcSteps } from "@/lib/mito/reference";
+import type { Geometry, GeometryEffects, Inputs, Outputs } from "@/lib/mito/model";
+import { etcSteps, liveAtpPerPair } from "@/lib/mito/reference";
 import { FeSCluster, Inst, PAL, ramp, type Xf } from "./parts";
 import type { PartId } from "./info";
 import type { Crista, Layout } from "./layout";
@@ -154,6 +154,7 @@ export function Organelle({
   labels,
   evLabels,
   onPick,
+  inputs,
 }: {
   geo: Geometry;
   ge: GeometryEffects;
@@ -163,6 +164,7 @@ export function Organelle({
   labels: boolean;
   evLabels: boolean;
   onPick: (p: PartId) => void;
+  inputs?: Inputs | undefined;
 }) {
   const { L, r, gap, cristae, yAt, zRows } = lay;
   const H = L / 2 - r;
@@ -536,9 +538,12 @@ export function Organelle({
                 [6, b + (c - b) * 0.5, -0.1, "CIV CuA"], // CIV CuA / heme a
                 [7, c, 0.1, "CIV to O2"], // CIV to O2
               ];
+              const psi = inputs?.deltaPsi ?? 160;
+              const unc = inputs?.uncoupling ?? 0.05;
               return spots.map(([i, y, dz, short]) => {
                 const s = etcSteps[i]!;
-                return label(`${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV`, at(y, dz), 0.028);
+                const live = liveAtpPerPair(s, psi, unc).proton;
+                return label(`${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${live.toFixed(2)} ATP/pr`, at(y, dz), 0.028);
               });
             })()}
     </group>
