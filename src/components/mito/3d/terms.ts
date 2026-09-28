@@ -17,3 +17,10 @@ export const PART_TERMS: Partial<Record<PartId, string[]>> = {
 };
 
 export const termsFor = (id: PartId | null): string[] => (id ? (PART_TERMS[id] ?? []) : []);
+
+/** Tornado driver key to the 3D part it acts on most directly (teaching shortcut, not derived from the math). */
+export const DRIVER_PART: Record<string, PartId> = {
+  nadhRatio: "ci", succinate: "cii", oxygen: "civ", labileIron: "fes", nitricOxide: "civ",
+  redDose: "photon", nirDose: "photon", irradiance: "photon", tissueDepth: "photon",
+  gpx4: "inner", fsp1: "q", cardiolipinPufa: "crista", deltaPsi: "crista", uncoupling: "inner",
+};

@@ -48,7 +48,7 @@ const TERM_OUTPUT: Record<string, SensOutputKey> = {
   fes: "fesIntact", fe: "freeIron", oh: "hydroxylRadical", lipid: "cardiolipinOx", ferro: "ferroptosisRisk",
 };
 
-export function Sensitivity({ inputs, geo, onSaved, term }: { inputs: Inputs; geo: Geometry; onSaved?: () => void; term?: { id: string; n: number } | null }) {
+export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inputs: Inputs; geo: Geometry; onSaved?: () => void; term?: { id: string; n: number } | null; onDriverClick?: (key: string) => void }) {
   const [delta, setDelta] = useState(0.2);
   const [output, setOutput] = useState<SensOutputKey>("superoxide");
   const [driver, setDriver] = useState<keyof Inputs>("labileIron");
@@ -89,6 +89,7 @@ export function Sensitivity({ inputs, geo, onSaved, term }: { inputs: Inputs; ge
   const tornado = sens
     .map((s) => ({
       name: s.driver.label,
+      key: s.driver.key as string,
       down: s.down[output],
       up: s.up[output],
       span: Math.abs(s.up[output]) + Math.abs(s.down[output]),
@@ -382,7 +383,7 @@ export function Sensitivity({ inputs, geo, onSaved, term }: { inputs: Inputs; ge
                 <Tooltip {...tip} formatter={(v: number, n) => [fmt(v), n === "down" ? "Driver down" : "Driver up"]} />
                 <ReferenceLine x={0} stroke="var(--muted-foreground)" />
                 {(["down", "up"] as const).map((k) => (
-                  <Bar key={k} dataKey={k} stackId="a">
+                  <Bar key={k} dataKey={k} stackId="a" cursor="pointer" onClick={(d: { payload?: { key?: string } }) => d?.payload?.key && onDriverClick?.(d.payload.key)}>
                     {tornado.map((t, i) => (
                       <Cell key={i} fill={t[k] >= 0 ? "var(--accent)" : "var(--primary)"} />
                     ))}
@@ -392,7 +393,7 @@ export function Sensitivity({ inputs, geo, onSaved, term }: { inputs: Inputs; ge
             </ResponsiveContainer>
           </div>
           <p className="mt-2 text-[11px] text-muted-foreground">
-            Pink bars raise the output, green bars lower it. Longest bars matter most.
+            Pink bars raise the output, green bars lower it. Longest bars matter most. Click a bar to highlight its part in the 3D view and the map.
             {term && TERM_OUTPUT[term.id] ? " Set from the pathway map box you clicked." : ""}
           </p>
           <p className="mt-1 text-[11px] text-muted-foreground" data-testid="thz-caption">

@@ -1,7 +1,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, OrbitControls } from "@react-three/drei";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Geometry, GeometryEffects, Outputs } from "@/lib/mito/model";
 import { Organelle, type Overlay } from "./3d/Organelle";
@@ -53,7 +53,7 @@ const LEGEND: [string, string][] = [
   [PAL.s, "S"],
 ];
 
-export default function Cristae3D({ geo, ge, out, overlay, onPick }: { geo: Geometry; ge: GeometryEffects; out: Outputs; overlay: Overlay; onPick?: ((id: PartId | null) => void) | undefined }) {
+export default function Cristae3D({ geo, ge, out, overlay, onPick, selected }: { geo: Geometry; ge: GeometryEffects; out: Outputs; overlay: Overlay; onPick?: ((id: PartId | null) => void) | undefined; selected?: PartId | null | undefined }) {
   const lay = useMemo(() => layout(geo), [geo]);
   const [view, setView] = useState<ViewPreset>("whole");
   const [n, setN] = useState(0);
@@ -63,6 +63,9 @@ export default function Cristae3D({ geo, ge, out, overlay, onPick }: { geo: Geom
     setSelRaw(id);
     onPick?.(id);
   };
+  useEffect(() => {
+    if (selected !== undefined) setSelRaw(selected);
+  }, [selected]);
   const goal = useMemo(() => ({ ...presetCamera(lay, view), n }), [lay, view, n]);
   const info = sel ? partInfo(sel, out, ge) : null;
 
