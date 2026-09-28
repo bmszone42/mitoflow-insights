@@ -1,5 +1,6 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, OrbitControls } from "@react-three/drei";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Geometry, GeometryEffects, Outputs } from "@/lib/mito/model";
@@ -78,6 +79,9 @@ export default function Cristae3D({ geo, ge, out, overlay }: { geo: Geometry; ge
         <Organelle geo={geo} ge={ge} out={out} overlay={overlay} lay={lay} labels={labels && view === "whole"} onPick={setSel} />
         <OrbitControls enablePan={false} minDistance={0.08} maxDistance={12} makeDefault />
         <CameraRig goal={goal} />
+        <EffectComposer multisampling={0}>
+          <Bloom mipmapBlur intensity={0.85} luminanceThreshold={1.1} luminanceSmoothing={0.25} resolutionScale={0.5} />
+        </EffectComposer>
       </Canvas>
 
       <div className="absolute left-2 top-2 flex flex-wrap gap-1">

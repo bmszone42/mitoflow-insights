@@ -441,7 +441,7 @@ export function Organelle({
         }}
       >
         <sphereGeometry args={[0.02, 10, 10]} />
-        <meshBasicMaterial color={PAL.ros} transparent opacity={0.55} toneMapped={false} depthWrite={false} />
+         <meshBasicMaterial color={new THREE.Color(PAL.ros).multiplyScalar(3)} transparent opacity={0.7} toneMapped={false} depthWrite={false} />
       </instancedMesh>
       {nPh > 0 && (
         <instancedMesh
@@ -453,13 +453,13 @@ export function Organelle({
           }}
         >
           <cylinderGeometry args={[0.006, 0.006, 0.22, 5]} />
-          <meshBasicMaterial color={redShare >= 0.5 ? PAL.red : PAL.nir} toneMapped={false} transparent opacity={0.85} />
+           <meshBasicMaterial color={new THREE.Color(redShare >= 0.5 ? PAL.red : PAL.nir).multiplyScalar(3.5)} toneMapped={false} transparent opacity={0.9} />
         </instancedMesh>
       )}
       {nFe > 0 && (
         <instancedMesh ref={feRef} args={[undefined, undefined, nFe]}>
           <sphereGeometry args={[0.01, 6, 6]} />
-          <meshBasicMaterial color="#ff8a3d" toneMapped={false} />
+           <meshBasicMaterial color={new THREE.Color(PAL.fe).multiplyScalar(4)} toneMapped={false} />
         </instancedMesh>
       )}
 

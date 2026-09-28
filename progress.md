@@ -299,5 +299,8 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ Live animated flows: electrons, protons, ROS puffs (scaled by superoxide), red/NIR photons to CIV, iron release sparks (scaled by Fe-S loss), 71 THz membrane shimmer (scaled by coherence)
 - ✅ Zoom presets (whole, crista, complex, Fe-S), labels toggle, click-for-details cards with live values
 - ✅ Pathway map (ROS/RNS, Fe-S, iron, Fenton loop) and 71 THz H1-H4 hypotheses card in the Simulator tab
-- ❌ Soft bloom post-processing (skipped to keep dependencies lean)
+- ✅ Soft, thresholded bloom in the 3D view: red/NIR photons, ROS puffs and iron-release sparks glow at their live model-driven intensities; Fe-S iron atoms brighten as clusters erode, while membranes stay readable
 - ❌ MOT and causal DAG figures as model features
+
+### Security before deployment
+- Bloom runs entirely in the browser and does not send model inputs or images elsewhere. Keep graphics dependencies updated and confirm acceptable performance on mobile before publishing.
