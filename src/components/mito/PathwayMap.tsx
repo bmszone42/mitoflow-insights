@@ -56,8 +56,8 @@ export function PathwayMap({ out }: { out: Outputs }) {
           </marker>
         </defs>
         {EDGES.map((e) => {
-          const a = pos[e.from];
-          const b = pos[e.to];
+          const a = pos[e.from]!;
+          const b = pos[e.to]!;
           const cur = e.flux(out);
           const ref = e.flux(base);
           const ratio = ref > 0 ? cur / ref : cur > 0 ? 3 : 1;

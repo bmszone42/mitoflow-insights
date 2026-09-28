@@ -73,7 +73,7 @@ export function Inst({
   return (
     <instancedMesh
       ref={ref}
-      name={name}
+      name={name ?? ""}
       args={[undefined, undefined, Math.max(1, items.length)]}
       onClick={
         onClick
@@ -112,9 +112,9 @@ export function FeSCluster({ kind, intact, scale = 1 }: { kind: "2Fe2S" | "4Fe4S
     const b: [THREE.Vector3, THREE.Vector3][] = [];
     for (let a = 0; a < atoms.length; a++)
       for (let c = a + 1; c < atoms.length; c++) {
-        if (atoms[a].fe === atoms[c].fe) continue;
-        const va = new THREE.Vector3(...atoms[a].p);
-        const vc = new THREE.Vector3(...atoms[c].p);
+        if (atoms[a]!.fe === atoms[c]!.fe) continue;
+        const va = new THREE.Vector3(...atoms[a]!.p);
+        const vc = new THREE.Vector3(...atoms[c]!.p);
         if (va.distanceTo(vc) < 1.35) b.push([va, vc]);
       }
     return b;
