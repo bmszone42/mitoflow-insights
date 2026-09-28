@@ -12,7 +12,7 @@ export type Overlay = "potential" | "superoxide" | "complexes";
 
 const CUT = Math.PI * 0.42; // half-angle of the cutaway wedge facing the camera
 
-function Label3D({ text, position }: { text: string; position: [number, number, number] }) {
+function Label3D({ text, position, size = 0.28 }: { text: string; position: [number, number, number]; size?: number }) {
   const texture = useMemo(() => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -45,7 +45,7 @@ function Label3D({ text, position }: { text: string; position: [number, number, 
   useEffect(() => () => texture.dispose(), [texture]);
   const aspect = texture.image.width / texture.image.height;
   return (
-    <sprite position={position} scale={[0.28 * aspect, 0.28, 1]} renderOrder={20}>
+    <sprite position={position} scale={[size * aspect, size, 1]} renderOrder={20}>
       <spriteMaterial map={texture} transparent depthTest={false} depthWrite={false} toneMapped={false} />
     </sprite>
   );
