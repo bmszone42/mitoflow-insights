@@ -250,36 +250,47 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
           <div className="mt-4 border-t border-border pt-3">
             <div className="mono-label mb-1">ETC step energetics</div>
             <p className="mb-2 text-xs text-muted-foreground">
-              Standard-state eV drops with each scenario's live electron flux routed through the step. ATP rate = ATP per pair x flux / 2, relative units. CI steps use CI flux, CII its own, CIII/CIV/cyt c use CIV flux.
+              Live ATP yields, scaled by each scenario's membrane potential and uncoupling, with electron flux routed through the step. ATP rate = ATP per pair x flux / 2, relative units. CI steps use CI flux, CII its own, CIII/CIV/cyt c use CIV flux. Driver share shows how much of the total ATP rate gap each step explains.
             </p>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-xs">
+              <table className="w-full min-w-[640px] text-xs">
                 <thead>
                   <tr className="text-left text-muted-foreground">
                     <th className="py-1 font-normal">Step</th>
                     <th className="font-normal">eV / e-</th>
-                    <th className="font-normal">ATP / pair</th>
+                    <th className="font-normal">A: ATP / pair</th>
+                    <th className="font-normal">B: ATP / pair</th>
                     <th className="font-normal">A: ATP rate</th>
                     <th className="font-normal">B: ATP rate</th>
                     <th className="font-normal">B vs A</th>
+                    <th className="font-normal">Driver share</th>
                   </tr>
                 </thead>
                 <tbody className="font-mono">
-                  {etcSteps.map((s, i) => {
-                    // Route each step through the flux of its complex
-                    const fluxOf = (o: Outputs) => (i <= 2 ? o.fluxCI : i === 3 ? o.fluxCII : o.fluxCIV);
-                    const rate = (o: Outputs) => (atpPerPair(s).proton * fluxOf(o)) / 2;
-                    return (
-                      <tr key={s.step} className="border-t border-border">
-                        <td className="py-1 font-sans">{s.step}</td>
-                        <td>{s.ev > 0 ? "+" : ""}{s.ev}</td>
-                        <td>{atpPerPair(s).proton.toFixed(2)}</td>
-                        <td>{Number(rate(oa).toPrecision(3))}</td>
-                        <td>{Number(rate(ob).toPrecision(3))}</td>
-                        <td><Delta a={rate(oa)} b={rate(ob)} /></td>
+                  {(() => {
+                    const fluxOf = (o: Outputs, i: number) => (i <= 2 ? o.fluxCI : i === 3 ? o.fluxCII : o.fluxCIV);
+                    const rows = etcSteps.map((s, i) => {
+                      const ya = liveAtpPerPair(s, ia.deltaPsi, ia.uncoupling).proton;
+                      const yb = liveAtpPerPair(s, ib.deltaPsi, ib.uncoupling).proton;
+                      const ra = (ya * fluxOf(oa, i)) / 2;
+                      const rb = (yb * fluxOf(ob, i)) / 2;
+                      return { s, ya, yb, ra, rb, diff: rb - ra };
+                    });
+                    const totalAbs = rows.reduce((acc, r) => acc + Math.abs(r.diff), 0);
+                    const top = rows.reduce((best, r) => (Math.abs(r.diff) > Math.abs(best.diff) ? r : best), rows[0]);
+                    return rows.map((r) => (
+                      <tr key={r.s.step} className={`border-t border-border ${r === top && totalAbs > 0 ? "bg-primary/10" : ""}`}>
+                        <td className="py-1 font-sans">{r.s.step}{r === top && totalAbs > 0 ? " *" : ""}</td>
+                        <td>{r.s.ev > 0 ? "+" : ""}{r.s.ev}</td>
+                        <td>{r.ya.toFixed(2)}</td>
+                        <td>{r.yb.toFixed(2)}</td>
+                        <td>{Number(r.ra.toPrecision(3))}</td>
+                        <td>{Number(r.rb.toPrecision(3))}</td>
+                        <td><Delta a={r.ra} b={r.rb} /></td>
+                        <td>{totalAbs > 0 ? `${((Math.abs(r.diff) / totalAbs) * 100).toFixed(0)}%` : "-"}</td>
                       </tr>
-                    );
-                  })}
+                    ));
+                  })()}
                   <tr className="border-t border-border font-semibold">
                     <td className="py-1 font-sans">Whole chain ATP flux</td>
                     <td></td><td></td>
