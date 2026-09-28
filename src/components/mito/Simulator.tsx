@@ -382,6 +382,7 @@ export function Simulator({
     { name: "RSL3", note: "Direct GPx4 inhibition", patch: { gpx4: 0 } },
     { name: "Ferrostatin-1", note: "Radical trapping", patch: { fsp1: 2 } },
     { name: "Iron chelator", note: "DFO / DFOm", patch: { labileIron: 0 } },
+    { name: "NO donor SNAP", note: "S-nitroso-N-acetylpenicillamine, releases NO that blocks Complex IV", patch: { nitricOxide: 200 } },
   ];
   const comboPresets: { name: string; note: string; patch: Partial<Inputs> }[] = [
     { name: "Erastin + 660 nm", note: "GPx4 down plus 10 J/cm2 red light", patch: { gpx4: 0.2, redDose: 10 } },
@@ -444,7 +445,7 @@ export function Simulator({
             ))}
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Erastin lowers GPx4 to 0.2, RSL3 to 0, ferrostatin-1 raises FSP1 to 2, chelator empties labile iron. Other sliders stay as set. Each click also saves a named scenario for the Compare tab.
+            Erastin lowers GPx4 to 0.2, RSL3 to 0, ferrostatin-1 raises FSP1 to 2, chelator empties labile iron, SNAP raises NO to 200 nM so it competes for Complex IV. Other sliders stay as set. Each click also saves a named scenario for the Compare tab.
           </p>
           {savedPreset && (
             <p className="text-[11px] text-primary">Saved scenario: Preset: {savedPreset}</p>
