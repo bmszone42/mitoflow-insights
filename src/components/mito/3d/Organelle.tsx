@@ -528,17 +528,17 @@ export function Organelle({
               const c = yAt(f0, 0.68);
               const at = (y: number, dz: number): [number, number, number] => [fx + 0.22, y, z + dz];
               // key = etcSteps index, y = chain position, dz = fan-out so labels do not overlap
-              const spots: [number, number, number][] = [
-                [0, a - 0.06, -0.12], // CI entry
-                [1, a, 0.1], // CI Fe-S relay
-                [2, a + (b - a) * 0.4, -0.1], // CI to Q
-                [4, b, 0.12], // CIII Qo
-                [6, b + (c - b) * 0.5, -0.1], // CIV CuA / heme a
-                [7, c, 0.1], // CIV to O2
+              const spots: [number, number, string][] = [
+                [0, a - 0.06, -0.12, "CI entry"], // CI entry
+                [1, a, 0.1, "CI Fe-S"], // CI Fe-S relay
+                [2, a + (b - a) * 0.4, -0.1, "CI to Q"], // CI to Q
+                [4, b, 0.12, "CIII Qo"], // CIII Qo
+                [6, b + (c - b) * 0.5, -0.1, "CIV CuA"], // CIV CuA / heme a
+                [7, c, 0.1, "CIV to O2"], // CIV to O2
               ];
-              return spots.map(([i, y, dz]) => {
+              return spots.map(([i, y, dz, short]) => {
                 const s = etcSteps[i]!;
-                return label(`${s.step.split(" (")[0]}: ${s.ev > 0 ? "+" : ""}${s.ev} eV`, at(y, dz), 0.05);
+                return label(`${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV`, at(y, dz), 0.028);
               });
             })()}
     </group>
