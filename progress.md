@@ -356,3 +356,9 @@ says so in the caveats; they need validation against measured cluster loss data 
 - ✅ Clicking a Complex, ROS puff, photon, Fe-S cluster, TCA or membrane in the 3D view highlights its matching terms (and the arrows between them) in the Pathway map
 - ✅ Linked Pathway map shown under the 3D view on the Structure tab, and the Simulator map follows the same selection
 - ❌ Part to term mapping is a teaching simplification, not derived from the rate equations
+
+## Shape comparison in Compare (2026-09-28)
+- ✅ New `ShapeSketch.tsx`: pure-SVG cross-section of the organelle drawn from a saved Geometry (outer/boundary membranes, cristae folds with count, depth, junction width, lamellar-to-tubular shape, tip curvature). No three.js, safe to render inline.
+- ✅ Compare "Membrane shape" section now lines A and B up side by side as labeled sketches (A green, B pink, matching the charts) above the shape values table.
+- ✅ Typecheck clean; browser-verified with two preset scenarios, 2 sketches render, zero page errors.
+- ❌ The sketch is a stylized teaching view, not a tomographic reconstruction; junctions and tips are schematic.
