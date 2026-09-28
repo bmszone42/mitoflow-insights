@@ -559,7 +559,20 @@ export function Organelle({
                 const live = liveAtpPerPair(s, psi, unc).proton;
                 const text = `${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${live.toFixed(2)} ATP/pr`;
                 return (
-                  <Label3D key={text} text={text} position={at(y, dz)} size={0.028} onClick={onStepClick ? () => onStepClick(i) : undefined} />
+                  <group key={text} position={at(y, dz)}>
+                    <Label3D text={text} position={[0, 0, 0]} size={0.028} />
+                    {onStepClick && (
+                      <mesh
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onStepClick(i);
+                        }}
+                      >
+                        <planeGeometry args={[0.16, 0.06]} />
+                        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+                      </mesh>
+                    )}
+                  </group>
                 );
               });
             })()}
