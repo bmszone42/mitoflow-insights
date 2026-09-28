@@ -515,8 +515,11 @@ export function Organelle({
           {f0 && label("ATP synthase dimers", [f0.x, yAt(f0, 1) + (f0.top ? -0.1 : 0.1), f0.zExtent / 2])}
           {dna.centers[0] && label("mtDNA nucleoid", [dna.centers[0][0], dna.centers[0][1] + 0.2, dna.centers[0][2]])}
           {label("TCA / aconitase [4Fe-4S]", [tcaC[0] - 0.5, tcaC[1] - 0.3, tcaC[2]])}
-          {/* Per-step eV drops along the focus crista's electron path */}
-          {evLabels && f0 &&
+        </>
+      )}
+
+      {/* Per-step eV drops along the focus crista's electron path */}
+      {evLabels && f0 &&
             (() => {
               const fx = f0.x + f0.thick / 2 + 0.03;
               const z = zRows(f0)[2] ?? 0;
@@ -538,8 +541,6 @@ export function Organelle({
                 return label(`${s.step.split(" (")[0]}: ${s.ev > 0 ? "+" : ""}${s.ev} eV`, at(y, dz));
               });
             })()}
-        </>
-      )}
     </group>
   );
 }

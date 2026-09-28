@@ -80,7 +80,7 @@ export default function Cristae3D({ geo, ge, out, overlay, onPick }: { geo: Geom
           <Lightformer intensity={1} color="#fcb" position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
           <Lightformer intensity={0.8} color="#9df" position={[5, -1, 1]} rotation-y={-Math.PI / 2} scale={[20, 1, 1]} />
         </Environment>
-        <Organelle geo={geo} ge={ge} out={out} overlay={overlay} lay={lay} labels={labels && view === "whole"} onPick={setSel} />
+        <Organelle geo={geo} ge={ge} out={out} overlay={overlay} lay={lay} labels={labels && view === "whole"} evLabels={view === "complex"} onPick={setSel} />
         <OrbitControls enablePan={false} minDistance={0.08} maxDistance={12} makeDefault />
         <CameraRig goal={goal} />
         <EffectComposer multisampling={0}>
