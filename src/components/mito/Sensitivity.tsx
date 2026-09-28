@@ -26,6 +26,7 @@ import {
   sensitivityDrivers,
   sensOutputs,
   sweep,
+  type Geometry,
   type Inputs,
   type SensOutputKey,
 } from "@/lib/mito/model";
