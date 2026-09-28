@@ -164,7 +164,30 @@ export function Sensitivity({ inputs, geo, onSaved }: { inputs: Inputs; geo: Geo
         };
       });
     const idx = [0, 3, 6, 9, 12, 15, 18, 20].filter((i) => i < grid.xs.length);
+    // Nitric oxide context: the ONOO- driven Fe-S attack term means NO shifts
+    // both cluster loss and the 30% oxidized cardiolipin crossing dose.
+    const maxIron = Math.max(...grid.xs);
+    const noRow = (no: number) => {
+      const o = simulate({ ...inputs, nitricOxide: no, labileIron: maxIron }, geo);
+      return {
+        no,
+        peroxynitrite: o.peroxynitrite,
+        fesIntactPct: o.fesIntact * 100,
+        aconitasePct: o.aconitaseActivity,
+        cardiolipinOxPct: o.cardiolipinOx,
+      };
+    };
     return {
+      nitricOxide: {
+        currentNm: inputs.nitricOxide,
+        atMaxIron: maxIron,
+        crossingDoses: {
+          no0: noCrossing.low,
+          current: noCrossing.now,
+          no400: noCrossing.high,
+        },
+        levels: [0, inputs.nitricOxide, 400].map(noRow),
+      },
       xLabel: `${dx.label} (µM)`,
       yLabel: `${dy.label} (J/cm2)`,
       xRange: [dx.min, dx.max] as [number, number],

@@ -43,6 +43,28 @@ const Body = z.object({
           }),
         )
         .max(20),
+      nitricOxide: z
+        .object({
+          currentNm: z.number(),
+          atMaxIron: z.number(),
+          crossingDoses: z.object({
+            no0: z.number().nullable(),
+            current: z.number().nullable(),
+            no400: z.number().nullable(),
+          }),
+          levels: z
+            .array(
+              z.object({
+                no: z.number(),
+                peroxynitrite: z.number(),
+                fesIntactPct: z.number(),
+                aconitasePct: z.number(),
+                cardiolipinOxPct: z.number(),
+              }),
+            )
+            .max(6),
+        })
+        .optional(),
     })
     .optional(),
 });
@@ -53,7 +75,8 @@ Write a concise explanation in Markdown with these sections:
 ## What the map shows (the main gradient direction and which input dominates, with numbers)
 ## Parameter interactions (synergy or antagonism per output, and the mechanism in the model, e.g. Fenton chemistry, NO photodissociation, chromophore-driven superoxide, Fe-S damage feedback)
 ## Implications for ROS and Fe-S (where oxidative damage risk and Fe-S loss are highest, and safe or risky regions for light dosing at a given iron load)
-## Caveats (steady-state lumping, estimated coefficients, percent changes hide absolute scale)
+## Nitric oxide and peroxynitrite (only when the NO block is present: how NO shifts the light dose at which oxidized cardiolipin crosses the 30% Committed threshold at the map's highest iron, and how the peroxynitrite driven Fe-S attack term changes Fe-S intact and aconitase across the NO levels given. The model has three separate Fe-S attack terms, one each for superoxide, H2O2 and peroxynitrite, so say which of them the numbers implicate. A null crossing dose means the threshold is never crossed within the mapped dose range.)
+## Caveats (steady-state lumping, estimated coefficients, percent changes hide absolute scale, the peroxynitrite and H2O2 Fe-S rate constants are effective and unfitted)
 Ground every claim in the numbers given. Label speculation explicitly. Never use em dashes. Keep it under about 400 words.`;
 
 const SYSTEM = `You are a mitochondrial redox biologist explaining a local sensitivity analysis of a lumped steady-state model.
@@ -102,6 +125,17 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
               `${r.driver} (${r.group}): down -> ${fmt(r.down)} | up -> ${fmt(r.up)}`,
           )
           .join("\n");
+        const noBlock = (no: NonNullable<NonNullable<typeof map>["nitricOxide"]>| undefined) => {
+          if (!no) return "";
+          const dose = (v: number | null) =>
+            v === null ? "never within the mapped dose range" : `${Number(v.toPrecision(3))} J/cm2`;
+          return `\n\nNitric oxide context (current NO ${Number(no.currentNm.toPrecision(3))} nM; all rows evaluated at the map's highest labile iron, ${Number(no.atMaxIron.toPrecision(3))} µM).\nLight dose where oxidized cardiolipin crosses the 30% Committed threshold: NO at 0 -> ${dose(no.crossingDoses.no0)}; current NO -> ${dose(no.crossingDoses.current)}; NO at 400 nM -> ${dose(no.crossingDoses.no400)}.\nPeroxynitrite driven Fe-S attack term across NO levels:\n${no.levels
+            .map(
+              (l) =>
+                `NO ${Number(l.no.toPrecision(3))} nM: ONOO- ${Number(l.peroxynitrite.toPrecision(3))}, Fe-S intact ${l.fesIntactPct.toFixed(1)}%, aconitase ${l.aconitasePct.toFixed(1)}%, oxidized cardiolipin ${l.cardiolipinOxPct.toFixed(1)}%`,
+            )
+            .join("\n")}`;
+        };
 
         let upstreamError: { status: number; message: string } | null = null;
         const result = streamText({
@@ -113,7 +147,7 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
                   (o) =>
                     `${o.label}: base ${Number(o.base.toPrecision(4))}, x only ${o.xOnlyPct.toFixed(1)}%, y only ${o.yOnlyPct.toFixed(1)}%, both ${o.bothPct.toFixed(1)}%, synergy ${o.synergyPct.toFixed(1)}%, range ${Number(o.min.toPrecision(3))} to ${Number(o.max.toPrecision(3))}`,
                 )
-                .join("\n")}\n\nDisplayed output ${map.shownOutput}, coarse grid:\n${map.shownGrid.map((r) => r.map((v) => Number(v.toPrecision(3))).join(" ")).join("\n")}`
+                .join("\n")}\n\nDisplayed output ${map.shownOutput}, coarse grid:\n${map.shownGrid.map((r) => r.map((v) => Number(v.toPrecision(3))).join(" ")).join("\n")}${noBlock(map.nitricOxide)}`
             : `Perturbation step: plus or minus ${(delta * 100).toFixed(0)}% of each driver's full range.\n\nBaseline inputs:\n${fmt(inputs)}\n\nSensitivity results (percent change per output):\n${table}`,
           abortSignal: request.signal,
           maxRetries: 0,
