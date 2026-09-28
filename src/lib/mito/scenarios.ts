@@ -1,5 +1,5 @@
 import { openDB, type IDBPDatabase } from "idb";
-import type { Inputs } from "./model";
+import { defaultGeometry, geometryRanges, type Geometry, type Inputs } from "./model";
 import { supabase } from "@/integrations/supabase/client";
 
 export type Scenario = {
@@ -7,6 +7,7 @@ export type Scenario = {
   name: string;
   notes: string;
   inputs: Inputs;
+  geometry?: Geometry; // older saved scenarios use the default membrane shape
   snapshot: { atpFlux?: number; superoxide?: number; hydrogenPeroxide?: number; fesIntact?: number; freeIron?: number; emission71THz?: number };
   interpretation?: { condition: string; text: string; at: number };
   micrograph?: { thumb: string; analysis: string; at: number };
@@ -84,4 +85,16 @@ export async function copyLocalToAccount(): Promise<number> {
 export function isScenario(x: unknown): x is Scenario {
   const s = x as Scenario;
   return !!s && typeof s.id === "string" && typeof s.name === "string" && typeof s.inputs === "object";
+}
+
+export function scenarioGeometry(s: Scenario): Geometry {
+  const saved = s.geometry;
+  const geometry = { ...defaultGeometry };
+  for (const key of Object.keys(geometryRanges) as (keyof Geometry)[]) {
+    const value = saved?.[key];
+    const range = geometryRanges[key];
+    if (typeof value === "number" && Number.isFinite(value))
+      geometry[key] = Math.min(range.max, Math.max(range.min, value));
+  }
+  return geometry;
 }

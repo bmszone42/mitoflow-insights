@@ -17,7 +17,7 @@ import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { defaultInputs, doseSweep, simulate, timeCourse, timeToCommitted, type Inputs, type Outputs } from "@/lib/mito/model";
+import { defaultInputs, doseSweep, simulate, timeCourse, timeToCommitted, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { putScenario, type Scenario } from "@/lib/mito/scenarios";
 import { snapshotOf } from "./Scenarios";
 
@@ -240,11 +240,13 @@ function tooltipProps() {
 export function Simulator({
   inputs,
   setInputs,
+  geo,
   out,
   onSaved,
 }: {
   inputs: Inputs;
   setInputs: (i: Inputs) => void;
+  geo: Geometry;
   out: Outputs;
   onSaved?: () => void;
 }) {
@@ -407,8 +409,9 @@ export function Simulator({
       name: `Preset: ${name}`,
       notes: `Saved automatically when the "${name}" preset was applied.`,
       inputs: next,
+      geometry: { ...geo },
       preset: name,
-      snapshot: snapshotOf(simulate(next)),
+      snapshot: snapshotOf(simulate(next, geo)),
       createdAt: now,
       updatedAt: now,
     };

@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { defaultInputs, inputRanges, simulate, type Inputs, type Outputs } from "@/lib/mito/model";
-import { listScenarios, type Scenario } from "@/lib/mito/scenarios";
+import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
+import { listScenarios, scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 
 const outRows: { key: keyof Outputs; label: string; unit: string }[] = [
   { key: "atpFlux", label: "ATP flux", unit: "µM/s" },
@@ -72,8 +72,10 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
   const b = items.find((i) => i.id === bId);
   const ia = useMemo(() => (a ? { ...defaultInputs, ...a.inputs } : null), [a]);
   const ib = useMemo(() => (b ? { ...defaultInputs, ...b.inputs } : null), [b]);
-  const oa = useMemo(() => (ia ? simulate(ia) : null), [ia]);
-  const ob = useMemo(() => (ib ? simulate(ib) : null), [ib]);
+  const ga = useMemo(() => (a ? scenarioGeometry(a) : null), [a]);
+  const gb = useMemo(() => (b ? scenarioGeometry(b) : null), [b]);
+  const oa = useMemo(() => (ia && ga ? simulate(ia, ga) : null), [ia, ga]);
+  const ob = useMemo(() => (ib && gb ? simulate(ib, gb) : null), [ib, gb]);
 
   if (shown.length < 2)
     return (
@@ -152,7 +154,7 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
         </div>
       </div>
 
-      {a && b && ia && ib && oa && ob && (
+      {a && b && ia && ib && ga && gb && oa && ob && (
         <>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <table className="w-full text-xs">
@@ -204,6 +206,24 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          <div className="mt-4 border-t border-border pt-3">
+            <div className="mono-label mb-2">Membrane shape</div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[440px] text-xs">
+                <thead><tr className="text-left text-muted-foreground"><th className="py-1 font-normal">Shape</th><th className="font-normal">A</th><th className="font-normal">B</th><th className="font-normal">B vs A</th></tr></thead>
+                <tbody className="font-mono">
+                  {(Object.keys(geometryRanges) as (keyof Geometry)[]).map((key) => (
+                    <tr key={key} className="border-t border-border">
+                      <td className="py-1 font-sans">{geometryRanges[key].label}</td>
+                      <td>{ga[key]}</td><td>{gb[key]}</td><td><Delta a={ga[key]} b={gb[key]} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {(!a.geometry || !b.geometry) && <p className="mt-2 text-xs text-muted-foreground">Older scenarios without a saved shape use the default membrane shape.</p>}
           </div>
 
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
