@@ -249,7 +249,7 @@ export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs
         })}
       </div>
       <p className="mt-3 text-[11px] text-muted-foreground">
-        eV = midpoint potential gap in volts per electron (Nicholls & Ferguson, Bioenergetics 4th ed.). Bars scale to the largest step; amber bars are slightly uphill steps driven by mass action.
+        eV = midpoint potential gap in volts per electron (Nicholls & Ferguson, Bioenergetics 4th ed.). Bars scale to the largest step; amber bars are slightly uphill steps driven by mass action. Full oxidation of one glucose through this chain pays about 30 to 32 ATP; a Warburg-shifted cell takes only 2 from glycolysis instead, so lowering the NADH and succinate sliders reproduces that phenotype here.
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">
         ATP per pair = pumped H+ / {H_PER_ATP} (3 for the synthase rotation + ~1 for Pi/ADP transport), or step energy (eV x 2 electrons) / {costEv.toFixed(2)} eV per ATP (standard {ATP_COST_EV} eV, scaled by membrane potential / 160 mV), clamped at 0 for uphill steps; both yields scale with (1 - uncoupling). Summed over the chain: {totalProton.toFixed(2)} ATP captured via protons (~2.5 per NADH at standard state); the eV drops alone could in principle pay for {totalEnergy.toFixed(2)}, so about {Math.round((totalProton / totalEnergy) * 100)}% of the available energy is captured. Yields follow the membrane potential and uncoupling sliders live.
