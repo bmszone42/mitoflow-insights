@@ -417,3 +417,14 @@ says so in the caveats; they need validation against measured cluster loss data 
 ## Warburg effect knowledge
 - ✅ New warburgNotes section in reference.ts (the effect, why ferment with oxygen present, mitochondria not broken, redox/iron consequences, how to explore it with the sliders), rendered as a Warburg effect panel on the Reference tab.
 - ✅ Energetics card footer now contrasts the roughly 30 to 32 ATP per glucose from full oxidation with the 2 ATP from glycolysis, and explains that lowering NADH and succinate sliders mimics a Warburg-shifted cell.
+
+## Driver share bar chart in Compare
+- ✅ New "Driver share, %" bar chart beside the ETC step energetics table: vertical bars sorted by share, the top-driving step in the primary color and the rest muted, matching the table's highlighted row and * marker.
+- ✅ Per-step ATP math extracted from the table row into a shared useMemo (etcRows) so the table and chart always agree.
+- ✅ Chart only shows when the two scenarios differ in ATP rate (shares would all be "-"); plain Erastin vs RSL3 (no light) hides it, light presets show it.
+- ✅ Verified in preview with RSL3 + 810 nm vs Erastin + 660 nm: Overall NADH to O2 63% (green, top driver), C III Qo 25%, C IV to O2 12%; zero page errors.
+
+## Security practices (standing)
+- Scenario storage stays owner-scoped: signed-in users save to Cloud rows with owner-only RLS; signed-out users save to IndexedDB only.
+- AI routes keep the gateway key server-side and stay behind the shared in-memory rate limits.
+- No secrets are embedded in client code; sliders and presets change client state only.
