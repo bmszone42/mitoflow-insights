@@ -31,6 +31,7 @@ import {
   type SensOutputKey,
 } from "@/lib/mito/model";
 import { sensitivityCsv } from "@/lib/mito/csv";
+import { etcSteps } from "@/lib/mito/reference";
 
 const tip = {
   contentStyle: {
@@ -177,7 +178,25 @@ export function Sensitivity({ inputs, geo, onSaved }: { inputs: Inputs; geo: Geo
         cardiolipinOxPct: o.cardiolipinOx,
       };
     };
+    // Light pump context: treat the absorbed photon as a separate energy source
+    // and compare its eV against the ETC step drops (hc/lambda, 1240 nm.eV).
+    const photonEv660 = 1240 / 660;
+    const photonEv810 = 1240 / 810;
+    const pumpSteps = etcSteps.filter((s) => s.protons > 0);
     return {
+      lightPump: {
+        photonEv660,
+        photonEv810,
+        activeWavelengthNm: lightKey === "nirDose" ? 810 : 660,
+        photonGainBase: base.photonGain,
+        photonGainMaxDose: f01.photonGain,
+        vsPumpSteps: pumpSteps.map((s) => ({
+          step: s.step,
+          stepEv: s.ev,
+          ratio660: photonEv660 / s.ev,
+          ratio810: photonEv810 / s.ev,
+        })),
+      },
       nitricOxide: {
         currentNm: inputs.nitricOxide,
         atMaxIron: maxIron,

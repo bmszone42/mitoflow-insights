@@ -43,6 +43,25 @@ const Body = z.object({
           }),
         )
         .max(20),
+      lightPump: z
+        .object({
+          photonEv660: z.number(),
+          photonEv810: z.number(),
+          activeWavelengthNm: z.number(),
+          photonGainBase: z.number(),
+          photonGainMaxDose: z.number(),
+          vsPumpSteps: z
+            .array(
+              z.object({
+                step: z.string().max(60),
+                stepEv: z.number(),
+                ratio660: z.number(),
+                ratio810: z.number(),
+              }),
+            )
+            .max(12),
+        })
+        .optional(),
       nitricOxide: z
         .object({
           currentNm: z.number(),
@@ -76,6 +95,7 @@ Write a concise explanation in Markdown with these sections:
 ## Parameter interactions (synergy or antagonism per output, and the mechanism in the model, e.g. Fenton chemistry, NO photodissociation, chromophore-driven superoxide, Fe-S damage feedback)
 ## Implications for ROS and Fe-S (where oxidative damage risk and Fe-S loss are highest, and safe or risky regions for light dosing at a given iron load)
 ## Nitric oxide and peroxynitrite (only when the NO block is present: how NO shifts the light dose at which oxidized cardiolipin crosses the 30% Committed threshold at the map's highest iron, and how the peroxynitrite driven Fe-S attack term changes Fe-S intact and aconitase across the NO levels given. The model has three separate Fe-S attack terms, one each for superoxide, H2O2 and peroxynitrite, so say which of them the numbers implicate. A null crossing dose means the threshold is never crossed within the mapped dose range.)
+## Light pump energy (only when the light pump block is present: treat the absorbed photon as a separate energy source alongside the ETC. Compare the photon eV at 660 and 810 nm against each proton-pumping step's eV drop using the ratios given, state how many step-equivalents one photon carries, and relate the photon gain at baseline versus maximum mapped dose to the light-driven outputs on the map. Note that photon energy is absorbed by chromophores and converted to chemistry, not directly to proton pumping.)
 ## Caveats (steady-state lumping, estimated coefficients, percent changes hide absolute scale, the peroxynitrite and H2O2 Fe-S rate constants are effective and unfitted)
 Ground every claim in the numbers given. Label speculation explicitly. Never use em dashes. Keep it under about 400 words.`;
 
@@ -137,6 +157,16 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
             .join("\n")}`;
         };
 
+        const lpBlock = (lp: NonNullable<NonNullable<typeof map>["lightPump"]> | undefined) => {
+          if (!lp) return "";
+          return `\n\nLight pump energy context (photon as a separate energy source; active wavelength ${lp.activeWavelengthNm} nm).\nPhoton energy: 660 nm -> ${lp.photonEv660.toFixed(3)} eV, 810 nm -> ${lp.photonEv810.toFixed(3)} eV.\nPhoton eV versus each proton-pumping ETC step drop (ratio = photon eV / step eV):\n${lp.vsPumpSteps
+            .map(
+              (s) =>
+                `${s.step}: step ${s.stepEv.toFixed(3)} eV, 660 nm photon = ${s.ratio660.toFixed(1)}x step, 810 nm photon = ${s.ratio810.toFixed(1)}x step`,
+            )
+            .join("\n")}\nModel photon gain (CIV turnover multiplier from light): baseline ${Number(lp.photonGainBase.toPrecision(3))}, at maximum mapped dose ${Number(lp.photonGainMaxDose.toPrecision(3))}.`;
+        };
+
         let upstreamError: { status: number; message: string } | null = null;
         const result = streamText({
           model: provider.responses("openai/gpt-6-astra"),
@@ -147,7 +177,7 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
                   (o) =>
                     `${o.label}: base ${Number(o.base.toPrecision(4))}, x only ${o.xOnlyPct.toFixed(1)}%, y only ${o.yOnlyPct.toFixed(1)}%, both ${o.bothPct.toFixed(1)}%, synergy ${o.synergyPct.toFixed(1)}%, range ${Number(o.min.toPrecision(3))} to ${Number(o.max.toPrecision(3))}`,
                 )
-                .join("\n")}\n\nDisplayed output ${map.shownOutput}, coarse grid:\n${map.shownGrid.map((r) => r.map((v) => Number(v.toPrecision(3))).join(" ")).join("\n")}${noBlock(map.nitricOxide)}`
+                .join("\n")}\n\nDisplayed output ${map.shownOutput}, coarse grid:\n${map.shownGrid.map((r) => r.map((v) => Number(v.toPrecision(3))).join(" ")).join("\n")}${noBlock(map.nitricOxide)}${lpBlock(map.lightPump)}`
             : `Perturbation step: plus or minus ${(delta * 100).toFixed(0)}% of each driver's full range.\n\nBaseline inputs:\n${fmt(inputs)}\n\nSensitivity results (percent change per output):\n${table}`,
           abortSignal: request.signal,
           maxRetries: 0,
