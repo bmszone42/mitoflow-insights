@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { defaultInputs, simulate, type Outputs } from "@/lib/mito/model";
-import { ATP_COST_EV, H_PER_ATP, atpPerPair, etcSteps } from "@/lib/mito/reference";
+import { defaultInputs, simulate, type Inputs, type Outputs } from "@/lib/mito/model";
+import { ATP_COST_EV, H_PER_ATP, atpPerPair, liveAtpPerPair, etcSteps } from "@/lib/mito/reference";
 
 type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" };
 type Edge = { from: string; to: string; flux: (o: Outputs) => number; brake?: string };
@@ -47,11 +47,14 @@ const COMPLEX_STEPS: Record<string, string[]> = {
   ci: ["Complex I"], cii: ["Complex II"], ciii: ["Complex III"], civ: ["Complex IV"], cytc: ["Cytochrome c"], q: ["Complex I to Q", "Complex II"],
 };
 
-export function PathwayMap({ out, highlight = [], source, onSelect, complex }: { out: Outputs; highlight?: string[]; source?: string | undefined; onSelect?: (id: string) => void; complex?: string | null }) {
+export function PathwayMap({ out, inputs, highlight = [], source, onSelect, complex }: { out: Outputs; inputs?: Inputs | undefined; highlight?: string[]; source?: string | undefined; onSelect?: (id: string) => void; complex?: string | null }) {
   const pre = complex ? COMPLEX_STEPS[complex] : undefined;
   const steps = pre ? etcSteps.filter((s) => pre.some((p) => s.step.startsWith(p))) : [];
   const hl = new Set(highlight);
   const base = useMemo(() => simulate(defaultInputs), []);
+  const psi = inputs?.deltaPsi ?? defaultInputs.deltaPsi;
+  const unc = inputs?.uncoupling ?? defaultInputs.uncoupling;
+  const live = psi !== defaultInputs.deltaPsi || unc !== defaultInputs.uncoupling;
   const pos = Object.fromEntries(NODES.map((n) => [n.id, n]));
   return (
     <section className="rounded-lg border border-border bg-card p-4">
@@ -64,14 +67,16 @@ export function PathwayMap({ out, highlight = [], source, onSelect, complex }: {
       )}
       {steps.length > 0 && (
         <div className="mt-2 rounded-md border border-primary/60 bg-background/60 p-2 text-[11px]" data-testid="complex-yield">
-          <div className="mono-label mb-1">ATP yield at {source}</div>
+          <div className="mono-label mb-1">ATP yield at {source}{live ? ` · live at ${psi.toFixed(0)} mV, ${(unc * 100).toFixed(0)}% uncoupled` : ""}</div>
           {steps.map((s) => {
-            const y = atpPerPair(s);
+            const y = liveAtpPerPair(s, psi, unc);
+            const std = atpPerPair(s);
             return (
               <div key={s.step} className="flex flex-wrap justify-between gap-2 font-mono">
                 <span>{s.step}</span>
                 <span className={s.ev < 0 ? "text-warning" : ""}>
                   {s.ev >= 0 ? "+" : ""}{s.ev.toFixed(3)} eV/e- · {(y.proton / 2).toFixed(2)} ATP/e- (H+) · {(y.energy / 2).toFixed(2)} ATP/e- (eV) · {y.proton.toFixed(2)} per pair
+                  {live && <span className="text-muted-foreground"> (std {std.proton.toFixed(2)})</span>}
                 </span>
               </div>
             );
@@ -185,21 +190,30 @@ export function ThzHypotheses({ out }: { out: Outputs }) {
 }
 
 // Energy released at each electron transfer step, in eV per electron, with live flux context.
-export function EtcEnergyCard({ out }: { out: Outputs }) {
+export function EtcEnergyCard({ out, inputs }: { out: Outputs; inputs?: Inputs | undefined }) {
   const maxEv = Math.max(...etcSteps.map((s) => Math.abs(s.ev)));
   // Sum ATP over the individual steps only; the "Overall" row is the total itself.
   const steps = etcSteps.filter((s) => !s.step.startsWith("Overall"));
-  const totalProton = steps.reduce((acc, s) => acc + atpPerPair(s).proton, 0);
-  const totalEnergy = steps.reduce((acc, s) => acc + atpPerPair(s).energy, 0);
+  const psi = inputs?.deltaPsi ?? defaultInputs.deltaPsi;
+  const unc = inputs?.uncoupling ?? defaultInputs.uncoupling;
+  const live = psi !== defaultInputs.deltaPsi || unc !== defaultInputs.uncoupling;
+  const costEv = ATP_COST_EV * (psi / 160);
+  const totalProton = steps.reduce((acc, s) => acc + liveAtpPerPair(s, psi, unc).proton, 0);
+  const totalEnergy = steps.reduce((acc, s) => acc + liveAtpPerPair(s, psi, unc).energy, 0);
   return (
     <section className="rounded-lg border border-border bg-card p-4">
       <div className="mono-label">Electron transport chain energetics</div>
       <h3 className="text-sm font-semibold">
         Energy per step, eV per electron · chain flux {(out.fluxCI + out.fluxCII).toFixed(1)} µM/s pairs
       </h3>
+      {live && (
+        <p className="mt-1 text-[11px] text-primary" data-testid="etc-live">
+          Live yields at {psi.toFixed(0)} mV and {(unc * 100).toFixed(0)}% uncoupling: ATP costs {costEv.toFixed(2)} eV now.
+        </p>
+      )}
       <div className="mt-3 space-y-2">
         {etcSteps.map((s) => {
-          const atp = atpPerPair(s);
+          const atp = liveAtpPerPair(s, psi, unc);
           return (
             <div key={s.step}>
               <div className="flex items-baseline justify-between gap-2 text-xs">
@@ -236,7 +250,7 @@ export function EtcEnergyCard({ out }: { out: Outputs }) {
         eV = midpoint potential gap in volts per electron (Nicholls & Ferguson, Bioenergetics 4th ed.). Bars scale to the largest step; amber bars are slightly uphill steps driven by mass action.
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">
-        ATP per pair = pumped H+ / {H_PER_ATP} (3 for the synthase rotation + ~1 for Pi/ADP transport), or step energy (eV x 2 electrons) / {ATP_COST_EV} eV per ATP (~50 kJ/mol), clamped at 0 for uphill steps. Summed over the chain: {totalProton.toFixed(2)} ATP captured via protons (the modern ~2.5 ATP per NADH); the eV drops alone could in principle pay for {totalEnergy.toFixed(2)}, so about {Math.round((totalProton / totalEnergy) * 100)}% of the available energy is captured. Standard-state estimates, not per-step in-situ yields.
+        ATP per pair = pumped H+ / {H_PER_ATP} (3 for the synthase rotation + ~1 for Pi/ADP transport), or step energy (eV x 2 electrons) / {costEv.toFixed(2)} eV per ATP (standard {ATP_COST_EV} eV, scaled by membrane potential / 160 mV), clamped at 0 for uphill steps; both yields scale with (1 - uncoupling). Summed over the chain: {totalProton.toFixed(2)} ATP captured via protons (~2.5 per NADH at standard state); the eV drops alone could in principle pay for {totalEnergy.toFixed(2)}, so about {Math.round((totalProton / totalEnergy) * 100)}% of the available energy is captured. Yields follow the membrane potential and uncoupling sliders live.
       </p>
     </section>
   );

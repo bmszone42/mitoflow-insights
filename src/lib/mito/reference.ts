@@ -289,6 +289,23 @@ export function atpPerPair(s: EtcStep): { proton: number; energy: number } {
   };
 }
 
+/*
+ * Live in-situ yield: scales the standard-state estimate with membrane
+ * potential and uncoupling. A higher deltaPsi raises the free-energy cost of
+ * making ATP (cost scales with psi / 160 mV reference), so the energy-based
+ * yield falls; uncoupling bleeds protons past the synthase, so both yields
+ * scale with (1 - uncoupling). Proton stoichiometry itself is fixed.
+ */
+export function liveAtpPerPair(s: EtcStep, psi: number, uncoupling: number): { proton: number; energy: number; costEv: number } {
+  const costEv = ATP_COST_EV * (psi / 160);
+  const coup = Math.max(0, 1 - uncoupling);
+  return {
+    proton: (s.protons / H_PER_ATP) * coup,
+    energy: Math.max(0, (s.ev * 2) / costEv) * coup,
+    costEv,
+  };
+}
+
 export const photonNotes = [
   {
     title: "660 nm red",

@@ -389,3 +389,9 @@ says so in the caveats; they need validation against measured cluster loss data 
 - ✅ Compare: "View A/B in 3D" loads a saved shape into the Structure tab 3D viewer
 - ✅ Pathway map boxes are clickable: they open Sensitivity, set the tornado to that term and show a 71 THz caption for its top drivers
 - ✅ Clicking a Complex in 3D shows its per-electron ATP yield on the pathway map
+
+## Live ATP yields (2026-09-28)
+- ✅ `liveAtpPerPair(s, psi, uncoupling)` in reference.ts: ATP cost scales with deltaPsi/160 mV, both yields scale with (1 - uncoupling)
+- ✅ EtcEnergyCard and the pathway map complex-yield box show live yields with a "Live yields at X mV, Y% uncoupled" line when sliders differ from defaults; standard-state value shown alongside
+- ✅ index.tsx passes `inputs` to all PathwayMap and EtcEnergyCard call sites
+- ✅ Verified: raising Mild uncoupling to 25% shows the live line, zero page errors
