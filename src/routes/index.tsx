@@ -4,6 +4,8 @@ import { AccountButton } from "@/components/mito/AccountButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Simulator } from "@/components/mito/Simulator";
+import { termsFor } from "@/components/mito/3d/terms";
+import { partInfo, type PartId } from "@/components/mito/3d/info";
 import { PathwayMap, ThzHypotheses, EtcEnergyCard } from "@/components/mito/PathwayMap";
 import { StructureModeler } from "@/components/mito/StructureModeler";
 import { Sensitivity } from "@/components/mito/Sensitivity";
@@ -13,7 +15,7 @@ import { Compare } from "@/components/mito/Compare";
 import { Interpreter } from "@/components/mito/Interpreter";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
-import { defaultGeometry, defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
+import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -41,6 +43,8 @@ function Index() {
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
   const out = useMemo(() => simulate(inputs, geo), [inputs, geo]);
+  const [picked, setPicked] = useState<PartId | null>(null);
+  const pickedName = picked ? partInfo(picked, out, geometryEffects(geo)).name : undefined;
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<Scenario["interpretation"]>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -96,7 +100,7 @@ function Index() {
           <TabsContent value="sim" className="mt-4">
             <Simulator inputs={inputs} setInputs={setInputs} geo={geo} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-              <PathwayMap out={out} />
+              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} />
               <ThzHypotheses out={out} />
             </div>
             <div className="mt-4">
@@ -130,7 +134,10 @@ function Index() {
             <Sensitivity inputs={inputs} geo={geo} onSaved={() => setRefreshKey((k) => k + 1)} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
-            <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} />
+            <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} onPick={setPicked} />
+            <div className="mt-4">
+              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} />
+            </div>
             <div className="mt-4">
               <MicrographAnalyzer
                 inputs={inputs}

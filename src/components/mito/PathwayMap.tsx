@@ -43,13 +43,19 @@ const Hh = 52;
 const fmt = (v: number, d = 1) => (v !== 0 && Math.abs(v) < 0.01 ? v.toExponential(1) : v.toFixed(d));
 
 // Live ROS/RNS, Fe-S, iron and Fenton loop. Arrow width follows each flux relative to default settings.
-export function PathwayMap({ out }: { out: Outputs }) {
+export function PathwayMap({ out, highlight = [], source }: { out: Outputs; highlight?: string[]; source?: string | undefined }) {
+  const hl = new Set(highlight);
   const base = useMemo(() => simulate(defaultInputs), []);
   const pos = Object.fromEntries(NODES.map((n) => [n.id, n]));
   return (
     <section className="rounded-lg border border-border bg-card p-4">
       <div className="mono-label">Pathway map</div>
       <h3 className="text-sm font-semibold">ROS/RNS, Fe-S and iron: the self-amplifying damage loop</h3>
+      {source && (
+        <p className="mt-1 text-[11px] text-primary">
+          {hl.size ? `Highlighted: terms fed by ${source} in the 3D view` : `${source} has no direct term in this map`}
+        </p>
+      )}
       <svg viewBox="0 0 600 310" overflow="visible" className="mt-3 w-full" role="img" aria-label="Live pathway map">
         <defs>
           <marker id="pm-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
@@ -73,9 +79,10 @@ export function PathwayMap({ out }: { out: Outputs }) {
           const x2 = b.x - ox;
           const y2 = b.y - oy;
           const up = ratio > 1.05;
+          const lit = hl.has(e.from) && hl.has(e.to);
           return (
             <g key={e.from + e.to}>
-              <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth={w} markerEnd="url(#pm-arrow)" className={up ? "stroke-accent" : "stroke-muted-foreground"} strokeOpacity={0.75} />
+              <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth={w} markerEnd="url(#pm-arrow)" className={lit ? "stroke-primary" : up ? "stroke-accent" : "stroke-muted-foreground"} strokeOpacity={lit ? 1 : 0.75} />
               {e.brake && (
                 <text x={(x1 + x2) / 2 + (Math.abs(dy) > Math.abs(dx) ? 6 : 0)} y={(y1 + y2) / 2 + (Math.abs(dy) > Math.abs(dx) ? 3 : -8)} textAnchor={Math.abs(dy) > Math.abs(dx) ? "start" : "middle"} className="fill-primary font-mono text-[9px]">
                   ⊣ {e.brake}
@@ -90,7 +97,7 @@ export function PathwayMap({ out }: { out: Outputs }) {
           const pct = b !== 0 ? ((v - b) / Math.abs(b)) * 100 : null;
           return (
             <g key={n.id} transform={`translate(${n.x - W / 2},${n.y - Hh / 2})`}>
-              <rect width={W} height={Hh} rx={8} className={`fill-background ${TONE[n.tone]}`} strokeWidth={1.5} />
+              <rect width={W} height={Hh} rx={8} className={`fill-background ${hl.has(n.id) ? "stroke-primary" : TONE[n.tone]}`} strokeWidth={hl.has(n.id) ? 4 : 1.5} style={hl.has(n.id) ? { filter: "drop-shadow(0 0 6px var(--primary))" } : undefined} />
               <text x={10} y={18} className="fill-foreground text-[11px] font-semibold">
                 {n.label}
               </text>

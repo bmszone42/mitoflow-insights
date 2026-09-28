@@ -351,3 +351,8 @@ says so in the caveats; they need validation against measured cluster loss data 
 - ✅ `EtcEnergyCard` in `src/components/mito/PathwayMap.tsx`, mounted on the Simulator tab: per-step eV bars, H+ counts, live chain flux header; uphill steps (Complex II, cyt c shuttle) shown in amber.
 - ✅ Browser-verified: card visible, all rows render, zero page errors.
 - ❌ Midpoint potentials are standard-state values; in-situ potentials shift with Δψ and reduction state, not yet modeled per step.
+
+## 3D to Pathway map link
+- ✅ Clicking a Complex, ROS puff, photon, Fe-S cluster, TCA or membrane in the 3D view highlights its matching terms (and the arrows between them) in the Pathway map
+- ✅ Linked Pathway map shown under the 3D view on the Structure tab, and the Simulator map follows the same selection
+- ❌ Part to term mapping is a teaching simplification, not derived from the rate equations

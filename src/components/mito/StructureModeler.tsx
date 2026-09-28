@@ -1,3 +1,4 @@
+import type { PartId } from "./3d/info";
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
@@ -40,11 +41,13 @@ export function StructureModeler({
   inputs,
   geo,
   setGeo,
+  onPick,
 }: {
   out: Outputs;
   inputs: Inputs;
   geo: Geometry;
   setGeo: (g: Geometry) => void;
+  onPick?: (id: PartId | null) => void;
 }) {
   const [showComplexes, setShowComplexes] = useState(true);
   const [showRos, setShowRos] = useState(true);
@@ -173,7 +176,7 @@ export function StructureModeler({
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
             {mounted ? (
               <Suspense fallback={<div className="h-[560px] animate-pulse rounded-md bg-secondary/40" />}>
-                <Cristae3D geo={geo} ge={ge} out={out} overlay={overlay} />
+                <Cristae3D geo={geo} ge={ge} out={out} overlay={overlay} onPick={onPick} />
               </Suspense>
             ) : (
               <div className="h-[560px] rounded-md bg-secondary/40" />
