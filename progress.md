@@ -309,7 +309,9 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - ✅ Save new and update capture all eight shape sliders with inputs and the matching output snapshot. Preset and AI map saves also capture the current shape.
 - ✅ Loading a scenario restores its saved shape; old scenarios without geometry load the default shape. Imported JSON retains saved geometry.
 - ✅ Compare shows A, B and the difference for every membrane shape parameter; output comparisons run each scenario with its own geometry.
+- ✅ Browser-verified two saved shapes (11 versus 14 cristae), distinct ATP outputs in Compare, and restoration of the first shape on load.
 - ❌ Existing older runs cannot recover shapes that were never saved.
+- ❌ Switching away from the 3D Structure view can emit a viewer cleanup error; shape storage and comparison still work. Investigate separately.
 
 ### Security before deployment
 - Shape values from imported scenarios are bounded to the existing slider limits before being rendered or simulated. Scenario storage stays under the existing browser or owner-only account permissions; do not include personal images in exported scenario files without consent.
