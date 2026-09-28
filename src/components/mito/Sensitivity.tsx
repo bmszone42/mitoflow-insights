@@ -187,7 +187,7 @@ export function Sensitivity({ inputs, geo, onSaved }: { inputs: Inputs; geo: Geo
       lightPump: {
         photonEv660,
         photonEv810,
-        activeWavelengthNm: lightKey === "dose810" ? 810 : 660,
+        activeWavelengthNm: lightKey === "nirDose" ? 810 : 660,
         photonGainBase: base.photonGain,
         photonGainMaxDose: f01.photonGain,
         vsPumpSteps: pumpSteps.map((s) => ({
