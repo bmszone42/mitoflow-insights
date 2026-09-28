@@ -385,3 +385,5 @@ says so in the caveats; they need validation against measured cluster loss data 
 - [x] AI map interpretation carries a light pump energy block: 660/810 nm photon eV (1240/lambda) versus each proton-pumping ETC step drop, plus photon gain at baseline and max mapped dose; new MAP_SYSTEM section instructs the AI to treat the photon as a separate energy source (Sensitivity.tsx, explain-sensitivity.ts).
 
 - [x] Compare gained a third shape sketch: ShapeOverlay draws both saved mitochondrion outlines in one SVG on a shared scale (A green, B pink) so size, cristae count and fold-shape differences line up directly (ShapeSketch.tsx, Compare.tsx).
+
+- ✅ Compare: "View A/B in 3D" loads a saved shape into the Structure tab 3D viewer

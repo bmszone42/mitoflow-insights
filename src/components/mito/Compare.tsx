@@ -42,7 +42,7 @@ function Delta({ a, b }: { a: number; b: number }) {
   );
 }
 
-export function Compare({ refreshKey }: { refreshKey: number }) {
+export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onViewShape?: (g: Geometry) => void }) {
   const [items, setItems] = useState<Scenario[]>([]);
   const [aId, setA] = useState<string>("");
   const [bId, setB] = useState<string>("");
@@ -213,8 +213,20 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
           <div className="mt-4 border-t border-border pt-3">
             <div className="mono-label mb-2">Membrane shape</div>
             <div className="mb-3 grid gap-4 sm:grid-cols-2">
-              <ShapeSketch geo={ga} color="var(--primary)" label={`A: ${a.name}`} />
-              <ShapeSketch geo={gb} color="var(--accent)" label={`B: ${b.name}`} />
+              {([["A", a, ga, "var(--primary)"], ["B", b, gb, "var(--accent)"]] as const).map(([tag, s, g, c]) => (
+                <div key={tag}>
+                  <ShapeSketch geo={g} color={c} label={`${tag}: ${s.name}`} />
+                  {onViewShape && g && (
+                    <button
+                      type="button"
+                      onClick={() => onViewShape({ ...g })}
+                      className="mt-2 rounded border border-border px-2 py-1 text-xs hover:bg-muted"
+                    >
+                      View {tag} in 3D
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
             <div className="mb-3">
               <ShapeOverlay geoA={ga} geoB={gb} colorA="var(--primary)" colorB="var(--accent)" labelA={a.name} labelB={b.name} />
