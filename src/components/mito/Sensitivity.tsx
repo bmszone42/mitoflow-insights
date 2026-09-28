@@ -41,7 +41,7 @@ const tip = {
 };
 const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
 
-export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () => void }) {
+export function Sensitivity({ inputs, geo, onSaved }: { inputs: Inputs; geo: Geometry; onSaved?: () => void }) {
   const [delta, setDelta] = useState(0.2);
   const [output, setOutput] = useState<SensOutputKey>("superoxide");
   const [driver, setDriver] = useState<keyof Inputs>("labileIron");
@@ -189,7 +189,8 @@ export function Sensitivity({ inputs, onSaved }: { inputs: Inputs; onSaved?: () 
       name,
       notes: `Saved automatically with the AI interpretation. ${condition}.`,
       inputs,
-      snapshot: snapshotOf(simulate(inputs)),
+      geometry: { ...geo },
+      snapshot: snapshotOf(simulate(inputs, geo)),
       interpretation: { condition, text: body, at: now },
       createdAt: now,
       updatedAt: now,

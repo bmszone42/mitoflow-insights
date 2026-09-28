@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Inputs, Outputs } from "@/lib/mito/model";
+import type { Geometry, Inputs, Outputs } from "@/lib/mito/model";
 import {
   deleteScenario,
   isScenario,
@@ -24,6 +24,7 @@ export function snapshotOf(out: Outputs) {
 
 export function Scenarios({
   inputs,
+  geo,
   out,
   onLoad,
   activeId,
@@ -32,6 +33,7 @@ export function Scenarios({
   onChanged,
 }: {
   inputs: Inputs;
+  geo: Geometry;
   out: Outputs;
   onLoad: (s: Scenario) => void;
   activeId: string | null;
@@ -52,12 +54,13 @@ export function Scenarios({
     const now = Date.now();
     const existing = !asNew ? items.find((i) => i.id === activeId) : undefined;
     const s: Scenario = existing
-      ? { ...existing, inputs, snapshot: snapshotOf(out), updatedAt: now, name: name.trim() || existing.name }
+      ? { ...existing, inputs, geometry: { ...geo }, snapshot: snapshotOf(out), updatedAt: now, name: name.trim() || existing.name }
       : {
           id: crypto.randomUUID(),
           name: name.trim() || `Scenario ${items.length + 1}`,
           notes: "",
           inputs,
+          geometry: { ...geo },
           snapshot: snapshotOf(out),
           createdAt: now,
           updatedAt: now,

@@ -240,11 +240,13 @@ function tooltipProps() {
 export function Simulator({
   inputs,
   setInputs,
+  geo,
   out,
   onSaved,
 }: {
   inputs: Inputs;
   setInputs: (i: Inputs) => void;
+  geo: Geometry;
   out: Outputs;
   onSaved?: () => void;
 }) {
@@ -407,8 +409,9 @@ export function Simulator({
       name: `Preset: ${name}`,
       notes: `Saved automatically when the "${name}" preset was applied.`,
       inputs: next,
+      geometry: { ...geo },
       preset: name,
-      snapshot: snapshotOf(simulate(next)),
+      snapshot: snapshotOf(simulate(next, geo)),
       createdAt: now,
       updatedAt: now,
     };

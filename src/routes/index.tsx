@@ -12,7 +12,7 @@ import { Scenarios } from "@/components/mito/Scenarios";
 import { Compare } from "@/components/mito/Compare";
 import { Interpreter } from "@/components/mito/Interpreter";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
-import type { Scenario } from "@/lib/mito/scenarios";
+import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { defaultGeometry, defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 
 export const Route = createFileRoute("/")({
@@ -51,6 +51,7 @@ function Index() {
   }, []);
   const onLoad = (s: Scenario) => {
     setInputs({ ...defaultInputs, ...s.inputs });
+    setGeo(scenarioGeometry(s));
     setActiveId(s.id);
     setLoaded(s.interpretation);
   };
@@ -93,7 +94,7 @@ function Index() {
             <TabsTrigger value="library">Reference</TabsTrigger>
           </TabsList>
           <TabsContent value="sim" className="mt-4">
-            <Simulator inputs={inputs} setInputs={setInputs} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
+            <Simulator inputs={inputs} setInputs={setInputs} geo={geo} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <PathwayMap out={out} />
               <ThzHypotheses out={out} />
@@ -101,6 +102,7 @@ function Index() {
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
               <Scenarios
                 inputs={inputs}
+                geo={geo}
                 out={out}
                 onLoad={onLoad}
                 activeId={activeId}
@@ -122,7 +124,7 @@ function Index() {
             </div>
           </TabsContent>
           <TabsContent value="sens" className="mt-4">
-            <Sensitivity inputs={inputs} onSaved={() => setRefreshKey((k) => k + 1)} />
+            <Sensitivity inputs={inputs} geo={geo} onSaved={() => setRefreshKey((k) => k + 1)} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
             <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} />
