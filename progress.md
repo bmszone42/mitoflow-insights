@@ -281,3 +281,7 @@ Errors: 400 invalid, 413 too large, 429 limit reached (message includes minutes 
 - Every Drug preset and Combination preset click now applies the patch AND saves a named scenario ("Preset: Erastin + 660 nm", etc.) with a full snapshot, so presets can be compared side by side in the Compare tab.
 - A "Saved scenario: ..." confirmation appears under the preset rows; the scenario list refreshes live.
 - Verified in the browser: clicking Erastin + 660 nm saved the scenario to IndexedDB and showed the confirmation.
+
+## SNAP NO donor preset (done)
+- Drug presets: new "NO donor SNAP" button raises nitric oxide to 200 nM (S-nitroso-N-acetylpenicillamine releases NO that competes with O2 at Complex IV); other sliders untouched, click saves a named scenario like the other presets.
+- Verified in the browser: NO slider reads 200 nM, the "now" marker sits at 200 nM on the Nitric oxide dose response chart, ox cardiolipin crosses Committed at 360 nM, and the "Preset: NO donor SNAP" scenario appears in the list (Fe-S 85%, O2- 0.01 nM, ATP 26).
