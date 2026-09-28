@@ -289,11 +289,12 @@ export function Organelle({
     }
   });
 
-  const label = (text: string, p: [number, number, number]) => (
-    <Html position={p} center style={{ pointerEvents: "none", display: labels ? "block" : "none" }} zIndexRange={[10, 0]}>
-      <div className="whitespace-nowrap rounded border border-border bg-card/85 px-1.5 py-0.5 font-mono text-[10px] text-foreground">{text}</div>
-    </Html>
-  );
+  const label = (text: string, p: [number, number, number]) =>
+    labels ? (
+      <Html position={p} center style={{ pointerEvents: "none" }} zIndexRange={[10, 0]}>
+        <div className="whitespace-nowrap rounded border border-border bg-card/85 px-1.5 py-0.5 font-mono text-[10px] text-foreground">{text}</div>
+      </Html>
+    ) : null;
 
   const f0 = lay.focus;
 
