@@ -413,3 +413,7 @@ says so in the caveats; they need validation against measured cluster loss data 
 ## Clickable 3D eV labels open step detail
 - ✅ Each eV/ATP label in the Complex close-up is clickable (invisible sphere hit area around the sprite); clicking jumps to the Simulator tab and highlights that step in the Electron transport chain energetics card with the same live values (data-testid step-detail).
 - ✅ Verified in preview: clicking the CI Fe-S relay label opened the Simulator tab with the highlighted step showing +0.26 eV, 4 H+, 0.95 ATP/pair live, zero page errors.
+
+## Warburg effect knowledge
+- ✅ New warburgNotes section in reference.ts (the effect, why ferment with oxygen present, mitochondria not broken, redox/iron consequences, how to explore it with the sliders), rendered as a Warburg effect panel on the Reference tab.
+- ✅ Energetics card footer now contrasts the roughly 30 to 32 ATP per glucose from full oxidation with the 2 ATP from glycolysis, and explains that lowering NADH and succinate sliders mimics a Warburg-shifted cell.
