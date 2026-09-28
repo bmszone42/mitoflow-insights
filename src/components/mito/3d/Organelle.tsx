@@ -12,7 +12,7 @@ export type Overlay = "potential" | "superoxide" | "complexes";
 
 const CUT = Math.PI * 0.42; // half-angle of the cutaway wedge facing the camera
 
-function Label3D({ text, position, size = 0.28 }: { text: string; position: [number, number, number]; size?: number }) {
+function Label3D({ text, position, size = 0.28, onClick }: { text: string; position: [number, number, number]; size?: number; onClick?: (() => void) | undefined }) {
   const texture = useMemo(() => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -45,7 +45,19 @@ function Label3D({ text, position, size = 0.28 }: { text: string; position: [num
   useEffect(() => () => texture.dispose(), [texture]);
   const aspect = texture.image.width / texture.image.height;
   return (
-    <sprite position={position} scale={[size * aspect, size, 1]} renderOrder={20}>
+    <sprite
+      position={position}
+      scale={[size * aspect, size, 1]}
+      renderOrder={20}
+      {...(onClick
+        ? {
+            onClick: (e: { stopPropagation: () => void }) => {
+              e.stopPropagation();
+              onClick();
+            },
+          }
+        : {})}
+    >
       <spriteMaterial map={texture} transparent depthTest={false} depthWrite={false} toneMapped={false} />
     </sprite>
   );
@@ -155,6 +167,7 @@ export function Organelle({
   evLabels,
   onPick,
   inputs,
+  onStepClick,
 }: {
   geo: Geometry;
   ge: GeometryEffects;
@@ -165,6 +178,7 @@ export function Organelle({
   evLabels: boolean;
   onPick: (p: PartId) => void;
   inputs?: Inputs | undefined;
+  onStepClick?: ((stepIndex: number) => void) | undefined;
 }) {
   const { L, r, gap, cristae, yAt, zRows } = lay;
   const H = L / 2 - r;
@@ -543,7 +557,23 @@ export function Organelle({
               return spots.map(([i, y, dz, short]) => {
                 const s = etcSteps[i]!;
                 const live = liveAtpPerPair(s, psi, unc).proton;
-                return label(`${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${live.toFixed(2)} ATP/pr`, at(y, dz), 0.028);
+                const text = `${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${live.toFixed(2)} ATP/pr`;
+                return (
+                  <group key={text} position={at(y, dz)}>
+                    <Label3D text={text} position={[0, 0, 0]} size={0.028} />
+                    {onStepClick && (
+                      <mesh
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onStepClick(i);
+                        }}
+                      >
+                        <sphereGeometry args={[0.08, 8, 8]} />
+                        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+                      </mesh>
+                    )}
+                  </group>
+                );
               });
             })()}
     </group>

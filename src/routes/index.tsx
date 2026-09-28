@@ -43,6 +43,7 @@ function Index() {
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
   const [tab, setTab] = useState("sim");
+  const [stepFocus, setStepFocus] = useState<number | null>(null);
   const [mapTerm, setMapTerm] = useState<{ id: string; n: number } | null>(null);
   const selectTerm = (id: string) => {
     setMapTerm((m) => ({ id, n: (m?.n ?? 0) + 1 }));
@@ -110,7 +111,7 @@ function Index() {
               <ThzHypotheses out={out} />
             </div>
             <div className="mt-4">
-              <EtcEnergyCard out={out} inputs={inputs} />
+              <EtcEnergyCard out={out} inputs={inputs} focusStep={stepFocus} />
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
               <Scenarios
@@ -150,7 +151,7 @@ function Index() {
             <Sensitivity inputs={inputs} geo={geo} term={mapTerm} onDriverClick={(k) => { const p = DRIVER_PART[k]; if (p) { setPicked(p); setTab("structure"); window.scrollTo({ top: 0 }); } }} onSaved={() => setRefreshKey((k) => k + 1)} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
-            <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} onPick={setPicked} selected={picked} />
+            <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} onPick={setPicked} selected={picked} onStepClick={(i) => { setStepFocus(i); setTab("sim"); }} />
             <div className="mt-4">
               <PathwayMap out={out} inputs={inputs} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
             </div>

@@ -409,3 +409,7 @@ says so in the caveats; they need validation against measured cluster loss data 
 ## 3D close-up: live eV / ATP labels
 - ✅ The Complex close-up eV labels in the 3D viewer now append the live ATP yield per pair (liveAtpPerPair scaled by the Membrane potential and Mild uncoupling sliders), wired through StructureModeler to Cristae3D to Organelle via a new inputs prop.
 - ✅ Verified in preview: raising Mild uncoupling to 0.25 dropped the CI Fe-S and CIII Qo labels from 0.95 to 0.75 ATP/pr and ATP flux from 51.7 to 40.8 uM/s, zero page errors.
+
+## Clickable 3D eV labels open step detail
+- ✅ Each eV/ATP label in the Complex close-up is clickable (invisible sphere hit area around the sprite); clicking jumps to the Simulator tab and highlights that step in the Electron transport chain energetics card with the same live values (data-testid step-detail).
+- ✅ Verified in preview: clicking the CI Fe-S relay label opened the Simulator tab with the highlighted step showing +0.26 eV, 4 H+, 0.95 ATP/pair live, zero page errors.
