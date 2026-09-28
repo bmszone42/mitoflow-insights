@@ -42,12 +42,14 @@ export function StructureModeler({
   geo,
   setGeo,
   onPick,
+  selected: picked3d,
 }: {
   out: Outputs;
   inputs: Inputs;
   geo: Geometry;
   setGeo: (g: Geometry) => void;
   onPick?: (id: PartId | null) => void;
+  selected?: PartId | null;
 }) {
   const [showComplexes, setShowComplexes] = useState(true);
   const [showRos, setShowRos] = useState(true);
@@ -176,7 +178,7 @@ export function StructureModeler({
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
             {mounted ? (
               <Suspense fallback={<div className="h-[560px] animate-pulse rounded-md bg-secondary/40" />}>
-                <Cristae3D geo={geo} ge={ge} out={out} overlay={overlay} onPick={onPick} />
+                <Cristae3D geo={geo} ge={ge} out={out} overlay={overlay} onPick={onPick} selected={picked3d} />
               </Suspense>
             ) : (
               <div className="h-[560px] rounded-md bg-secondary/40" />

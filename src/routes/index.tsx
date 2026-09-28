@@ -4,7 +4,7 @@ import { AccountButton } from "@/components/mito/AccountButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Simulator } from "@/components/mito/Simulator";
-import { termsFor } from "@/components/mito/3d/terms";
+import { termsFor, DRIVER_PART } from "@/components/mito/3d/terms";
 import { partInfo, type PartId } from "@/components/mito/3d/info";
 import { PathwayMap, ThzHypotheses, EtcEnergyCard } from "@/components/mito/PathwayMap";
 import { StructureModeler } from "@/components/mito/StructureModeler";
@@ -147,10 +147,10 @@ function Index() {
             <div className="mb-4">
               <PathwayMap out={out} inputs={inputs} highlight={mapTerm ? [mapTerm.id] : []} source={undefined} onSelect={selectTerm} />
             </div>
-            <Sensitivity inputs={inputs} geo={geo} term={mapTerm} onSaved={() => setRefreshKey((k) => k + 1)} />
+            <Sensitivity inputs={inputs} geo={geo} term={mapTerm} onDriverClick={(k) => { const p = DRIVER_PART[k]; if (p) { setPicked(p); setTab("structure"); window.scrollTo({ top: 0 }); } }} onSaved={() => setRefreshKey((k) => k + 1)} />
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
-            <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} onPick={setPicked} />
+            <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} onPick={setPicked} selected={picked} />
             <div className="mt-4">
               <PathwayMap out={out} inputs={inputs} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
             </div>
