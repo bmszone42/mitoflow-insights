@@ -106,7 +106,7 @@ function Index() {
           <TabsContent value="sim" className="mt-4">
             <Simulator inputs={inputs} setInputs={setInputs} geo={geo} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} />
+              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
               <ThzHypotheses out={out} />
             </div>
             <div className="mt-4">
@@ -152,7 +152,7 @@ function Index() {
           <TabsContent value="structure" className="mt-4">
             <StructureModeler out={out} inputs={inputs} geo={geo} setGeo={setGeo} onPick={setPicked} />
             <div className="mt-4">
-              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} />
+              <PathwayMap out={out} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
             </div>
             <div className="mt-4">
               <MicrographAnalyzer
