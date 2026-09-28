@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
@@ -78,6 +78,22 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
   const gb = useMemo(() => (b ? scenarioGeometry(b) : null), [b]);
   const oa = useMemo(() => (ia && ga ? simulate(ia, ga) : null), [ia, ga]);
   const ob = useMemo(() => (ib && gb ? simulate(ib, gb) : null), [ib, gb]);
+
+  // Per-step ATP rates and driver shares, shared by the energetics table and its bar chart.
+  const etcRows = useMemo(() => {
+    if (!oa || !ob || !ia || !ib) return null;
+    const fluxOf = (o: Outputs, i: number) => (i <= 2 ? o.fluxCI : i === 3 ? o.fluxCII : o.fluxCIV);
+    const rows = etcSteps.map((s, i) => {
+      const ya = liveAtpPerPair(s, ia.deltaPsi, ia.uncoupling).proton;
+      const yb = liveAtpPerPair(s, ib.deltaPsi, ib.uncoupling).proton;
+      const ra = (ya * fluxOf(oa, i)) / 2;
+      const rb = (yb * fluxOf(ob, i)) / 2;
+      return { s, ya, yb, ra, rb, diff: rb - ra };
+    });
+    const totalAbs = rows.reduce((acc, r) => acc + Math.abs(r.diff), 0);
+    const top = rows.reduce((best, r) => (Math.abs(r.diff) > Math.abs(best.diff) ? r : best), rows[0]!);
+    return { rows, totalAbs, top };
+  }, [oa, ob, ia, ib]);
 
   if (shown.length < 2)
     return (
@@ -252,54 +268,71 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
             <p className="mb-2 text-xs text-muted-foreground">
               Live ATP yields, scaled by each scenario's membrane potential and uncoupling, with electron flux routed through the step. ATP rate = ATP per pair x flux / 2, relative units. CI steps use CI flux, CII its own, CIII/CIV/cyt c use CIV flux. Driver share shows how much of the total ATP rate gap each step explains.
             </p>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-xs">
-                <thead>
-                  <tr className="text-left text-muted-foreground">
-                    <th className="py-1 font-normal">Step</th>
-                    <th className="font-normal">eV / e-</th>
-                    <th className="font-normal">A: ATP / pair</th>
-                    <th className="font-normal">B: ATP / pair</th>
-                    <th className="font-normal">A: ATP rate</th>
-                    <th className="font-normal">B: ATP rate</th>
-                    <th className="font-normal">B vs A</th>
-                    <th className="font-normal">Driver share</th>
-                  </tr>
-                </thead>
-                <tbody className="font-mono">
-                  {(() => {
-                    const fluxOf = (o: Outputs, i: number) => (i <= 2 ? o.fluxCI : i === 3 ? o.fluxCII : o.fluxCIV);
-                    const rows = etcSteps.map((s, i) => {
-                      const ya = liveAtpPerPair(s, ia.deltaPsi, ia.uncoupling).proton;
-                      const yb = liveAtpPerPair(s, ib.deltaPsi, ib.uncoupling).proton;
-                      const ra = (ya * fluxOf(oa, i)) / 2;
-                      const rb = (yb * fluxOf(ob, i)) / 2;
-                      return { s, ya, yb, ra, rb, diff: rb - ra };
-                    });
-                    const totalAbs = rows.reduce((acc, r) => acc + Math.abs(r.diff), 0);
-                    const top = rows.reduce((best, r) => (Math.abs(r.diff) > Math.abs(best.diff) ? r : best), rows[0]!);
-                    return rows.map((r) => (
-                      <tr key={r.s.step} className={`border-t border-border ${r === top && totalAbs > 0 ? "bg-primary/10" : ""}`}>
-                        <td className="py-1 font-sans">{r.s.step}{r === top && totalAbs > 0 ? " *" : ""}</td>
+            <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-xs">
+                  <thead>
+                    <tr className="text-left text-muted-foreground">
+                      <th className="py-1 font-normal">Step</th>
+                      <th className="font-normal">eV / e-</th>
+                      <th className="font-normal">A: ATP / pair</th>
+                      <th className="font-normal">B: ATP / pair</th>
+                      <th className="font-normal">A: ATP rate</th>
+                      <th className="font-normal">B: ATP rate</th>
+                      <th className="font-normal">B vs A</th>
+                      <th className="font-normal">Driver share</th>
+                    </tr>
+                  </thead>
+                  <tbody className="font-mono">
+                    {etcRows?.rows.map((r) => (
+                      <tr key={r.s.step} className={`border-t border-border ${r === etcRows.top && etcRows.totalAbs > 0 ? "bg-primary/10" : ""}`}>
+                        <td className="py-1 font-sans">{r.s.step}{r === etcRows.top && etcRows.totalAbs > 0 ? " *" : ""}</td>
                         <td>{r.s.ev > 0 ? "+" : ""}{r.s.ev}</td>
                         <td>{r.ya.toFixed(2)}</td>
                         <td>{r.yb.toFixed(2)}</td>
                         <td>{Number(r.ra.toPrecision(3))}</td>
                         <td>{Number(r.rb.toPrecision(3))}</td>
                         <td><Delta a={r.ra} b={r.rb} /></td>
-                        <td>{totalAbs > 0 ? `${((Math.abs(r.diff) / totalAbs) * 100).toFixed(0)}%` : "-"}</td>
+                        <td>{etcRows.totalAbs > 0 ? `${((Math.abs(r.diff) / etcRows.totalAbs) * 100).toFixed(0)}%` : "-"}</td>
                       </tr>
-                    ));
-                  })()}
-                  <tr className="border-t border-border font-semibold">
-                    <td className="py-1 font-sans">Whole chain ATP flux</td>
-                    <td></td><td></td><td></td>
-                    <td>{Number(oa.atpFlux.toPrecision(3))}</td>
-                    <td>{Number(ob.atpFlux.toPrecision(3))}</td>
-                    <td><Delta a={oa.atpFlux} b={ob.atpFlux} /></td>
-                  </tr>
-                </tbody>
-              </table>
+                    ))}
+                    <tr className="border-t border-border font-semibold">
+                      <td className="py-1 font-sans">Whole chain ATP flux</td>
+                      <td></td><td></td><td></td>
+                      <td>{Number(oa.atpFlux.toPrecision(3))}</td>
+                      <td>{Number(ob.atpFlux.toPrecision(3))}</td>
+                      <td><Delta a={oa.atpFlux} b={ob.atpFlux} /></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              {etcRows && etcRows.totalAbs > 0 && (
+                <div className="h-72">
+                  <div className="mono-label mb-1">Driver share, %</div>
+                  <ResponsiveContainer>
+                    <BarChart
+                      data={etcRows.rows
+                        .map((r) => ({ name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, top: r === etcRows.top }))
+                        .sort((x, y) => y.share - x.share)}
+                      layout="vertical"
+                      margin={{ top: 4, right: 16, bottom: 0, left: 4 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                      <XAxis type="number" domain={[0, 100]} stroke="var(--muted-foreground)" fontSize={10} unit="%" />
+                      <YAxis type="category" dataKey="name" width={112} stroke="var(--muted-foreground)" fontSize={10} />
+                      <Tooltip {...tip} formatter={(v: number) => `${v.toFixed(0)}%`} />
+                      <Bar dataKey="share" radius={[0, 3, 3, 0]}>
+                        {etcRows.rows
+                          .map((r) => ({ name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, top: r === etcRows.top }))
+                          .sort((x, y) => y.share - x.share)
+                          .map((d, i) => (
+                            <Cell key={i} fill={d.top ? "var(--primary)" : "var(--muted-foreground)"} />
+                          ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
           </div>
 
