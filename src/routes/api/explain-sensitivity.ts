@@ -43,6 +43,28 @@ const Body = z.object({
           }),
         )
         .max(20),
+      nitricOxide: z
+        .object({
+          currentNm: z.number(),
+          atMaxIron: z.number(),
+          crossingDoses: z.object({
+            no0: z.number().nullable(),
+            current: z.number().nullable(),
+            no400: z.number().nullable(),
+          }),
+          levels: z
+            .array(
+              z.object({
+                no: z.number(),
+                peroxynitrite: z.number(),
+                fesIntactPct: z.number(),
+                aconitasePct: z.number(),
+                cardiolipinOxPct: z.number(),
+              }),
+            )
+            .max(6),
+        })
+        .optional(),
     })
     .optional(),
 });
