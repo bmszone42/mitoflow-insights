@@ -152,6 +152,7 @@ export function Organelle({
   overlay,
   lay,
   labels,
+  evLabels,
   onPick,
 }: {
   geo: Geometry;
@@ -160,6 +161,7 @@ export function Organelle({
   overlay: Overlay;
   lay: Layout;
   labels: boolean;
+  evLabels: boolean;
   onPick: (p: PartId) => void;
 }) {
   const { L, r, gap, cristae, yAt, zRows } = lay;
@@ -514,7 +516,7 @@ export function Organelle({
           {dna.centers[0] && label("mtDNA nucleoid", [dna.centers[0][0], dna.centers[0][1] + 0.2, dna.centers[0][2]])}
           {label("TCA / aconitase [4Fe-4S]", [tcaC[0] - 0.5, tcaC[1] - 0.3, tcaC[2]])}
           {/* Per-step eV drops along the focus crista's electron path */}
-          {f0 &&
+          {evLabels && f0 &&
             (() => {
               const fx = f0.x + f0.thick / 2 + 0.03;
               const z = zRows(f0)[2] ?? 0;
