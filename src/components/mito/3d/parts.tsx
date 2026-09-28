@@ -75,16 +75,20 @@ export function Inst({
       ref={ref}
       name={name ?? ""}
       args={[undefined, undefined, Math.max(1, items.length)]}
-      onClick={
-        onClick
-          ? (e) => {
+      {...(onClick
+        ? {
+            onClick: (e: { stopPropagation: () => void }) => {
               e.stopPropagation();
               onClick();
-            }
-          : undefined
-      }
-      onPointerOver={onClick ? () => (document.body.style.cursor = "pointer") : undefined}
-      onPointerOut={onClick ? () => (document.body.style.cursor = "") : undefined}
+            },
+            onPointerOver: () => {
+              document.body.style.cursor = "pointer";
+            },
+            onPointerOut: () => {
+              document.body.style.cursor = "";
+            },
+          }
+        : {})}
     >
       {children}
     </instancedMesh>
