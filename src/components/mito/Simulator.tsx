@@ -18,6 +18,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { defaultInputs, doseSweep, simulate, timeCourse, timeToCommitted, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
+import { poRatio } from "@/lib/mito/reference";
 import { putScenario, type Scenario } from "@/lib/mito/scenarios";
 import { snapshotOf } from "./Scenarios";
 
