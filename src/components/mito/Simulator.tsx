@@ -400,14 +400,15 @@ export function Simulator({
   // Apply a preset and save the result as a named scenario so presets can be
   // compared side by side in the Compare tab.
   const [savedPreset, setSavedPreset] = useState<string | null>(null);
-  const applyPreset = (name: string, patch: Partial<Inputs>) => {
+  const [savingCombos, setSavingCombos] = useState(false);
+  const [comboSaveStatus, setComboSaveStatus] = useState<string | null>(null);
+  const makePresetScenario = (name: string, patch: Partial<Inputs>): Scenario => {
     const next = { ...inputs, ...patch };
-    setInputs(next);
     const now = Date.now();
-    const scenario: Scenario = {
+    return {
       id: crypto.randomUUID(),
       name: `Preset: ${name}`,
-      notes: `Saved automatically when the "${name}" preset was applied.`,
+      notes: `Saved automatically from the "${name}" preset.`,
       inputs: next,
       geometry: { ...geo },
       preset: name,
@@ -415,12 +416,33 @@ export function Simulator({
       createdAt: now,
       updatedAt: now,
     };
+  };
+  const applyPreset = (name: string, patch: Partial<Inputs>) => {
+    const scenario = makePresetScenario(name, patch);
+    setInputs(scenario.inputs);
     void putScenario(scenario)
       .then(() => {
         setSavedPreset(name);
         onSaved?.();
       })
       .catch(() => setSavedPreset(null));
+  };
+  const saveAllCombos = async () => {
+    if (savingCombos) return;
+    setSavingCombos(true);
+    setComboSaveStatus(null);
+    try {
+      const results = await Promise.allSettled(comboPresets.map((d) => putScenario(makePresetScenario(d.name, d.patch))));
+      const saved = results.filter((r) => r.status === "fulfilled").length;
+      setComboSaveStatus(saved === comboPresets.length
+        ? `Saved all ${saved} combination scenarios.`
+        : `Saved ${saved} of ${comboPresets.length} combination scenarios. Please retry failed saves individually.`);
+      if (saved > 0) onSaved?.();
+    } catch {
+      setComboSaveStatus("Could not prepare combination scenarios. Please try again.");
+    } finally {
+      setSavingCombos(false);
+    }
   };
 
   return (
@@ -454,7 +476,12 @@ export function Simulator({
           {savedPreset && (
             <p className="text-[11px] text-primary">Saved scenario: Preset: {savedPreset}</p>
           )}
-          <div className="mono-label pt-1">Combination presets</div>
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <div className="mono-label">Combination presets</div>
+            <Button variant="secondary" size="sm" className="h-7 px-2 text-[11px]" disabled={savingCombos} onClick={() => void saveAllCombos()}>
+              {savingCombos ? "Saving…" : "Save all 8 combos"}
+            </Button>
+          </div>
           <div className="flex flex-wrap gap-1.5">
             {comboPresets.map((d) => (
               <Button
@@ -472,6 +499,7 @@ export function Simulator({
           <p className="text-[11px] text-muted-foreground">
             Drug patch plus a 10 J/cm2 dose (660 nm unless the preset says otherwise; 810 nm presets zero the red dose so the near-infrared path is isolated). Adjust the light sliders after clicking if you want a different dose. Each click saves a named scenario for the Compare tab.
           </p>
+          {comboSaveStatus && <p role="status" className="text-[11px] text-primary">{comboSaveStatus}</p>}
         </div>
         {groups.map((g) => (
           <div key={g.id} className="space-y-4">
