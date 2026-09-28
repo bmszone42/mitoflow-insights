@@ -44,22 +44,29 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
   const [items, setItems] = useState<Scenario[]>([]);
   const [aId, setA] = useState<string>("");
   const [bId, setB] = useState<string>("");
+  const [presetsOnly, setPresetsOnly] = useState(false);
   const sel = useRef({ a: "", b: "" });
   sel.current = { a: aId, b: bId };
+
+  const presetCount = items.filter((s) => s.preset).length;
+  // When "Presets only" is on, the pickers list just the scenarios saved from
+  // preset buttons (tagged with their preset name).
+  const shown = presetsOnly ? items.filter((s) => s.preset) : items;
 
   useEffect(() => {
     listScenarios()
       .then((l) => {
         setItems(l);
-        const ids = new Set(l.map((x) => x.id));
-        const b = sel.current.b && ids.has(sel.current.b) ? sel.current.b : (l[0]?.id ?? "");
+        const pool = presetsOnly ? l.filter((x) => x.preset) : l;
+        const ids = new Set(pool.map((x) => x.id));
+        const b = sel.current.b && ids.has(sel.current.b) ? sel.current.b : (pool[0]?.id ?? "");
         const pa = sel.current.a;
-        const a = pa && ids.has(pa) && (pa !== b || l.length < 2) ? pa : (l.find((x) => x.id !== b)?.id ?? b);
+        const a = pa && ids.has(pa) && (pa !== b || pool.length < 2) ? pa : (pool.find((x) => x.id !== b)?.id ?? b);
         setA(a);
         setB(b);
       })
       .catch(() => setItems([]));
-  }, [refreshKey]);
+  }, [refreshKey, presetsOnly]);
 
   const a = items.find((i) => i.id === aId);
   const b = items.find((i) => i.id === bId);
