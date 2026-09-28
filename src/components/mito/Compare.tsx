@@ -75,11 +75,23 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
   const oa = useMemo(() => (ia ? simulate(ia) : null), [ia]);
   const ob = useMemo(() => (ib ? simulate(ib) : null), [ib]);
 
-  if (items.length < 2)
+  if (shown.length < 2)
     return (
       <section className="panel p-4">
-        <div className="mono-label">Compare scenarios</div>
-        <p className="mt-2 text-xs text-muted-foreground">Save at least two scenarios to compare them.</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="mono-label">Compare scenarios</div>
+          {presetCount > 0 && (
+            <button
+              className={`rounded-md border px-2 py-1 text-[11px] ${presetsOnly ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+              onClick={() => setPresetsOnly(!presetsOnly)}
+            >
+              Presets only ({presetCount})
+            </button>
+          )}
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {presetsOnly ? "No preset scenarios yet. Click a preset button in the Simulator to save one." : "Save at least two scenarios to compare them."}
+        </p>
       </section>
     );
 
