@@ -20,7 +20,7 @@ export function layout(geo: Geometry) {
   const zRows = (c: Crista) => [-0.32, 0, 0.32].map((t) => t * c.zExtent);
   const focus = cristae[Math.floor(cristae.length / 2)] ?? cristae[0];
   const ciPos = focus
-    ? ([focus.x + focus.thick / 2 + 0.05, yAt(focus, 0.25), zRows(focus)[2]] as [number, number, number])
+    ? ([focus.x + focus.thick / 2 + 0.05, yAt(focus, 0.25), zRows(focus)[2]!] as [number, number, number])
     : ([0, 0, 0] as [number, number, number]);
   const fesPos: [number, number, number] = [ciPos[0] + 0.07, ciPos[1] + (focus?.top ? -0.02 : 0.02), ciPos[2] + 0.06];
   return { L, r, gap, cristae, yAt, zRows, focus, ciPos, fesPos };

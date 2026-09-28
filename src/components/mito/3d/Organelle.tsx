@@ -31,8 +31,8 @@ function bilayer(R: number, H: number, t: number, step: number): { heads: Xf[]; 
   const prof = capsuleProfile(R, H, 40);
   let acc = 0;
   for (let k = 1; k < prof.length; k++) {
-    const a = prof[k - 1];
-    const b = prof[k];
+    const a = prof[k - 1]!;
+    const b = prof[k]!;
     const seg = a.distanceTo(b);
     acc += seg;
     if (acc < step) continue;
@@ -228,7 +228,7 @@ export function Organelle({
     const t = clock.elapsedTime;
     if (eRef.current) {
       for (let k = 0; k < E; k++) {
-        const ch = place.chain[(k * 7) % place.chain.length];
+        const ch = place.chain[(k * 7) % place.chain.length]!;
         const u = (t * eSpeed + k * 0.137) % 1;
         if (u < 0.6) v.lerpVectors(ch.a, ch.b, u / 0.6);
         else v.lerpVectors(ch.b, ch.c, (u - 0.6) / 0.4);
@@ -241,7 +241,7 @@ export function Organelle({
     }
     if (hRef.current) {
       for (let k = 0; k < P; k++) {
-        const pp = place.pump[k % place.pump.length];
+        const pp = place.pump[k % place.pump.length]!;
         const u = (t * hSpeed + k * 0.291) % 1;
         v.lerpVectors(pp.from, pp.to, u);
         tmp.position.copy(v);
@@ -263,7 +263,7 @@ export function Organelle({
     }
     if (phRef.current && nPh > 0) {
       for (let k = 0; k < nPh; k++) {
-        const site = place.civSites[(k * 5) % place.civSites.length];
+        const site = place.civSites[(k * 5) % place.civSites.length]!;
         const u = (t * 0.9 + k * 0.23) % 1;
         const start = new THREE.Vector3(site[0] + 0.4, site[1] + 1.8, site[2] + 3);
         v.lerpVectors(start, new THREE.Vector3(...site), u);
@@ -407,7 +407,7 @@ export function Organelle({
             <meshStandardMaterial color={k === 1 ? PAL.fe : PAL.tca} emissive={k === 1 ? PAL.fe : PAL.tca} emissiveIntensity={0.3} />
           </mesh>
         ))}
-        <group position={[tcaNodes[1].p[0] + 0.05, tcaNodes[1].p[1] + 0.05, tcaNodes[1].p[2]]}>
+        <group position={[tcaNodes[1]!.p[0] + 0.05, tcaNodes[1]!.p[1] + 0.05, tcaNodes[1]!.p[2]]}>
           <FeSCluster kind="4Fe4S" intact={out.fesIntact} scale={0.035} />
         </group>
       </group>
@@ -469,10 +469,10 @@ export function Organelle({
       {f0 && label("Crista", [f0.x, yAt(f0, 0.55), -f0.zExtent / 2])}
       {f0 && label("Crista junction", [f0.x, f0.top ? r + 0.03 : -r - 0.03, 0.15])}
       {f0 && label("Complex I", [lay.ciPos[0] + 0.05, lay.ciPos[1], lay.ciPos[2] + 0.08])}
-      {f0 && label("Complex III", [f0.x + f0.thick / 2 + 0.06, yAt(f0, 0.5), zRows(f0)[2]])}
-      {f0 && label("Complex IV", [f0.x + f0.thick / 2 + 0.06, yAt(f0, 0.68), zRows(f0)[2]])}
+      {f0 && label("Complex III", [f0.x + f0.thick / 2 + 0.06, yAt(f0, 0.5), zRows(f0)[2]!])}
+      {f0 && label("Complex IV", [f0.x + f0.thick / 2 + 0.06, yAt(f0, 0.68), zRows(f0)[2]!])}
       {f0 && label("ATP synthase dimers", [f0.x, yAt(f0, 1) + (f0.top ? -0.1 : 0.1), f0.zExtent / 2])}
-      {label("mtDNA nucleoid", [dna.centers[0][0], dna.centers[0][1] + 0.2, dna.centers[0][2]])}
+      {label("mtDNA nucleoid", [dna.centers[0]![0]!, dna.centers[0]![1]! + 0.2, dna.centers[0]![2]!])}
       {label("TCA / aconitase [4Fe-4S]", [tcaC[0], tcaC[1] - 0.22, tcaC[2]])}
     </group>
   );
