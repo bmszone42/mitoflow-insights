@@ -177,7 +177,7 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
                   (o) =>
                     `${o.label}: base ${Number(o.base.toPrecision(4))}, x only ${o.xOnlyPct.toFixed(1)}%, y only ${o.yOnlyPct.toFixed(1)}%, both ${o.bothPct.toFixed(1)}%, synergy ${o.synergyPct.toFixed(1)}%, range ${Number(o.min.toPrecision(3))} to ${Number(o.max.toPrecision(3))}`,
                 )
-                .join("\n")}\n\nDisplayed output ${map.shownOutput}, coarse grid:\n${map.shownGrid.map((r) => r.map((v) => Number(v.toPrecision(3))).join(" ")).join("\n")}${noBlock(map.nitricOxide)}`
+                .join("\n")}\n\nDisplayed output ${map.shownOutput}, coarse grid:\n${map.shownGrid.map((r) => r.map((v) => Number(v.toPrecision(3))).join(" ")).join("\n")}${noBlock(map.nitricOxide)}${lpBlock(map.lightPump)}`
             : `Perturbation step: plus or minus ${(delta * 100).toFixed(0)}% of each driver's full range.\n\nBaseline inputs:\n${fmt(inputs)}\n\nSensitivity results (percent change per output):\n${table}`,
           abortSignal: request.signal,
           maxRetries: 0,
