@@ -538,9 +538,12 @@ export function Organelle({
                 [6, b + (c - b) * 0.5, -0.1, "CIV CuA"], // CIV CuA / heme a
                 [7, c, 0.1, "CIV to O2"], // CIV to O2
               ];
+              const psi = inputs?.deltaPsi ?? 160;
+              const unc = inputs?.uncoupling ?? 0.05;
               return spots.map(([i, y, dz, short]) => {
                 const s = etcSteps[i]!;
-                return label(`${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV`, at(y, dz), 0.028);
+                const live = liveAtpPerPair(s, psi, unc).proton;
+                return label(`${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${live.toFixed(2)} ATP/pr`, at(y, dz), 0.028);
               });
             })()}
     </group>
