@@ -388,3 +388,4 @@ says so in the caveats; they need validation against measured cluster loss data 
 
 - ✅ Compare: "View A/B in 3D" loads a saved shape into the Structure tab 3D viewer
 - ✅ Pathway map boxes are clickable: they open Sensitivity, set the tornado to that term and show a 71 THz caption for its top drivers
+- ✅ Clicking a Complex in 3D shows its per-electron ATP yield on the pathway map

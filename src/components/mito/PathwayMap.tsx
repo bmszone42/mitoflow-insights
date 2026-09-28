@@ -70,7 +70,7 @@ export function PathwayMap({ out, highlight = [], source, onSelect, complex }: {
             return (
               <div key={s.step} className="flex flex-wrap justify-between gap-2 font-mono">
                 <span>{s.step}</span>
-                <span className={s.ev < 0 ? "text-amber-400" : ""}>
+                <span className={s.ev < 0 ? "text-warning" : ""}>
                   {s.ev >= 0 ? "+" : ""}{s.ev.toFixed(3)} eV/e- · {(y.proton / 2).toFixed(2)} ATP/e- (H+) · {(y.energy / 2).toFixed(2)} ATP/e- (eV) · {y.proton.toFixed(2)} per pair
                 </span>
               </div>
