@@ -331,8 +331,8 @@ export function Organelle({
     }
   });
 
-  const label = (text: string, p: [number, number, number]) => (
-    <Label3D key={text} text={text} position={p} />
+  const label = (text: string, p: [number, number, number], size?: number) => (
+    <Label3D key={text} text={text} position={p} size={size} />
   );
 
   const f0 = lay.focus;
@@ -538,7 +538,7 @@ export function Organelle({
               ];
               return spots.map(([i, y, dz]) => {
                 const s = etcSteps[i]!;
-                return label(`${s.step.split(" (")[0]}: ${s.ev > 0 ? "+" : ""}${s.ev} eV`, at(y, dz));
+                return label(`${s.step.split(" (")[0]}: ${s.ev > 0 ? "+" : ""}${s.ev} eV`, at(y, dz), 0.05);
               });
             })()}
     </group>
