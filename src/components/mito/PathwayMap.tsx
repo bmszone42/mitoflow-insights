@@ -213,7 +213,7 @@ export function EtcEnergyCard({ out, inputs }: { out: Outputs; inputs?: Inputs |
       )}
       <div className="mt-3 space-y-2">
         {etcSteps.map((s) => {
-          const atp = atpPerPair(s);
+          const atp = liveAtpPerPair(s, psi, unc);
           return (
             <div key={s.step}>
               <div className="flex items-baseline justify-between gap-2 text-xs">
