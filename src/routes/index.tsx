@@ -42,6 +42,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
+  const [tab, setTab] = useState("sim");
   const out = useMemo(() => simulate(inputs, geo), [inputs, geo]);
   const [picked, setPicked] = useState<PartId | null>(null);
   const pickedName = picked ? partInfo(picked, out, geometryEffects(geo)).name : undefined;
@@ -90,7 +91,7 @@ function Index() {
       </header>
 
       <main className="mx-auto mt-6 max-w-[1500px]">
-        <Tabs defaultValue="sim">
+        <Tabs value={tab} onValueChange={setTab}>
           <TabsList>
             <TabsTrigger value="sim">Simulator</TabsTrigger>
             <TabsTrigger value="sens">Sensitivity</TabsTrigger>
@@ -127,7 +128,14 @@ function Index() {
               />
             </div>
             <div className="mt-4">
-              <Compare refreshKey={refreshKey + compareKey} />
+              <Compare
+                refreshKey={refreshKey + compareKey}
+                onViewShape={(g) => {
+                  setGeo(g);
+                  setTab("structure");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              />
             </div>
           </TabsContent>
           <TabsContent value="sens" className="mt-4">
