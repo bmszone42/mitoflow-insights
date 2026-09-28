@@ -43,7 +43,7 @@ const Hh = 52;
 const fmt = (v: number, d = 1) => (v !== 0 && Math.abs(v) < 0.01 ? v.toExponential(1) : v.toFixed(d));
 
 // Live ROS/RNS, Fe-S, iron and Fenton loop. Arrow width follows each flux relative to default settings.
-export function PathwayMap({ out, highlight = [], source }: { out: Outputs; highlight?: string[]; source?: string | undefined }) {
+export function PathwayMap({ out, highlight = [], source, onSelect }: { out: Outputs; highlight?: string[]; source?: string | undefined; onSelect?: (id: string) => void }) {
   const hl = new Set(highlight);
   const base = useMemo(() => simulate(defaultInputs), []);
   const pos = Object.fromEntries(NODES.map((n) => [n.id, n]));
@@ -96,7 +96,7 @@ export function PathwayMap({ out, highlight = [], source }: { out: Outputs; high
           const b = n.value(base);
           const pct = b !== 0 ? ((v - b) / Math.abs(b)) * 100 : null;
           return (
-            <g key={n.id} transform={`translate(${n.x - W / 2},${n.y - Hh / 2})`}>
+            <g key={n.id} transform={`translate(${n.x - W / 2},${n.y - Hh / 2})`} onClick={onSelect ? () => onSelect(n.id) : undefined} style={onSelect ? { cursor: "pointer" } : undefined} role={onSelect ? "button" : undefined} aria-label={onSelect ? `Show ${n.label} in Sensitivity` : undefined}>
               <rect width={W} height={Hh} rx={8} className={`fill-background ${hl.has(n.id) ? "stroke-primary" : TONE[n.tone]}`} strokeWidth={hl.has(n.id) ? 4 : 1.5} style={hl.has(n.id) ? { filter: "drop-shadow(0 0 6px var(--primary))" } : undefined} />
               <text x={10} y={18} className="fill-foreground text-[11px] font-semibold">
                 {n.label}
