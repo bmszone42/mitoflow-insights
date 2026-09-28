@@ -67,14 +67,16 @@ export function PathwayMap({ out, inputs, highlight = [], source, onSelect, comp
       )}
       {steps.length > 0 && (
         <div className="mt-2 rounded-md border border-primary/60 bg-background/60 p-2 text-[11px]" data-testid="complex-yield">
-          <div className="mono-label mb-1">ATP yield at {source}</div>
+          <div className="mono-label mb-1">ATP yield at {source}{live ? ` · live at ${psi.toFixed(0)} mV, ${(unc * 100).toFixed(0)}% uncoupled` : ""}</div>
           {steps.map((s) => {
-            const y = atpPerPair(s);
+            const y = liveAtpPerPair(s, psi, unc);
+            const std = atpPerPair(s);
             return (
               <div key={s.step} className="flex flex-wrap justify-between gap-2 font-mono">
                 <span>{s.step}</span>
                 <span className={s.ev < 0 ? "text-warning" : ""}>
                   {s.ev >= 0 ? "+" : ""}{s.ev.toFixed(3)} eV/e- · {(y.proton / 2).toFixed(2)} ATP/e- (H+) · {(y.energy / 2).toFixed(2)} ATP/e- (eV) · {y.proton.toFixed(2)} per pair
+                  {live && <span className="text-muted-foreground"> (std {std.proton.toFixed(2)})</span>}
                 </span>
               </div>
             );
