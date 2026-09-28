@@ -370,3 +370,9 @@ says so in the caveats; they need validation against measured cluster loss data 
 - ✅ EtcEnergyCard shows "ATP yield per pair" under each step and a footer summing the chain: 2.50 ATP captured via protons vs ~4.4 thermodynamic ceiling (~57% captured).
 - ✅ Typecheck clean; browser-verified, 9 yield lines render, zero page errors.
 - ❌ Standard-state estimates; in-situ yields shift with delta-psi and reduction state, not modeled per step.
+
+## 3D per-step eV labels
+- ✅ Complex close-up view shows a small sprite per ETC step along the focus crista's electron path: CI entry +0.02, CI Fe-S +0.26, CI to Q +0.13, CIII Qo +0.19, CIV CuA +0.055, CIV to O2 +0.53 eV, sourced from etcSteps in reference.ts.
+- ✅ Label3D gained a size prop; eV sprites render at 0.028 world units so they stay readable at close-up zoom; whole-organelle labels unchanged.
+- ✅ eV labels appear only in the Complex close-up preset to avoid cluttering the whole-organelle view.
+- ✅ Typecheck clean; browser-verified with zero page errors.
