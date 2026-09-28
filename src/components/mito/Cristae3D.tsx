@@ -53,12 +53,16 @@ const LEGEND: [string, string][] = [
   [PAL.s, "S"],
 ];
 
-export default function Cristae3D({ geo, ge, out, overlay }: { geo: Geometry; ge: GeometryEffects; out: Outputs; overlay: Overlay }) {
+export default function Cristae3D({ geo, ge, out, overlay, onPick }: { geo: Geometry; ge: GeometryEffects; out: Outputs; overlay: Overlay; onPick?: (id: PartId | null) => void }) {
   const lay = useMemo(() => layout(geo), [geo]);
   const [view, setView] = useState<ViewPreset>("whole");
   const [n, setN] = useState(0);
   const [labels, setLabels] = useState(true);
-  const [sel, setSel] = useState<PartId | null>(null);
+  const [sel, setSelRaw] = useState<PartId | null>(null);
+  const setSel = (id: PartId | null) => {
+    setSelRaw(id);
+    onPick?.(id);
+  };
   const goal = useMemo(() => ({ ...presetCamera(lay, view), n }), [lay, view, n]);
   const info = sel ? partInfo(sel, out, ge) : null;
 
