@@ -43,6 +43,8 @@ function Index() {
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
   const out = useMemo(() => simulate(inputs, geo), [inputs, geo]);
+  const [picked, setPicked] = useState<PartId | null>(null);
+  const pickedName = picked ? partInfo(picked, out, geometryEffects(geo)).name : undefined;
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<Scenario["interpretation"]>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
