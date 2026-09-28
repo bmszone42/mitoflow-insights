@@ -253,12 +253,12 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
                   {etcSteps.map((s, i) => {
                     // Route each step through the flux of its complex
                     const fluxOf = (o: Outputs) => (i <= 2 ? o.fluxCI : i === 3 ? o.fluxCII : o.fluxCIV);
-                    const rate = (o: Outputs) => (atpPerPair(s).protons * fluxOf(o)) / 2;
+                    const rate = (o: Outputs) => (atpPerPair(s).proton * fluxOf(o)) / 2;
                     return (
                       <tr key={s.step} className="border-t border-border">
                         <td className="py-1 font-sans">{s.step}</td>
                         <td>{s.ev > 0 ? "+" : ""}{s.ev}</td>
-                        <td>{atpPerPair(s).protons.toFixed(2)}</td>
+                        <td>{atpPerPair(s).proton.toFixed(2)}</td>
                         <td>{Number(rate(oa).toPrecision(3))}</td>
                         <td>{Number(rate(ob).toPrecision(3))}</td>
                         <td><Delta a={rate(oa)} b={rate(ob)} /></td>
