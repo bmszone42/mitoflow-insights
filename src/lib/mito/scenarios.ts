@@ -10,6 +10,7 @@ export type Scenario = {
   snapshot: { atpFlux?: number; superoxide?: number; hydrogenPeroxide?: number; fesIntact?: number; freeIron?: number; emission71THz?: number };
   interpretation?: { condition: string; text: string; at: number };
   micrograph?: { thumb: string; analysis: string; at: number };
+  preset?: string; // preset name when the scenario was saved from a preset button
   createdAt: number;
   updatedAt: number;
 };

@@ -44,22 +44,29 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
   const [items, setItems] = useState<Scenario[]>([]);
   const [aId, setA] = useState<string>("");
   const [bId, setB] = useState<string>("");
+  const [presetsOnly, setPresetsOnly] = useState(false);
   const sel = useRef({ a: "", b: "" });
   sel.current = { a: aId, b: bId };
+
+  const presetCount = items.filter((s) => s.preset).length;
+  // When "Presets only" is on, the pickers list just the scenarios saved from
+  // preset buttons (tagged with their preset name).
+  const shown = presetsOnly ? items.filter((s) => s.preset) : items;
 
   useEffect(() => {
     listScenarios()
       .then((l) => {
         setItems(l);
-        const ids = new Set(l.map((x) => x.id));
-        const b = sel.current.b && ids.has(sel.current.b) ? sel.current.b : (l[0]?.id ?? "");
+        const pool = presetsOnly ? l.filter((x) => x.preset) : l;
+        const ids = new Set(pool.map((x) => x.id));
+        const b = sel.current.b && ids.has(sel.current.b) ? sel.current.b : (pool[0]?.id ?? "");
         const pa = sel.current.a;
-        const a = pa && ids.has(pa) && (pa !== b || l.length < 2) ? pa : (l.find((x) => x.id !== b)?.id ?? b);
+        const a = pa && ids.has(pa) && (pa !== b || pool.length < 2) ? pa : (pool.find((x) => x.id !== b)?.id ?? b);
         setA(a);
         setB(b);
       })
       .catch(() => setItems([]));
-  }, [refreshKey]);
+  }, [refreshKey, presetsOnly]);
 
   const a = items.find((i) => i.id === aId);
   const b = items.find((i) => i.id === bId);
@@ -68,11 +75,23 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
   const oa = useMemo(() => (ia ? simulate(ia) : null), [ia]);
   const ob = useMemo(() => (ib ? simulate(ib) : null), [ib]);
 
-  if (items.length < 2)
+  if (shown.length < 2)
     return (
       <section className="panel p-4">
-        <div className="mono-label">Compare scenarios</div>
-        <p className="mt-2 text-xs text-muted-foreground">Save at least two scenarios to compare them.</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="mono-label">Compare scenarios</div>
+          {presetCount > 0 && (
+            <button
+              className={`rounded-md border px-2 py-1 text-[11px] ${presetsOnly ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+              onClick={() => setPresetsOnly(!presetsOnly)}
+            >
+              Presets only ({presetCount})
+            </button>
+          )}
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {presetsOnly ? "No preset scenarios yet. Click a preset button in the Simulator to save one." : "Save at least two scenarios to compare them."}
+        </p>
       </section>
     );
 
@@ -84,9 +103,9 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
           <SelectValue placeholder="Pick a scenario" />
         </SelectTrigger>
         <SelectContent>
-          {items.map((s) => (
+          {shown.map((s) => (
             <SelectItem key={s.id} value={s.id}>
-              {s.name}
+              {s.preset ? `${s.name} [${s.preset}]` : s.name}
             </SelectItem>
           ))}
         </SelectContent>
@@ -116,7 +135,17 @@ export function Compare({ refreshKey }: { refreshKey: number }) {
   return (
     <section className="panel p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="mono-label">Compare scenarios</div>
+        <div className="flex items-center gap-2">
+          <div className="mono-label">Compare scenarios</div>
+          {presetCount > 0 && (
+            <button
+              className={`rounded-md border px-2 py-1 text-[11px] ${presetsOnly ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+              onClick={() => setPresetsOnly(!presetsOnly)}
+            >
+              Presets only ({presetCount})
+            </button>
+          )}
+        </div>
         <div className="flex flex-wrap gap-3">
           {picker(aId, setA, "A")}
           {picker(bId, setB, "B")}
