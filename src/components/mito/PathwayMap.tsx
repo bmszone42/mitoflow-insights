@@ -43,7 +43,13 @@ const Hh = 52;
 const fmt = (v: number, d = 1) => (v !== 0 && Math.abs(v) < 0.01 ? v.toExponential(1) : v.toFixed(d));
 
 // Live ROS/RNS, Fe-S, iron and Fenton loop. Arrow width follows each flux relative to default settings.
-export function PathwayMap({ out, highlight = [], source, onSelect }: { out: Outputs; highlight?: string[]; source?: string | undefined; onSelect?: (id: string) => void }) {
+const COMPLEX_STEPS: Record<string, string[]> = {
+  ci: ["Complex I"], cii: ["Complex II"], ciii: ["Complex III"], civ: ["Complex IV"], cytc: ["Cytochrome c"], q: ["Complex I to Q", "Complex II"],
+};
+
+export function PathwayMap({ out, highlight = [], source, onSelect, complex }: { out: Outputs; highlight?: string[]; source?: string | undefined; onSelect?: (id: string) => void; complex?: string | null }) {
+  const pre = complex ? COMPLEX_STEPS[complex] : undefined;
+  const steps = pre ? etcSteps.filter((s) => pre.some((p) => s.step.startsWith(p))) : [];
   const hl = new Set(highlight);
   const base = useMemo(() => simulate(defaultInputs), []);
   const pos = Object.fromEntries(NODES.map((n) => [n.id, n]));
@@ -55,6 +61,22 @@ export function PathwayMap({ out, highlight = [], source, onSelect }: { out: Out
         <p className="mt-1 text-[11px] text-primary">
           {hl.size ? `Highlighted: terms fed by ${source} in the 3D view` : `${source} has no direct term in this map`}
         </p>
+      )}
+      {steps.length > 0 && (
+        <div className="mt-2 rounded-md border border-primary/60 bg-background/60 p-2 text-[11px]" data-testid="complex-yield">
+          <div className="mono-label mb-1">ATP yield at {source}</div>
+          {steps.map((s) => {
+            const y = atpPerPair(s);
+            return (
+              <div key={s.step} className="flex flex-wrap justify-between gap-2 font-mono">
+                <span>{s.step}</span>
+                <span className={s.ev < 0 ? "text-amber-400" : ""}>
+                  {s.ev >= 0 ? "+" : ""}{s.ev.toFixed(3)} eV/e- · {(y.proton / 2).toFixed(2)} ATP/e- (H+) · {(y.energy / 2).toFixed(2)} ATP/e- (eV) · {y.proton.toFixed(2)} per pair
+                </span>
+              </div>
+            );
+          })}
+        </div>
       )}
       <svg viewBox="0 0 600 310" overflow="visible" className="mt-3 w-full" role="img" aria-label="Live pathway map">
         <defs>
