@@ -259,7 +259,7 @@ export const etcSteps: EtcStep[] = [
     protons: 2,
     note: "The largest drop; 2 H+ pumped plus 2 chemical H+ per pair. NO binds here and light releases it.",
   },
-  {
+{
     step: "Overall NADH to O2",
     donor: "NADH/NAD+",
     acceptor: "O2/H2O",
@@ -270,6 +270,24 @@ export const etcSteps: EtcStep[] = [
     note: "1.14 eV per electron, about 52 kcal/mol per pair; roughly 40% is captured as ATP.",
   },
 ];
+
+/*
+ * ATP yield estimates per step, two independent derivations (Nicholls & Ferguson,
+ * Bioenergetics 4th ed.):
+ *  - Proton-based: H_PER_ATP = 4 (3 H+ per ATP synthase rotation + ~1 H+ for Pi/ADP
+ *    transport). ATP per pair = pumped protons / 4. Gives the modern 2.5 ATP per NADH.
+ *  - Energy-based: usable energy = eV drop x 2 electrons; ATP_COST_EV = 0.52 eV
+ *    (~50 kJ/mol at cellular ATP/ADP/Pi). ATP = energy / 0.52, clamped at 0 for
+ *    uphill steps. Both are standard-state estimates, not per-step in-situ yields.
+ */
+export const H_PER_ATP = 4;
+export const ATP_COST_EV = 0.52;
+export function atpPerPair(s: EtcStep): { proton: number; energy: number } {
+  return {
+    proton: s.protons / H_PER_ATP,
+    energy: Math.max(0, (s.ev * 2) / ATP_COST_EV),
+  };
+}
 
 export const photonNotes = [
   {

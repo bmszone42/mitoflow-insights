@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Outputs } from "@/lib/mito/model";
-import { etcSteps } from "@/lib/mito/reference";
+import { ATP_COST_EV, H_PER_ATP, atpPerPair, etcSteps } from "@/lib/mito/reference";
 
 type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" };
 type Edge = { from: string; to: string; flux: (o: Outputs) => number; brake?: string };
@@ -165,6 +165,10 @@ export function ThzHypotheses({ out }: { out: Outputs }) {
 // Energy released at each electron transfer step, in eV per electron, with live flux context.
 export function EtcEnergyCard({ out }: { out: Outputs }) {
   const maxEv = Math.max(...etcSteps.map((s) => Math.abs(s.ev)));
+  // Sum ATP over the individual steps only; the "Overall" row is the total itself.
+  const steps = etcSteps.filter((s) => !s.step.startsWith("Overall"));
+  const totalProton = steps.reduce((acc, s) => acc + atpPerPair(s).proton, 0);
+  const totalEnergy = steps.reduce((acc, s) => acc + atpPerPair(s).energy, 0);
   return (
     <section className="rounded-lg border border-border bg-card p-4">
       <div className="mono-label">Electron transport chain energetics</div>
@@ -172,34 +176,45 @@ export function EtcEnergyCard({ out }: { out: Outputs }) {
         Energy per step, eV per electron · chain flux {(out.fluxCI + out.fluxCII).toFixed(1)} µM/s pairs
       </h3>
       <div className="mt-3 space-y-2">
-        {etcSteps.map((s) => (
-          <div key={s.step}>
-            <div className="flex items-baseline justify-between gap-2 text-xs">
-              <span>
-                <span className="font-semibold">{s.step}</span>{" "}
-                <span className="text-muted-foreground">
-                  {s.donor} → {s.acceptor}
+        {etcSteps.map((s) => {
+          const atp = atpPerPair(s);
+          return (
+            <div key={s.step}>
+              <div className="flex items-baseline justify-between gap-2 text-xs">
+                <span>
+                  <span className="font-semibold">{s.step}</span>{" "}
+                  <span className="text-muted-foreground">
+                    {s.donor} → {s.acceptor}
+                  </span>
                 </span>
-              </span>
-              <span className="font-mono">
-                {s.ev > 0 ? "+" : ""}
-                {s.ev.toFixed(2)} eV{s.protons > 0 ? ` · ${s.protons} H+` : ""}
-              </span>
+                <span className="font-mono">
+                  {s.ev > 0 ? "+" : ""}
+                  {s.ev.toFixed(2)} eV{s.protons > 0 ? ` · ${s.protons} H+` : ""}
+                </span>
+              </div>
+              <div className="mt-1 h-1.5 w-full rounded bg-secondary">
+                <div
+                  className={`h-1.5 rounded ${s.ev >= 0 ? "bg-primary" : "bg-accent"}`}
+                  style={{ width: `${Math.max(3, (Math.abs(s.ev) / maxEv) * 100)}%` }}
+                />
+              </div>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                E'm {s.emDonor} → {s.emAcceptor} mV. {s.note}
+              </p>
+              <p className="mt-0.5 font-mono text-[11px]">
+                ATP yield per pair: <span className="text-primary">{atp.proton.toFixed(2)}</span> from protons
+                {" · "}
+                <span className="text-primary">{atp.energy.toFixed(2)}</span> from the eV drop
+              </p>
             </div>
-            <div className="mt-1 h-1.5 w-full rounded bg-secondary">
-              <div
-                className={`h-1.5 rounded ${s.ev >= 0 ? "bg-primary" : "bg-accent"}`}
-                style={{ width: `${Math.max(3, (Math.abs(s.ev) / maxEv) * 100)}%` }}
-              />
-            </div>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
-              E'm {s.emDonor} → {s.emAcceptor} mV. {s.note}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <p className="mt-3 text-[11px] text-muted-foreground">
         eV = midpoint potential gap in volts per electron (Nicholls & Ferguson, Bioenergetics 4th ed.). Bars scale to the largest step; amber bars are slightly uphill steps driven by mass action.
+      </p>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        ATP per pair = pumped H+ / {H_PER_ATP} (3 for the synthase rotation + ~1 for Pi/ADP transport), or step energy (eV x 2 electrons) / {ATP_COST_EV} eV per ATP (~50 kJ/mol), clamped at 0 for uphill steps. Summed over the chain: {totalProton.toFixed(2)} ATP captured via protons (the modern ~2.5 ATP per NADH); the eV drops alone could in principle pay for {totalEnergy.toFixed(2)}, so about {Math.round((totalProton / totalEnergy) * 100)}% of the available energy is captured. Standard-state estimates, not per-step in-situ yields.
       </p>
     </section>
   );

@@ -362,3 +362,9 @@ says so in the caveats; they need validation against measured cluster loss data 
 - ✅ Compare "Membrane shape" section now lines A and B up side by side as labeled sketches (A green, B pink, matching the charts) above the shape values table.
 - ✅ Typecheck clean; browser-verified with two preset scenarios, 2 sketches render, zero page errors.
 - ❌ The sketch is a stylized teaching view, not a tomographic reconstruction; junctions and tips are schematic.
+
+## ATP yield per ETC step (2026-09-28)
+- ✅ `atpPerPair()` in reference.ts: two derivations per step, proton-based (H+ / 4, Nicholls & Ferguson) and energy-based (eV x 2 / 0.52 eV per ATP, clamped at 0 uphill).
+- ✅ EtcEnergyCard shows "ATP yield per pair" under each step and a footer summing the chain: 2.50 ATP captured via protons vs ~4.4 thermodynamic ceiling (~57% captured).
+- ✅ Typecheck clean; browser-verified, 9 yield lines render, zero page errors.
+- ❌ Standard-state estimates; in-situ yields shift with delta-psi and reduction state, not modeled per step.
