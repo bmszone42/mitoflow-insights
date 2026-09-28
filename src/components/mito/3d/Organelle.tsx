@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { Geometry, GeometryEffects, Outputs } from "@/lib/mito/model";
+import { etcSteps } from "@/lib/mito/reference";
 import { FeSCluster, Inst, PAL, ramp, type Xf } from "./parts";
 import type { PartId } from "./info";
 import type { Crista, Layout } from "./layout";
@@ -512,6 +513,29 @@ export function Organelle({
           {f0 && label("ATP synthase dimers", [f0.x, yAt(f0, 1) + (f0.top ? -0.1 : 0.1), f0.zExtent / 2])}
           {dna.centers[0] && label("mtDNA nucleoid", [dna.centers[0][0], dna.centers[0][1] + 0.2, dna.centers[0][2]])}
           {label("TCA / aconitase [4Fe-4S]", [tcaC[0] - 0.5, tcaC[1] - 0.3, tcaC[2]])}
+          {/* Per-step eV drops along the focus crista's electron path */}
+          {f0 &&
+            (() => {
+              const fx = f0.x + f0.thick / 2 + 0.03;
+              const z = zRows(f0)[2] ?? 0;
+              const a = yAt(f0, 0.25);
+              const b = yAt(f0, 0.5);
+              const c = yAt(f0, 0.68);
+              const at = (y: number, dz: number): [number, number, number] => [fx + 0.22, y, z + dz];
+              // key = etcSteps index, y = chain position, dz = fan-out so labels do not overlap
+              const spots: [number, number, number][] = [
+                [0, a - 0.06, -0.12], // CI entry
+                [1, a, 0.1], // CI Fe-S relay
+                [2, a + (b - a) * 0.4, -0.1], // CI to Q
+                [4, b, 0.12], // CIII Qo
+                [6, b + (c - b) * 0.5, -0.1], // CIV CuA / heme a
+                [7, c, 0.1], // CIV to O2
+              ];
+              return spots.map(([i, y, dz]) => {
+                const s = etcSteps[i]!;
+                return label(`${s.step.split(" (")[0]}: ${s.ev > 0 ? "+" : ""}${s.ev} eV`, at(y, dz));
+              });
+            })()}
         </>
       )}
     </group>
