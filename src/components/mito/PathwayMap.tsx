@@ -261,6 +261,9 @@ export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs
           );
         })}
       </div>
+      <p className="mt-2 text-[10px] text-muted-foreground">
+        Green: live ATP per pair at or above standard state. Amber: below standard.
+      </p>
       {(() => {
         const split = atpSplit(out);
         const phen = inputs ? phenotype(inputs) : "respiration";
