@@ -444,3 +444,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - AI keys stay server-side in the gateway routes; AI routes rate-limited in memory per instance
 - Scenarios: owner-only RLS when signed in, IndexedDB when signed out; no PII stored
 - Before deployment: move rate limits to the database, review RLS policies, run dependency and security scans
+
+## Compare driver chart: signed percent labels
+- [x] Each driver share bar now shows the signed B-vs-A percent change next to it (e.g. +1%), and the tooltip shows share plus signed change
+- [x] Verified in preview with Erastin + 660 nm vs RSL3 + 810 nm; zero page errors
