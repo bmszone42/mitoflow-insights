@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, loadDriverReply, saveDriverReply, type Scenario } from "@/lib/mito/scenarios";
 import { ShapeSketch, ShapeOverlay } from "@/components/mito/ShapeSketch";
-import { effectiveAtpCost, liveAtpPerPair, stdAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
+import { ATP_COST_TEXTBOOK, atpNetworkRangeFlags, effectiveAtpCost, liveAtpPerPair, stdAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
 
 const outRows: { key: keyof Outputs; label: string; unit: string }[] = [
   { key: "atpFlux", label: "ATP flux", unit: "µM/s" },
@@ -152,8 +152,11 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
               const dir = (x: number, y: number) => (y - x > 1e-9 ? "up" : y - x < -1e-9 ? "down" : "none");
               return { a: atpSplit(oa), b: atpSplit(ob), nadhDirection: dir(ia.nadhRatio, ib.nadhRatio), succinateDirection: dir(ia.succinate, ib.succinate), phenotypeA: phenotype(ia), phenotypeB: phenotype(ib) };
             })(),
-            steps: etcRows.rows.map((r) => ({
-              step: r.s.step.slice(0, 80), ev: r.s.ev, atpPerPairA: r.ya, atpPerPairB: r.yb, rateA: r.ra, rateB: r.rb,
+             steps: etcRows.rows.map((r) => ({
+               step: r.s.step.slice(0, 80), ev: r.s.ev, evRangeLo: r.s.tbLo, evRangeHi: r.s.tbHi,
+               costA: r.costA, costB: r.costB, costRangeLo: ATP_COST_TEXTBOOK.lo, costRangeHi: ATP_COST_TEXTBOOK.hi,
+               ...atpNetworkRangeFlags(r.s, r.costA, r.costB),
+               atpPerPairA: r.ya, atpPerPairB: r.yb, rateA: r.ra, rateB: r.rb,
               sharePct: etcRows.totalAbs > 0 ? (Math.abs(r.diff) / etcRows.totalAbs) * 100 : 0,
               direction: r.diff > 1e-9 ? "up" : r.diff < -1e-9 ? "down" : "none",
             })),

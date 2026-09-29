@@ -4,7 +4,7 @@
  * ATP gap and colored by direction (green: B raises, red: B lowers).
  * Edges follow electron flow and inherit the share of their target step.
  */
-import { ATP_COST_TEXTBOOK } from "@/lib/mito/reference";
+import { ATP_COST_TEXTBOOK, atpNetworkRangeFlags } from "@/lib/mito/reference";
 
 type Row = { s: { step: string; ev: number; tbLo: number; tbHi: number; protons: number }; ra: number; rb: number; diff: number; costA: number; costB: number };
 
@@ -47,9 +47,8 @@ export function AtpDriverNetwork({
   const pct = (r: Row) => (r.ra > 0 ? ((r.rb - r.ra) / r.ra) * 100 : 0);
   // The redox span is fixed; effective ATP cost responds to potential and leak.
   // Only proton-pumping steps synthesize ATP in this step-level accounting.
-  const outsideEv = (r: Row) => r.s.ev < r.s.tbLo - 1e-9 || r.s.ev > r.s.tbHi + 1e-9;
-  const outsideCost = (r: Row) => r.s.protons > 0 &&
-    (r.costB < ATP_COST_TEXTBOOK.lo - 1e-9 || r.costB > ATP_COST_TEXTBOOK.hi + 1e-9);
+  const outsideEv = (r: Row) => atpNetworkRangeFlags(r.s, r.costA, r.costB).evOutside;
+  const outsideCost = (r: Row) => atpNetworkRangeFlags(r.s, r.costA, r.costB).costBOutside;
   const outsideTb = (r: Row) => outsideEv(r) || outsideCost(r);
   const sel = focus != null ? rows[focus] : null;
 
