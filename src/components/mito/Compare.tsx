@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
@@ -348,7 +348,10 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                   <ResponsiveContainer>
                     <BarChart
                       data={etcRows.rows
-                        .map((r) => ({ name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, up: r.diff >= 0 }))
+                        .map((r) => {
+                          const pct = r.ra === 0 ? (r.rb === 0 ? 0 : 100) : (r.diff / Math.abs(r.ra)) * 100;
+                          return { name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, up: r.diff >= 0, pct, pctLabel: `${pct > 0 ? "+" : ""}${pct.toFixed(0)}%` };
+                        })
                         .sort((x, y) => y.share - x.share)}
                       layout="vertical"
                       margin={{ top: 4, right: 16, bottom: 0, left: 4 }}
@@ -356,14 +359,18 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                       <XAxis type="number" domain={[0, 100]} stroke="var(--muted-foreground)" fontSize={10} unit="%" />
                       <YAxis type="category" dataKey="name" width={112} stroke="var(--muted-foreground)" fontSize={10} />
-                      <Tooltip {...tip} formatter={(v: number) => `${v.toFixed(0)}%`} />
+                      <Tooltip {...tip} formatter={(v: number, _n, item) => [`${v.toFixed(0)}% share, ${(item?.payload as { pctLabel?: string } | undefined)?.pctLabel ?? ""} B vs A`, "Driver share"]} />
                       <Bar dataKey="share" radius={[0, 3, 3, 0]}>
                         {etcRows.rows
-                          .map((r) => ({ name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, up: r.diff >= 0 }))
+                          .map((r) => {
+                            const pct = r.ra === 0 ? (r.rb === 0 ? 0 : 100) : (r.diff / Math.abs(r.ra)) * 100;
+                            return { name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, up: r.diff >= 0, pct };
+                          })
                           .sort((x, y) => y.share - x.share)
                           .map((d, i) => (
                             <Cell key={i} fill={d.up ? "var(--primary)" : "var(--destructive)"} />
                           ))}
+                        <LabelList dataKey="pctLabel" position="right" fontSize={10} fill="var(--muted-foreground)" />
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
