@@ -350,7 +350,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                     { name: `B: ${b.name}`, ...atpSplit(ob) },
                   ] as const).map((d) => ({ ...d, glycoLabel: `${d.glycolysisPct.toFixed(0)}% glycolysis` }))}
                   layout="vertical"
-                  margin={{ top: 4, right: 16, bottom: 0, left: 4 }}
+                  margin={{ top: 4, right: 76, bottom: 0, left: 4 }}
                   stackOffset="expand"
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
