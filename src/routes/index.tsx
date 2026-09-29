@@ -13,6 +13,7 @@ import { ReferenceLibrary } from "@/components/mito/ReferenceLibrary";
 import { Scenarios } from "@/components/mito/Scenarios";
 import { Compare } from "@/components/mito/Compare";
 import { Interpreter } from "@/components/mito/Interpreter";
+import { WarburgDashboard } from "@/components/mito/WarburgDashboard";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
@@ -107,6 +108,7 @@ function Index() {
             <TabsTrigger value="sim">Simulator</TabsTrigger>
             <TabsTrigger value="sens">Sensitivity</TabsTrigger>
             <TabsTrigger value="structure">Structure</TabsTrigger>
+            <TabsTrigger value="warburg">Warburg</TabsTrigger>
             <TabsTrigger value="library">Reference</TabsTrigger>
           </TabsList>
           <TabsContent value="sim" className="mt-4">
@@ -171,6 +173,9 @@ function Index() {
                 onSaved={() => setRefreshKey((k) => k + 1)}
               />
             </div>
+          </TabsContent>
+          <TabsContent value="warburg" className="mt-4">
+            <WarburgDashboard inputs={inputs} setInputs={setInputs} geo={geo} out={out} onOpenSimulator={() => { setTab("sim"); requestAnimationFrame(() => document.querySelector('[data-testid="glycolysis-readout"]')?.scrollIntoView({ behavior: "smooth", block: "center" })); }} />
           </TabsContent>
           <TabsContent value="library" className="mt-4">
             <ReferenceLibrary onWarburg={() => { selectTerm("warburg"); window.scrollTo({ top: 0 }); }} />
