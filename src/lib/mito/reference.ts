@@ -176,6 +176,11 @@ export type EtcStep = {
   ev: number; // energy released per electron, eV (1 V = 1 eV per electron)
   protons: number; // H+ pumped per electron pair
   note: string;
+  // Published range for the step's redox span (eV per electron), from the
+  // midpoint-potential spreads tabulated in Nicholls & Ferguson 2013, Table 3.1.
+  // Ranges reflect component-to-component and preparation variation, not fit data.
+  tbLo: number;
+  tbHi: number;
 };
 
 // Midpoint potentials E'm (mV, pH 7) from standard bioenergetics tables
