@@ -539,9 +539,9 @@ export function Organelle({
               const at = (y: number, dz: number): [number, number, number] => [fx + 0.22, y, z + dz];
               // key = etcSteps index, y = chain position, dz = fan-out so labels do not overlap
               const spots: [number, number, number, string][] = [
-                [0, a - 0.06, -0.12, "CI entry"], // CI entry
+                [0, a - 0.09, -0.12, "CI entry"], // CI entry
                 [1, a, 0.1, "CI Fe-S"], // CI Fe-S relay
-                [2, a + (b - a) * 0.4, -0.1, "CI to Q"], // CI to Q
+                [2, a + (b - a) * 0.5, -0.1, "CI to Q"], // CI to Q
                 [4, b, 0.12, "CIII Qo"], // CIII Qo
                 [6, b + (c - b) * 0.5, -0.1, "CIV CuA"], // CIV CuA / heme a
                 [7, c, 0.1, "CIV to O2"], // CIV to O2
