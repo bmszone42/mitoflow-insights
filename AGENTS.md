@@ -11,9 +11,9 @@
 
 ## Project rules
 
-- Keep redox math in `src/lib/mito/model.ts` with cited parameters for auditability.
-- Keep static references and ATP cost bands in `src/lib/mito/reference.ts`; network halos use live potential and leak against these bands without changing model math.
-- Workspace state lives in `src/routes/index.tsx`; components in `src/components/mito/`; scenarios in `src/lib/mito/scenarios.ts` include geometry, owner-only Cloud or signed-out IndexedDB, with legacy defaults for reproducibility.
+- Keep cited redox math in `src/lib/mito/model.ts` for auditability.
+- Keep shared bands in `src/lib/mito/reference.ts` and show them in `src/components/mito/Physiology.tsx`; shared bands align network and physiology flags without changing math.
+- Workspace state lives in `src/routes/index.tsx`; components in `src/components/mito/`; scenarios in `src/lib/mito/scenarios.ts` use owner-only Cloud or signed-out IndexedDB and legacy geometry defaults.
 
 - AI interpretation streams through `src/routes/api/interpret.ts`, keeping the gateway key server-side.
 - All AI routes (`/api/interpret`, `/api/suggest`, `/api/analyze-image`, `/api/explain-sensitivity`) go through `src/lib/mito/rate-limit.server.ts` (in-memory, per instance) so abuse limits live in one place; move to a database if strict limits are needed.
