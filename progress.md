@@ -534,3 +534,12 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] ✅ Compare and Warburg network halos flag pumping steps when live effective ATP cost falls outside the shared 0.50 to 0.62 eV/ATP band, as well as when redox eV falls outside its step range.
 - [x] ✅ Hover and click details show separate redox and live A/B cost ranges; non-pumping steps are exempt from ATP-cost warnings. Warburg preview: baseline zero halos; 30% uncoupling increases effective cost to 0.71 eV/ATP and flags four pumping/overall nodes with no page errors.
 - [ ] ❌ Effective cost under leak is a model proxy, not a measured step-specific interval; validate it against experimental ATP energetics before physiological interpretation.
+
+## AI ATP driver reference flags (2026-09-29)
+- [x] ✅ Compare sends each step's redox band, effective ATP cost for A and B, and out-of-range flags to the AI interpretation.
+- [x] ✅ AI names flagged steps, specifies which run is outside the band, and distinguishes published redox references from the model-derived effective ATP-cost proxy. The overall chain node is identified as a summary, not an independent step.
+- [x] ✅ Browser-verified Respiration versus Warburg shift at 30% uncoupling: four map halos, four flagged payload rows, and an AI reply naming CI Fe-S, CIII Qo, CIV to O₂, and the Overall node at 0.71 eV/ATP against 0.50 to 0.62. No page errors; typecheck clean.
+- [ ] ❌ Reference bands still require assay-specific validation before physiological or clinical interpretation.
+
+### Security before deployment
+- Keep the AI key server-side and retain per-request validation and rate limiting. Review owner-only access to saved interpretations and replace per-instance limits with shared limits before public deployment.
