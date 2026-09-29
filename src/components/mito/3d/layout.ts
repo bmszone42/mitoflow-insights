@@ -31,7 +31,11 @@ export type ViewPreset = "whole" | "crista" | "complex" | "fes";
 
 export function presetCamera(lay: Layout, v: ViewPreset): { pos: [number, number, number]; target: [number, number, number] } {
   const f = lay.focus;
-  if (v === "whole" || !f) return { pos: [0, 1.6, 6.6], target: [0, 0, 0] };
+  if (v === "whole" || !f) {
+    // Fit the organelle length into view with a 3/4 tilt so the cut face and folds both read.
+    const d = 1.4 * lay.L + 1.1;
+    return { pos: [lay.L * 0.16, d * 0.4, d * 0.9], target: [0, -0.08, 0] };
+  }
   if (v === "crista") {
     const y = lay.yAt(f, 0.5);
     return { pos: [f.x + 1.1, y + 0.35, 1.9], target: [f.x, y, 0.1] };
@@ -42,4 +46,21 @@ export function presetCamera(lay: Layout, v: ViewPreset): { pos: [number, number
   }
   const [x, y, z] = lay.fesPos;
   return { pos: [x + 0.12, y + 0.05, z + 0.1], target: [x, y, z] };
+}
+
+// Up to six callout anchors for the whole-organelle view, placed on surfaces the camera sees.
+export function wholeAnchors(lay: Layout): { text: string; p: [number, number, number] }[] {
+  const { L, r, gap, cristae, yAt } = lay;
+  const f = lay.focus;
+  const j = cristae[1] ?? f;
+  const last = cristae[cristae.length - 2] ?? f;
+  const out: { text: string; p: [number, number, number] }[] = [
+    { text: "Outer membrane", p: [L * 0.18, r + gap + 0.08, -0.35] },
+  ];
+  if (j) out.push({ text: "Crista junction", p: [j.x, j.top ? r : -r, 0] });
+  if (f) out.push({ text: "Crista, ETC complexes", p: [f.x, yAt(f, 0.45), 0] });
+  if (last) out.push({ text: "ATP synthase dimers", p: [last.x, yAt(last, 1), 0] });
+  out.push({ text: "mtDNA nucleoid", p: [-L * 0.28, 0, -r * 0.25] });
+  out.push({ text: "TCA / aconitase Fe-S", p: [-L * 0.05, 0, r * 0.1] });
+  return out.slice(0, 6);
 }
