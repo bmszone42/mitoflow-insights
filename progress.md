@@ -484,3 +484,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] Verified in preview: box visible with live value, click scrolls to readout, zero page errors; typecheck clean.
 
 - ✅ Compare AI driver reply saved to the signed-in account (owner-only table driver_ai_replies), browser copy kept as fallback
+
+## Green/amber yield colors on the Compare step table (2026-09-29)
+- [x] Each ETC step row in Compare now carries the same green/amber tone as the Simulator energetics table and the 3D labels: green when live ATP per pair is at or above the healthy default (160 mV, 5% uncoupling), amber below it.
+- [x] A and B yield cells are colored and dotted individually by their own scenario's uncoupling; the row's left border is amber when either run falls short, green when both are at or above standard.
+- [x] Caption under the table explains the tones; the top-driver row keeps its bg-primary/10 highlight and asterisk alongside the border color.
+- Verified in preview: Erastin + 660 nm (saved at 25% uncoupling, yields 0.75/0.38/1.88 amber) vs Respiration (default uncoupling, 0.95/0.47/2.38 green). Zero page errors, typecheck clean.
