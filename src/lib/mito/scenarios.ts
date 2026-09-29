@@ -34,12 +34,14 @@ async function userId(): Promise<string | null> {
 }
 
 /** Saved Compare AI driver reply for an A|B pair, in the signed-in account. Null when signed out. */
-export async function loadDriverReply(pairKey: string): Promise<string | null> {
+export async function loadDriverReply(pairKey: string): Promise<{ reply: string; updatedAt: number } | null> {
   const uid = await userId();
   if (!uid) return null;
-  const { data, error } = await supabase.from("driver_ai_replies").select("reply").eq("pair_key", pairKey).maybeSingle();
+  const { data, error } = await supabase.from("driver_ai_replies").select("reply, updated_at").eq("pair_key", pairKey).maybeSingle();
   if (error) throw error;
-  return data?.reply ?? null;
+  if (!data?.reply) return null;
+  const ts = Date.parse(data.updated_at);
+  return { reply: data.reply, updatedAt: Number.isFinite(ts) ? ts : null ?? 0 };
 }
 
 export async function saveDriverReply(pairKey: string, reply: string): Promise<void> {
