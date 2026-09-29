@@ -427,6 +427,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                     </tr>
                   </tbody>
                 </table>
+                <p className="mt-1 text-[11px] text-muted-foreground">Green: live ATP per pair at or above the healthy default (160 mV, 5% uncoupling). Amber: below it. A row is amber when either run falls short.</p>
               </div>
               {etcRows && etcRows.totalAbs > 0 && (
                 <div className="h-72">
