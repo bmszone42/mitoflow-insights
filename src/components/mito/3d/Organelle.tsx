@@ -1,4 +1,4 @@
-import { RoundedBox } from "@react-three/drei";
+import { Html, RoundedBox } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -557,18 +557,20 @@ export function Organelle({
                 const okTone = la.proton >= std - 1e-9 && la.costEv <= ATP_COST_EV + 1e-9;
                 return (
                   <group key={text} position={at(y, dz)}>
-                    <Label3D text={text} position={[0, 0, 0]} size={0.02} tone={okTone ? "ok" : "warn"} />
-                    {onStepClick && (
-                      <mesh
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onStepClick(i);
-                        }}
+                    <Html center zIndexRange={[20, 0]} style={{ pointerEvents: onStepClick ? "auto" : "none" }}>
+                      <button
+                        type="button"
+                        onClick={() => onStepClick?.(i)}
+                        className="whitespace-nowrap rounded border px-1.5 py-0.5 font-mono text-[10px] shadow-sm backdrop-blur-sm"
+                        style={
+                          okTone
+                            ? { background: "rgba(8, 28, 25, 0.88)", borderColor: "rgba(78, 222, 174, 0.6)", color: "#e7fff7" }
+                            : { background: "rgba(40, 26, 6, 0.88)", borderColor: "rgba(255, 190, 92, 0.75)", color: "#ffe9c4" }
+                        }
                       >
-                        <sphereGeometry args={[0.08, 8, 8]} />
-                        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-                      </mesh>
-                    )}
+                        {text}
+                      </button>
+                    </Html>
                   </group>
                 );
               });
