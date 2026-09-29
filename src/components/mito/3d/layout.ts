@@ -42,7 +42,9 @@ export function presetCamera(lay: Layout, v: ViewPreset): { pos: [number, number
   }
   if (v === "complex") {
     const [x, y, z] = lay.ciPos;
-    return { pos: [x + 0.55, y + 0.08, z + 0.95], target: [x + 0.2, y + (lay.focus?.top ? -0.12 : 0.12), z] };
+    const ym = lay.yAt(f, 0.47);
+    return { pos: [x + 0.5, ym + 0.05, z + 1.05], target: [x + 0.2, ym, z] };
+    void y;
   }
   const [x, y, z] = lay.fesPos;
   return { pos: [x + 0.12, y + 0.05, z + 0.1], target: [x, y, z] };
