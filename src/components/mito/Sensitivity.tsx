@@ -31,7 +31,7 @@ import {
   type SensOutputKey,
 } from "@/lib/mito/model";
 import { sensitivityCsv } from "@/lib/mito/csv";
-import { etcSteps } from "@/lib/mito/reference";
+import { etcSteps, ironLightReferenceBands } from "@/lib/mito/reference";
 
 const tip = {
   contentStyle: {
@@ -142,6 +142,15 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
     return `color-mix(in oklch, var(--accent) ${Math.round(10 + t * 85)}%, transparent)`;
   };
   const fmtVal = (v: number) => (Math.abs(v) < 0.01 ? v.toExponential(1) : v.toPrecision(3));
+  const activeBand = mapOutput === "fesIntact" || mapOutput === "aconitaseActivity"
+    ? ironLightReferenceBands[mapOutput]
+    : null;
+  const flaggedCells = activeBand
+    ? grid.cells.flat().filter((c) => {
+        const pct = mapOutput === "fesIntact" ? (c.fesIntact ?? 0) * 100 : (c.aconitaseActivity ?? 0);
+        return pct < activeBand.lo || pct > activeBand.hi;
+      }).length
+    : 0;
 
   // Study points at 3 and 30 J/cm2 (Chen 2011, Huang 2013): nearest grid row
   // plus Fe-S erosion at that dose with the current non-light inputs.
@@ -569,10 +578,12 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
                     const clOx = c["cardiolipinOx"] ?? 0;
                     const committed = risk >= 100;
                     const primed = !committed && risk >= 50;
+                     const pct = mapOutput === "fesIntact" ? v * 100 : v;
+                     const outsideBand = activeBand !== null && (pct < activeBand.lo || pct > activeBand.hi);
                     return (
                       <div
                         key={`${ri}-${ci}`}
-                        title={`Fe ${(c["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(c["y"] ?? 0).toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${fmtVal(v)} · risk ${risk.toFixed(0)} · CL ox ${clOx.toFixed(1)}%${committed ? " · Committed" : primed ? " · Primed" : ""}`}
+                         title={`Fe ${(c["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(c["y"] ?? 0).toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${activeBand ? `${pct.toFixed(1)}%` : fmtVal(v)}${activeBand ? ` · reference ${activeBand.lo}–${activeBand.hi}% (${outsideBand ? "outside" : "inside"}; literature-informed cutoff)` : ""} · risk ${risk.toFixed(0)} · CL ox ${clOx.toFixed(1)}%${committed ? " · Committed" : primed ? " · Primed" : ""}`}
                         className="relative aspect-square rounded-[2px]"
                         style={{
                           background: cellColor(v),
@@ -581,6 +592,9 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
                           borderTop: studyBorder,
                         }}
                       >
+                         {outsideBand && (
+                           <span data-testid="iron-light-range-halo" className="pointer-events-none absolute inset-[2px] rounded-[2px] border-2 border-dashed border-destructive" aria-hidden="true" />
+                         )}
                         {committed && (
                           <span className="absolute inset-0 m-auto h-2 w-2 rounded-full bg-foreground" />
                         )}
@@ -611,6 +625,12 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
           {isRos ? " (log scale)" : ""}. The outlined cell is your current baseline. Hover any cell for
           exact values.
         </p>
+         <p className="mt-1 text-[11px] text-muted-foreground" data-testid="iron-light-range-legend">
+           <span className="mr-1 inline-block h-2.5 w-2.5 align-middle border-2 border-dashed border-destructive" aria-hidden="true" />
+           Red dashed halo: outside the {activeBand ? `${activeBand.label} ${activeBand.lo}–${activeBand.hi}% reference band (${flaggedCells} of ${grid.cells.flat().length} cells)` : "Fe-S or aconitase reference band (choose either output to view)"}.
+           These are literature-informed comparison cutoffs, not universal clinical ranges; Fe-S integrity is model-derived and aconitase activity varies by tissue and assay.
+           Scandroglio et al. (2014) report 63–98% aconitase inhibition at respiration-impact thresholds, not a 63% activity normal limit.
+         </p>
         <p className="mt-1 text-[11px] text-muted-foreground">
           Ferroptosis thresholds: filled dot = Committed (risk 100, propagation ratio 0.8 or 30%
           cardiolipin oxidized), ring = Primed (risk 50).{" "}

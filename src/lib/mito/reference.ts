@@ -136,6 +136,19 @@ export const fesClusters: FesEntry[] = [
   },
 ];
 
+// Literature-informed comparison bands, expressed against an intact/active
+// control (= 100%). These are visualization cutoffs, NOT universal published
+// physiological reference intervals: Fe-S intact fraction is a model-wide
+// latent variable without a single measured normal range, while aconitase
+// activity varies with tissue and assay. Scandroglio et al., Free Radic Res
+// 48:684-693 (2014), report respiration-impact thresholds at 63-98% *inhibition*
+// of aconitase, not a 63% activity lower limit. The 63% activity cutoff below
+// is a conservative display threshold, not that study's measured limit.
+export const ironLightReferenceBands = {
+  fesIntact: { lo: 80, hi: 100, label: "Fe-S intact", source: "Literature-informed model cutoff" },
+  aconitaseActivity: { lo: 63, hi: 100, label: "Aconitase", source: "Literature-informed activity cutoff" },
+} as const;
+
 export const ironSteps = [
   {
     step: "Uptake",
