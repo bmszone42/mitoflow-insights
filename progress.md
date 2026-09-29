@@ -457,3 +457,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] Glycolysis/resiration split helpers (atpSplit, phenotype, ATP_DEMAND) moved to module scope, shared by the chart and the AI interpretation payload.
 - [x] Driver share chart keeps the green/red direction bars with signed B-vs-A labels; verified with Glycolysis only vs Respiration (Overall NADH to O2 top driver, 51%, +1710%).
 - Verified in preview: Warburg view button, split chart (94% vs 5% glycolysis), zero page errors, build OK.
+
+## Glycolysis ATP readout on Simulator (2026-09-29)
+- [x] atpSplit / phenotype / ATP_DEMAND moved from Compare.tsx into src/lib/mito/reference.ts so Simulator and Compare share one estimate.
+- [x] EtcEnergyCard (Simulator tab) gained a "Glycolysis contribution to total ATP" readout: stacked respiration/glycolysis bar, both fluxes in µM/s, glycolysis % of demand, and a live phenotype label (respiration / Warburg shift / glycolysis only).
+- Verified in preview: default state shows 5% glycolysis; the Warburg shift preset flips it to 52% (respiration 24.9 vs glycolysis 26.8 µM/s). Zero page errors, typecheck clean.
