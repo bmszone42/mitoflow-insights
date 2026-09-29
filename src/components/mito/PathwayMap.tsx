@@ -216,9 +216,18 @@ export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs
       <div className="mt-3 space-y-2">
         {etcSteps.map((s, i) => {
           const atp = liveAtpPerPair(s, psi, unc);
+          const std = atpPerPair(s);
+          const ok = atp.proton >= std.proton - 1e-9;
+          const tone = ok ? "rgba(78, 222, 174, 0.6)" : "rgba(255, 190, 92, 0.75)";
+          const toneText = ok ? "#4EDEAE" : "#FFBE5C";
           const focused = focusStep === i;
           return (
-            <div key={s.step} data-testid={focused ? "step-detail" : undefined} className={focused ? "rounded-md border border-primary/70 bg-primary/10 p-2 -m-2" : undefined}>
+            <div
+              key={s.step}
+              data-testid={focused ? "step-detail" : undefined}
+              className={focused ? "rounded-md border border-primary/70 bg-primary/10 p-2 -m-2" : "rounded-md border-l-2 p-2"}
+              style={focused ? undefined : { borderLeftColor: tone }}
+            >
               {focused && <p className="mb-1 text-[11px] font-semibold text-primary">Selected from the 3D viewer. Live values follow the sliders.</p>}
               <div className="flex items-baseline justify-between gap-2 text-xs">
                 <span>
@@ -242,9 +251,11 @@ export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs
                 E'm {s.emDonor} → {s.emAcceptor} mV. {s.note}
               </p>
               <p className="mt-0.5 font-mono text-[11px]">
-                ATP yield per pair: <span className="text-primary">{atp.proton.toFixed(2)}</span> from protons
+                <span className="mr-1 inline-block size-1.5 rounded-full align-middle" style={{ background: tone }} aria-hidden />
+                ATP yield per pair: <span style={{ color: toneText }}>{atp.proton.toFixed(2)}</span> from protons
                 {" · "}
-                <span className="text-primary">{atp.energy.toFixed(2)}</span> from the eV drop
+                <span style={{ color: toneText }}>{atp.energy.toFixed(2)}</span> from the eV drop
+                <span className="text-muted-foreground"> · standard {std.proton.toFixed(2)}</span>
               </p>
             </div>
           );
