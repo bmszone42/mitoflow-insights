@@ -230,6 +230,15 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
               Presets only ({presetCount})
             </button>
           )}
+          {warburgPair && (
+            <button
+              className="rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted"
+              onClick={warburgView}
+              title="Loads the Glycolysis only preset as A and the Respiration preset as B"
+            >
+              Warburg view
+            </button>
+          )}
         </div>
         <div className="flex flex-wrap gap-3">
           {picker(aId, setA, "A")}
