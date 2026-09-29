@@ -401,3 +401,14 @@ export const ferroptosisNotes = [
     body: "Oxidized cardiolipin loosens cytochrome c binding; above roughly 10% oxidation cytochrome c release begins. Fe2+ decomposes lipid hydroperoxides into alkoxyl radicals, making propagation autocatalytic once it outpaces GPx4 and FSP1.",
   },
 ];
+
+/*
+ * Reference point for green/amber yield coloring: the model's healthy default
+ * state (160 mV, 5% uncoupling), not the ideal textbook stoichiometry.
+ */
+export const STD_PSI = 160;
+export const STD_UNCOUPLING = 0.05;
+export function stdAtpPerPair(s: EtcStep): { proton: number; energy: number } {
+  const y = liveAtpPerPair(s, STD_PSI, STD_UNCOUPLING);
+  return { proton: y.proton, energy: y.energy };
+}

@@ -558,7 +558,7 @@ export function Organelle({
               return spots.map(([i, y, dz, short]) => {
                 const s = etcSteps[i]!;
                 const la = liveAtpPerPair(s, psi, unc);
-                const std = atpPerPair(s).proton;
+                const std = stdAtpPerPair(s).proton;
                 const text = `${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${la.proton.toFixed(2)} ATP/pr · ${la.costEv.toFixed(2)} eV/ATP`;
                 return (
                   <group key={text} position={at(y, dz)}>
