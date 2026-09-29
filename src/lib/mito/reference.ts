@@ -291,6 +291,8 @@ export const etcSteps: EtcStep[] = [
     ev: 1.14,
     protons: 10,
     note: "1.14 eV per electron, about 52 kcal/mol per pair; roughly 40% is captured as ATP.",
+    tbLo: 1.1,
+    tbHi: 1.18,
   },
 ];
 
