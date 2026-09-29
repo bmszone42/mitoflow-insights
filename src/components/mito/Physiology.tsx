@@ -1,0 +1,123 @@
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import type { Inputs, Outputs } from "@/lib/mito/model";
+import {
+  ATP_COST_TEXTBOOK,
+  atpNetworkRangeFlags,
+  effectiveAtpCost,
+  etcSteps,
+  ironLightReferenceBands,
+  liveAtpPerPair,
+  poRatio,
+  STD_PSI,
+  STD_UNCOUPLING,
+} from "@/lib/mito/reference";
+import { StandardStateNote } from "./StandardState";
+
+export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
+  const cost = effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling);
+  const standardCost = effectiveAtpCost(STD_PSI, STD_UNCOUPLING);
+  const steps = etcSteps.map((step) => {
+    const flags = atpNetworkRangeFlags(step, standardCost, cost);
+    return { step, flags, flagged: flags.evOutside || flags.costBOutside };
+  });
+  const ironRows = [
+    { band: ironLightReferenceBands.fesIntact, value: out.fesIntact * 100 },
+    { band: ironLightReferenceBands.aconitaseActivity, value: out.aconitaseActivity },
+  ];
+  const flaggedSteps = steps.filter((row) => row.flagged).length;
+  const flaggedIron = ironRows.filter(({ band, value }) => value < band.lo || value > band.hi).length;
+
+  return (
+    <div className="space-y-6" data-testid="physiology-view">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4">
+        <div>
+          <div className="mono-label">Reference comparison</div>
+          <h2 className="mt-1 text-xl font-semibold">Physiology</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Current Simulator settings against literature-informed reference bands.</p>
+        </div>
+        <div className={`flex items-center gap-2 font-mono text-sm ${flaggedSteps + flaggedIron ? "text-destructive" : "text-primary"}`} role="status">
+          {flaggedSteps + flaggedIron ? <AlertTriangle className="size-4" aria-hidden /> : <CheckCircle2 className="size-4" aria-hidden />}
+          {flaggedSteps + flaggedIron} outside range
+        </div>
+      </div>
+
+      <section aria-labelledby="physiology-general">
+        <h3 id="physiology-general" className="mb-3 text-sm font-semibold">Whole-mitochondrion reference</h3>
+        <StandardStateNote
+          psi={inputs.deltaPsi}
+          uncoupling={inputs.uncoupling}
+          poNadh={poRatio(inputs.deltaPsi, inputs.uncoupling, "nadh")}
+          poFadh={poRatio(inputs.deltaPsi, inputs.uncoupling, "fadh2")}
+        />
+      </section>
+
+      <section aria-labelledby="physiology-etc">
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h3 id="physiology-etc" className="text-sm font-semibold">Electron transport steps</h3>
+          <span className="font-mono text-xs text-muted-foreground">{flaggedSteps} / {steps.length} flagged</span>
+        </div>
+        <div className="overflow-x-auto border-y border-border">
+          <table className="w-full min-w-[840px] text-left text-xs" data-testid="physiology-steps">
+            <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground">
+              <tr>
+                <th scope="col" className="px-3 py-3 font-medium">Step / electron path</th>
+                <th scope="col" className="px-3 py-3 font-medium">Model drop</th>
+                <th scope="col" className="px-3 py-3 font-medium">Reference drop</th>
+                <th scope="col" className="px-3 py-3 font-medium">Live ATP / pair</th>
+                <th scope="col" className="px-3 py-3 font-medium">Effective ATP cost</th>
+                <th scope="col" className="px-3 py-3 font-medium">Status</th>
+                <th scope="col" className="px-3 py-3 font-medium">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              {steps.map(({ step, flags, flagged }) => (
+                <tr key={step.step} data-testid="physiology-step" data-outside={flagged} className={`border-t border-border/60 ${flagged ? "bg-destructive/10" : ""}`}>
+                  <th scope="row" className="px-3 py-3 font-medium text-foreground">
+                    {step.step}
+                    <div className="mt-0.5 font-normal text-muted-foreground">{step.donor} → {step.acceptor}</div>
+                  </th>
+                  <td className={`px-3 py-3 font-mono ${flags.evOutside ? "text-destructive" : "text-primary"}`}>{step.ev.toFixed(3)} eV</td>
+                  <td className="px-3 py-3 font-mono">{step.tbLo.toFixed(2)}–{step.tbHi.toFixed(2)} eV</td>
+                  <td className="px-3 py-3 font-mono">{liveAtpPerPair(step, inputs.deltaPsi, inputs.uncoupling).proton.toFixed(2)}</td>
+                  <td className={`px-3 py-3 font-mono ${flags.costBOutside ? "text-destructive" : ""}`}>
+                    {step.protons > 0 ? <>{cost.toFixed(2)} eV/ATP <span className="block text-[10px] text-muted-foreground">ref {ATP_COST_TEXTBOOK.lo.toFixed(2)}–{ATP_COST_TEXTBOOK.hi.toFixed(2)}</span></> : "Not pumping"}
+                  </td>
+                  <td className={`px-3 py-3 font-medium ${flagged ? "text-destructive" : "text-primary"}`}>
+                    {flags.evOutside && flags.costBOutside ? "Drop + cost outside" : flags.evOutside ? "Drop outside" : flags.costBOutside ? "Cost outside" : "Within range"}
+                  </td>
+                  <td className="px-3 py-3 text-muted-foreground">Nicholls & Ferguson, <cite>Bioenergetics 4</cite> (2013), Table 3.1</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Redox drops are fixed model parameters, not live measurements. Live membrane potential and uncoupling change ATP yield and the effective cost proxy on pumping steps. The 0.50–0.62 eV/ATP band is an overall synthesis-energy estimate, not a measured per-step interval. Overall NADH to O₂ is a chain summary, not an additional reaction.
+        </p>
+      </section>
+
+      <section aria-labelledby="physiology-iron">
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h3 id="physiology-iron" className="text-sm font-semibold">Iron-sulfur integrity</h3>
+          <span className="font-mono text-xs text-muted-foreground">{flaggedIron} / {ironRows.length} flagged</span>
+        </div>
+        <div className="grid gap-0 border-y border-border sm:grid-cols-2 sm:divide-x sm:divide-border">
+          {ironRows.map(({ band, value }) => {
+            const flagged = value < band.lo || value > band.hi;
+            return (
+              <div key={band.label} data-testid="physiology-iron-row" data-outside={flagged} className={`p-4 ${flagged ? "bg-destructive/10" : ""}`}>
+                <div className="flex items-baseline justify-between gap-2">
+                  <h4 className="text-sm font-medium">{band.label}</h4>
+                  <span className={`font-mono text-sm ${flagged ? "text-destructive" : "text-primary"}`}>{value.toFixed(1)}%</span>
+                </div>
+                <p className="mt-1 font-mono text-xs text-muted-foreground">Display band: {band.lo}–{band.hi}% · {flagged ? "Outside" : "Within range"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{band.source}</p>
+              </div>
+            );
+          })}
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">Fe-S intact fraction is a model-wide latent quantity; aconitase depends on tissue and assay. These two bands are display cutoffs, not universal physiological or clinical reference intervals.</p>
+      </section>
+    </div>
+  );
+}
