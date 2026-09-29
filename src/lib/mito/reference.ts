@@ -195,6 +195,8 @@ export const etcSteps: EtcStep[] = [
     ev: 0.02,
     protons: 0,
     note: "NADH binds and reduces FMN; the small gap keeps flavin superoxide low at rest.",
+    tbLo: 0.0,
+    tbHi: 0.05,
   },
   {
     step: "Complex I Fe-S relay",
@@ -205,6 +207,8 @@ export const etcSteps: EtcStep[] = [
     ev: 0.26,
     protons: 4,
     note: "Electrons cross N3-N7 to N2; the ~0.26 eV drop drives the four pumped protons.",
+    tbLo: 0.2,
+    tbHi: 0.32,
   },
   {
     step: "Complex I to Q",
@@ -215,6 +219,8 @@ export const etcSteps: EtcStep[] = [
     ev: 0.13,
     protons: 0,
     note: "Two electrons plus two matrix protons reduce ubiquinone to ubiquinol.",
+    tbLo: 0.09,
+    tbHi: 0.17,
   },
   {
     step: "Complex II (FADH2)",
@@ -225,6 +231,8 @@ export const etcSteps: EtcStep[] = [
     ev: -0.06,
     protons: 0,
     note: "Slightly uphill; driven by succinate mass action, so no protons are pumped.",
+    tbLo: -0.1,
+    tbHi: -0.02,
   },
   {
     step: "Complex III Qo",
@@ -235,6 +243,8 @@ export const etcSteps: EtcStep[] = [
     ev: 0.19,
     protons: 4,
     note: "Q-cycle bifurcation: one electron to Rieske, one back to Qi; semiquinone here leaks O2•-.",
+    tbLo: 0.15,
+    tbHi: 0.24,
   },
   {
     step: "Cytochrome c shuttle",
@@ -245,6 +255,8 @@ export const etcSteps: EtcStep[] = [
     ev: -0.045,
     protons: 0,
     note: "Near-equilibrium shuttle; cardiolipin-bound cyt c is the ferroptosis peroxidase switch.",
+    tbLo: -0.08,
+    tbHi: 0.0,
   },
   {
     step: "Complex IV CuA / heme a",
@@ -255,6 +267,8 @@ export const etcSteps: EtcStep[] = [
     ev: 0.055,
     protons: 0,
     note: "CuA is the main 810 nm chromophore; heme a/a3 absorbs 660 nm.",
+    tbLo: 0.03,
+    tbHi: 0.09,
   },
   {
     step: "Complex IV to O2",
@@ -263,6 +277,8 @@ export const etcSteps: EtcStep[] = [
     emDonor: 290,
     emAcceptor: 820,
     ev: 0.53,
+    tbLo: 0.45,
+    tbHi: 0.6,
     protons: 2,
     note: "The largest drop; 2 H+ pumped plus 2 chemical H+ per pair. NO binds here and light releases it.",
   },
