@@ -320,6 +320,13 @@ export const etcSteps: EtcStep[] = [
  */
 export const H_PER_ATP = 4;
 export const ATP_COST_EV = 0.52;
+// Literature-informed ATP synthesis energy band (eV/ATP), used as a visual
+// reference for the network. Effective cost under leak is a model proxy, not
+// a directly measured step-specific textbook interval.
+export const ATP_COST_TEXTBOOK = { lo: 0.5, hi: 0.62 } as const;
+export function effectiveAtpCost(psi: number, uncoupling: number): number {
+  return ATP_COST_EV * (psi / STD_PSI) * (1 - STD_UNCOUPLING) / Math.max(1 - uncoupling, 1e-6);
+}
 export function atpPerPair(s: EtcStep): { proton: number; energy: number } {
   return {
     proton: s.protons / H_PER_ATP,

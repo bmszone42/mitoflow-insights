@@ -1,4 +1,4 @@
-import { ATP_COST_EV, STD_PSI, STD_UNCOUPLING, poRatio } from "@/lib/mito/reference";
+import { ATP_COST_EV, ATP_COST_TEXTBOOK, STD_PSI, STD_UNCOUPLING, poRatio } from "@/lib/mito/reference";
 
 /*
  * Standard state readout: shows the healthy-default values the green/amber
@@ -57,8 +57,8 @@ export function StandardStateNote({
       model: `${ATP_COST_EV.toFixed(2)} eV`,
       live: cost,
       liveText: `${cost.toFixed(2)} eV`,
-      lo: 0.5,
-      hi: 0.62,
+      lo: ATP_COST_TEXTBOOK.lo,
+      hi: ATP_COST_TEXTBOOK.hi,
       range: "0.50 to 0.62 eV (48 to 60 kJ/mol)",
       source: "Nicholls & Ferguson 2013; Rich 2003",
     },
