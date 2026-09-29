@@ -28,20 +28,21 @@ function Label3D({ text, position, size = 0.28, onClick, tone = "ok" }: { text: 
     context.scale(scale, scale);
     context.font = font;
     context.textBaseline = "middle";
-    context.fillStyle = "rgba(8, 28, 25, 0.9)";
-    context.strokeStyle = "rgba(78, 222, 174, 0.6)";
+    const warn = tone === "warn";
+    context.fillStyle = warn ? "rgba(40, 26, 6, 0.9)" : "rgba(8, 28, 25, 0.9)";
+    context.strokeStyle = warn ? "rgba(255, 190, 92, 0.75)" : "rgba(78, 222, 174, 0.6)";
     context.lineWidth = 1;
     context.beginPath();
     context.roundRect(0.5, 0.5, canvas.width / scale - 1, canvas.height / scale - 1, 5);
     context.fill();
     context.stroke();
-    context.fillStyle = "#e7fff7";
+    context.fillStyle = warn ? "#ffe9c4" : "#e7fff7";
     context.fillText(text, padX, canvas.height / scale / 2);
     const next = new THREE.CanvasTexture(canvas);
     next.colorSpace = THREE.SRGBColorSpace;
     next.minFilter = THREE.LinearFilter;
     return next;
-  }, [text]);
+  }, [text, tone]);
   useEffect(() => () => texture.dispose(), [texture]);
   const aspect = texture.image.width / texture.image.height;
   return (
@@ -557,10 +558,11 @@ export function Organelle({
               return spots.map(([i, y, dz, short]) => {
                 const s = etcSteps[i]!;
                 const la = liveAtpPerPair(s, psi, unc);
+                const std = atpPerPair(s).proton;
                 const text = `${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${la.proton.toFixed(2)} ATP/pr · ${la.costEv.toFixed(2)} eV/ATP`;
                 return (
                   <group key={text} position={at(y, dz)}>
-                    <Label3D text={text} position={[0, 0, 0]} size={0.028} />
+                    <Label3D text={text} position={[0, 0, 0]} size={0.028} tone={la.proton >= std - 1e-9 ? "ok" : "warn"} />
                     {onStepClick && (
                       <mesh
                         onClick={(e) => {
