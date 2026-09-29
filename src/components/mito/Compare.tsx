@@ -29,6 +29,17 @@ const tip = {
   contentStyle: { background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 },
 };
 
+// Estimate: glycolysis covers any shortfall below the default-condition ATP demand, with a 5% basal floor.
+const ATP_DEMAND = simulate(defaultInputs).atpFlux;
+function atpSplit(o: Outputs) {
+  const glyco = Math.max(0.05 * ATP_DEMAND, ATP_DEMAND - o.atpFlux);
+  const tot = glyco + o.atpFlux;
+  return { respiration: o.atpFlux, glycolysis: glyco, glycolysisPct: tot > 0 ? (glyco / tot) * 100 : 0 };
+}
+function phenotype(i: Inputs) {
+  return i.nadhRatio <= 0.1 && i.succinate <= 0.05 ? "glycolysis only" : i.nadhRatio < 0.4 && i.succinate < 0.4 ? "Warburg shift" : "respiration";
+}
+
 function Delta({ a, b }: { a: number; b: number }) {
   const d = b - a;
   const pct = a === 0 ? 0 : (d / Math.abs(a)) * 100;
@@ -54,6 +65,20 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
   // When "Presets only" is on, the pickers list just the scenarios saved from
   // preset buttons (tagged with their preset name).
   const shown = presetsOnly ? items.filter((s) => s.preset) : items;
+
+  // One-click Warburg comparison: glycolysis-only (A) vs respiration (B) presets.
+  const warburgPair = useMemo(() => {
+    const gly = items.find((s) => s.preset === "Glycolysis only");
+    const resp = items.find((s) => s.preset === "Respiration");
+    return gly && resp ? { gly: gly.id, resp: resp.id } : null;
+  }, [items]);
+
+  function warburgView() {
+    if (!warburgPair) return;
+    setPresetsOnly(true);
+    setA(warburgPair.gly);
+    setB(warburgPair.resp);
+  }
 
   useEffect(() => {
     listScenarios()
@@ -117,12 +142,8 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
           compare: {
             a: a.name.slice(0, 200), b: b.name.slice(0, 200), atpFluxA: oa.atpFlux, atpFluxB: ob.atpFlux,
             energy: (() => {
-              // Estimate: glycolysis covers any shortfall below the default-condition ATP demand, with a 5% basal floor.
-              const demand = simulate(defaultInputs).atpFlux;
-              const split = (o: Outputs) => { const glyco = Math.max(0.05 * demand, demand - o.atpFlux); const tot = glyco + o.atpFlux; return { respiration: o.atpFlux, glycolysis: glyco, glycolysisPct: tot > 0 ? (glyco / tot) * 100 : 0 }; };
               const dir = (x: number, y: number) => (y - x > 1e-9 ? "up" : y - x < -1e-9 ? "down" : "none");
-              const phen = (i: Inputs) => (i.nadhRatio <= 0.1 && i.succinate <= 0.05 ? "glycolysis only" : i.nadhRatio < 0.4 && i.succinate < 0.4 ? "Warburg shift" : "respiration");
-              return { a: split(oa), b: split(ob), nadhDirection: dir(ia.nadhRatio, ib.nadhRatio), succinateDirection: dir(ia.succinate, ib.succinate), phenotypeA: phen(ia), phenotypeB: phen(ib) };
+              return { a: atpSplit(oa), b: atpSplit(ob), nadhDirection: dir(ia.nadhRatio, ib.nadhRatio), succinateDirection: dir(ia.succinate, ib.succinate), phenotypeA: phenotype(ia), phenotypeB: phenotype(ib) };
             })(),
             steps: etcRows.rows.map((r) => ({
               step: r.s.step.slice(0, 80), ev: r.s.ev, atpPerPairA: r.ya, atpPerPairB: r.yb, rateA: r.ra, rateB: r.rb,
@@ -207,6 +228,15 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
               onClick={() => setPresetsOnly(!presetsOnly)}
             >
               Presets only ({presetCount})
+            </button>
+          )}
+          {warburgPair && (
+            <button
+              className="rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted"
+              onClick={warburgView}
+              title="Loads the Glycolysis only preset as A and the Respiration preset as B"
+            >
+              Warburg view
             </button>
           )}
         </div>
@@ -305,6 +335,36 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
               </table>
             </div>
             {(!a.geometry || !b.geometry) && <p className="mt-2 text-xs text-muted-foreground">Older scenarios without a saved shape use the default membrane shape.</p>}
+          </div>
+
+          <div className="mt-4 border-t border-border pt-3">
+            <div className="mono-label mb-1">ATP source split</div>
+            <p className="mb-2 text-xs text-muted-foreground">
+              Estimated share of ATP demand met by respiration versus glycolysis for each run. Phenotype label: {phenotype(ia)} (A) vs {phenotype(ib)} (B). Glycolysis covers any shortfall below the default-condition ATP demand, with a 5% basal floor; it is an estimate, not a measured lactate rate.
+            </p>
+            <div className="h-40 max-w-xl">
+              <ResponsiveContainer>
+                <BarChart
+                  data={([
+                    { name: `A: ${a.name}`, ...atpSplit(oa) },
+                    { name: `B: ${b.name}`, ...atpSplit(ob) },
+                  ] as const).map((d) => ({ ...d, glycoLabel: `${d.glycolysisPct.toFixed(0)}% glycolysis` }))}
+                  layout="vertical"
+                  margin={{ top: 4, right: 76, bottom: 0, left: 4 }}
+                  stackOffset="expand"
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                  <XAxis type="number" stroke="var(--muted-foreground)" fontSize={10} tickFormatter={(v) => `${Math.round(v * 100)}%`} />
+                  <YAxis type="category" dataKey="name" width={150} stroke="var(--muted-foreground)" fontSize={10} />
+                  <Tooltip {...tip} formatter={(v: number, n) => [Number(v).toPrecision(3), n]} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="respiration" name="Respiration ATP" stackId="s" fill="var(--primary)" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="glycolysis" name="Glycolysis ATP" stackId="s" fill="var(--accent)" radius={[0, 3, 3, 0]}>
+                    <LabelList dataKey="glycoLabel" position="right" fontSize={10} fill="var(--muted-foreground)" />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           <div className="mt-4 border-t border-border pt-3">

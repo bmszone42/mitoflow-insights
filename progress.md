@@ -450,3 +450,10 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] Verified in preview with Erastin + 660 nm vs RSL3 + 810 nm; zero page errors
 
 - ✅ Compare AI payload carries glycolysis vs respiration ATP split (estimate), NADH/succinate direction, and Warburg phenotype per scenario
+
+## Warburg comparison view (2026-09-29)
+- [x] Compare header gained a "Warburg view" button: loads the Glycolysis only preset as A and the Respiration preset as B (appears only when both presets are saved).
+- [x] New "ATP source split" section in Compare: stacked percent bars of respiration vs glycolysis ATP for A and B, with phenotype labels and the estimate caveat (5% basal floor, not a measured lactate rate).
+- [x] Glycolysis/resiration split helpers (atpSplit, phenotype, ATP_DEMAND) moved to module scope, shared by the chart and the AI interpretation payload.
+- [x] Driver share chart keeps the green/red direction bars with signed B-vs-A labels; verified with Glycolysis only vs Respiration (Overall NADH to O2 top driver, 51%, +1710%).
+- Verified in preview: Warburg view button, split chart (94% vs 5% glycolysis), zero page errors, build OK.
