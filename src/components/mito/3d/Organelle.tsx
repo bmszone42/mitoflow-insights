@@ -558,11 +558,13 @@ export function Organelle({
               return spots.map(([i, y, dz, short]) => {
                 const s = etcSteps[i]!;
                 const la = liveAtpPerPair(s, psi, unc);
-                const std = stdAtpPerPair(s).proton;
+                const stdRef = stdAtpPerPair(s);
                 const text = `${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${la.proton.toFixed(2)} ATP/pr · ${la.costEv.toFixed(2)} eV/ATP`;
+                // amber when live yield drops below the healthy default OR the energy cost per ATP rises above the standard 0.52 eV
+                const okTone = la.proton >= stdRef.proton - 1e-9 && la.costEv <= stdRef.costEv + 1e-9;
                 return (
                   <group key={text} position={at(y, dz)}>
-                    <Label3D text={text} position={[0, 0, 0]} size={0.028} tone={la.proton >= std - 1e-9 ? "ok" : "warn"} />
+                    <Label3D text={text} position={[0, 0, 0]} size={0.028} tone={okTone ? "ok" : "warn"} />
                     {onStepClick && (
                       <mesh
                         onClick={(e) => {
