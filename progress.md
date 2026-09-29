@@ -529,3 +529,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] ✅ These are literature-informed visualization cutoffs, not published clinical normal intervals. Scandroglio et al. 2014 report 63–98% inhibition thresholds for aconitase effects on respiration, not a 63% activity normal limit. Model math is unchanged.
 - [x] ✅ AI map interpretation receives the selected band and flagged-cell count. Preview verified: default settings flag 0/441 cells for both outputs; with SNAP and minimum antioxidant capacity, Fe-S flags 441/441 and aconitase flags 294/441. No page errors; tsgo clean.
 - [ ] ❌ Validate Fe-S and aconitase reference cutoffs against assay-specific datasets before clinical use.
+
+## ATP network live cost halos (2026-09-29)
+- [x] ✅ Compare and Warburg network halos flag pumping steps when live effective ATP cost falls outside the shared 0.50 to 0.62 eV/ATP band, as well as when redox eV falls outside its step range.
+- [x] ✅ Hover and click details show separate redox and live A/B cost ranges; non-pumping steps are exempt from ATP-cost warnings. Warburg preview: baseline zero halos; 30% uncoupling increases effective cost to 0.71 eV/ATP and flags four pumping/overall nodes with no page errors.
+- [ ] ❌ Effective cost under leak is a model proxy, not a measured step-specific interval; validate it against experimental ATP energetics before physiological interpretation.

@@ -11,13 +11,11 @@
 
 ## Project rules
 
-- The whole redox model lives in `src/lib/mito/model.ts` as pure functions with a cited parameter
-  block, so numbers stay auditable in one place.
-- Static domain content lives in `src/lib/mito/reference.ts`, separate from the model, so reference
-  text can change without touching the math.
-- Workspace UI keeps inputs and shape in `src/routes/index.tsx`, with components under `src/components/mito/`; `src/lib/mito/scenarios.ts` stores whole scenarios, including geometry, in owner-only Cloud rows or signed-out IndexedDB, with a default shape for legacy rows so comparisons remain reproducible.
+- Keep redox math in `src/lib/mito/model.ts` with cited parameters for auditability.
+- Keep static references and ATP cost bands in `src/lib/mito/reference.ts`; network halos use live potential and leak against these bands without changing model math.
+- Workspace state lives in `src/routes/index.tsx`; components in `src/components/mito/`; scenarios in `src/lib/mito/scenarios.ts` include geometry, owner-only Cloud or signed-out IndexedDB, with legacy defaults for reproducibility.
 
-- AI interpretation runs through one streaming server route `src/routes/api/interpret.ts` (Responses API, openai/gpt-6-astra) so the gateway key stays server-side.
+- AI interpretation streams through `src/routes/api/interpret.ts`, keeping the gateway key server-side.
 - All AI routes (`/api/interpret`, `/api/suggest`, `/api/analyze-image`, `/api/explain-sensitivity`) go through `src/lib/mito/rate-limit.server.ts` (in-memory, per instance) so abuse limits live in one place; move to a database if strict limits are needed.
 - `inputRanges` in `src/lib/mito/model.ts` is the source of slider ranges for clamping AI suggestions and for comparison labels.
 - Micrograph analysis runs through `src/routes/api/analyze-image.ts` (Responses API, image sent inline as a resized JPEG data URL, never stored server side); Structure geometry state lives in `src/routes/index.tsx` and `geometryRanges` in `model.ts` clamps AI geometry suggestions.
