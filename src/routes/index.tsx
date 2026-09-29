@@ -151,7 +151,7 @@ function Index() {
           </TabsContent>
           <TabsContent value="sens" className="mt-4">
             <div className="mb-4">
-              <PathwayMap out={out} inputs={inputs} highlight={mapTerm ? (mapTerm.id === "warburg" ? ["nadh", "succ", "etc"] : [mapTerm.id]) : []} source={undefined} onSelect={selectTerm} />
+              <PathwayMap out={out} inputs={inputs} highlight={mapTerm ? (mapTerm.id === "warburg" ? ["nadh", "succ", "etc", "glyco"] : [mapTerm.id]) : []} source={undefined} onSelect={selectTerm} />
             </div>
             <Sensitivity inputs={inputs} geo={geo} term={mapTerm} onDriverClick={(k) => { const p = DRIVER_PART[k]; if (p) { setPicked(p); setTab("structure"); window.scrollTo({ top: 0 }); } }} onSaved={() => setRefreshKey((k) => k + 1)} />
           </TabsContent>
