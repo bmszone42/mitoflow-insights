@@ -8,6 +8,7 @@ import { Organelle, type Overlay } from "./3d/Organelle";
 import { PAL } from "./3d/parts";
 import { partInfo, type PartId } from "./3d/info";
 import { layout, presetCamera, type ViewPreset } from "./3d/layout";
+import { ATP_COST_EV, STD_PSI, STD_UNCOUPLING } from "@/lib/mito/reference";
 
 export type { Overlay };
 
