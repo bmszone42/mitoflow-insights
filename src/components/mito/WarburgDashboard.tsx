@@ -161,11 +161,12 @@ export function WarburgDashboard({
       <div className="rounded-lg border border-border bg-card p-4">
         <h3 className="text-sm font-semibold">ETC steps, live ATP per pair</h3>
         <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {rows.map((r) => (
+          {rows.map((r, i) => (
             <div
               key={r.step}
               data-testid="warburg-step"
-              className="rounded-md border border-border px-3 py-2 text-xs"
+              data-selected={netFocus === i}
+              className={`rounded-md border border-border px-3 py-2 text-xs ${netFocus === i ? "bg-primary/10 ring-1 ring-primary" : ""}`}
               style={{ borderLeft: `3px solid ${r.ok ? GREEN : AMBER}` }}
             >
               <div className="font-medium">{r.step}</div>
