@@ -433,7 +433,16 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                     </tr>
                   </tbody>
                 </table>
-                <p className="mt-1 text-[11px] text-muted-foreground">Green: live ATP per pair at or above the healthy default (160 mV, 5% uncoupling). Amber: below it. A row is amber when either run falls short.</p>
+                <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-block h-2 w-2 rounded-full" style={{ background: "rgba(78,222,174,0.6)" }} />
+                    live ATP per pair at or above the healthy default (160 mV, 5% uncoupling)
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-block h-2 w-2 rounded-full" style={{ background: "rgba(255,190,92,0.75)" }} />
+                    below it; a row turns amber when either run falls short
+                  </span>
+                </div>
               </div>
               {etcRows && etcRows.totalAbs > 0 && (
                 <div className="h-72">

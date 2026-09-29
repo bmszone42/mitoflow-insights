@@ -509,3 +509,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ New StandardStateNote component shows the values the green/amber coloring is compared against: 160 mV membrane potential, 5% uncoupling, 0.52 eV/ATP, next to the live slider values and an "at standard, labels green" indicator.
 - ✅ Placed in the Simulator Steady state card and in the 3D viewer legend (Complex close-up), both reading from the shared STD_PSI / STD_UNCOUPLING / ATP_COST_EV constants so they can never drift from the actual comparison.
 - ✅ Verified in preview: both readouts show 160 mV / 5% / 0.52 eV/ATP at defaults with live values matching; zero page errors, typecheck clean.
+
+## Compare step table legend (2026-09-29)
+- ✅ The Compare step table now has a dot legend matching the 3D viewer legend: a green dot with "live ATP per pair at or above the healthy default (160 mV, 5% uncoupling)" and an amber dot with "below it; a row turns amber when either run falls short". Colors are the same rgba values as the 3D legend (green rgba(78,222,174,0.6), amber rgba(255,190,92,0.75)).
+- ✅ Verified in preview with the seeded Respiration vs RSL3 + 810 nm pair: both dots and texts render, zero page errors.
