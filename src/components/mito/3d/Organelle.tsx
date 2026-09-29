@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { Geometry, GeometryEffects, Inputs, Outputs } from "@/lib/mito/model";
-import { etcSteps, liveAtpPerPair } from "@/lib/mito/reference";
+import { etcSteps, liveAtpPerPair, atpPerPair } from "@/lib/mito/reference";
 import { FeSCluster, Inst, PAL, ramp, type Xf } from "./parts";
 import type { PartId } from "./info";
 import type { Crista, Layout } from "./layout";
