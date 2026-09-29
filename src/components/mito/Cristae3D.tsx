@@ -7,7 +7,8 @@ import type { Geometry, GeometryEffects, Inputs, Outputs } from "@/lib/mito/mode
 import { Organelle, type Overlay } from "./3d/Organelle";
 import { PAL } from "./3d/parts";
 import { partInfo, type PartId } from "./3d/info";
-import { layout, presetCamera, type ViewPreset } from "./3d/layout";
+import { layout, presetCamera, wholeAnchors, type ViewPreset } from "./3d/layout";
+import { CalloutProjector, type CalloutEls } from "./3d/look";
 import { ATP_COST_EV, STD_PSI, STD_UNCOUPLING } from "@/lib/mito/reference";
 
 export type { Overlay };
@@ -69,28 +70,76 @@ export default function Cristae3D({ geo, ge, out, overlay, onPick, selected, inp
   }, [selected]);
   const goal = useMemo(() => ({ ...presetCamera(lay, view), n }), [lay, view, n]);
   const info = sel ? partInfo(sel, out, ge) : null;
+  const anchors = useMemo(() => wholeAnchors(lay), [lay]);
+  const calloutEls = useRef<CalloutEls>([]);
+  const showCallouts = labels && view === "whole";
 
   return (
     <div className="relative h-[460px] w-full overflow-hidden rounded-md sm:h-[560px]">
-      <Canvas dpr={[1, 2]} camera={{ position: [0, 1.6, 6.6], fov: 42, near: 0.01, far: 60 }} aria-label="3D mitochondrion" onPointerMissed={() => setSel(null)}>
+      <Canvas
+        dpr={[1, 2]}
+        gl={{ toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.1, antialias: true }}
+        camera={{ position: [0.7, 2.7, 6.1], fov: 42, near: 0.01, far: 60 }}
+        aria-label="3D mitochondrion"
+        onPointerMissed={() => setSel(null)}
+      >
         <color attach="background" args={[PAL.bg]} />
-        <fog attach="fog" args={[PAL.bg, 8, 20]} />
-        <ambientLight intensity={0.45} />
-        <directionalLight position={[4, 6, 5]} intensity={1.6} />
-        <pointLight position={[-4, -2, 3]} intensity={5} color="#ff9bd0" distance={12} />
-        <pointLight position={[3, 1, 2]} intensity={3} color="#9fd8ff" distance={10} />
-        <Environment resolution={64}>
-          <Lightformer intensity={2} position={[0, 5, 0]} scale={[10, 10, 1]} />
-          <Lightformer intensity={1} color="#fcb" position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
-          <Lightformer intensity={0.8} color="#9df" position={[5, -1, 1]} rotation-y={-Math.PI / 2} scale={[20, 1, 1]} />
+        <fog attach="fog" args={[PAL.bg, 9, 22]} />
+        <hemisphereLight args={["#fff1ea", "#0b2a24", 0.55]} />
+        <directionalLight position={[3, 6, 6]} intensity={1.7} color="#fff4ec" />
+        <directionalLight position={[-5, 2, -6]} intensity={1.3} color="#7fd6ff" />
+        <pointLight position={[0, -3, 3]} intensity={2} color="#ffb59c" distance={12} />
+        <Environment resolution={128}>
+          <Lightformer intensity={2.2} position={[0, 5, 2]} scale={[10, 6, 1]} />
+          <Lightformer intensity={1} color="#ffd2c0" position={[-6, 1, 0]} rotation-y={Math.PI / 2} scale={[20, 2, 1]} />
+          <Lightformer intensity={1.2} color="#8fdcff" position={[6, 0, -2]} rotation-y={-Math.PI / 2} scale={[20, 2, 1]} />
+          <Lightformer form="ring" intensity={0.8} color="#ffffff" position={[0, 0, -8]} scale={4} />
         </Environment>
-        <Organelle geo={geo} ge={ge} out={out} overlay={overlay} lay={lay} labels={labels && view === "whole"} evLabels={view === "complex"} onPick={setSel} inputs={inputs} onStepClick={onStepClick} />
+        <Organelle geo={geo} ge={ge} out={out} overlay={overlay} lay={lay} detail={view !== "whole"} evLabels={view === "complex"} onPick={setSel} inputs={inputs} onStepClick={onStepClick} />
+        {showCallouts && <CalloutProjector anchors={anchors} els={calloutEls} />}
         <OrbitControls enablePan={false} minDistance={0.08} maxDistance={12} makeDefault />
         <CameraRig goal={goal} />
         <EffectComposer multisampling={0}>
           <Bloom mipmapBlur intensity={0.85} luminanceThreshold={1.1} luminanceSmoothing={0.25} resolutionScale={0.5} />
         </EffectComposer>
       </Canvas>
+
+      {showCallouts && (
+        <div className="pointer-events-none absolute inset-0" data-testid="callouts">
+          <svg className="absolute inset-0 h-full w-full">
+            {anchors.map((a, i) => (
+              <g key={a.text}>
+                <line
+                  ref={(el) => {
+                    calloutEls.current[i] = { ...(calloutEls.current[i] ?? { box: null, dot: null }), line: el };
+                  }}
+                  stroke="var(--primary)"
+                  strokeOpacity={0.55}
+                  strokeWidth={1}
+                />
+                <circle
+                  ref={(el) => {
+                    calloutEls.current[i] = { ...(calloutEls.current[i] ?? { box: null, line: null }), dot: el };
+                  }}
+                  r={2.5}
+                  fill="var(--primary)"
+                />
+              </g>
+            ))}
+          </svg>
+          {anchors.map((a, i) => (
+            <div
+              key={a.text}
+              ref={(el) => {
+                calloutEls.current[i] = { ...(calloutEls.current[i] ?? { line: null, dot: null }), box: el };
+              }}
+              className="absolute left-0 top-0 whitespace-nowrap rounded border border-border bg-card/85 px-1.5 py-0.5 font-mono text-[11px] text-foreground shadow-sm backdrop-blur-sm"
+            >
+              {a.text}
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="absolute left-2 top-2 flex flex-wrap gap-1">
         {PRESETS.map(([k, l]) => (
