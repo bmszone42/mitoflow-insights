@@ -1,4 +1,4 @@
-import { ATP_COST_EV, STD_PSI, STD_UNCOUPLING } from "@/lib/mito/reference";
+import { ATP_COST_EV, STD_PSI, STD_UNCOUPLING, poRatio } from "@/lib/mito/reference";
 
 /*
  * Standard state readout: shows the healthy-default values the green/amber
@@ -66,7 +66,7 @@ export function StandardStateNote({
   if (poNadh != null)
     refs.push({
       label: "P/O (NADH)",
-      model: "2.38",
+      model: poRatio(STD_PSI, STD_UNCOUPLING, "nadh").toFixed(2),
       live: poNadh,
       liveText: poNadh.toFixed(2),
       lo: 2.3,
@@ -77,7 +77,7 @@ export function StandardStateNote({
   if (poFadh != null)
     refs.push({
       label: "P/O (FADH2)",
-      model: "1.43",
+      model: poRatio(STD_PSI, STD_UNCOUPLING, "fadh2").toFixed(2),
       live: poFadh,
       liveText: poFadh.toFixed(2),
       lo: 1.4,

@@ -518,3 +518,5 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ New "Glycolysis vs respiration" card under Steady state: stacked respiration/glycolysis ATP bar, phenotype badge with glycolysis share %, top 3 driver shares vs the healthy baseline with green/red direction bars
 - ✅ Same estimates and baseline as the Warburg dashboard tab, so numbers always match
 - ✅ Verified in preview: default 5% glycolysis, Warburg shift preset flips to 52% with driver shares 50/20/20; zero page errors; tsgo clean
+
+- [x] ✅ Standard state readout shows published textbook ranges (membrane potential, proton leak, ATP cost, P/O) with live in/out-of-range coloring
