@@ -521,3 +521,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 
 - [x] ✅ Standard state readout shows published textbook ranges (membrane potential, proton leak, ATP cost, P/O) with live in/out-of-range coloring
 - [x] ✅ ATP driver network map in Compare (nodes sized by gap share, green/red direction, click to highlight table row)
+- [x] ✅ Graphics overhaul: 3D translucent lipid membranes with rim light, section caps showing double membrane, grainy matrix, studio lighting, detail by zoom level, leader-line callouts, crisp close-up step tags; illustrated 2D cross section

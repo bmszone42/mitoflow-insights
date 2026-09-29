@@ -8,6 +8,7 @@ import { geometryEffects, geometryRanges, simulate, type Geometry, type Inputs, 
 import type { Overlay } from "./Cristae3D";
 
 const Cristae3D = lazy(() => import("./Cristae3D"));
+import { CrossSection } from "./CrossSection";
 
 const complexInfo: Record<string, { title: string; body: string }> = {
   CI: {
@@ -78,15 +79,6 @@ export function StructureModeler({
   }, [geo]);
 
   const cristaeDensity = (geo.cristaeCount / (geo.length / 100)).toFixed(1);
-  const rosOpacity = Math.min(0.9, 0.12 + out.redoxStress / 120);
-  const glow = Math.min(1, out.emission71THz / 110);
-
-  const cristae = Array.from({ length: geo.cristaeCount }, (_, k) => {
-    const spacing = geo.length / (geo.cristaeCount + 1);
-    const x = 60 + spacing * (k + 1);
-    const fromTop = k % 2 === 0;
-    return { x, fromTop, key: k };
-  });
 
   const setGeoKey = (k: keyof Geometry, v: number) => setGeo({ ...geo, [k]: v });
 
@@ -224,119 +216,7 @@ export function StructureModeler({
               </Badge>
             </div>
           </div>
-          <svg
-            viewBox={`0 0 ${geo.length + 120} ${geo.matrixWidth + 120}`}
-            className="mt-3 w-full"
-            role="img"
-            aria-label="Cross section of a mitochondrion with cristae and respiratory complexes"
-          >
-            <defs>
-              <linearGradient id="matrixFill" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="var(--color-secondary)" />
-                <stop offset="100%" stopColor="var(--color-card)" />
-              </linearGradient>
-              <radialGradient id="rosField">
-                <stop offset="0%" stopColor="var(--color-warning)" stopOpacity={rosOpacity} />
-                <stop offset="100%" stopColor="var(--color-warning)" stopOpacity={0} />
-              </radialGradient>
-              <filter id="soft">
-                <feGaussianBlur stdDeviation="3" />
-              </filter>
-            </defs>
-
-            <rect
-              x="20"
-              y="20"
-              width={geo.length + 80}
-              height={geo.matrixWidth + 80}
-              rx="90"
-              fill="none"
-              stroke="var(--color-border)"
-              strokeWidth="3"
-            />
-            <rect
-              x="40"
-              y="40"
-              width={geo.length + 40}
-              height={geo.matrixWidth + 40}
-              rx="70"
-              fill="url(#matrixFill)"
-              stroke="var(--color-primary)"
-              strokeOpacity={0.35 + glow * 0.5}
-              strokeWidth="3"
-            />
-
-            {showRos && (
-              <circle
-                cx={(geo.length + 120) / 2}
-                cy={(geo.matrixWidth + 120) / 2}
-                r={geo.matrixWidth * 0.7}
-                fill="url(#rosField)"
-                filter="url(#soft)"
-              />
-            )}
-
-            {cristae.map((c) => {
-              const top = 40;
-              const bottom = geo.matrixWidth + 80;
-              const y1 = c.fromTop ? top + 12 : bottom - 12;
-              const y2 = c.fromTop ? top + 12 + geo.cristaeDepth : bottom - 12 - geo.cristaeDepth;
-              return (
-                <g key={c.key}>
-                  <path
-                    d={`M ${c.x - geo.junctionWidth / 2} ${y1} L ${c.x - geo.junctionWidth / 2} ${y2} Q ${c.x} ${y2 + (c.fromTop ? 18 : -18)} ${c.x + geo.junctionWidth / 2} ${y2} L ${c.x + geo.junctionWidth / 2} ${y1}`}
-                    fill="none"
-                    stroke="var(--color-primary)"
-                    strokeOpacity={0.55 + glow * 0.4}
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                  />
-                  {showComplexes &&
-                    ["CI", "CIII", "CIV", "CV"].map((cx, idx) => {
-                      const t = (idx + 1) / 5;
-                      const cy = y1 + (y2 - y1) * t;
-                      const colors: Record<string, string> = {
-                        CI: "var(--color-chart-1)",
-                        CIII: "var(--color-chart-4)",
-                        CIV: "var(--color-chart-2)",
-                        CV: "var(--color-chart-3)",
-                      };
-                      return (
-                        <circle
-                          key={cx}
-                          cx={c.x}
-                          cy={cy}
-                          r={selected === cx ? 6.5 : 4.5}
-                          fill={colors[cx]}
-                          opacity={selected === cx ? 1 : 0.75}
-                          className="cursor-pointer"
-                          onClick={() => setSelected(cx)}
-                        />
-                      );
-                    })}
-                </g>
-              );
-            })}
-
-            {showComplexes && (
-              <g
-                className="cursor-pointer"
-                onClick={() => setSelected("ISC")}
-                transform={`translate(${(geo.length + 120) / 2 - 26}, ${(geo.matrixWidth + 120) / 2 - 10})`}
-              >
-                <rect
-                  width="52"
-                  height="20"
-                  rx="6"
-                  fill="var(--color-accent)"
-                  opacity={selected === "ISC" ? 0.95 : 0.6}
-                />
-                <text x="26" y="14" textAnchor="middle" fontSize="10" fill="var(--color-background)">
-                  Fe-S
-                </text>
-              </g>
-            )}
-          </svg>
+          <CrossSection geo={geo} out={out} showRos={showRos} showComplexes={showComplexes} selected={selected} setSelected={setSelected} />
         </div>
 
         <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
