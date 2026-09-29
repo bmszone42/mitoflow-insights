@@ -29,6 +29,13 @@ const Body = z.object({
       baseline: z.object({ x: z.number(), y: z.number() }),
       shownOutput: z.string().max(40),
       shownGrid: z.array(z.array(z.number()).max(9)).max(9),
+      referenceBand: z.object({
+        label: z.string().max(40),
+        loPct: z.number(),
+        hiPct: z.number(),
+        flaggedCells: z.number().int().min(0).max(441),
+        totalCells: z.number().int().min(1).max(441),
+      }).optional(),
       outputs: z
         .array(
           z.object({
@@ -94,6 +101,7 @@ Write a concise explanation in Markdown with these sections:
 ## What the map shows (the main gradient direction and which input dominates, with numbers)
 ## Parameter interactions (synergy or antagonism per output, and the mechanism in the model, e.g. Fenton chemistry, NO photodissociation, chromophore-driven superoxide, Fe-S damage feedback)
 ## Implications for ROS and Fe-S (where oxidative damage risk and Fe-S loss are highest, and safe or risky regions for light dosing at a given iron load)
+When a reference band is provided, explain the red dashed halo and flagged-cell count. These are literature-informed display cutoffs, not universal published normal intervals; do not imply that the 63% aconitase activity floor is a published physiological range. Scandroglio et al. (2014) report 63–98% inhibition at respiration-impact thresholds, not a 63% activity normal limit.
 ## Nitric oxide and peroxynitrite (only when the NO block is present: how NO shifts the light dose at which oxidized cardiolipin crosses the 30% Committed threshold at the map's highest iron, and how the peroxynitrite driven Fe-S attack term changes Fe-S intact and aconitase across the NO levels given. The model has three separate Fe-S attack terms, one each for superoxide, H2O2 and peroxynitrite, so say which of them the numbers implicate. A null crossing dose means the threshold is never crossed within the mapped dose range.)
 ## Light pump energy (only when the light pump block is present: treat the absorbed photon as a separate energy source alongside the ETC. Compare the photon eV at 660 and 810 nm against each proton-pumping step's eV drop using the ratios given, state how many step-equivalents one photon carries, and relate the photon gain at baseline versus maximum mapped dose to the light-driven outputs on the map. Note that photon energy is absorbed by chromophores and converted to chemistry, not directly to proton pumping.)
 ## Caveats (steady-state lumping, estimated coefficients, percent changes hide absolute scale, the peroxynitrite and H2O2 Fe-S rate constants are effective and unfitted)
@@ -172,7 +180,7 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
           model: provider.responses("openai/gpt-6-astra"),
           system: map ? MAP_SYSTEM : SYSTEM,
           prompt: map
-            ? `x input: ${map.xLabel} from ${map.xRange[0]} to ${map.xRange[1]} (baseline ${map.baseline.x})\ny input: ${map.yLabel} from ${map.yRange[0]} to ${map.yRange[1]} (baseline ${map.baseline.y})\n\nBaseline inputs:\n${fmt(inputs)}\n\nPer-output interaction summary:\n${map.outputs
+            ? `x input: ${map.xLabel} from ${map.xRange[0]} to ${map.xRange[1]} (baseline ${map.baseline.x})\ny input: ${map.yLabel} from ${map.yRange[0]} to ${map.yRange[1]} (baseline ${map.baseline.y})\n\nBaseline inputs:\n${fmt(inputs)}\n\nReference halo: ${map.referenceBand ? `${map.referenceBand.label} ${map.referenceBand.loPct}–${map.referenceBand.hiPct}% (literature-informed visualization cutoff); ${map.referenceBand.flaggedCells} of ${map.referenceBand.totalCells} map cells outside band` : "none for this displayed output"}.\n\nPer-output interaction summary:\n${map.outputs
                 .map(
                   (o) =>
                     `${o.label}: base ${Number(o.base.toPrecision(4))}, x only ${o.xOnlyPct.toFixed(1)}%, y only ${o.yOnlyPct.toFixed(1)}%, both ${o.bothPct.toFixed(1)}%, synergy ${o.synergyPct.toFixed(1)}%, range ${Number(o.min.toPrecision(3))} to ${Number(o.max.toPrecision(3))}`,

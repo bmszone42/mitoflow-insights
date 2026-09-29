@@ -523,3 +523,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] ✅ ATP driver network map in Compare (nodes sized by gap share, green/red direction, click to highlight table row)
 - [x] ✅ Graphics overhaul: 3D translucent lipid membranes with rim light, section caps showing double membrane, grainy matrix, studio lighting, detail by zoom level, leader-line callouts, crisp close-up step tags; illustrated 2D cross section
 - [x] ✅ ATP driver network map on Warburg dashboard (healthy run A vs current run B)
+
+## Iron x light reference halos (2026-09-29)
+- [x] ✅ Sensitivity iron x light map marks Fe-S intact below 80% and aconitase activity below 63% with red dashed cell halos when that output is selected; each tooltip and legend names the band and count.
+- [x] ✅ These are literature-informed visualization cutoffs, not published clinical normal intervals. Scandroglio et al. 2014 report 63–98% inhibition thresholds for aconitase effects on respiration, not a 63% activity normal limit. Model math is unchanged.
+- [x] ✅ AI map interpretation receives the selected band and flagged-cell count. Preview verified: default settings flag 0/441 cells for both outputs; with SNAP and minimum antioxidant capacity, Fe-S flags 441/441 and aconitase flags 294/441. No page errors; tsgo clean.
+- [ ] ❌ Validate Fe-S and aconitase reference cutoffs against assay-specific datasets before clinical use.
