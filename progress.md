@@ -513,3 +513,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Compare step table legend (2026-09-29)
 - ✅ The Compare step table now has a dot legend matching the 3D viewer legend: a green dot with "live ATP per pair at or above the healthy default (160 mV, 5% uncoupling)" and an amber dot with "below it; a row turns amber when either run falls short". Colors are the same rgba values as the 3D legend (green rgba(78,222,174,0.6), amber rgba(255,190,92,0.75)).
 - ✅ Verified in preview with the seeded Respiration vs RSL3 + 810 nm pair: both dots and texts render, zero page errors.
+
+## Warburg summary card on the Simulator (2026-09-29)
+- ✅ New "Glycolysis vs respiration" card under Steady state: stacked respiration/glycolysis ATP bar, phenotype badge with glycolysis share %, top 3 driver shares vs the healthy baseline with green/red direction bars
+- ✅ Same estimates and baseline as the Warburg dashboard tab, so numbers always match
+- ✅ Verified in preview: default 5% glycolysis, Warburg shift preset flips to 52% with driver shares 50/20/20; zero page errors; tsgo clean
