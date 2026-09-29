@@ -435,3 +435,12 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Warburg presets: Respiration, Warburg shift (NADH 0.25, succinate 0.2), Glycolysis only (NADH 0.05, succinate 0), each saves a tagged scenario
 - ✅ Compare driver shares sent to AI (Interpret ATP drivers button, ATP change drivers section)
 - ✅ Warburg link: Reference panel button lights NADH/NAD+ and succinate boxes on the pathway map and outlines their tornado bars with a caption
+
+## 3D labels: live ATP cost in eV
+- [x] Complex close-up labels now show eV drop, live ATP per pair, and live ATP cost in eV together (e.g. "CI Fe-S +0.26 eV · 0.95 ATP/pr · 0.52 eV/ATP")
+- [x] Verified live: membrane potential 180 mV raises cost to 0.58 eV/ATP; uncoupling 0.25 drops ATP/pr to 0.75; zero page errors
+
+## Security (standing)
+- AI keys stay server-side in the gateway routes; AI routes rate-limited in memory per instance
+- Scenarios: owner-only RLS when signed in, IndexedDB when signed out; no PII stored
+- Before deployment: move rate limits to the database, review RLS policies, run dependency and security scans
