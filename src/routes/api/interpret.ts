@@ -30,6 +30,15 @@ const Body = z.object({
           z.object({
             step: z.string().max(80),
             ev: z.number(),
+             evRangeLo: z.number(),
+             evRangeHi: z.number(),
+             costA: z.number(),
+             costB: z.number(),
+             costRangeLo: z.number(),
+             costRangeHi: z.number(),
+             evOutside: z.boolean(),
+             costAOutside: z.boolean(),
+             costBOutside: z.boolean(),
             atpPerPairA: z.number(),
             atpPerPairB: z.number(),
             rateA: z.number(),
@@ -48,6 +57,7 @@ When a scenario comparison block is given, add a first section "## ATP change dr
 name the step with the largest driver share, say whether scenario B raised or lowered it, and rank the steps that together explain most of the gap.
 For each dominant step, say whether its change comes from the ATP yield per pair (membrane potential, uncoupling) or from electron flux through that complex (substrate supply, inhibition, light, NO).
 Driver shares are fractions of the total absolute per-step rate gap, not of whole-chain ATP flux. Label steps with zero share as not contributing.
+ Add "## Reference-range flags": name every step with an out-of-range eV drop or effective ATP cost, specifying A and/or B and the actual value and band. If none are flagged, say so explicitly. Do not infer a flag from driver share or ATP yield. The eV ranges are published redox reference bands, while the shared 0.50 to 0.62 eV/ATP band is literature-informed ATP synthesis energetics; effective cost under potential and leak is a model-derived proxy, not a measured step-specific physiological normal interval. The Overall NADH to O2 node summarizes the chain, not another independent step.
 When an energy source split is given, add "## Glycolysis vs respiration": state each phenotype, the glycolytic share in A and B, whether falling NADH or succinate (direction down) explains a Warburg-like shift, and note the split is an estimate, not a measured lactate flux.`;
 
 const SYSTEM = `You are a mitochondrial redox biologist interpreting a lumped steady-state model.
@@ -97,7 +107,7 @@ export const Route = createFileRoute("/api/interpret")({
             compare
               ? `\n\nScenario comparison (A = ${compare.a}, B = ${compare.b}). Whole chain ATP flux A ${compare.atpFluxA.toPrecision(4)}, B ${compare.atpFluxB.toPrecision(4)}.\nPer-step ATP drivers (step | eV | ATP/pair A, B | rate A, B | driver share % | direction):\n${compare.steps
                   .map((x) => `${x.step} | ${x.ev} | ${x.atpPerPairA.toFixed(2)}, ${x.atpPerPairB.toFixed(2)} | ${x.rateA.toPrecision(3)}, ${x.rateB.toPrecision(3)} | ${x.sharePct.toFixed(1)} | ${x.direction}`)
-                  .join("\n")}${
+                  .join("\n")}\nReference-range checks (step | redox drop eV and published band | effective ATP cost A, B and shared band eV/ATP | flags):\n${compare.steps.map((x) => `${x.step} | ${x.ev} [${x.evRangeLo}, ${x.evRangeHi}] | ${x.costA.toFixed(2)}, ${x.costB.toFixed(2)} [${x.costRangeLo.toFixed(2)}, ${x.costRangeHi.toFixed(2)}] | ${[x.evOutside ? "redox outside" : "", x.costAOutside ? "A cost outside" : "", x.costBOutside ? "B cost outside" : ""].filter(Boolean).join(", ") || "in range or non-pumping"}`).join("\n")}\nFlagged steps: ${compare.steps.filter((x) => x.evOutside || x.costAOutside || x.costBOutside).map((x) => `${x.step} (${[x.evOutside ? "redox" : "", x.costAOutside ? "A cost" : "", x.costBOutside ? "B cost" : ""].filter(Boolean).join(", ")})`).join("; ") || "none"}.${
                   compare.energy
                     ? `\n\nEnergy source split (estimate: glycolysis covers any shortfall below default ATP demand, 5% basal floor). Phenotype A: ${compare.energy.phenotypeA}, B: ${compare.energy.phenotypeB}. NADH supply B vs A: ${compare.energy.nadhDirection}; succinate supply B vs A: ${compare.energy.succinateDirection}.\nA: respiration ${compare.energy.a.respiration.toPrecision(3)}, glycolysis ${compare.energy.a.glycolysis.toPrecision(3)} µM/s ATP (${compare.energy.a.glycolysisPct.toFixed(0)}% glycolytic)\nB: respiration ${compare.energy.b.respiration.toPrecision(3)}, glycolysis ${compare.energy.b.glycolysis.toPrecision(3)} µM/s ATP (${compare.energy.b.glycolysisPct.toFixed(0)}% glycolytic)`
                     : ""

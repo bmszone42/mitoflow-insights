@@ -327,6 +327,19 @@ export const ATP_COST_TEXTBOOK = { lo: 0.5, hi: 0.62 } as const;
 export function effectiveAtpCost(psi: number, uncoupling: number): number {
   return ATP_COST_EV * (psi / STD_PSI) * (1 - STD_UNCOUPLING) / Math.max(1 - uncoupling, 1e-6);
 }
+export function atpNetworkRangeFlags(
+  step: Pick<EtcStep, "ev" | "tbLo" | "tbHi" | "protons">,
+  costA: number,
+  costB: number,
+) {
+  const outsideCost = (cost: number) => step.protons > 0 &&
+    (cost < ATP_COST_TEXTBOOK.lo - 1e-9 || cost > ATP_COST_TEXTBOOK.hi + 1e-9);
+  return {
+    evOutside: step.ev < step.tbLo - 1e-9 || step.ev > step.tbHi + 1e-9,
+    costAOutside: outsideCost(costA),
+    costBOutside: outsideCost(costB),
+  };
+}
 export function atpPerPair(s: EtcStep): { proton: number; energy: number } {
   return {
     proton: s.protons / H_PER_ATP,
