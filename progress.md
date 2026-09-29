@@ -466,4 +466,5 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## 3D labels: green/amber yield coloring (2026-09-29)
 - [x] Label3D gained a tone prop (ok/warn); warn switches the sprite to an amber border, warm dark background, and cream text.
 - [x] Complex close-up labels compare live ATP per pair against the standard-state value (atpPerPair): green at or above standard, amber below.
-- Verified in preview: uncoupling 0.25 flips CI Fe-S, CIII Qo and CIV labels to amber (0.75 vs 0.95 ATP/pr); the uphill CI to Q step stays green. Zero page errors, typecheck clean.
+- [x] Legend chip in the 3D viewer bottom bar, shown in Complex close-up only: green dot with "green: live ATP/pr at or above standard", amber dot with "amber: below standard", colors match the label sprites.
+- Verified in preview: uncoupling 0.25 flips CI Fe-S, CIII Qo and CIV labels to amber (0.75 vs 0.95 ATP/pr); the uphill CI to Q step stays green. Legend appears in Complex close-up, hides in Whole organelle. Zero page errors, typecheck clean.

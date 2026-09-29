@@ -123,6 +123,18 @@ export default function Cristae3D({ geo, ge, out, overlay, onPick, selected, inp
       )}
 
       <div className="pointer-events-none absolute bottom-2 left-2 right-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] text-muted-foreground">
+        {view === "complex" && (
+          <span className="flex items-center gap-2 rounded border border-border bg-card/80 px-2 py-1">
+            <span className="flex items-center gap-1">
+              <span className="inline-block h-2 w-2 rounded-full" style={{ background: "rgba(78,222,174,0.6)" }} />
+              <span style={{ color: "#e7fff7" }}>green: live ATP/pr at or above standard</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="inline-block h-2 w-2 rounded-full" style={{ background: "rgba(255,190,92,0.75)" }} />
+              <span style={{ color: "#ffe9c4" }}>amber: below standard</span>
+            </span>
+          </span>
+        )}
         {LEGEND.map(([c, l]) => (
           <span key={l} className="flex items-center gap-1">
             <span className="inline-block h-2 w-2 rounded-full" style={{ background: c }} />
