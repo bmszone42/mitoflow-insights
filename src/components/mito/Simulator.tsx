@@ -386,6 +386,10 @@ export function Simulator({
     { name: "Ferrostatin-1", note: "Radical trapping", patch: { fsp1: 2 } },
     { name: "Iron chelator", note: "DFO / DFOm", patch: { labileIron: 0 } },
     { name: "NO donor SNAP", note: "S-nitroso-N-acetylpenicillamine, releases NO that blocks Complex IV", patch: { nitricOxide: 200 } },
+    // Warburg presets: mitochondrial fuel supply cut, oxygen left as is (aerobic glycolysis).
+    { name: "Respiration", note: "Full oxidative fuel supply, reference run", patch: { nadhRatio: 0.55, succinate: 0.6 } },
+    { name: "Warburg shift", note: "Pyruvate diverted to lactate, NADH and succinate drop together", patch: { nadhRatio: 0.25, succinate: 0.2 } },
+    { name: "Glycolysis only", note: "Near-zero mitochondrial fuel, ATP from glycolysis (2 per glucose)", patch: { nadhRatio: 0.05, succinate: 0 } },
   ];
   const comboPresets: { name: string; note: string; patch: Partial<Inputs> }[] = [
     { name: "Erastin + 660 nm", note: "GPx4 down plus 10 J/cm2 red light", patch: { gpx4: 0.2, redDose: 10 } },
