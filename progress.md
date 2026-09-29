@@ -476,3 +476,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Verified in preview: defaults show amber on pumping rows (live 0.95 < standard 1.00 because of the 5% baseline uncoupling, same as the 3D), uncoupling 0.25 drops values to 0.75 with live yields line. Zero page errors, typecheck clean.
 - [x] ✅ Green/amber yield colors now reference the healthy default (160 mV, 5% uncoupling)
 - [x] ✅ Compare AI driver reply saved per A/B pair and restored on reopen
+
+## Glycolysis ATP box on the pathway map (2026-09-29)
+- [x] New "Glycolysis ATP" box on the pathway map (bottom-left), showing the live glycolysis ATP flux in µM/s from the shared atpSplit estimate, pink accent border matching the readout bar.
+- [x] Clicking the box opens the Simulator tab and scrolls to the "Glycolysis contribution to total ATP" readout in the energetics card.
+- [x] The Warburg highlight (Reference panel button) now also lights the glycolysis box alongside NADH, succinate and ETC leak.
+- [x] Verified in preview: box visible with live value, click scrolls to readout, zero page errors; typecheck clean.

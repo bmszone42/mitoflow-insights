@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { defaultInputs, simulate, type Inputs, type Outputs } from "@/lib/mito/model";
 import { ATP_COST_EV, H_PER_ATP, atpPerPair, stdAtpPerPair, liveAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
 
-type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" };
+type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" | "glyco" };
 type Edge = { from: string; to: string; flux: (o: Outputs) => number; brake?: string };
 
 const NODES: Node[] = [
@@ -16,6 +16,7 @@ const NODES: Node[] = [
   { id: "lipid", x: 510, y: 50, label: "Lipid peroxidation", value: (o) => o.cardiolipinOx, unit: "% CL ox", tone: "lipid" },
   { id: "nadh", x: 300, y: 360, label: "NADH/NAD+ (CI entry)", value: (o) => o.fluxCI, unit: "µM/s e-", tone: "light" },
   { id: "succ", x: 510, y: 360, label: "Succinate (CII entry)", value: (o) => o.fluxCII, unit: "µM/s e-", tone: "light" },
+  { id: "glyco", x: 90, y: 360, label: "Glycolysis ATP", value: (o) => atpSplit(o).glycolysis, unit: "µM/s ATP", tone: "glyco" },
   { id: "ferro", x: 300, y: 50, label: "Ferroptosis risk", value: (o) => o.ferroptosisRisk, unit: "/ 100", tone: "lipid" },
 ];
 
@@ -38,6 +39,7 @@ const TONE: Record<Node["tone"], string> = {
   lipid: "stroke-destructive",
   light: "stroke-primary",
   fes: "stroke-primary",
+  glyco: "stroke-accent",
 };
 
 const W = 170;
