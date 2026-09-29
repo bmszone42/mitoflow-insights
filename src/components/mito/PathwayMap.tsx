@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Inputs, type Outputs } from "@/lib/mito/model";
-import { ATP_COST_EV, H_PER_ATP, atpPerPair, liveAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
+import { ATP_COST_EV, H_PER_ATP, atpPerPair, stdAtpPerPair, liveAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
 
 type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" };
 type Edge = { from: string; to: string; flux: (o: Outputs) => number; brake?: string };
@@ -72,7 +72,7 @@ export function PathwayMap({ out, inputs, highlight = [], source, onSelect, comp
           <div className="mono-label mb-1">ATP yield at {source}{live ? ` · live at ${psi.toFixed(0)} mV, ${(unc * 100).toFixed(0)}% uncoupled` : ""}</div>
           {steps.map((s) => {
             const y = liveAtpPerPair(s, psi, unc);
-            const std = atpPerPair(s);
+            const std = stdAtpPerPair(s);
             return (
               <div key={s.step} className="flex flex-wrap justify-between gap-2 font-mono">
                 <span>{s.step}</span>
@@ -216,7 +216,7 @@ export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs
       <div className="mt-3 space-y-2">
         {etcSteps.map((s, i) => {
           const atp = liveAtpPerPair(s, psi, unc);
-          const std = atpPerPair(s);
+          const std = stdAtpPerPair(s);
           const ok = atp.proton >= std.proton - 1e-9;
           const tone = ok ? "rgba(78, 222, 174, 0.6)" : "rgba(255, 190, 92, 0.75)";
           const toneText = ok ? "#4EDEAE" : "#FFBE5C";

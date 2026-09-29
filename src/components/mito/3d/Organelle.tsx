@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { Geometry, GeometryEffects, Inputs, Outputs } from "@/lib/mito/model";
-import { etcSteps, liveAtpPerPair, atpPerPair } from "@/lib/mito/reference";
+import { etcSteps, liveAtpPerPair, atpPerPair, stdAtpPerPair } from "@/lib/mito/reference";
 import { FeSCluster, Inst, PAL, ramp, type Xf } from "./parts";
 import type { PartId } from "./info";
 import type { Crista, Layout } from "./layout";
@@ -558,7 +558,7 @@ export function Organelle({
               return spots.map(([i, y, dz, short]) => {
                 const s = etcSteps[i]!;
                 const la = liveAtpPerPair(s, psi, unc);
-                const std = atpPerPair(s).proton;
+                const std = stdAtpPerPair(s).proton;
                 const text = `${short} ${s.ev > 0 ? "+" : ""}${s.ev} eV · ${la.proton.toFixed(2)} ATP/pr · ${la.costEv.toFixed(2)} eV/ATP`;
                 return (
                   <group key={text} position={at(y, dz)}>
