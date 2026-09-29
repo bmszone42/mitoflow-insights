@@ -15,6 +15,16 @@ const Body = z.object({
       b: z.string().max(200),
       atpFluxA: z.number(),
       atpFluxB: z.number(),
+      energy: z
+        .object({
+          a: z.object({ respiration: z.number(), glycolysis: z.number(), glycolysisPct: z.number() }),
+          b: z.object({ respiration: z.number(), glycolysis: z.number(), glycolysisPct: z.number() }),
+          nadhDirection: z.enum(["up", "down", "none"]),
+          succinateDirection: z.enum(["up", "down", "none"]),
+          phenotypeA: z.enum(["respiration", "Warburg shift", "glycolysis only"]),
+          phenotypeB: z.enum(["respiration", "Warburg shift", "glycolysis only"]),
+        })
+        .optional(),
       steps: z
         .array(
           z.object({

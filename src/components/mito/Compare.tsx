@@ -116,6 +116,14 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
           outputs: deltas,
           compare: {
             a: a.name.slice(0, 200), b: b.name.slice(0, 200), atpFluxA: oa.atpFlux, atpFluxB: ob.atpFlux,
+            energy: (() => {
+              // Estimate: glycolysis covers any shortfall below the default-condition ATP demand, with a 5% basal floor.
+              const demand = simulate(defaultInputs).atpFlux;
+              const split = (o: Outputs) => { const glyco = Math.max(0.05 * demand, demand - o.atpFlux); const tot = glyco + o.atpFlux; return { respiration: o.atpFlux, glycolysis: glyco, glycolysisPct: tot > 0 ? (glyco / tot) * 100 : 0 }; };
+              const dir = (x: number, y: number) => (y - x > 1e-9 ? "up" : y - x < -1e-9 ? "down" : "none");
+              const phen = (i: Inputs) => (i.nadhRatio <= 0.1 && i.succinate <= 0.05 ? "glycolysis only" : i.nadhRatio < 0.4 && i.succinate < 0.4 ? "Warburg shift" : "respiration");
+              return { a: split(oa), b: split(ob), nadhDirection: dir(ia.nadhRatio, ib.nadhRatio), succinateDirection: dir(ia.succinate, ib.succinate), phenotypeA: phen(ia), phenotypeB: phen(ib) };
+            })(),
             steps: etcRows.rows.map((r) => ({
               step: r.s.step.slice(0, 80), ev: r.s.ev, atpPerPairA: r.ya, atpPerPairB: r.yb, rateA: r.ra, rateB: r.rb,
               sharePct: etcRows.totalAbs > 0 ? (Math.abs(r.diff) / etcRows.totalAbs) * 100 : 0,
