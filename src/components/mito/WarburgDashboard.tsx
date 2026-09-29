@@ -56,7 +56,14 @@ export function WarburgDashboard({
     }));
   }, [inputs, out, base]);
 
-  const netRows = useMemo(() => rows.map((r) => ({ s: { step: r.step, ev: r.ev }, ra: r.rateB, rb: r.rate, diff: r.diff })), [rows]);
+  const netRows = useMemo(
+    () =>
+      rows.map((r, i) => {
+        const s = etcSteps[i]!;
+        return { s: { step: s.step, ev: s.ev, tbLo: s.tbLo, tbHi: s.tbHi }, ra: r.rateB, rb: r.rate, diff: r.diff };
+      }),
+    [rows],
+  );
   const netTotal = netRows.reduce((a, r) => a + Math.abs(r.diff), 0);
   const [netFocus, setNetFocus] = useState<number | null>(null);
 
