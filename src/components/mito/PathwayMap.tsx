@@ -20,8 +20,6 @@ const NODES: Node[] = [
 ];
 
 const EDGES: Edge[] = [
-  { from: "nadh", to: "etc", flux: (o) => o.fluxCI },
-  { from: "succ", to: "etc", flux: (o) => o.fluxCII },
   { from: "light", to: "etc", flux: (o) => o.photoreceptor.flavinLeak * o.photoreceptor.semiquinoneLeak },
   { from: "etc", to: "h2o2", flux: (o) => o.superoxide, brake: "SOD2" },
   { from: "etc", to: "onoo", flux: (o) => o.peroxynitrite },
