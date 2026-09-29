@@ -547,7 +547,12 @@ export function Simulator({
             </Badge>
           </div>
           <div className="mt-2">
-            <StandardStateNote psi={inputs.deltaPsi} uncoupling={inputs.uncoupling} />
+            <StandardStateNote
+              psi={inputs.deltaPsi}
+              uncoupling={inputs.uncoupling}
+              poNadh={poRatio(inputs.deltaPsi, inputs.uncoupling, "nadh")}
+              poFadh={poRatio(inputs.deltaPsi, inputs.uncoupling, "fadh2")}
+            />
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
             <Metric label="ATP flux" value={out.atpFlux.toFixed(1)} unit="µM/s" />
