@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { defaultInputs, simulate, type Inputs, type Outputs } from "@/lib/mito/model";
 import { ATP_COST_EV, H_PER_ATP, atpPerPair, stdAtpPerPair, liveAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
 
-type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" };
+type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" | "glyco" };
 type Edge = { from: string; to: string; flux: (o: Outputs) => number; brake?: string };
 
 const NODES: Node[] = [

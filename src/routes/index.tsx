@@ -47,6 +47,11 @@ function Index() {
   const [mapTerm, setMapTerm] = useState<{ id: string; n: number } | null>(null);
   const selectTerm = (id: string) => {
     setMapTerm((m) => ({ id, n: (m?.n ?? 0) + 1 }));
+    if (id === "glyco") {
+      setTab("sim");
+      requestAnimationFrame(() => document.querySelector('[data-testid="glycolysis-readout"]')?.scrollIntoView({ behavior: "smooth", block: "center" }));
+      return;
+    }
     setTab("sens");
   };
   const out = useMemo(() => simulate(inputs, geo), [inputs, geo]);
