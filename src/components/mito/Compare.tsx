@@ -485,8 +485,16 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
               {etcRows && etcRows.totalAbs === 0 && <span className="ml-2 text-xs text-muted-foreground">No ATP gap between A and B to explain.</span>}
               {aiErr && <p className="mt-2 text-xs text-destructive">{aiErr}</p>}
               {aiText && (
-                <div data-testid="driver-ai" className="prose prose-sm prose-invert mt-2 max-w-none text-sm">
-                  <ReactMarkdown>{aiText}</ReactMarkdown>
+                <div data-testid="driver-ai" className="mt-2 rounded-md border border-border p-3">
+                  <div className="mono-label mb-1">{aiBusy ? "Interpreting live" : "Saved ATP driver reply"}</div>
+                  <p className="text-[11px] text-muted-foreground">
+                    A: {a.name} · B: {b.name}
+                    {aiSavedAt > 0 && ` · saved ${new Date(aiSavedAt).toLocaleString()}`}
+                    {aiSavedAt === 0 && !aiBusy && " · saved in this browser"}
+                  </p>
+                  <div className="prose prose-sm prose-invert mt-2 max-w-none text-sm">
+                    <ReactMarkdown>{aiText}</ReactMarkdown>
+                  </div>
                 </div>
               )}
             </div>
