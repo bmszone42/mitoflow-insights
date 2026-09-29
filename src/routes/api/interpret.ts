@@ -9,7 +9,35 @@ const Body = z.object({
   condition: z.string().trim().min(3).max(2000),
   inputs: z.record(z.string(), z.number()),
   outputs: z.record(z.string(), z.number()),
+  compare: z
+    .object({
+      a: z.string().max(200),
+      b: z.string().max(200),
+      atpFluxA: z.number(),
+      atpFluxB: z.number(),
+      steps: z
+        .array(
+          z.object({
+            step: z.string().max(80),
+            ev: z.number(),
+            atpPerPairA: z.number(),
+            atpPerPairB: z.number(),
+            rateA: z.number(),
+            rateB: z.number(),
+            sharePct: z.number(),
+            direction: z.enum(["up", "down", "none"]),
+          }),
+        )
+        .max(12),
+    })
+    .optional(),
 });
+
+const COMPARE_SYSTEM = `
+When a scenario comparison block is given, add a first section "## ATP change drivers" before the others:
+name the step with the largest driver share, say whether scenario B raised or lowered it, and rank the steps that together explain most of the gap.
+For each dominant step, say whether its change comes from the ATP yield per pair (membrane potential, uncoupling) or from electron flux through that complex (substrate supply, inhibition, light, NO).
+Driver shares are fractions of the total absolute per-step rate gap, not of whole-chain ATP flux. Label steps with zero share as not contributing.`;
 
 const SYSTEM = `You are a mitochondrial redox biologist interpreting a lumped steady-state model.
 Given an experimental condition, the model inputs and the predicted outputs, write a concise mechanistic interpretation in Markdown with these sections:
@@ -44,7 +72,7 @@ export const Route = createFileRoute("/api/interpret")({
           headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
           fetch: runIdFetch.fetch,
         });
-        const { condition, inputs, outputs } = parsed.data;
+        const { condition, inputs, outputs, compare } = parsed.data;
         const fmt = (o: Record<string, number>) =>
           Object.entries(o)
             .map(([k, v]) => `${k}: ${Number(v.toPrecision(4))}`)
@@ -53,8 +81,14 @@ export const Route = createFileRoute("/api/interpret")({
         let upstreamError: { status: number; message: string } | null = null;
         const result = streamText({
           model: provider.responses("openai/gpt-6-astra"),
-          system: SYSTEM,
-          prompt: `Experimental condition:\n${condition}\n\nModel inputs:\n${fmt(inputs)}\n\nModel outputs:\n${fmt(outputs)}`,
+          system: compare ? SYSTEM + COMPARE_SYSTEM : SYSTEM,
+          prompt: `Experimental condition:\n${condition}\n\nModel inputs:\n${fmt(inputs)}\n\nModel outputs:\n${fmt(outputs)}${
+            compare
+              ? `\n\nScenario comparison (A = ${compare.a}, B = ${compare.b}). Whole chain ATP flux A ${compare.atpFluxA.toPrecision(4)}, B ${compare.atpFluxB.toPrecision(4)}.\nPer-step ATP drivers (step | eV | ATP/pair A, B | rate A, B | driver share % | direction):\n${compare.steps
+                  .map((x) => `${x.step} | ${x.ev} | ${x.atpPerPairA.toFixed(2)}, ${x.atpPerPairB.toFixed(2)} | ${x.rateA.toPrecision(3)}, ${x.rateB.toPrecision(3)} | ${x.sharePct.toFixed(1)} | ${x.direction}`)
+                  .join("\n")}`
+              : ""
+          }`,
           abortSignal: request.signal,
           maxRetries: 0,
           providerOptions: {
