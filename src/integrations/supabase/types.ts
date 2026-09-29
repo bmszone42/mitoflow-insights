@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      driver_ai_replies: {
+        Row: {
+          pair_key: string
+          reply: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          pair_key: string
+          reply: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          pair_key?: string
+          reply?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       scenarios: {
         Row: {
           created_at: string
