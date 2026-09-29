@@ -474,3 +474,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] The yield line shows a matching tone dot, the two ATP values in the tone color, and the standard value for reference; a caption under the table explains green vs amber.
 - [x] Uses the identical comparison as the 3D labels, so the table and viewer always agree; focused rows from the 3D keep their primary highlight.
 - Verified in preview: defaults show amber on pumping rows (live 0.95 < standard 1.00 because of the 5% baseline uncoupling, same as the 3D), uncoupling 0.25 drops values to 0.75 with live yields line. Zero page errors, typecheck clean.
+- [x] ✅ Green/amber yield colors now reference the healthy default (160 mV, 5% uncoupling)
