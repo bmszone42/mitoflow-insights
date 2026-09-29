@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { AtpDriverNetwork } from "./AtpDriverNetwork";
+import { useMemo, useState } from "react";
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
@@ -54,6 +55,10 @@ export function WarburgDashboard({
       pct: x.rateB > 0 ? ((x.rate - x.rateB) / x.rateB) * 100 : 0,
     }));
   }, [inputs, out, base]);
+
+  const netRows = useMemo(() => rows.map((r) => ({ s: { step: r.step, ev: r.ev }, ra: r.rateB, rb: r.rate, diff: r.diff })), [rows]);
+  const netTotal = netRows.reduce((a, r) => a + Math.abs(r.diff), 0);
+  const [netFocus, setNetFocus] = useState<number | null>(null);
 
   const bars = rows
     .filter((r) => r.share > 0.05)
@@ -138,6 +143,13 @@ export function WarburgDashboard({
           <p className="text-[11px] text-muted-foreground">Green: the live run raises that step's ATP rate. Red: it lowers it.</p>
         </div>
       </div>
+
+      {netTotal > 0 && (
+        <div data-testid="warburg-network">
+          <AtpDriverNetwork rows={netRows} totalAbs={netTotal} focus={netFocus} onFocus={setNetFocus} />
+          <p className="mt-1 text-[11px] text-muted-foreground">A = healthy run (default settings), B = your current run.</p>
+        </div>
+      )}
 
       <div className="rounded-lg border border-border bg-card p-4">
         <h3 className="text-sm font-semibold">ETC steps, live ATP per pair</h3>
