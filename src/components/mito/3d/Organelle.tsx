@@ -557,7 +557,7 @@ export function Organelle({
                 const okTone = la.proton >= std - 1e-9 && la.costEv <= ATP_COST_EV + 1e-9;
                 return (
                   <group key={text} position={at(y, dz)}>
-                    <Label3D text={text} position={[0, 0, 0]} size={0.028} tone={okTone ? "ok" : "warn"} />
+                    <Label3D text={text} position={[0, 0, 0]} size={0.013} tone={okTone ? "ok" : "warn"} />
                     {onStepClick && (
                       <mesh
                         onClick={(e) => {
