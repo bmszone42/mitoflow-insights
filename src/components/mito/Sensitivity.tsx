@@ -147,7 +147,7 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
     : null;
   const flaggedCells = activeBand
     ? grid.cells.flat().filter((c) => {
-        const pct = mapOutput === "fesIntact" ? (c.fesIntact ?? 0) * 100 : (c.aconitaseActivity ?? 0);
+        const pct = mapOutput === "fesIntact" ? (c["fesIntact"] ?? 0) * 100 : (c["aconitaseActivity"] ?? 0);
         return pct < activeBand.lo || pct > activeBand.hi;
       }).length
     : 0;
