@@ -490,3 +490,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] A and B yield cells are colored and dotted individually by their own scenario's uncoupling; the row's left border is amber when either run falls short, green when both are at or above standard.
 - [x] Caption under the table explains the tones; the top-driver row keeps its bg-primary/10 highlight and asterisk alongside the border color.
 - Verified in preview: Erastin + 660 nm (saved at 25% uncoupling, yields 0.75/0.38/1.88 amber) vs Respiration (default uncoupling, 0.95/0.47/2.38 green). Zero page errors, typecheck clean.
+- [x] ✅ Pathway map boxes show a grey standard state value under each live value

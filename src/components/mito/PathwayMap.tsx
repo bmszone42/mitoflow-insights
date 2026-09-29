@@ -43,7 +43,7 @@ const TONE: Record<Node["tone"], string> = {
 };
 
 const W = 170;
-const Hh = 52;
+const Hh = 62;
 const fmt = (v: number, d = 1) => (v !== 0 && Math.abs(v) < 0.01 ? v.toExponential(1) : v.toFixed(d));
 
 // Live ROS/RNS, Fe-S, iron and Fenton loop. Arrow width follows each flux relative to default settings.
@@ -142,12 +142,15 @@ export function PathwayMap({ out, inputs, highlight = [], source, onSelect, comp
                   </tspan>
                 )}
               </text>
+              <text x={10} y={54} data-testid={`std-${n.id}`} className="fill-muted-foreground font-mono text-[9px]">
+                std {fmt(b, n.digits ?? 1)} {n.unit}
+              </text>
             </g>
           );
         })}
       </svg>
       <p className="mt-2 text-[11px] text-muted-foreground">
-        Arrow width follows each flux relative to default settings; highlighted arrows are above default. ⊣ marks the brake that limits each step. Percentages compare with default inputs.
+        Arrow width follows each flux relative to default settings; highlighted arrows are above default. ⊣ marks the brake that limits each step. Percentages compare with default inputs, and the grey "std" line in each box is the standard state value (healthy default: 160 mV, 5% uncoupling, textbook fuel levels).
       </p>
     </section>
   );
