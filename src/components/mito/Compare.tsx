@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, loadDriverReply, saveDriverReply, type Scenario } from "@/lib/mito/scenarios";
 import { ShapeSketch, ShapeOverlay } from "@/components/mito/ShapeSketch";
-import { liveAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
+import { liveAtpPerPair, stdAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
 
 const outRows: { key: keyof Outputs; label: string; unit: string }[] = [
   { key: "atpFlux", label: "ATP flux", unit: "µM/s" },
@@ -393,18 +393,31 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                     </tr>
                   </thead>
                   <tbody className="font-mono">
-                    {etcRows?.rows.map((r) => (
-                      <tr key={r.s.step} className={`border-t border-border ${r === etcRows.top && etcRows.totalAbs > 0 ? "bg-primary/10" : ""}`}>
-                        <td className="py-1 font-sans">{r.s.step}{r === etcRows.top && etcRows.totalAbs > 0 ? " *" : ""}</td>
-                        <td>{r.s.ev > 0 ? "+" : ""}{r.s.ev}</td>
-                        <td>{r.ya.toFixed(2)}</td>
-                        <td>{r.yb.toFixed(2)}</td>
-                        <td>{Number(r.ra.toPrecision(3))}</td>
-                        <td>{Number(r.rb.toPrecision(3))}</td>
-                        <td><Delta a={r.ra} b={r.rb} /></td>
-                        <td>{etcRows.totalAbs > 0 ? `${((Math.abs(r.diff) / etcRows.totalAbs) * 100).toFixed(0)}%` : "-"}</td>
-                      </tr>
-                    ))}
+                    {etcRows?.rows.map((r) => {
+                      const std = stdAtpPerPair(r.s);
+                      const okA = r.ya >= std.proton - 1e-9;
+                      const okB = r.yb >= std.proton - 1e-9;
+                      const tone = okA && okB ? "rgba(78, 222, 174, 0.6)" : "rgba(255, 190, 92, 0.75)";
+                      const cell = (ok: boolean) => (ok ? "#4EDEAE" : "#FFBE5C");
+                      return (
+                        <tr key={r.s.step} className={`border-t border-border ${r === etcRows.top && etcRows.totalAbs > 0 ? "bg-primary/10" : ""}`} style={{ borderLeft: `2px solid ${tone}` }}>
+                          <td className="py-1 font-sans">{r.s.step}{r === etcRows.top && etcRows.totalAbs > 0 ? " *" : ""}</td>
+                          <td>{r.s.ev > 0 ? "+" : ""}{r.s.ev}</td>
+                          <td className="font-sans" style={{ color: cell(okA) }}>
+                            <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{ background: cell(okA) }} />
+                            {r.ya.toFixed(2)}
+                          </td>
+                          <td className="font-sans" style={{ color: cell(okB) }}>
+                            <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{ background: cell(okB) }} />
+                            {r.yb.toFixed(2)}
+                          </td>
+                          <td>{Number(r.ra.toPrecision(3))}</td>
+                          <td>{Number(r.rb.toPrecision(3))}</td>
+                          <td><Delta a={r.ra} b={r.rb} /></td>
+                          <td>{etcRows.totalAbs > 0 ? `${((Math.abs(r.diff) / etcRows.totalAbs) * 100).toFixed(0)}%` : "-"}</td>
+                        </tr>
+                      );
+                    })}
                     <tr className="border-t border-border font-semibold">
                       <td className="py-1 font-sans">Whole chain ATP flux</td>
                       <td></td><td></td><td></td>
@@ -414,6 +427,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                     </tr>
                   </tbody>
                 </table>
+                <p className="mt-1 text-[11px] text-muted-foreground">Green: live ATP per pair at or above the healthy default (160 mV, 5% uncoupling). Amber: below it. A row is amber when either run falls short.</p>
               </div>
               {etcRows && etcRows.totalAbs > 0 && (
                 <div className="h-72">
