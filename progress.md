@@ -462,3 +462,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] atpSplit / phenotype / ATP_DEMAND moved from Compare.tsx into src/lib/mito/reference.ts so Simulator and Compare share one estimate.
 - [x] EtcEnergyCard (Simulator tab) gained a "Glycolysis contribution to total ATP" readout: stacked respiration/glycolysis bar, both fluxes in µM/s, glycolysis % of demand, and a live phenotype label (respiration / Warburg shift / glycolysis only).
 - Verified in preview: default state shows 5% glycolysis; the Warburg shift preset flips it to 52% (respiration 24.9 vs glycolysis 26.8 µM/s). Zero page errors, typecheck clean.
+
+## 3D labels: green/amber yield coloring (2026-09-29)
+- [x] Label3D gained a tone prop (ok/warn); warn switches the sprite to an amber border, warm dark background, and cream text.
+- [x] Complex close-up labels compare live ATP per pair against the standard-state value (atpPerPair): green at or above standard, amber below.
+- Verified in preview: uncoupling 0.25 flips CI Fe-S, CIII Qo and CIV labels to amber (0.75 vs 0.95 ATP/pr); the uphill CI to Q step stays green. Zero page errors, typecheck clean.
