@@ -7,6 +7,7 @@ import { etcSteps, liveAtpPerPair, atpPerPair, stdAtpPerPair, ATP_COST_EV } from
 import { FeSCluster, Inst, PAL, ramp, type Xf } from "./parts";
 import type { PartId } from "./info";
 import type { Crista, Layout } from "./layout";
+import { Cap, MatrixGrains, Rim, capsuleProfile, useLipidBump } from "./look";
 
 export type Overlay = "potential" | "superoxide" | "complexes";
 
@@ -64,19 +65,6 @@ function Label3D({ text, position, size = 0.28, onClick, tone = "ok" }: { text: 
   );
 }
 
-function capsuleProfile(R: number, H: number, n = 18) {
-  const pts: THREE.Vector2[] = [];
-  for (let k = 0; k <= n; k++) {
-    const a = -Math.PI / 2 + (k / n) * (Math.PI / 2);
-    pts.push(new THREE.Vector2(Math.max(1e-3, R * Math.cos(a)), -H + R * Math.sin(a)));
-  }
-  for (let k = 0; k <= n; k++) {
-    const a = (k / n) * (Math.PI / 2);
-    pts.push(new THREE.Vector2(Math.max(1e-3, R * Math.cos(a)), H + R * Math.sin(a)));
-  }
-  return pts;
-}
-
 // Lipid heads on both leaflets along the cut edges, so the bilayer reads at the section.
 function bilayer(R: number, H: number, t: number, step: number): { heads: Xf[]; tails: Xf[] } {
   const heads: Xf[] = [];
@@ -104,13 +92,14 @@ function bilayer(R: number, H: number, t: number, step: number): { heads: Xf[]; 
   return { heads, tails };
 }
 
-function Membrane({ R, H, color, opacity, emissive, id, onPick, thz }: { R: number; H: number; color: string; opacity: number; emissive: number; id: PartId; onPick: (p: PartId) => void; thz?: number }) {
-  const geom = useMemo(() => new THREE.LatheGeometry(capsuleProfile(R, H), 72, CUT, 2 * Math.PI - 2 * CUT), [R, H]);
+function Membrane({ R, H, color, opacity, emissive, id, onPick, thz, rim, band }: { R: number; H: number; color: string; opacity: number; emissive: number; id: PartId; onPick: (p: PartId) => void; thz?: number; rim: string; band: number }) {
+  const geom = useMemo(() => new THREE.LatheGeometry(capsuleProfile(R, H, 24), 96, CUT, 2 * Math.PI - 2 * CUT), [R, H]);
   const bl = useMemo(() => bilayer(R, H, 0.022, 0.035), [R, H]);
+  const bump = useLipidBump();
   const mat = useRef<THREE.MeshPhysicalMaterial>(null);
   useFrame(({ clock }) => {
     if (mat.current && thz !== undefined) {
-      mat.current.emissiveIntensity = emissive + thz * 0.35 * (0.5 + 0.5 * Math.sin(clock.elapsedTime * 6));
+      mat.current.emissiveIntensity = emissive + thz * 0.25 * (0.5 + 0.5 * Math.sin(clock.elapsedTime * 6));
     }
   });
   return (
@@ -129,17 +118,25 @@ function Membrane({ R, H, color, opacity, emissive, id, onPick, thz }: { R: numb
           emissiveIntensity={emissive}
           transparent
           opacity={opacity}
-          roughness={0.45}
-          clearcoat={0.5}
-          sheen={1}
-          sheenColor={PAL.outerEdge}
+          roughness={0.55}
+          bumpMap={bump}
+          bumpScale={0.6}
+          clearcoat={0.8}
+          clearcoatRoughness={0.25}
+          sheen={0.6}
+          sheenRoughness={0.4}
+          sheenColor={rim}
           side={THREE.DoubleSide}
           depthWrite={false}
         />
       </mesh>
+      <Rim geometry={geom} color={rim} intensity={0.55} />
+      {[CUT, 2 * Math.PI - CUT].map((phi) => (
+        <Cap key={phi} Ro={R + band} Ri={R - band} H={H} phi={phi} color={color} opacity={0.85} emissive={0.12} />
+      ))}
       <Inst items={bl.heads}>
         <sphereGeometry args={[0.012, 8, 8]} />
-        <meshStandardMaterial color={PAL.head} roughness={0.35} emissive={PAL.head} emissiveIntensity={0.2} />
+        <meshStandardMaterial color={PAL.head} roughness={0.35} emissive={PAL.head} emissiveIntensity={0.15} />
       </Inst>
       <Inst items={bl.tails}>
         <cylinderGeometry args={[0.004, 0.004, 0.018, 4]} />
@@ -164,7 +161,7 @@ export function Organelle({
   out,
   overlay,
   lay,
-  labels,
+  detail,
   evLabels,
   onPick,
   inputs,
@@ -175,7 +172,7 @@ export function Organelle({
   out: Outputs;
   overlay: Overlay;
   lay: Layout;
-  labels: boolean;
+  detail: boolean;
   evLabels: boolean;
   onPick: (p: PartId) => void;
   inputs?: Inputs | undefined;
@@ -348,24 +345,30 @@ export function Organelle({
     }
   });
 
-  const label = (text: string, p: [number, number, number], size?: number) => (
-    <Label3D key={text} text={text} position={p} {...(size !== undefined ? { size } : {})} />
-  );
-
   const f0 = lay.focus;
 
   return (
     <group>
-      <Membrane R={r + gap + 0.08} H={H} color={PAL.outer} opacity={0.3} emissive={0.05} id="outer" onPick={onPick} />
-      <Membrane R={r + 0.03} H={H} color={PAL.inner} opacity={0.42} emissive={0.08} id="inner" onPick={onPick} thz={out.coherentFraction} />
-      {/* Matrix glow */}
-      <mesh rotation={[0, 0, Math.PI / 2]}>
+      <Membrane R={r + gap + 0.08} H={H} color={PAL.outer} opacity={0.22} emissive={0.04} id="outer" onPick={onPick} rim="#ffe3d6" band={0.018} />
+      <Membrane R={r + 0.03} H={H} color={PAL.inner} opacity={0.5} emissive={0.06} id="inner" onPick={onPick} thz={out.coherentFraction} rim="#ffc2a8" band={0.016} />
+      {/* Intermembrane space on the cut faces, so the double membrane reads */}
+      <group rotation={[0, 0, Math.PI / 2]}>
+        {[CUT, 2 * Math.PI - CUT].map((phi) => (
+          <Cap key={phi} Ro={r + gap + 0.062} Ri={r + 0.046} H={H} phi={phi} color="#3b1a26" opacity={0.55} emissive={0.02} />
+        ))}
+        {[CUT, 2 * Math.PI - CUT].map((phi) => (
+          <Cap key={`m${phi}`} Ro={r + 0.014} Ri={0.002} H={H} phi={phi} color={PAL.matrix} opacity={0.35} emissive={0.05} />
+        ))}
+      </group>
+      {/* Matrix: dark fill plus fine grain */}
+      <mesh rotation={[0, 0, Math.PI / 2]} raycast={() => null}>
         <capsuleGeometry args={[r * 0.98, L - 2 * r, 12, 32]} />
-        <meshBasicMaterial color={PAL.matrix} transparent opacity={0.18} depthWrite={false} side={THREE.BackSide} />
+        <meshBasicMaterial color={PAL.matrix} transparent opacity={0.22} depthWrite={false} side={THREE.BackSide} />
       </mesh>
+      <MatrixGrains L={L} r={r} />
 
       {cristae.map((c) => {
-        const col = cristaColor(c, overlay, ge, out, curv);
+        const col = new THREE.Color(PAL.crista).lerp(cristaColor(c, overlay, ge, out, curv), 0.55);
         const yMid = (yAt(c, 0) + yAt(c, 1)) / 2;
         const rad = Math.min(c.thick / 2 - 0.001, 0.02 + 0.06 * curv);
         return (
@@ -373,14 +376,14 @@ export function Organelle({
             <RoundedBox
               args={[c.thick, c.depth, c.zExtent]}
               radius={rad}
-              smoothness={3}
+              smoothness={5}
               position={[c.x, yMid, 0]}
               onClick={(e) => {
                 e.stopPropagation();
                 onPick("crista");
               }}
             >
-              <meshPhysicalMaterial color={col} emissive={col} emissiveIntensity={0.18} roughness={0.5} transparent opacity={0.6} depthWrite={false} sheen={1} sheenColor={PAL.outerEdge} />
+              <meshPhysicalMaterial color={col} emissive={col} emissiveIntensity={0.12} roughness={0.5} clearcoat={0.6} clearcoatRoughness={0.3} transparent opacity={0.78} depthWrite={false} sheen={0.7} sheenColor={PAL.outerEdge} />
             </RoundedBox>
             <mesh
               position={[c.x, c.top ? r - 0.01 : -r + 0.01, 0]}
@@ -390,16 +393,18 @@ export function Organelle({
               }}
             >
               <cylinderGeometry args={[c.thick * 0.55, c.thick * 0.55, 0.05, 20, 1, true]} />
-              <meshStandardMaterial color="#7de0c0" emissive="#7de0c0" emissiveIntensity={0.3} side={THREE.DoubleSide} />
+              <meshStandardMaterial color="#e7a58f" emissive="#e7a58f" emissiveIntensity={0.15} roughness={0.5} transparent opacity={0.8} side={THREE.DoubleSide} />
             </mesh>
             <mesh position={[c.x, c.top ? r - 0.01 : -r + 0.01, 0]} rotation={[Math.PI / 2, 0, 0]}>
               <torusGeometry args={[c.thick * 0.55, 0.008, 6, 24]} />
-              <meshStandardMaterial color="#b8ffe6" emissive="#b8ffe6" emissiveIntensity={0.5} />
+              <meshStandardMaterial color="#ffd9c8" emissive="#ffd9c8" emissiveIntensity={0.25} />
             </mesh>
           </group>
         );
       })}
 
+      {detail && (
+        <>
       {/* Respiratory chain */}
       <Inst items={place.ciArm} onClick={() => onPick("ci")}>
         <boxGeometry args={[0.02, 0.03, 0.12]} />
@@ -437,6 +442,9 @@ export function Organelle({
         <sphereGeometry args={[0.008, 6, 6]} />
         <meshStandardMaterial color={PAL.q} emissive={PAL.q} emissiveIntensity={0.5} />
       </Inst>
+
+        </>
+      )}
 
       {/* Matrix contents */}
       <Inst items={place.gran}>
@@ -481,11 +489,11 @@ export function Organelle({
       </group>
 
       {/* Flows */}
-      <instancedMesh ref={eRef} args={[undefined, undefined, E]}>
+      <instancedMesh ref={eRef} args={[undefined, undefined, E]} visible={detail}>
         <sphereGeometry args={[0.009, 8, 8]} />
         <meshBasicMaterial color={PAL.electron} toneMapped={false} />
       </instancedMesh>
-      <instancedMesh ref={hRef} args={[undefined, undefined, P]}>
+      <instancedMesh ref={hRef} args={[undefined, undefined, P]} visible={detail}>
         <sphereGeometry args={[0.007, 6, 6]} />
         <meshBasicMaterial color={PAL.proton} toneMapped={false} />
       </instancedMesh>
@@ -518,21 +526,6 @@ export function Organelle({
           <sphereGeometry args={[0.01, 6, 6]} />
            <meshBasicMaterial color={new THREE.Color(PAL.fe).multiplyScalar(4)} toneMapped={false} />
         </instancedMesh>
-      )}
-
-      {labels && (
-        <>
-          {label("Outer membrane", [0, r + gap + 0.12, -0.2])}
-          {label("Inner boundary membrane", [-L * 0.3, -(r + 0.06), -0.3])}
-          {f0 && label("Crista", [f0.x, yAt(f0, 0.55), -f0.zExtent / 2])}
-          {f0 && label("Crista junction", [f0.x - 0.6, f0.top ? r + 0.05 : -r - 0.05, 0.15])}
-          {f0 && label("Complex I", [lay.ciPos[0] + 0.35, lay.ciPos[1] + 0.25, lay.ciPos[2] + 0.1])}
-          {f0 && label("Complex III", [f0.x + f0.thick / 2 + 0.55, yAt(f0, 0.5), zRows(f0)[2] ?? 0])}
-          {f0 && label("Complex IV", [f0.x + f0.thick / 2 + 0.35, yAt(f0, 0.68), zRows(f0)[2] ?? 0])}
-          {f0 && label("ATP synthase dimers", [f0.x, yAt(f0, 1) + (f0.top ? -0.1 : 0.1), f0.zExtent / 2])}
-          {dna.centers[0] && label("mtDNA nucleoid", [dna.centers[0][0], dna.centers[0][1] + 0.2, dna.centers[0][2]])}
-          {label("TCA / aconitase [4Fe-4S]", [tcaC[0] - 0.5, tcaC[1] - 0.3, tcaC[2]])}
-        </>
       )}
 
       {/* Per-step eV drops along the focus crista's electron path */}
