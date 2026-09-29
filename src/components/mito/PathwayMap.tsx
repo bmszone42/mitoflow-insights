@@ -14,10 +14,14 @@ const NODES: Node[] = [
   { id: "fe", x: 510, y: 260, label: "Labile Fe2+", value: (o) => o.freeIron, unit: "µM", digits: 2, tone: "iron" },
   { id: "oh", x: 510, y: 150, label: "Fenton •OH", value: (o) => o.hydroxylRadical, unit: "pM", digits: 3, tone: "ros" },
   { id: "lipid", x: 510, y: 50, label: "Lipid peroxidation", value: (o) => o.cardiolipinOx, unit: "% CL ox", tone: "lipid" },
+  { id: "nadh", x: 300, y: 360, label: "NADH/NAD+ (CI entry)", value: (o) => o.fluxCI, unit: "µM/s e-", tone: "light" },
+  { id: "succ", x: 510, y: 360, label: "Succinate (CII entry)", value: (o) => o.fluxCII, unit: "µM/s e-", tone: "light" },
   { id: "ferro", x: 300, y: 50, label: "Ferroptosis risk", value: (o) => o.ferroptosisRisk, unit: "/ 100", tone: "lipid" },
 ];
 
 const EDGES: Edge[] = [
+  { from: "nadh", to: "etc", flux: (o) => o.fluxCI },
+  { from: "succ", to: "etc", flux: (o) => o.fluxCII },
   { from: "light", to: "etc", flux: (o) => o.photoreceptor.flavinLeak * o.photoreceptor.semiquinoneLeak },
   { from: "etc", to: "h2o2", flux: (o) => o.superoxide, brake: "SOD2" },
   { from: "etc", to: "onoo", flux: (o) => o.peroxynitrite },
@@ -83,7 +87,7 @@ export function PathwayMap({ out, inputs, highlight = [], source, onSelect, comp
           })}
         </div>
       )}
-      <svg viewBox="0 0 600 310" overflow="visible" className="mt-3 w-full" role="img" aria-label="Live pathway map">
+      <svg viewBox="0 0 600 410" overflow="visible" className="mt-3 w-full" role="img" aria-label="Live pathway map">
         <defs>
           <marker id="pm-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
             <path d="M0,0 L10,5 L0,10 z" className="fill-muted-foreground" />

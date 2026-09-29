@@ -146,7 +146,7 @@ function Index() {
           </TabsContent>
           <TabsContent value="sens" className="mt-4">
             <div className="mb-4">
-              <PathwayMap out={out} inputs={inputs} highlight={mapTerm ? [mapTerm.id] : []} source={undefined} onSelect={selectTerm} />
+              <PathwayMap out={out} inputs={inputs} highlight={mapTerm ? (mapTerm.id === "warburg" ? ["nadh", "succ", "etc"] : [mapTerm.id]) : []} source={undefined} onSelect={selectTerm} />
             </div>
             <Sensitivity inputs={inputs} geo={geo} term={mapTerm} onDriverClick={(k) => { const p = DRIVER_PART[k]; if (p) { setPicked(p); setTab("structure"); window.scrollTo({ top: 0 }); } }} onSaved={() => setRefreshKey((k) => k + 1)} />
           </TabsContent>
@@ -168,7 +168,7 @@ function Index() {
             </div>
           </TabsContent>
           <TabsContent value="library" className="mt-4">
-            <ReferenceLibrary />
+            <ReferenceLibrary onWarburg={() => { selectTerm("warburg"); window.scrollTo({ top: 0 }); }} />
           </TabsContent>
         </Tabs>
         <p className="mt-6 max-w-3xl text-[11px] leading-relaxed text-muted-foreground">
