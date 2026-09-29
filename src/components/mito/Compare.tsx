@@ -110,25 +110,29 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
   }, [oa, ob, ia, ib]);
 
   const [aiText, setAiText] = useState("");
+  const [aiSavedAt, setAiSavedAt] = useState(0);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiErr, setAiErr] = useState("");
   const pairKey = aId && bId ? `${aId}|${bId}` : "";
   const aiKey = pairKey ? `cristae-lab:driver-ai:${pairKey}` : "";
   useEffect(() => {
     setAiErr("");
+    setAiSavedAt(0);
     let local = "";
     try { local = aiKey ? localStorage.getItem(aiKey) ?? "" : ""; } catch { /* blocked */ }
     setAiText(local);
     if (!pairKey) return;
     let live = true;
     // Signed in: the account copy wins so replies follow the user across devices.
-    loadDriverReply(pairKey).then((r) => { if (live && r) setAiText(r); }).catch(() => {});
+    loadDriverReply(pairKey)
+      .then((r) => { if (live && r) { setAiText(r.reply); setAiSavedAt(r.updatedAt); } })
+      .catch(() => {});
     return () => { live = false; };
   }, [aiKey, pairKey]);
 
   async function interpretDrivers() {
     if (!a || !b || !ia || !ib || !oa || !ob || !etcRows) return;
-    setAiBusy(true); setAiErr(""); setAiText("");
+    setAiBusy(true); setAiErr(""); setAiText(""); setAiSavedAt(0);
     const nums = (o: object) => Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === "number" && Number.isFinite(v))) as Record<string, number>;
     const deltas: Record<string, number> = {};
     for (const [k, v] of Object.entries(nums(ob))) { const va = (oa as unknown as Record<string, unknown>)[k]; if (typeof va === "number") deltas[k] = v - va; }
@@ -159,7 +163,9 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
       while (true) { const { done, value } = await reader.read(); if (done) break; acc += dec.decode(value, { stream: true }); setAiText(acc); }
       if (acc && aiKey) {
         try { localStorage.setItem(aiKey, acc); } catch { /* storage full or blocked */ }
-        saveDriverReply(pairKey, acc).catch(() => {});
+        saveDriverReply(pairKey, acc)
+          .then(() => setAiSavedAt(Date.now()))
+          .catch(() => {});
       }
     } catch (e) { setAiErr(e instanceof Error ? e.message : "AI request failed"); }
     finally { setAiBusy(false); }
@@ -479,8 +485,16 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
               {etcRows && etcRows.totalAbs === 0 && <span className="ml-2 text-xs text-muted-foreground">No ATP gap between A and B to explain.</span>}
               {aiErr && <p className="mt-2 text-xs text-destructive">{aiErr}</p>}
               {aiText && (
-                <div data-testid="driver-ai" className="prose prose-sm prose-invert mt-2 max-w-none text-sm">
-                  <ReactMarkdown>{aiText}</ReactMarkdown>
+                <div data-testid="driver-ai" className="mt-2 rounded-md border border-border p-3">
+                  <div className="mono-label mb-1">{aiBusy ? "Interpreting live" : "Saved ATP driver reply"}</div>
+                  <p className="text-[11px] text-muted-foreground">
+                    A: {a.name} · B: {b.name}
+                    {aiSavedAt > 0 && ` · saved ${new Date(aiSavedAt).toLocaleString()}`}
+                    {aiSavedAt === 0 && !aiBusy && " · saved in this browser"}
+                  </p>
+                  <div className="prose prose-sm prose-invert mt-2 max-w-none text-sm">
+                    <ReactMarkdown>{aiText}</ReactMarkdown>
+                  </div>
                 </div>
               )}
             </div>
