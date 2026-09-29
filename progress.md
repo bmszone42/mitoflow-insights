@@ -504,3 +504,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Complex close-up labels now turn amber when the live energy cost per ATP rises above the standard 0.52 eV (membrane potential above 160 mV), not only when uncoupling drops the yield below the healthy default. Green requires both: yield at or above standard AND cost at or under 0.52 eV/ATP.
 - ✅ Legend in the 3D viewer updated to explain both amber conditions.
 - ✅ Verified in preview: at 180 mV the labels read 0.58 eV/ATP and tint amber; at defaults they stay green. Zero page errors, typecheck clean.
+
+## Standard state readout (2026-09-29)
+- ✅ New StandardStateNote component shows the values the green/amber coloring is compared against: 160 mV membrane potential, 5% uncoupling, 0.52 eV/ATP, next to the live slider values and an "at standard, labels green" indicator.
+- ✅ Placed in the Simulator Steady state card and in the 3D viewer legend (Complex close-up), both reading from the shared STD_PSI / STD_UNCOUPLING / ATP_COST_EV constants so they can never drift from the actual comparison.
+- ✅ Verified in preview: both readouts show 160 mV / 5% / 0.52 eV/ATP at defaults with live values matching; zero page errors, typecheck clean.

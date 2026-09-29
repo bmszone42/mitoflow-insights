@@ -21,6 +21,7 @@ import { defaultInputs, doseSweep, simulate, timeCourse, timeToCommitted, type G
 import { poRatio } from "@/lib/mito/reference";
 import { putScenario, type Scenario } from "@/lib/mito/scenarios";
 import { snapshotOf } from "./Scenarios";
+import { StandardStateNote } from "./StandardState";
 
 type ControlDef = {
   key: keyof Inputs;
@@ -544,6 +545,9 @@ export function Simulator({
             <Badge variant="outline" className="font-mono text-[11px]">
               photon gain x{out.photonGain.toFixed(2)}
             </Badge>
+          </div>
+          <div className="mt-2">
+            <StandardStateNote psi={inputs.deltaPsi} uncoupling={inputs.uncoupling} />
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
             <Metric label="ATP flux" value={out.atpFlux.toFixed(1)} unit="µM/s" />
