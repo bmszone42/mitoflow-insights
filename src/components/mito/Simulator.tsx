@@ -591,6 +591,8 @@ export function Simulator({
           </div>
         </div>
 
+        <WarburgSummaryCard inputs={inputs} out={out} geo={geo} />
+
         <RosBudgetPanel out={out} />
 
         <PhotoreceptorPanel out={out} />
