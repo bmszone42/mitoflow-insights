@@ -45,6 +45,7 @@ const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
 
 const TERM_OUTPUT: Record<string, SensOutputKey> = {
   light: "emission71THz", etc: "superoxide", h2o2: "hydrogenPeroxide", onoo: "peroxynitrite",
+  nadh: "superoxide", succ: "superoxide", warburg: "superoxide",
   fes: "fesIntact", fe: "freeIron", oh: "hydroxylRadical", lipid: "cardiolipinOx", ferro: "ferroptosisRisk",
 };
 
@@ -86,6 +87,8 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
     [inputs, driver],
   );
 
+  const WARBURG_KEYS = new Set(["nadhRatio", "succinate"]);
+  const fuelFocus = term && ["warburg", "nadh", "succ"].includes(term.id);
   const tornado = sens
     .map((s) => ({
       name: s.driver.label,
@@ -385,7 +388,7 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
                 {(["down", "up"] as const).map((k) => (
                   <Bar key={k} dataKey={k} stackId="a" cursor="pointer" onClick={(d: { payload?: { key?: string } }) => d?.payload?.key && onDriverClick?.(d.payload.key)}>
                     {tornado.map((t, i) => (
-                      <Cell key={i} fill={t[k] >= 0 ? "var(--accent)" : "var(--primary)"} />
+                      <Cell key={i} fill={t[k] >= 0 ? "var(--accent)" : "var(--primary)"} stroke={fuelFocus && WARBURG_KEYS.has(t.key) ? "var(--foreground)" : undefined} strokeWidth={fuelFocus && WARBURG_KEYS.has(t.key) ? 2 : 0} fillOpacity={fuelFocus && !WARBURG_KEYS.has(t.key) ? 0.35 : 1} />
                     ))}
                   </Bar>
                 ))}
@@ -396,6 +399,14 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
             Pink bars raise the output, green bars lower it. Longest bars matter most. Click a bar to highlight its part in the 3D view and the map.
             {term && TERM_OUTPUT[term.id] ? " Set from the pathway map box you clicked." : ""}
           </p>
+          {fuelFocus && (() => {
+            const f = tornado.filter((t) => WARBURG_KEYS.has(t.key));
+            return (
+              <p className="mt-1 text-[11px] text-foreground" data-testid="warburg-caption">
+                Warburg levers (outlined): {f.map((t) => `${t.name} ${fmt(t.down)} down / ${fmt(t.up)} up`).join("; ")}. A Warburg shift lowers both, so read the down side for how much ETC leak falls when fuel is diverted to lactate.
+              </p>
+            );
+          })()}
           <p className="mt-1 text-[11px] text-muted-foreground" data-testid="thz-caption">
             71 THz for the top {outLabel} drivers:{" "}
             {thzTop.map((t) => `${t.name} ${fmt(t.up)} up / ${fmt(t.down)} down`).join("; ")}.

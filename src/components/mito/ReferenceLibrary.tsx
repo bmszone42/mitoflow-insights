@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/accordion";
 import { fesClusters, ferroptosisNotes, ironSteps, photonNotes, rosSpecies, warburgNotes } from "@/lib/mito/reference";
 
-export function ReferenceLibrary() {
+export function ReferenceLibrary({ onWarburg }: { onWarburg?: () => void } = {}) {
   return (
     <div className="space-y-4">
       <div className="panel p-4">
@@ -98,7 +98,14 @@ export function ReferenceLibrary() {
           </div>
 
           <div className="panel p-4">
-            <h2 className="text-sm font-semibold">Warburg effect and aerobic glycolysis</h2>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold">Warburg effect and aerobic glycolysis</h2>
+              {onWarburg && (
+                <button type="button" onClick={onWarburg} className="rounded-md border border-border bg-secondary px-2 py-1 text-xs hover:bg-secondary/80">
+                  Show NADH and succinate impact
+                </button>
+              )}
+            </div>
             <div className="mt-3 space-y-3">
               {warburgNotes.map((p) => (
                 <div key={p.title}>
