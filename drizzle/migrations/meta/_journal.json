@@ -8,6 +8,13 @@
       "when": 1790471817745,
       "tag": "0000_create_scenarios",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790703906746,
+      "tag": "0001_driver_ai_replies",
+      "breakpoints": true
     }
   ]
 }

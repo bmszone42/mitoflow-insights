@@ -482,3 +482,5 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] Clicking the box opens the Simulator tab and scrolls to the "Glycolysis contribution to total ATP" readout in the energetics card.
 - [x] The Warburg highlight (Reference panel button) now also lights the glycolysis box alongside NADH, succinate and ETC leak.
 - [x] Verified in preview: box visible with live value, click scrolls to readout, zero page errors; typecheck clean.
+
+- ✅ Compare AI driver reply saved to the signed-in account (owner-only table driver_ai_replies), browser copy kept as fallback
