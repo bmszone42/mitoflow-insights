@@ -551,6 +551,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Physiology tab (2026-09-29)
 - [x] ✅ Added a live reference view listing all ETC redox steps, modeled eV drops, reference bands, sources, ATP yields, effective cost and out-of-range flags.
 - [x] ✅ Included membrane potential, leak, P/O and ATP-cost comparisons plus Fe-S and aconitase display bands, with explicit limitations for model-derived values.
+- [x] ✅ Browser-verified all nine ETC rows and both iron readouts; 30% uncoupling flags four pumping/summary rows, while default settings flag none, with no page errors.
 - [ ] ❌ Validate literature-informed bands against tissue- and assay-specific measurements before clinical interpretation.
 ### Security before deployment
 - No new endpoint or data storage. Keep educational-use caveats visible and review source citations before publishing.
