@@ -95,6 +95,42 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
     return { rows, totalAbs, top };
   }, [oa, ob, ia, ib]);
 
+  const [aiText, setAiText] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiErr, setAiErr] = useState("");
+  useEffect(() => { setAiText(""); setAiErr(""); }, [aId, bId]);
+
+  async function interpretDrivers() {
+    if (!a || !b || !ia || !ib || !oa || !ob || !etcRows) return;
+    setAiBusy(true); setAiErr(""); setAiText("");
+    const nums = (o: object) => Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === "number" && Number.isFinite(v))) as Record<string, number>;
+    const deltas: Record<string, number> = {};
+    for (const [k, v] of Object.entries(nums(ob))) { const va = (oa as unknown as Record<string, unknown>)[k]; if (typeof va === "number") deltas[k] = v - va; }
+    try {
+      const res = await fetch("/api/interpret", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          condition: `Compare scenario A "${a.name}" with scenario B "${b.name}". Explain which ETC steps dominate the ATP change from A to B. Outputs below are B minus A.`.slice(0, 2000),
+          inputs: nums(ib),
+          outputs: deltas,
+          compare: {
+            a: a.name.slice(0, 200), b: b.name.slice(0, 200), atpFluxA: oa.atpFlux, atpFluxB: ob.atpFlux,
+            steps: etcRows.rows.map((r) => ({
+              step: r.s.step.slice(0, 80), ev: r.s.ev, atpPerPairA: r.ya, atpPerPairB: r.yb, rateA: r.ra, rateB: r.rb,
+              sharePct: etcRows.totalAbs > 0 ? (Math.abs(r.diff) / etcRows.totalAbs) * 100 : 0,
+              direction: r.diff > 1e-9 ? "up" : r.diff < -1e-9 ? "down" : "none",
+            })),
+          },
+        }),
+      });
+      if (!res.ok || !res.body) { const j = await res.json().catch(() => ({})); throw new Error(j.error ?? `Request failed (${res.status})`); }
+      const reader = res.body.getReader(); const dec = new TextDecoder(); let acc = "";
+      while (true) { const { done, value } = await reader.read(); if (done) break; acc += dec.decode(value, { stream: true }); setAiText(acc); }
+    } catch (e) { setAiErr(e instanceof Error ? e.message : "AI request failed"); }
+    finally { setAiBusy(false); }
+  }
+
   if (shown.length < 2)
     return (
       <section className="panel p-4">
@@ -334,6 +370,23 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                   <p className="mt-1 text-[10px] text-muted-foreground">
                     <span style={{ color: "var(--primary)" }}>Green</span>: B raises that step's ATP rate. <span style={{ color: "var(--destructive)" }}>Red</span>: B lowers it.
                   </p>
+                </div>
+              )}
+            </div>
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={interpretDrivers}
+                disabled={aiBusy || !etcRows || etcRows.totalAbs === 0}
+                className="rounded-md border border-border bg-secondary px-3 py-1.5 text-xs hover:bg-secondary/80 disabled:opacity-50"
+              >
+                {aiBusy ? "Interpreting..." : "Interpret ATP drivers with AI"}
+              </button>
+              {etcRows && etcRows.totalAbs === 0 && <span className="ml-2 text-xs text-muted-foreground">No ATP gap between A and B to explain.</span>}
+              {aiErr && <p className="mt-2 text-xs text-destructive">{aiErr}</p>}
+              {aiText && (
+                <div data-testid="driver-ai" className="prose prose-sm prose-invert mt-2 max-w-none text-sm">
+                  <ReactMarkdown>{aiText}</ReactMarkdown>
                 </div>
               )}
             </div>
