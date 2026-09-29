@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Inputs, type Outputs } from "@/lib/mito/model";
-import { ATP_COST_EV, H_PER_ATP, atpPerPair, liveAtpPerPair, etcSteps } from "@/lib/mito/reference";
+import { ATP_COST_EV, H_PER_ATP, atpPerPair, liveAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
 
 type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" };
 type Edge = { from: string; to: string; flux: (o: Outputs) => number; brake?: string };
@@ -250,6 +250,33 @@ export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs
           );
         })}
       </div>
+      {(() => {
+        const split = atpSplit(out);
+        const phen = inputs ? phenotype(inputs) : "respiration";
+        const respPct = 100 - split.glycolysisPct;
+        return (
+          <div className="mt-3 rounded-md border border-border p-3" data-testid="glycolysis-readout">
+            <div className="flex items-baseline justify-between gap-2 text-xs">
+              <span className="font-semibold">Glycolysis contribution to total ATP</span>
+              <span className="font-mono text-muted-foreground">{phen}</span>
+            </div>
+            <div className="mt-2 flex h-3 w-full overflow-hidden rounded bg-secondary">
+              <div className="h-3 bg-primary" style={{ width: `${respPct}%` }} />
+              <div className="h-3 bg-accent" style={{ width: `${split.glycolysisPct}%` }} />
+            </div>
+            <p className="mt-1 font-mono text-[11px]">
+              Respiration <span className="text-primary">{split.respiration.toFixed(1)} µM/s</span>
+              {" · "}
+              glycolysis <span className="text-accent">{split.glycolysis.toFixed(1)} µM/s</span>
+              {" · "}
+              glycolysis covers <span className="text-accent">{split.glycolysisPct.toFixed(0)}%</span> of demand
+            </p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Estimate: glycolysis covers any shortfall below the default-condition ATP demand, with a 5% basal floor. Lower the NADH and succinate sliders to watch the pink share grow, as in a Warburg-shifted cell. Not a measured lactate rate.
+            </p>
+          </div>
+        );
+      })()}
       <p className="mt-3 text-[11px] text-muted-foreground">
         eV = midpoint potential gap in volts per electron (Nicholls & Ferguson, Bioenergetics 4th ed.). Bars scale to the largest step; amber bars are slightly uphill steps driven by mass action. Full oxidation of one glucose through this chain pays about 30 to 32 ATP; a Warburg-shifted cell takes only 2 from glycolysis instead, so lowering the NADH and succinate sliders reproduces that phenotype here.
       </p>

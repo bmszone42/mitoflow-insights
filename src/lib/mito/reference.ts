@@ -1,3 +1,5 @@
+import { defaultInputs, simulate, type Inputs, type Outputs } from "./model";
+
 export type RosEntry = {
   name: string;
   formula: string;
@@ -318,6 +320,21 @@ export function poRatio(psi: number, uncoupling: number, path: "nadh" | "fadh2")
   return etcSteps
     .filter((s) => !s.step.startsWith("Overall") && !s.step.startsWith(skip))
     .reduce((acc, s) => acc + liveAtpPerPair(s, psi, uncoupling).proton, 0);
+}
+
+/*
+ * Glycolysis vs respiration ATP split. Estimate: glycolysis covers any
+ * shortfall below the default-condition ATP demand, with a 5% basal floor.
+ * Not a measured lactate rate.
+ */
+export const ATP_DEMAND = simulate(defaultInputs).atpFlux;
+export function atpSplit(o: Outputs): { respiration: number; glycolysis: number; glycolysisPct: number } {
+  const glyco = Math.max(0.05 * ATP_DEMAND, ATP_DEMAND - o.atpFlux);
+  const tot = glyco + o.atpFlux;
+  return { respiration: o.atpFlux, glycolysis: glyco, glycolysisPct: tot > 0 ? (glyco / tot) * 100 : 0 };
+}
+export function phenotype(i: Inputs): "glycolysis only" | "Warburg shift" | "respiration" {
+  return i.nadhRatio <= 0.1 && i.succinate <= 0.05 ? "glycolysis only" : i.nadhRatio < 0.4 && i.succinate < 0.4 ? "Warburg shift" : "respiration";
 }
 
 export const photonNotes = [
