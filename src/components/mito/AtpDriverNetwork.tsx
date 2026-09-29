@@ -5,7 +5,7 @@
  * Edges follow electron flow and inherit the share of their target step.
  */
 
-type Row = { s: { step: string; ev: number }; ra: number; rb: number; diff: number };
+type Row = { s: { step: string; ev: number; tbLo: number; tbHi: number }; ra: number; rb: number; diff: number };
 
 // Index into etcSteps -> position (viewBox 0..720 x 0..300)
 const POS: Record<number, { x: number; y: number; short: string }> = {
@@ -44,6 +44,12 @@ export function AtpDriverNetwork({
   const color = (i: number) =>
     !rows[i] || rows[i]!.diff === 0 ? "var(--muted-foreground)" : rows[i]!.diff > 0 ? "var(--primary)" : "var(--destructive)";
   const pct = (r: Row) => (r.ra > 0 ? ((r.rb - r.ra) / r.ra) * 100 : 0);
+  // Textbook layer: the step's redox span vs its published range
+  // (Nicholls & Ferguson 2013, Table 3.1). Red halo = outside the range.
+  const outsideTb = (i: number) => {
+    const s = rows[i]?.s;
+    return !!s && (s.ev < s.tbLo - 1e-9 || s.ev > s.tbHi + 1e-9);
+  };
   const sel = focus != null ? rows[focus] : null;
 
   return (
@@ -82,7 +88,19 @@ export function AtpDriverNetwork({
           const on = focus === i;
           return (
             <g key={r.s.step} className="cursor-pointer" onClick={() => onFocus(on ? null : i)}>
-              <title>{`${r.s.step}: ${(share(i) * 100).toFixed(0)}% share, ${pct(r) > 0 ? "+" : ""}${pct(r).toFixed(0)}% B vs A`}</title>
+              <title>{`${r.s.step}: ${(share(i) * 100).toFixed(0)}% share, ${pct(r) > 0 ? "+" : ""}${pct(r).toFixed(0)}% B vs A; eV ${r.s.ev} (textbook ${r.s.tbLo} to ${r.s.tbHi})`}</title>
+              {outsideTb(i) && (
+                <circle
+                  data-testid={`tb-halo-${i}`}
+                  cx={p.x}
+                  cy={p.y}
+                  r={rad + 4}
+                  fill="none"
+                  stroke="var(--destructive)"
+                  strokeWidth={2}
+                  strokeDasharray="2 3"
+                />
+              )}
               <circle
                 cx={p.x}
                 cy={p.y}
@@ -103,13 +121,21 @@ export function AtpDriverNetwork({
       </svg>
       <div className="mt-1 text-[11px] text-muted-foreground">
         Node size and edge width: share of the A/B ATP gap. Green: B raises that step's ATP rate. Red: B lowers it.
-        The dashed Overall node is the whole-chain summary. Click a node to highlight its table row.
+        The dashed Overall node is the whole-chain summary. Click a node to highlight its table row.{" "}
+        <span className="text-destructive">
+          A red dashed halo means the step's eV drop falls outside its published textbook range
+          (Nicholls &amp; Ferguson 2013)
+        </span>
+        ; the click detail shows the range.
       </div>
       {sel && (
         <div className="mt-1 font-mono text-[11px]" data-testid="atp-network-detail">
           {sel.s.step}: A {sel.ra.toFixed(2)} vs B {sel.rb.toFixed(2)} ATP rate, {pct(sel) > 0 ? "+" : ""}
           {pct(sel).toFixed(0)}%, {(share(focus!) * 100).toFixed(0)}% of gap, {sel.s.ev > 0 ? "+" : ""}
-          {sel.s.ev} eV
+          {sel.s.ev} eV{" "}
+          <span className={outsideTb(focus!) ? "text-destructive" : "text-muted-foreground"}>
+            (textbook {sel.s.tbLo} to {sel.s.tbHi} eV{outsideTb(focus!) ? ", outside" : ""})
+          </span>
         </div>
       )}
     </div>
