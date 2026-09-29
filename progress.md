@@ -491,3 +491,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] Caption under the table explains the tones; the top-driver row keeps its bg-primary/10 highlight and asterisk alongside the border color.
 - Verified in preview: Erastin + 660 nm (saved at 25% uncoupling, yields 0.75/0.38/1.88 amber) vs Respiration (default uncoupling, 0.95/0.47/2.38 green). Zero page errors, typecheck clean.
 - [x] ✅ Pathway map boxes show a grey standard state value under each live value
+
+## Saved ATP driver reply section in Compare (2026-09-29)
+- [x] The AI's ATP driver answer now renders inside a dedicated "Saved ATP driver reply" section with a border, instead of a bare markdown block.
+- [x] The section header shows the pair's run labels ("A: Respiration · B: RSL3 + 810 nm"), the account save time when signed in, or "saved in this browser" when signed out.
+- [x] loadDriverReply now returns { reply, updatedAt } from the account row so the save time renders; a fresh interpretation switches the header to "Interpreting live" during streaming.
+- [x] Verified in preview (signed out): section shows both run labels with the browser fallback note; zero page errors; typecheck clean.
