@@ -134,6 +134,10 @@ export default function Cristae3D({ geo, ge, out, overlay, onPick, selected, inp
               <span className="inline-block h-2 w-2 rounded-full" style={{ background: "rgba(255,190,92,0.75)" }} />
               <span style={{ color: "#ffe9c4" }}>amber: yield below standard or cost above 0.52 eV/ATP</span>
             </span>
+            <span data-testid="standard-state-3d" style={{ color: "#9fb8ae" }}>
+              standard: {STD_PSI} mV, {(STD_UNCOUPLING * 100).toFixed(0)}% uncoupling, {ATP_COST_EV.toFixed(2)} eV/ATP
+              {inputs ? ` · live: ${inputs.deltaPsi.toFixed(0)} mV, ${(inputs.uncoupling * 100).toFixed(0)}%` : ""}
+            </span>
           </span>
         )}
         {LEGEND.map(([c, l]) => (
