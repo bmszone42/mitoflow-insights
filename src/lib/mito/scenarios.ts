@@ -41,7 +41,7 @@ export async function loadDriverReply(pairKey: string): Promise<{ reply: string;
   if (error) throw error;
   if (!data?.reply) return null;
   const ts = Date.parse(data.updated_at);
-  return { reply: data.reply, updatedAt: Number.isFinite(ts) ? ts : null ?? 0 };
+  return { reply: data.reply, updatedAt: Number.isFinite(ts) ? ts : 0 };
 }
 
 export async function saveDriverReply(pairKey: string, reply: string): Promise<void> {
