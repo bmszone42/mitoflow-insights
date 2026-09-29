@@ -520,3 +520,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Verified in preview: default 5% glycolysis, Warburg shift preset flips to 52% with driver shares 50/20/20; zero page errors; tsgo clean
 
 - [x] ✅ Standard state readout shows published textbook ranges (membrane potential, proton leak, ATP cost, P/O) with live in/out-of-range coloring
+- [x] ✅ ATP driver network map in Compare (nodes sized by gap share, green/red direction, click to highlight table row)

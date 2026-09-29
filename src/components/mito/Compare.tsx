@@ -1,3 +1,4 @@
+import { AtpDriverNetwork } from "./AtpDriverNetwork";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -109,6 +110,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
     return { rows, totalAbs, top };
   }, [oa, ob, ia, ib]);
 
+  const [netFocus, setNetFocus] = useState<number | null>(null);
   const [aiText, setAiText] = useState("");
   const [aiSavedAt, setAiSavedAt] = useState(0);
   const [aiBusy, setAiBusy] = useState(false);
@@ -399,14 +401,14 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                     </tr>
                   </thead>
                   <tbody className="font-mono">
-                    {etcRows?.rows.map((r) => {
+                    {etcRows?.rows.map((r, ri) => {
                       const std = stdAtpPerPair(r.s);
                       const okA = r.ya >= std.proton - 1e-9;
                       const okB = r.yb >= std.proton - 1e-9;
                       const tone = okA && okB ? "rgba(78, 222, 174, 0.6)" : "rgba(255, 190, 92, 0.75)";
                       const cell = (ok: boolean) => (ok ? "#4EDEAE" : "#FFBE5C");
                       return (
-                        <tr key={r.s.step} className={`border-t border-border ${r === etcRows.top && etcRows.totalAbs > 0 ? "bg-primary/10" : ""}`} style={{ borderLeft: `2px solid ${tone}` }}>
+                        <tr key={r.s.step} className={`border-t border-border ${r === etcRows.top && etcRows.totalAbs > 0 ? "bg-primary/10" : ""} ${netFocus === ri ? "ring-1 ring-primary" : ""}`} style={{ borderLeft: `2px solid ${tone}` }}>
                           <td className="py-1 font-sans">{r.s.step}{r === etcRows.top && etcRows.totalAbs > 0 ? " *" : ""}</td>
                           <td>{r.s.ev > 0 ? "+" : ""}{r.s.ev}</td>
                           <td className="font-sans" style={{ color: cell(okA) }}>
@@ -444,6 +446,9 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                   </span>
                 </div>
               </div>
+              {etcRows && etcRows.totalAbs > 0 && (
+                <AtpDriverNetwork rows={etcRows.rows} totalAbs={etcRows.totalAbs} focus={netFocus} onFocus={setNetFocus} />
+              )}
               {etcRows && etcRows.totalAbs > 0 && (
                 <div className="h-72">
                   <div className="mono-label mb-1">Driver share, %</div>
