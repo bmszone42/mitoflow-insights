@@ -112,7 +112,11 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
   const [aiText, setAiText] = useState("");
   const [aiBusy, setAiBusy] = useState(false);
   const [aiErr, setAiErr] = useState("");
-  useEffect(() => { setAiText(""); setAiErr(""); }, [aId, bId]);
+  const aiKey = aId && bId ? `cristae-lab:driver-ai:${aId}|${bId}` : "";
+  useEffect(() => {
+    setAiErr("");
+    try { setAiText(aiKey ? localStorage.getItem(aiKey) ?? "" : ""); } catch { setAiText(""); }
+  }, [aiKey]);
 
   async function interpretDrivers() {
     if (!a || !b || !ia || !ib || !oa || !ob || !etcRows) return;
@@ -145,6 +149,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
       if (!res.ok || !res.body) { const j = await res.json().catch(() => ({})); throw new Error(j.error ?? `Request failed (${res.status})`); }
       const reader = res.body.getReader(); const dec = new TextDecoder(); let acc = "";
       while (true) { const { done, value } = await reader.read(); if (done) break; acc += dec.decode(value, { stream: true }); setAiText(acc); }
+      if (acc && aiKey) { try { localStorage.setItem(aiKey, acc); } catch { /* storage full or blocked */ } }
     } catch (e) { setAiErr(e instanceof Error ? e.message : "AI request failed"); }
     finally { setAiBusy(false); }
   }
