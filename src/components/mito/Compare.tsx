@@ -312,7 +312,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                   <ResponsiveContainer>
                     <BarChart
                       data={etcRows.rows
-                        .map((r) => ({ name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, top: r === etcRows.top }))
+                        .map((r) => ({ name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, up: r.diff >= 0 }))
                         .sort((x, y) => y.share - x.share)}
                       layout="vertical"
                       margin={{ top: 4, right: 16, bottom: 0, left: 4 }}
@@ -323,14 +323,17 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                       <Tooltip {...tip} formatter={(v: number) => `${v.toFixed(0)}%`} />
                       <Bar dataKey="share" radius={[0, 3, 3, 0]}>
                         {etcRows.rows
-                          .map((r) => ({ name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, top: r === etcRows.top }))
+                          .map((r) => ({ name: r.s.step.replace("Complex", "C"), share: (Math.abs(r.diff) / etcRows.totalAbs) * 100, up: r.diff >= 0 }))
                           .sort((x, y) => y.share - x.share)
                           .map((d, i) => (
-                            <Cell key={i} fill={d.top ? "var(--primary)" : "var(--muted-foreground)"} />
+                            <Cell key={i} fill={d.up ? "var(--primary)" : "var(--destructive)"} />
                           ))}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    <span style={{ color: "var(--primary)" }}>Green</span>: B raises that step's ATP rate. <span style={{ color: "var(--destructive)" }}>Red</span>: B lowers it.
+                  </p>
                 </div>
               )}
             </div>

@@ -428,3 +428,7 @@ says so in the caveats; they need validation against measured cluster loss data 
 - Scenario storage stays owner-scoped: signed-in users save to Cloud rows with owner-only RLS; signed-out users save to IndexedDB only.
 - AI routes keep the gateway key server-side and stay behind the shared in-memory rate limits.
 - No secrets are embedded in client code; sliders and presets change client state only.
+
+## Driver share bars colored by direction
+
+Compare's "Driver share, %" chart now colors each bar by direction, not just the top driver: green (var(--primary)) when scenario B raised that step's ATP rate, red (var(--destructive)) when B lowered it. A caption under the chart states the mapping. The top-driving step keeps its table highlight and asterisk. Verified in the preview with Erastin + 660 nm vs RSL3 + 810 nm (all nonzero steps green, +1% B vs A) and the reverse comparison (all red); zero page errors. Note: within the preset set, all nonzero steps of a given pair move in the same direction because per-step ATP rate scales with the shared flux and yield factors, so mixed green/red appears only for comparisons that change flux routing (for example succinate versus NADH pool differences across custom saved runs).
