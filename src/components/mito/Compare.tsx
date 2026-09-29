@@ -338,6 +338,36 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
           </div>
 
           <div className="mt-4 border-t border-border pt-3">
+            <div className="mono-label mb-1">ATP source split</div>
+            <p className="mb-2 text-xs text-muted-foreground">
+              Estimated share of ATP demand met by respiration versus glycolysis for each run. Phenotype label: {phenotype(ia)} (A) vs {phenotype(ib)} (B). Glycolysis covers any shortfall below the default-condition ATP demand, with a 5% basal floor; it is an estimate, not a measured lactate rate.
+            </p>
+            <div className="h-40 max-w-xl">
+              <ResponsiveContainer>
+                <BarChart
+                  data={([
+                    { name: `A: ${a.name}`, ...atpSplit(oa) },
+                    { name: `B: ${b.name}`, ...atpSplit(ob) },
+                  ] as const).map((d) => ({ ...d, glycoLabel: `${d.glycolysisPct.toFixed(0)}% glycolysis` }))}
+                  layout="vertical"
+                  margin={{ top: 4, right: 16, bottom: 0, left: 4 }}
+                  stackOffset="expand"
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                  <XAxis type="number" stroke="var(--muted-foreground)" fontSize={10} tickFormatter={(v) => `${Math.round(v * 100)}%`} />
+                  <YAxis type="category" dataKey="name" width={150} stroke="var(--muted-foreground)" fontSize={10} />
+                  <Tooltip {...tip} formatter={(v: number, n) => [Number(v).toPrecision(3), n]} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="respiration" name="Respiration ATP" stackId="s" fill="var(--primary)" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="glycolysis" name="Glycolysis ATP" stackId="s" fill="var(--accent)" radius={[0, 3, 3, 0]}>
+                    <LabelList dataKey="glycoLabel" position="right" fontSize={10} fill="var(--muted-foreground)" />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="mt-4 border-t border-border pt-3">
             <div className="mono-label mb-1">ETC step energetics</div>
             <p className="mb-2 text-xs text-muted-foreground">
               Live ATP yields, scaled by each scenario's membrane potential and uncoupling, with electron flux routed through the step. ATP rate = ATP per pair x flux / 2, relative units. CI steps use CI flux, CII its own, CIII/CIV/cyt c use CIV flux. Driver share shows how much of the total ATP rate gap each step explains.
