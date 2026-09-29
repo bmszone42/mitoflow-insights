@@ -499,3 +499,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] Verified in preview (signed out): section shows both run labels with the browser fallback note; zero page errors; typecheck clean.
 
 - ✅ Warburg dashboard tab: live glycolysis vs respiration split, driver shares vs healthy baseline (green/red), green/amber ETC step yields, fuel preset buttons, Open in Simulator link.
+
+## 3D labels: amber on high ATP cost (2026-09-29)
+- ✅ Complex close-up labels now turn amber when the live energy cost per ATP rises above the standard 0.52 eV (membrane potential above 160 mV), not only when uncoupling drops the yield below the healthy default. Green requires both: yield at or above standard AND cost at or under 0.52 eV/ATP.
+- ✅ Legend in the 3D viewer updated to explain both amber conditions.
+- ✅ Verified in preview: at 180 mV the labels read 0.58 eV/ATP and tint amber; at defaults they stay green. Zero page errors, typecheck clean.
