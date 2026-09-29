@@ -112,11 +112,19 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
   const [aiText, setAiText] = useState("");
   const [aiBusy, setAiBusy] = useState(false);
   const [aiErr, setAiErr] = useState("");
-  const aiKey = aId && bId ? `cristae-lab:driver-ai:${aId}|${bId}` : "";
+  const pairKey = aId && bId ? `${aId}|${bId}` : "";
+  const aiKey = pairKey ? `cristae-lab:driver-ai:${pairKey}` : "";
   useEffect(() => {
     setAiErr("");
-    try { setAiText(aiKey ? localStorage.getItem(aiKey) ?? "" : ""); } catch { setAiText(""); }
-  }, [aiKey]);
+    let local = "";
+    try { local = aiKey ? localStorage.getItem(aiKey) ?? "" : ""; } catch { /* blocked */ }
+    setAiText(local);
+    if (!pairKey) return;
+    let live = true;
+    // Signed in: the account copy wins so replies follow the user across devices.
+    loadDriverReply(pairKey).then((r) => { if (live && r) setAiText(r); }).catch(() => {});
+    return () => { live = false; };
+  }, [aiKey, pairKey]);
 
   async function interpretDrivers() {
     if (!a || !b || !ia || !ib || !oa || !ob || !etcRows) return;
@@ -149,7 +157,10 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
       if (!res.ok || !res.body) { const j = await res.json().catch(() => ({})); throw new Error(j.error ?? `Request failed (${res.status})`); }
       const reader = res.body.getReader(); const dec = new TextDecoder(); let acc = "";
       while (true) { const { done, value } = await reader.read(); if (done) break; acc += dec.decode(value, { stream: true }); setAiText(acc); }
-      if (acc && aiKey) { try { localStorage.setItem(aiKey, acc); } catch { /* storage full or blocked */ } }
+      if (acc && aiKey) {
+        try { localStorage.setItem(aiKey, acc); } catch { /* storage full or blocked */ }
+        saveDriverReply(pairKey, acc).catch(() => {});
+      }
     } catch (e) { setAiErr(e instanceof Error ? e.message : "AI request failed"); }
     finally { setAiBusy(false); }
   }

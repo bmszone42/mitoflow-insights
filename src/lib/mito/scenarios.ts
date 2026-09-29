@@ -33,6 +33,25 @@ async function userId(): Promise<string | null> {
   return data.session?.user.id ?? null;
 }
 
+/** Saved Compare AI driver reply for an A|B pair, in the signed-in account. Null when signed out. */
+export async function loadDriverReply(pairKey: string): Promise<string | null> {
+  const uid = await userId();
+  if (!uid) return null;
+  const { data, error } = await supabase.from("driver_ai_replies").select("reply").eq("pair_key", pairKey).maybeSingle();
+  if (error) throw error;
+  return data?.reply ?? null;
+}
+
+export async function saveDriverReply(pairKey: string, reply: string): Promise<void> {
+  const uid = await userId();
+  if (!uid) return;
+  const { error } = await supabase.from("driver_ai_replies").upsert(
+    { user_id: uid, pair_key: pairKey, reply, updated_at: new Date().toISOString() },
+    { onConflict: "user_id,pair_key" },
+  );
+  if (error) throw error;
+}
+
 export async function listLocalScenarios(): Promise<Scenario[]> {
   const all = (await (await db()).getAll("scenarios")) as Scenario[];
   return all.sort((a, b) => b.updatedAt - a.updatedAt);
