@@ -15,6 +15,16 @@ const Body = z.object({
       b: z.string().max(200),
       atpFluxA: z.number(),
       atpFluxB: z.number(),
+      energy: z
+        .object({
+          a: z.object({ respiration: z.number(), glycolysis: z.number(), glycolysisPct: z.number() }),
+          b: z.object({ respiration: z.number(), glycolysis: z.number(), glycolysisPct: z.number() }),
+          nadhDirection: z.enum(["up", "down", "none"]),
+          succinateDirection: z.enum(["up", "down", "none"]),
+          phenotypeA: z.enum(["respiration", "Warburg shift", "glycolysis only"]),
+          phenotypeB: z.enum(["respiration", "Warburg shift", "glycolysis only"]),
+        })
+        .optional(),
       steps: z
         .array(
           z.object({
@@ -37,7 +47,8 @@ const COMPARE_SYSTEM = `
 When a scenario comparison block is given, add a first section "## ATP change drivers" before the others:
 name the step with the largest driver share, say whether scenario B raised or lowered it, and rank the steps that together explain most of the gap.
 For each dominant step, say whether its change comes from the ATP yield per pair (membrane potential, uncoupling) or from electron flux through that complex (substrate supply, inhibition, light, NO).
-Driver shares are fractions of the total absolute per-step rate gap, not of whole-chain ATP flux. Label steps with zero share as not contributing.`;
+Driver shares are fractions of the total absolute per-step rate gap, not of whole-chain ATP flux. Label steps with zero share as not contributing.
+When an energy source split is given, add "## Glycolysis vs respiration": state each phenotype, the glycolytic share in A and B, whether falling NADH or succinate (direction down) explains a Warburg-like shift, and note the split is an estimate, not a measured lactate flux.`;
 
 const SYSTEM = `You are a mitochondrial redox biologist interpreting a lumped steady-state model.
 Given an experimental condition, the model inputs and the predicted outputs, write a concise mechanistic interpretation in Markdown with these sections:
@@ -86,7 +97,11 @@ export const Route = createFileRoute("/api/interpret")({
             compare
               ? `\n\nScenario comparison (A = ${compare.a}, B = ${compare.b}). Whole chain ATP flux A ${compare.atpFluxA.toPrecision(4)}, B ${compare.atpFluxB.toPrecision(4)}.\nPer-step ATP drivers (step | eV | ATP/pair A, B | rate A, B | driver share % | direction):\n${compare.steps
                   .map((x) => `${x.step} | ${x.ev} | ${x.atpPerPairA.toFixed(2)}, ${x.atpPerPairB.toFixed(2)} | ${x.rateA.toPrecision(3)}, ${x.rateB.toPrecision(3)} | ${x.sharePct.toFixed(1)} | ${x.direction}`)
-                  .join("\n")}`
+                  .join("\n")}${
+                  compare.energy
+                    ? `\n\nEnergy source split (estimate: glycolysis covers any shortfall below default ATP demand, 5% basal floor). Phenotype A: ${compare.energy.phenotypeA}, B: ${compare.energy.phenotypeB}. NADH supply B vs A: ${compare.energy.nadhDirection}; succinate supply B vs A: ${compare.energy.succinateDirection}.\nA: respiration ${compare.energy.a.respiration.toPrecision(3)}, glycolysis ${compare.energy.a.glycolysis.toPrecision(3)} µM/s ATP (${compare.energy.a.glycolysisPct.toFixed(0)}% glycolytic)\nB: respiration ${compare.energy.b.respiration.toPrecision(3)}, glycolysis ${compare.energy.b.glycolysis.toPrecision(3)} µM/s ATP (${compare.energy.b.glycolysisPct.toFixed(0)}% glycolytic)`
+                    : ""
+                }`
               : ""
           }`,
           abortSignal: request.signal,

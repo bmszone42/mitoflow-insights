@@ -448,3 +448,5 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Compare driver chart: signed percent labels
 - [x] Each driver share bar now shows the signed B-vs-A percent change next to it (e.g. +1%), and the tooltip shows share plus signed change
 - [x] Verified in preview with Erastin + 660 nm vs RSL3 + 810 nm; zero page errors
+
+- ✅ Compare AI payload carries glycolysis vs respiration ATP split (estimate), NADH/succinate direction, and Warburg phenotype per scenario
