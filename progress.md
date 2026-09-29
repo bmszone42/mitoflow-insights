@@ -543,3 +543,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 
 ### Security before deployment
 - Keep the AI key server-side and retain per-request validation and rate limiting. Review owner-only access to saved interpretations and replace per-instance limits with shared limits before public deployment.
+
+## Warburg network card selection (2026-09-29)
+- [x] ✅ Clicking a Warburg ATP network circle highlights its matching ETC step card with the same primary ring used by Compare, while preserving the green/amber ATP-yield edge.
+- [x] ✅ Clicking the selected circle again clears the card highlight.
