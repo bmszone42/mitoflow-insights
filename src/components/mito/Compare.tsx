@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { ShapeSketch, ShapeOverlay } from "@/components/mito/ShapeSketch";
-import { liveAtpPerPair, etcSteps } from "@/lib/mito/reference";
+import { liveAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
 
 const outRows: { key: keyof Outputs; label: string; unit: string }[] = [
   { key: "atpFlux", label: "ATP flux", unit: "µM/s" },
@@ -28,17 +28,6 @@ const rosKeys = ["superoxide", "hydrogenPeroxide", "peroxynitrite", "lipidPeroxy
 const tip = {
   contentStyle: { background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 },
 };
-
-// Estimate: glycolysis covers any shortfall below the default-condition ATP demand, with a 5% basal floor.
-const ATP_DEMAND = simulate(defaultInputs).atpFlux;
-function atpSplit(o: Outputs) {
-  const glyco = Math.max(0.05 * ATP_DEMAND, ATP_DEMAND - o.atpFlux);
-  const tot = glyco + o.atpFlux;
-  return { respiration: o.atpFlux, glycolysis: glyco, glycolysisPct: tot > 0 ? (glyco / tot) * 100 : 0 };
-}
-function phenotype(i: Inputs) {
-  return i.nadhRatio <= 0.1 && i.succinate <= 0.05 ? "glycolysis only" : i.nadhRatio < 0.4 && i.succinate < 0.4 ? "Warburg shift" : "respiration";
-}
 
 function Delta({ a, b }: { a: number; b: number }) {
   const d = b - a;
