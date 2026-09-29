@@ -66,6 +66,20 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
   // preset buttons (tagged with their preset name).
   const shown = presetsOnly ? items.filter((s) => s.preset) : items;
 
+  // One-click Warburg comparison: glycolysis-only (A) vs respiration (B) presets.
+  const warburgPair = useMemo(() => {
+    const gly = items.find((s) => s.preset === "Glycolysis only");
+    const resp = items.find((s) => s.preset === "Respiration");
+    return gly && resp ? { gly: gly.id, resp: resp.id } : null;
+  }, [items]);
+
+  function warburgView() {
+    if (!warburgPair) return;
+    setPresetsOnly(true);
+    setA(warburgPair.gly);
+    setB(warburgPair.resp);
+  }
+
   useEffect(() => {
     listScenarios()
       .then((l) => {
