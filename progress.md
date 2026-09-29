@@ -497,3 +497,5 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [x] The section header shows the pair's run labels ("A: Respiration · B: RSL3 + 810 nm"), the account save time when signed in, or "saved in this browser" when signed out.
 - [x] loadDriverReply now returns { reply, updatedAt } from the account row so the save time renders; a fresh interpretation switches the header to "Interpreting live" during streaming.
 - [x] Verified in preview (signed out): section shows both run labels with the browser fallback note; zero page errors; typecheck clean.
+
+- ✅ Warburg dashboard tab: live glycolysis vs respiration split, driver shares vs healthy baseline (green/red), green/amber ETC step yields, fuel preset buttons, Open in Simulator link.
