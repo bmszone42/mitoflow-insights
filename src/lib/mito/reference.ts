@@ -264,8 +264,8 @@ export const etcSteps: EtcStep[] = [
     tbLo: 0.05,
     tbHi: 0.2,
     rangeBasis: "Derived from Q-pool midpoint potentials near +65 to +112 mV and the preparation-dependent N2 potential.",
-    sourceCitation: "Urban PF, Klingenberg M. Eur J Biochem. 1969;9:519–525. doi:10.1111/j.1432-1033.1969.tb00639.x",
-    sourceUrl: "https://doi.org/10.1111/j.1432-1033.1969.tb00639.x",
+    sourceCitation: "Urban PF, Klingenberg M. Eur J Biochem. 1969;9:519–525. doi:10.1111/j.1432-1033.1969.tb00640.x",
+    sourceUrl: "https://doi.org/10.1111/j.1432-1033.1969.tb00640.x",
   },
   {
     step: "Complex II (FADH2)",
@@ -294,7 +294,7 @@ export const etcSteps: EtcStep[] = [
     tbLo: 0.1,
     tbHi: 0.28,
     rangeBasis: "Derived from Q-pool values and reported Rieske potentials; Qo quinone potentials are strongly site- and pH-dependent.",
-    sourceCitation: "Moser CC, Wraight CA, Dutton PL. J Bioenerg Biomembr. 2008;40:493–499. doi:10.1007/s10863-008-9174-6",
+    sourceCitation: "Zhang H et al. J Bioenerg Biomembr. 2008;40:493–499. doi:10.1007/s10863-008-9174-6",
     sourceUrl: "https://doi.org/10.1007/s10863-008-9174-6",
   },
   {
@@ -337,7 +337,7 @@ export const etcSteps: EtcStep[] = [
     tbLo: 0.2,
     tbHi: 0.6,
     rangeBasis: "Envelope between equilibrium heme a3/CuB values and O2/H2O +800 mV; the catalytic active-state potential remains uncertain.",
-    sourceCitation: "Vilhjálmsdóttir J et al. Sci Rep. 2018;8:7761. doi:10.1038/s41598-018-25779-w",
+    sourceCitation: "Vilhjálmsdóttir J et al. Sci Rep. 2018;8:7502. doi:10.1038/s41598-018-25779-w",
     sourceUrl: "https://doi.org/10.1038/s41598-018-25779-w",
     protons: 2,
     note: "The largest drop; 2 H+ pumped plus 2 chemical H+ per pair. NO binds here and light releases it.",

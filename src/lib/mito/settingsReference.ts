@@ -28,7 +28,7 @@ const inputMeta: Record<keyof Inputs, SettingMeta> = {
   irradiance: { group: "Light", context: "Experimental light intensity", source: "Huang et al., Dose Response (2009)", url: "https://doi.org/10.2203/dose-response.09-027.Hamblin", note: "Irradiance is a protocol choice, not a normal physiological quantity." },
   tissueDepth: { group: "Light", context: "Exposure geometry", source: "Jacques, Phys Med Biol (2013)", url: "https://doi.org/10.1088/0031-9155/58/11/R37", note: "Depth varies by anatomy and setup; 0 mm represents cultured cells." },
   gpx4: { group: "Ferroptosis", context: "Relative GPx4 activity", source: "Ursini et al., Biochim Biophys Acta (1985)", url: "https://doi.org/10.1016/0304-4165(85)90182-5", note: "One model scaling factor, not a comparable assay activity interval." },
-  fsp1: { group: "Ferroptosis", context: "Relative FSP1 / CoQ10H₂ capacity", source: "Bersuker et al., Nature (2019)", url: "https://doi.org/10.1038/s41586-019-1707-0", note: "Mechanistic model scaling, not a measured concentration or reference interval." },
+  fsp1: { group: "Ferroptosis", context: "Relative FSP1 / CoQ10H₂ capacity", source: "Bersuker et al., Nature (2019)", url: "https://doi.org/10.1038/s41586-019-1705-2", note: "Mechanistic model scaling, not a measured concentration or reference interval." },
   cardiolipinPufa: { group: "Ferroptosis", context: "Composition depends on tissue and lipid species", source: "Kagan et al., Nat Chem Biol (2005)", url: "https://doi.org/10.1038/nchembio727", note: "Model fraction does not map to a standardized clinical cardiolipin PUFA interval." },
 };
 
