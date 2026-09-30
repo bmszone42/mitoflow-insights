@@ -20,7 +20,6 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import {
-  grid2d,
   simulate,
   sensitivity,
   sensitivityDrivers,
@@ -31,7 +30,7 @@ import {
   type SensOutputKey,
 } from "@/lib/mito/model";
 import { sensitivityCsv } from "@/lib/mito/csv";
-import { etcSteps, ironLightReferenceBands } from "@/lib/mito/reference";
+import { IronLightMap, type IronLightPayload } from "./IronLightMap";
 
 const tip = {
   contentStyle: {
@@ -110,154 +109,7 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
     return { name: t.name, up: s.up["emission71THz"], down: s.down["emission71THz"] };
   });
 
-  const grid = useMemo(() => grid2d(inputs, "labileIron", lightKey), [inputs, lightKey]);
-  // Lowest light dose where oxidized cardiolipin crosses the 30% Committed
-  // threshold, at the map's highest iron, for three NO levels. Shows how NO
-  // shifts the crossing without re-rendering the map.
-  const noCrossing = useMemo(() => {
-    const maxIron = Math.max(...grid.xs);
-    const crossAt = (no: number) => {
-      for (const y of grid.ys) {
-        const o = simulate({ ...inputs, nitricOxide: no, labileIron: maxIron, [lightKey]: y });
-        if (o.cardiolipinOx >= 30) return y;
-      }
-      return null;
-    };
-    return { low: crossAt(0), now: crossAt(inputs.nitricOxide), high: crossAt(400) };
-  }, [grid, inputs, lightKey]);
-  const mapVals = grid.cells.flat().map((c) => c[mapOutput] ?? 0);
-  const isRos = ["superoxide", "hydrogenPeroxide", "hydroxylRadical", "peroxynitrite", "lipidPeroxyl"].includes(mapOutput);
-  const vMin = Math.min(...mapVals);
-  const vMax = Math.max(...mapVals);
-  const logMin = Math.log10(Math.max(vMin, 1e-9));
-  const logMax = Math.log10(Math.max(vMax, 1e-9));
-  const cellColor = (v: number) => {
-    const t = isRos
-      ? logMax === logMin
-        ? 0.5
-        : (Math.log10(Math.max(v, 1e-9)) - logMin) / (logMax - logMin)
-      : vMax === vMin
-        ? 0.5
-        : (v - vMin) / (vMax - vMin);
-    return `color-mix(in oklch, var(--accent) ${Math.round(10 + t * 85)}%, transparent)`;
-  };
-  const fmtVal = (v: number) => (Math.abs(v) < 0.01 ? v.toExponential(1) : v.toPrecision(3));
-  const activeBand = mapOutput === "fesIntact" || mapOutput === "aconitaseActivity"
-    ? ironLightReferenceBands[mapOutput]
-    : null;
-  const flaggedCells = activeBand
-    ? grid.cells.flat().filter((c) => {
-        const pct = mapOutput === "fesIntact" ? (c["fesIntact"] ?? 0) * 100 : (c["aconitaseActivity"] ?? 0);
-        return pct < activeBand.lo || pct > activeBand.hi;
-      }).length
-    : 0;
-  const assayEquivalent = (pct: number) => activeBand ? (pct / 100) * activeBand.mean : null;
-
-  // Study points at 3 and 30 J/cm2 (Chen 2011, Huang 2013): nearest grid row
-  // plus Fe-S erosion at that dose with the current non-light inputs.
-  const nearestDose = (target: number) =>
-    grid.ys.reduce((b, y) => (Math.abs(y - target) < Math.abs(b - target) ? y : b), grid.ys[0]!);
-  const studyRows = [3, 30].map((d) => {
-    const dose = nearestDose(d);
-    const o = simulate({ ...inputs, [lightKey]: dose });
-    return { dose, fes: o.fesIntact * 100, acon: o.aconitaseActivity };
-  });
-
-  const mapPayload = () => {
-    const dx = grid.dx;
-    const dy = grid.dy;
-    const at = (x: number, y: number) => simulate({ ...inputs, labileIron: x, [lightKey]: y });
-    const f00 = at(dx.min, dy.min);
-    const f10 = at(dx.max, dy.min);
-    const f01 = at(dx.min, dy.max);
-    const f11 = at(dx.max, dy.max);
-    const base = simulate(inputs);
-    const pc = (v: number, b: number) => ((v - b) / Math.abs(b)) * 100;
-    const outputs = sensOutputs
-      .filter((o) => Math.abs(f00[o.key]) > 1e-12)
-      .map((o) => {
-        const vals = grid.cells.flat().map((c) => c[o.key] ?? 0);
-        const xOnly = pc(f10[o.key], f00[o.key]);
-        const yOnly = pc(f01[o.key], f00[o.key]);
-        const both = pc(f11[o.key], f00[o.key]);
-        return {
-          label: o.label,
-          base: base[o.key],
-          xOnlyPct: xOnly,
-          yOnlyPct: yOnly,
-          bothPct: both,
-          synergyPct: both - xOnly - yOnly,
-          min: Math.min(...vals),
-          max: Math.max(...vals),
-        };
-      });
-    const idx = [0, 3, 6, 9, 12, 15, 18, 20].filter((i) => i < grid.xs.length);
-    // Nitric oxide context: the ONOO- driven Fe-S attack term means NO shifts
-    // both cluster loss and the 30% oxidized cardiolipin crossing dose.
-    const maxIron = Math.max(...grid.xs);
-    const noRow = (no: number) => {
-      const o = simulate({ ...inputs, nitricOxide: no, labileIron: maxIron }, geo);
-      return {
-        no,
-        peroxynitrite: o.peroxynitrite,
-        fesIntactPct: o.fesIntact * 100,
-        aconitasePct: o.aconitaseActivity,
-        cardiolipinOxPct: o.cardiolipinOx,
-      };
-    };
-    // Light pump context: treat the absorbed photon as a separate energy source
-    // and compare its eV against the ETC step drops (hc/lambda, 1240 nm.eV).
-    const photonEv660 = 1240 / 660;
-    const photonEv810 = 1240 / 810;
-    const pumpSteps = etcSteps.filter((s) => s.protons > 0);
-    return {
-      lightPump: {
-        photonEv660,
-        photonEv810,
-        activeWavelengthNm: lightKey === "nirDose" ? 810 : 660,
-        photonGainBase: base.photonGain,
-        photonGainMaxDose: f01.photonGain,
-        vsPumpSteps: pumpSteps.map((s) => ({
-          step: s.step,
-          stepEv: s.ev,
-          ratio660: photonEv660 / s.ev,
-          ratio810: photonEv810 / s.ev,
-        })),
-      },
-      nitricOxide: {
-        currentNm: inputs.nitricOxide,
-        atMaxIron: maxIron,
-        crossingDoses: {
-          no0: noCrossing.low,
-          current: noCrossing.now,
-          no400: noCrossing.high,
-        },
-        levels: [0, inputs.nitricOxide, 400].map(noRow),
-      },
-      xLabel: `${dx.label} (µM)`,
-      yLabel: `${dy.label} (J/cm2)`,
-      xRange: [dx.min, dx.max] as [number, number],
-      yRange: [dy.min, dy.max] as [number, number],
-      baseline: { x: inputs.labileIron, y: inputs[lightKey] },
-      shownOutput: sensOutputs.find((o) => o.key === mapOutput)!.label,
-      shownGrid: idx.map((r) => idx.map((c) => grid.cells[r]![c]![mapOutput] ?? 0)),
-      referenceBand: activeBand ? {
-        label: activeBand.label,
-        loPct: activeBand.lo,
-        hiPct: activeBand.hi,
-        assayLo: activeBand.assayLo,
-        assayHi: activeBand.assayHi,
-        assayUnit: activeBand.unit,
-        cohort: activeBand.cohort,
-        specimen: activeBand.specimen,
-        source: activeBand.source,
-        proxy: activeBand.proxy,
-        flaggedCells,
-        totalCells: grid.cells.flat().length,
-      } : undefined,
-      outputs,
-    };
-  };
+  const mapPayloadRef = useRef<IronLightPayload | null>(null);
 
   const autoSave = async (mode: "table" | "map", body: string) => {
     const lightLabel = lightKey === "redDose" ? "660 nm" : "810 nm";
@@ -317,7 +169,7 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
                   down: s.down,
                   up: s.up,
                 })),
-          ...(mode === "map" ? { map: mapPayload() } : {}),
+          ...(mode === "map" && mapPayloadRef.current ? { map: mapPayloadRef.current } : {}),
         }),
         signal: ac.signal,
       });
@@ -539,168 +391,19 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
         </p>
       </section>
 
-      <section className="panel p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="mono-label">Interaction map: labile iron x light dose</div>
-          <div className="flex gap-2">
-            <Select value={lightKey} onValueChange={(v) => setLightKey(v as "redDose" | "nirDose")}>
-              <SelectTrigger className="h-8 w-[130px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="redDose">660 nm dose</SelectItem>
-                <SelectItem value="nirDose">810 nm dose</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={mapOutput} onValueChange={(v) => setMapOutput(v as SensOutputKey)}>
-              <SelectTrigger className="h-8 w-[130px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {sensOutputs.map((o) => (
-                  <SelectItem key={o.key} value={o.key}>
-                    {o.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="mt-3 overflow-x-auto">
-          <div className="inline-block">
-            <div className="flex">
-              <div className="w-10" />
-              <div
-                className="grid flex-1 gap-px"
-                style={{ gridTemplateColumns: `repeat(${grid.xs.length}, minmax(0, 1fr))`, width: 560 }}
-              >
-                {[...grid.cells].reverse().map((row, ri) =>
-                  row.map((c, ci) => {
-                    const v = c[mapOutput] ?? 0;
-                    const rowDose = grid.ys[grid.ys.length - 1 - ri]!;
-                    const isBase =
-                      ci === grid.xs.reduce((b, x, i) => (Math.abs(x - inputs.labileIron) < Math.abs(grid.xs[b]! - inputs.labileIron) ? i : b), 0) &&
-                      grid.ys.length - 1 - ri === grid.ys.reduce((b, y, i) => (Math.abs(y - inputs[lightKey]) < Math.abs(grid.ys[b]! - inputs[lightKey]) ? i : b), 0);
-                    const studyBorder =
-                      rowDose === studyRows[0]!.dose
-                        ? "2px dashed var(--foreground)"
-                        : rowDose === studyRows[1]!.dose
-                          ? "2px solid var(--foreground)"
-                          : undefined;
-                    // Ferroptosis thresholds from the same cell: risk 100 =
-                    // Committed (ratio 0.8 or 30% CL ox), risk 50 = Primed.
-                    const risk = c["ferroptosisRisk"] ?? 0;
-                    const clOx = c["cardiolipinOx"] ?? 0;
-                    const committed = risk >= 100;
-                    const primed = !committed && risk >= 50;
-                    const pct = mapOutput === "fesIntact" ? v * 100 : v;
-                    const outsideBand = activeBand !== null && (pct < activeBand.lo || pct > activeBand.hi);
-                    const assayValue = assayEquivalent(pct);
-                    return (
-                      <div
-                        key={`${ri}-${ci}`}
-                        title={`Fe ${(c["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(c["y"] ?? 0).toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${activeBand ? `${pct.toFixed(1)}% · ${assayValue?.toFixed(1)} ${activeBand.unit} assay-equivalent` : fmtVal(v)}${activeBand ? ` · ${outsideBand ? "outside" : "inside"} study controls ${activeBand.assayLo.toFixed(1)}–${activeBand.assayHi.toFixed(1)} ${activeBand.unit}` : ""} · risk ${risk.toFixed(0)} · CL ox ${clOx.toFixed(1)}%${committed ? " · Committed" : primed ? " · Primed" : ""}`}
-                        className="relative aspect-square rounded-[2px]"
-                        style={{
-                          background: cellColor(v),
-                          outline: isBase ? "2px solid var(--foreground)" : undefined,
-                          outlineOffset: -1,
-                          borderTop: studyBorder,
-                        }}
-                      >
-                        {outsideBand && (
-                          <span data-testid="iron-light-range-halo" className="pointer-events-none absolute inset-[2px] rounded-[2px] border-2 border-dashed border-destructive" aria-hidden="true" />
-                        )}
-                        {committed && (
-                          <span className="absolute inset-0 m-auto h-2 w-2 rounded-full bg-foreground" />
-                        )}
-                        {primed && (
-                          <span className="absolute inset-0 m-auto h-2 w-2 rounded-full border border-foreground" />
-                        )}
-                      </div>
-                    );
-                  }),
-                )}
-              </div>
-            </div>
-            <div className="mt-1 flex" style={{ paddingLeft: 40, width: 600 }}>
-              <div className="flex w-full justify-between font-mono text-[10px] text-muted-foreground">
-                {[0, 0.25, 0.5, 0.75, 1].map((t) => (
-                  <span key={t}>{(grid.dx.min + (grid.dx.max - grid.dx.min) * t).toFixed(0)}</span>
-                ))}
-              </div>
-            </div>
-            <div className="mt-1 text-center font-mono text-[10px] text-muted-foreground" style={{ paddingLeft: 40, width: 600 }}>
-              Labile iron (µM)
-            </div>
-          </div>
-        </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          Rows: {grid.dy.label} from {grid.dy.min} to {grid.dy.max} J/cm2 (bottom to top). Brighter cells
-          mean higher {sensOutputs.find((o) => o.key === mapOutput)!.label}
-          {isRos ? " (log scale)" : ""}. The outlined cell is your current baseline. Hover any cell for
-          exact values.
-        </p>
-        <p className="mt-1 text-[11px] text-muted-foreground" data-testid="iron-light-range-legend">
-          <span className="mr-1 inline-block h-2.5 w-2.5 align-middle border-2 border-dashed border-destructive" aria-hidden="true" />
-          Red dashed halo: {activeBand ? `${flaggedCells} of ${grid.cells.flat().length} cells outside the ${activeBand.assayLo.toFixed(1)}–${activeBand.assayHi.toFixed(1)} ${activeBand.unit} platelet ACO2 control envelope` : "choose Fe-S or aconitase to view study-control flags"}.
-          {activeBand && <> The model value is scaled to the study mean of {activeBand.mean.toFixed(2)} {activeBand.unit}. {activeBand.proxy ? "Fe-S uses ACO2 activity as an Fe-S-dependent proxy; it is not a direct Fe-S measurement." : "This is an assay-equivalent model estimate, not a measured platelet result."} <a href={activeBand.sourceUrl} target="_blank" rel="noreferrer" className="text-foreground underline decoration-border underline-offset-2 hover:text-primary">{activeBand.source}</a>, {activeBand.cohort}, {activeBand.specimen}.</>}
-          {!activeBand && " No universal clinical range exists for either output."}
-        </p>
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          Ferroptosis thresholds: filled dot = Committed (risk 100, propagation ratio 0.8 or 30%
-          cardiolipin oxidized), ring = Primed (risk 50).{" "}
-          {(() => {
-            const committedCells = grid.cells.flat().filter((c) => (c["ferroptosisRisk"] ?? 0) >= 100);
-            const clCrossCells = grid.cells.flat().filter((c) => (c["cardiolipinOx"] ?? 0) >= 30);
-            const clLine =
-              clCrossCells.length === 0
-                ? " Oxidized cardiolipin stays below the 30% Committed threshold everywhere on this map."
-                : ` Oxidized cardiolipin first crosses the 30% Committed threshold at ${Math.min(
-                    ...clCrossCells.map((c) => c["y"] ?? 0),
-                  ).toFixed(0)} J/cm2 (at ${Math.min(
-                    ...clCrossCells
-                      .filter(
-                        (c) =>
-                          (c["y"] ?? 0) ===
-                          Math.min(...clCrossCells.map((d) => d["y"] ?? 0)),
-                      )
-                      .map((c) => c["x"] ?? 0),
-                  ).toFixed(0)} µM iron).`;
-            if (committedCells.length === 0)
-              return (
-                "No cell on this map crosses Committed: light and iron together stay below the threshold at your current settings." +
-                clLine
-              );
-            const minDose = Math.min(...committedCells.map((c) => c["y"] ?? 0));
-            const maxIronNoLight = Math.max(
-              ...grid.cells[0]!.filter((c) => (c["ferroptosisRisk"] ?? 0) < 100).map((c) => c["x"] ?? 0),
-              0,
-            );
-            return `${committedCells.length} of ${grid.cells.flat().length} cells are Committed. The lowest dose that commits any cell is ${minDose.toFixed(0)} J/cm2; without light, iron alone commits above ${maxIronNoLight.toFixed(0)} µM.${clLine}`;
-          })()}{" "}
-          {(() => {
-            const fmt = (v: number | null) => (v === null ? "never within 60 J/cm2" : `${v.toFixed(0)} J/cm2`);
-            return `At the map's highest iron, the 30% ox CL threshold is crossed at ${fmt(noCrossing.now)} with your current NO (${inputs.nitricOxide.toFixed(0)} nM), at ${fmt(noCrossing.low)} with NO at 0, and at ${fmt(noCrossing.high)} with NO at 400 nM.`;
-          })()}
-        </p>
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          Study points (Chen 2011, Huang 2013): dashed line {studyRows[0]!.dose.toFixed(0)} J/cm2, solid
-          line {studyRows[1]!.dose.toFixed(0)} J/cm2. Fe-S erosion at your current inputs:{" "}
-          {studyRows[0]!.fes.toFixed(1)}% intact at {studyRows[0]!.dose.toFixed(0)} J/cm2,{" "}
-          {studyRows[1]!.fes.toFixed(1)}% intact at {studyRows[1]!.dose.toFixed(0)} J/cm2 (aconitase
-          tracks Fe-S).
-        </p>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Button size="sm" onClick={() => explain("map")} disabled={busy || cooling > 0 || remaining === 0}>
-            {busy && source === "map" ? "Interpreting..." : "Interpret this map (AI)"}
-          </Button>
-          <span className="text-[11px] text-muted-foreground">
-            Sends iron-only, light-only and combined effects plus synergy for every output. The result is saved as a
-            new scenario automatically.
-          </span>
-        </div>
-      </section>
+      <IronLightMap
+        inputs={inputs}
+        geo={geo}
+        lightKey={lightKey}
+        onLightKeyChange={setLightKey}
+        mapOutput={mapOutput}
+        onMapOutputChange={setMapOutput}
+        interpreting={busy && source === "map"}
+        onInterpret={(payload) => {
+          mapPayloadRef.current = payload;
+          void explain("map");
+        }}
+      />
 
       <section ref={panelRef} className="panel scroll-mt-4 p-4">
         <div className="flex items-center justify-between gap-2">

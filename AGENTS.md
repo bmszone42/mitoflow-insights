@@ -13,7 +13,7 @@
 
 - Keep cited redox math in `src/lib/mito/model.ts` for auditability.
 - Keep shared bands and ATP flag attribution in `reference.ts`; sliders are causes and P/O is the resulting readout.
-- Workspace state lives in `index.tsx`; mito components stay together; scenarios use owner-only Cloud or signed-out IndexedDB with legacy geometry defaults.
+- Workspace state lives in `index.tsx`; scenarios use owner-only Cloud or signed-out IndexedDB with legacy geometry defaults.
 
 - AI interpretation streams through `src/routes/api/interpret.ts`, keeping the gateway key server-side.
 - All AI routes share the in-memory rate limiter; use database limits when strict enforcement is needed.
@@ -26,3 +26,4 @@
 - The 3D viewer shares `layout(geo)` for scene and camera presets, and uses thresholded bloom on model-driven particles, not membranes, to preserve detail.
 - Warburg physiology compares ATP to cited ranges and named ROS rates to the same-geometry healthy default; unmapped steps remain unassessed. Step ATP rate is ATP/pair × routed flux ÷ 2; exclude the chain summary from totals.
 - Keep patient metadata, citations, synthetic cohort values, and robust cohort flags in `patientReference.ts`; never present model proxies as clinical measurements.
+- Reuse `atpComparisonRows` and `IronLightMap` across comparison views so ATP-gap math and iron-light flags stay aligned.

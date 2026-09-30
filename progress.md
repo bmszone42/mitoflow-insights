@@ -35,6 +35,8 @@ only, no account or database.
 - ✅ Site-resolved ROS pathways: CI IF/IQ, CIII Qo, CII IIF, OGDH; SOD1/SOD2; saturable Prx3 with hyperoxidation; ONOO- CO2/Prx3/thiol sinks; Fenton with Fe2+ recycling plus ONOOH homolysis; sources and sinks panel in Simulator
 - ❌ Per-crista spatial gradients, current model is lumped
 - ❌ User supplied rate constants and custom species
+- ✅ Physiology overview combines live status, ATP gap network, cited physiology rows, and the iron × light map
+- ✅ ATP network supports healthy-reference and saved-scenario baselines with shared network-to-table selection
 
 ## Feature specifications
 
@@ -101,6 +103,18 @@ parameter comment block and to this file.
 
 Educational and research tool only. Not a medical device and not for diagnosis or treatment. If
 clinical claims or patient data are ever introduced, HIPAA and GDPR review is required first.
+
+## Update: integrated physiology overview
+
+- ✅ One Physiology overview combines ATP flux and P/O status, the ATP driver network, the cited ETC and iron-sulfur rows, and the iron × light map.
+- ✅ ATP gaps compare the current model against either the healthy default or a browser/account-saved scenario using the shared scenario storage facade.
+- ✅ Clicking a network node highlights and scrolls to the matching physiology row.
+- ✅ The reusable iron × light map preserves NO crossing doses, ferroptosis markers, study-dose lines, ACO2 study-control flags, proxy labels, and citations.
+- Acceptance: both ATP baseline modes update direction and gap share; map wavelength and output selectors update independently; desktop and narrow layouts remain readable.
+- Testing: typecheck, preview build status, desktop interaction flow, and 390 px narrow-layout overflow checks.
+- Security: no new data collection or permissions; signed-in scenarios remain owner-scoped and signed-out scenarios remain in browser storage.
+- Compliance: study-control envelopes remain research assay context, not clinical reference intervals or diagnostic flags.
+- Deployment: no new environment variables, services, or migrations are required.
 
 ## Update: Warburg ATP gap breakdown
 
