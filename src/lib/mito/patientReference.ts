@@ -32,7 +32,7 @@ export const patientMetrics: PatientMetric[] = [
   { key: "glucose", group: "Clinical labs", label: "Fasting glucose", unit: "mmol/L", specimen: "Plasma", method: "Hexokinase", reference: { lo: 3.9, hi: 5.5, label: "Adult fasting interval" }, decimals: 1, sourceCitation: "ADA Standards of Care (2026)", sourceUrl: "https://diabetesjournals.org/care/issue/49/Supplement_1", note: "This is screening context; diagnosis requires clinical criteria and repeat testing where indicated." },
 ];
 
-export const demoPatients: DemoPatient[] = [
+export const demoPatients: [DemoPatient, ...DemoPatient[]] = [
   { id: "demo-01", label: "Demo 01", phenotype: "Reference-like", description: "Synthetic adult profile centered near the demo cohort.", values: { membranePotential: 163, poNadh: 2.48, atpLinkedOcr: 6.5, mitosox: 1.02, h2o2: 0.96, lipidPeroxidation: 102, aconitase: 88, labileIron: 2.2, ferritin: 94, transferrinSaturation: 31, lactate: 1.3, pyruvate: 72, lactatePyruvate: 18.1, glucose: 4.8 } },
   { id: "demo-02", label: "Demo 02", phenotype: "Coupling deficit", description: "Synthetic low-potential, low-P/O profile with reduced ATP-linked respiration.", values: { membranePotential: 126, poNadh: 1.61, atpLinkedOcr: 2.5, mitosox: 1.31, h2o2: 1.42, lipidPeroxidation: 137, aconitase: 68, labileIron: 3.8, ferritin: 72, transferrinSaturation: 24, lactate: 3.8, pyruvate: 92, lactatePyruvate: 41.3, glucose: 5.2 } },
   { id: "demo-03", label: "Demo 03", phenotype: "Oxidative stress", description: "Synthetic ROS-high profile with Fe-S injury and an expanded labile iron pool.", values: { membranePotential: 178, poNadh: 2.29, atpLinkedOcr: 5.2, mitosox: 2.44, h2o2: 2.18, lipidPeroxidation: 194, aconitase: 48, labileIron: 7.4, ferritin: 310, transferrinSaturation: 57, lactate: 2.0, pyruvate: 66, lactatePyruvate: 30.3, glucose: 5.4 } },
@@ -45,8 +45,12 @@ export const patientGroups: PatientGroup[] = ["Bioenergetics", "ROS and redox", 
 
 export function median(values: number[]) {
   const sorted = [...values].sort((a, b) => a - b);
+  const first = sorted[0];
+  if (first === undefined) return 0;
   const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+  const upper = sorted[middle] ?? first;
+  const lower = sorted[middle - 1] ?? upper;
+  return sorted.length % 2 ? upper : (lower + upper) / 2;
 }
 
 export function cohortStats(key: PatientMetricKey) {

@@ -29,7 +29,7 @@ function formatRange(metric: PatientMetric) {
 const formatValue = (value: number, decimals: number) => value.toFixed(decimals);
 
 export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
-  const [patientId, setPatientId] = useState(demoPatients[1].id);
+  const [patientId, setPatientId] = useState("demo-02");
   const patient = demoPatients.find((entry) => entry.id === patientId) ?? demoPatients[0];
   const rows = useMemo(() => patientMetrics.map((metric) => {
     const value = patient.values[metric.key];
@@ -92,11 +92,12 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
                 </tr></thead>
                 <tbody>{groupRows.map(({ metric, value, modelValue, stats, status }) => {
                   const isFlagged = status.includes("outlier");
+                  const displayedModel = modelValue === undefined ? null : `${formatValue(modelValue, metric.decimals)} ${metric.unit}`;
                   return (
                     <tr key={metric.key} data-testid="patient-measurement" data-status={status} className={`border-t border-border/60 ${isFlagged ? "bg-destructive/10" : ""}`}>
                       <th scope="row" className="px-3 py-3 font-medium">{metric.label}<span className="mt-0.5 block font-normal text-muted-foreground">{metric.specimen} · {metric.method}</span></th>
                       <td className={`px-3 py-3 font-mono font-medium ${isFlagged ? "text-destructive" : "text-foreground"}`}>{formatValue(value, metric.decimals)} {metric.unit}</td>
-                      <td className="px-3 py-3 font-mono">{modelValue === undefined ? <span className="inline-flex items-center gap-1 font-sans text-muted-foreground"><Minus className="size-3.5" aria-hidden />Not modeled</span> : <>{formatValue(modelValue, metric.decimals)} {metric.unit}<span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{metric.modelLabel}</span></>}</td>
+                      <td className="px-3 py-3 font-mono">{displayedModel === null ? <span className="inline-flex items-center gap-1 font-sans text-muted-foreground"><Minus className="size-3.5" aria-hidden />Not modeled</span> : <>{displayedModel}<span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{metric.modelLabel}</span></>}</td>
                       <td className="px-3 py-3 font-mono">{formatRange(metric)} {metric.reference ? metric.unit : ""}{metric.reference && <span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{metric.reference.label}</span>}</td>
                       <td className="px-3 py-3 font-mono">{formatValue(stats.median, metric.decimals)} median<span className="mt-0.5 block text-[10px] text-muted-foreground">{formatValue(stats.min, metric.decimals)}–{formatValue(stats.max, metric.decimals)} range</span></td>
                       <td className={`px-3 py-3 font-medium ${isFlagged ? "text-destructive" : status === "Within range" ? "text-primary" : "text-muted-foreground"}`}>{isFlagged ? <AlertTriangle className="mr-1 inline size-3.5" aria-hidden /> : status === "Within range" ? <CheckCircle2 className="mr-1 inline size-3.5" aria-hidden /> : <AlertCircle className="mr-1 inline size-3.5" aria-hidden />}{status}</td>
