@@ -245,8 +245,8 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
         label: activeBand.label,
         loPct: activeBand.lo,
         hiPct: activeBand.hi,
-        assayLo: activeBand.lo,
-        assayHi: activeBand.hi,
+        assayLo: activeBand.assayLo,
+        assayHi: activeBand.assayHi,
         assayUnit: activeBand.unit,
         cohort: activeBand.cohort,
         specimen: activeBand.specimen,
@@ -599,7 +599,7 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
                     return (
                       <div
                         key={`${ri}-${ci}`}
-                        title={`Fe ${(c["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(c["y"] ?? 0).toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${activeBand ? `${pct.toFixed(1)}% · ${assayValue?.toFixed(1)} ${activeBand.unit} assay-equivalent` : fmtVal(v)}${activeBand ? ` · ${outsideBand ? "outside" : "inside"} study controls ${activeBand.lo.toFixed(1)}–${activeBand.hi.toFixed(1)} ${activeBand.unit}` : ""} · risk ${risk.toFixed(0)} · CL ox ${clOx.toFixed(1)}%${committed ? " · Committed" : primed ? " · Primed" : ""}`}
+                        title={`Fe ${(c["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(c["y"] ?? 0).toFixed(1)} J/cm2: ${sensOutputs.find((o) => o.key === mapOutput)!.label} ${activeBand ? `${pct.toFixed(1)}% · ${assayValue?.toFixed(1)} ${activeBand.unit} assay-equivalent` : fmtVal(v)}${activeBand ? ` · ${outsideBand ? "outside" : "inside"} study controls ${activeBand.assayLo.toFixed(1)}–${activeBand.assayHi.toFixed(1)} ${activeBand.unit}` : ""} · risk ${risk.toFixed(0)} · CL ox ${clOx.toFixed(1)}%${committed ? " · Committed" : primed ? " · Primed" : ""}`}
                         className="relative aspect-square rounded-[2px]"
                         style={{
                           background: cellColor(v),
@@ -643,7 +643,7 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
         </p>
         <p className="mt-1 text-[11px] text-muted-foreground" data-testid="iron-light-range-legend">
           <span className="mr-1 inline-block h-2.5 w-2.5 align-middle border-2 border-dashed border-destructive" aria-hidden="true" />
-          Red dashed halo: {activeBand ? `${flaggedCells} of ${grid.cells.flat().length} cells outside the ${activeBand.lo.toFixed(1)}–${activeBand.hi.toFixed(1)} ${activeBand.unit} platelet ACO2 control envelope` : "choose Fe-S or aconitase to view study-control flags"}.
+          Red dashed halo: {activeBand ? `${flaggedCells} of ${grid.cells.flat().length} cells outside the ${activeBand.assayLo.toFixed(1)}–${activeBand.assayHi.toFixed(1)} ${activeBand.unit} platelet ACO2 control envelope` : "choose Fe-S or aconitase to view study-control flags"}.
           {activeBand && <> The model value is scaled to the study mean of {activeBand.mean.toFixed(2)} {activeBand.unit}. {activeBand.proxy ? "Fe-S uses ACO2 activity as an Fe-S-dependent proxy; it is not a direct Fe-S measurement." : "This is an assay-equivalent model estimate, not a measured platelet result."} <a href={activeBand.sourceUrl} target="_blank" rel="noreferrer" className="text-foreground underline decoration-border underline-offset-2 hover:text-primary">{activeBand.source}</a>, {activeBand.cohort}, {activeBand.specimen}.</>}
           {!activeBand && " No universal clinical range exists for either output."}
         </p>

@@ -142,8 +142,8 @@ export const fesClusters: FesEntry[] = [
 // measurements or universal reference intervals. Fe-S integrity has no direct
 // human clinical interval and is represented by the same ACO2-dependent proxy.
 const plateletAco2Study = {
-  lo: 209.41,
-  hi: 541.41,
+  assayLo: 209.41,
+  assayHi: 541.41,
   mean: 375.41,
   unit: "mU/mg protein",
   cohort: "22 healthy controls",
@@ -154,15 +154,15 @@ const plateletAco2Study = {
 
 export const ironLightReferenceBands = {
   fesIntact: {
-    lo: (plateletAco2Study.lo / plateletAco2Study.mean) * 100,
-    hi: (plateletAco2Study.hi / plateletAco2Study.mean) * 100,
+    lo: (plateletAco2Study.assayLo / plateletAco2Study.mean) * 100,
+    hi: (plateletAco2Study.assayHi / plateletAco2Study.mean) * 100,
     label: "Fe-S via platelet ACO2 proxy",
     ...plateletAco2Study,
     proxy: true,
   },
   aconitaseActivity: {
-    lo: (plateletAco2Study.lo / plateletAco2Study.mean) * 100,
-    hi: (plateletAco2Study.hi / plateletAco2Study.mean) * 100,
+    lo: (plateletAco2Study.assayLo / plateletAco2Study.mean) * 100,
+    hi: (plateletAco2Study.assayHi / plateletAco2Study.mean) * 100,
     label: "Aconitase assay-equivalent",
     ...plateletAco2Study,
     proxy: false,
