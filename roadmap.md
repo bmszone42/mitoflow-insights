@@ -4,4 +4,4 @@
 - [x] Add shared ATP comparison rows and both baseline modes.
 - [x] Compose Physiology overview with linked network and ETC rows.
 - [x] Update project documentation and architecture rules.
-- [ ] Verify desktop, narrow layout, saved scenarios, and current preview health.
+- [x] Verify desktop, narrow layout, saved-scenario empty state, and current preview health.

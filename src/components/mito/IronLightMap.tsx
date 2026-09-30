@@ -70,7 +70,7 @@ export function IronLightMap({ inputs, geo, onInterpret, interpreting = false, c
   const committed = grid.cells.flat().filter((c) => (c["ferroptosisRisk"] ?? 0) >= 100);
   const fmtCross = (value: number | null) => value === null ? "never within 60 J/cm2" : `${value.toFixed(0)} J/cm2`;
   return (
-    <section className="panel p-4" data-testid="iron-light-map">
+    <section className="panel min-w-0 p-4" data-testid="iron-light-map">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="mono-label">Interaction map: labile iron x light dose</div>
         <div className="flex flex-wrap gap-2">
