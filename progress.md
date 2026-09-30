@@ -1,3 +1,11 @@
+## Physiology study references (2026-09-30)
+
+- ✅ Added a searchable References view inside Physiology with 29 deduplicated studies grouped by model domain.
+- ✅ Included full authors, title, publication, year, page span or article number, DOI link, and the model setting or readout each study supports.
+- ✅ Distinguished publication-wide page spans from claim-specific locators; retained named Table 1 and Table 2 locators where the model cites them.
+- ✅ Listed incomplete model-note citations separately instead of inventing page numbers.
+- ✅ Corrected mismatched Q-pool, Complex III attribution, Complex IV article number, FSP1, and labile-iron source records found during the audit.
+
 ## Model settings reference dashboard
 - ✅ Physiology overview lists all 16 model inputs and 8 membrane geometry controls in five groups with live and default values, cited context, and source limitations.
 - ✅ Comparable membrane potential shows within/outside flags and exact distance to the closest boundary. Uncoupling is labeled context dependent: its dimensionless model control cannot be compared numerically to published proton-leak respiration shares.

@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Add a searchable Physiology study index with verified full citations and publication locators.
+- [x] Map each verified study to the model settings, ETC steps, assays, or benchmark it supports.
+- [x] Separate unresolved citation fragments from verified bibliography records and correct mismatched DOI links.
+
 - [x] Compare live healthy default with independent published P/O estimates and platelet aconitase controls as an explicitly scaled proxy.
 - [x] Distinguish simulated ATP network baseline from measured controls; never flag ATP flux against oxygen-consumption units.
 - [ ] Clinical validation requires matched specimen, assay, calibration and actual patient measurements; unavailable here.
