@@ -26,7 +26,7 @@ function buildPayload(inputs: Inputs, geo: Geometry, lightKey: "redDose" | "nirD
   });
   const activeBand = mapOutput === "fesIntact" || mapOutput === "aconitaseActivity" ? ironLightReferenceBands[mapOutput] : null;
   const flaggedCells = activeBand ? grid.cells.flat().filter((c) => {
-    const pct = mapOutput === "fesIntact" ? (c.fesIntact ?? 0) * 100 : (c.aconitaseActivity ?? 0);
+    const pct = mapOutput === "fesIntact" ? (c["fesIntact"] ?? 0) * 100 : (c["aconitaseActivity"] ?? 0);
     return pct < activeBand.lo || pct > activeBand.hi;
   }).length : 0;
   const idx = [0, 3, 6, 9, 12, 15, 18, 20].filter((i) => i < grid.xs.length);
@@ -67,7 +67,7 @@ export function IronLightMap({ inputs, geo, onInterpret, interpreting = false, c
   const activeBand = mapOutput === "fesIntact" || mapOutput === "aconitaseActivity" ? ironLightReferenceBands[mapOutput] : null;
   const nearest = (target: number) => grid.ys.reduce((best, y) => Math.abs(y - target) < Math.abs(best - target) ? y : best, grid.ys[0] ?? 0);
   const studyRows = [3, 30].map((target) => { const dose = nearest(target); const out = simulate({ ...inputs, [lightKey]: dose }); return { dose, fes: out.fesIntact * 100 }; });
-  const committed = grid.cells.flat().filter((c) => (c.ferroptosisRisk ?? 0) >= 100);
+  const committed = grid.cells.flat().filter((c) => (c["ferroptosisRisk"] ?? 0) >= 100);
   const fmtCross = (value: number | null) => value === null ? "never within 60 J/cm2" : `${value.toFixed(0)} J/cm2`;
   return (
     <section className="panel p-4" data-testid="iron-light-map">
@@ -86,8 +86,8 @@ export function IronLightMap({ inputs, geo, onInterpret, interpreting = false, c
             const outside = activeBand ? pct < activeBand.lo || pct > activeBand.hi : false;
             const rowDose = grid.ys[grid.ys.length - 1 - ri] ?? 0;
             const baseline = ci === grid.xs.reduce((best, x, i) => Math.abs(x - inputs.labileIron) < Math.abs((grid.xs[best] ?? 0) - inputs.labileIron) ? i : best, 0) && grid.ys.length - 1 - ri === grid.ys.reduce((best, y, i) => Math.abs(y - inputs[lightKey]) < Math.abs((grid.ys[best] ?? 0) - inputs[lightKey]) ? i : best, 0);
-            const risk = cell.ferroptosisRisk ?? 0;
-            return <div key={`${ri}-${ci}`} className="relative aspect-square rounded-[2px]" style={{ background: color(value), outline: baseline ? "2px solid var(--foreground)" : undefined, outlineOffset: -1, borderTop: rowDose === studyRows[0]?.dose ? "2px dashed var(--foreground)" : rowDose === studyRows[1]?.dose ? "2px solid var(--foreground)" : undefined }} title={`Fe ${(cell.x ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(cell.y ?? 0).toFixed(1)} J/cm2: ${payload.shownOutput} ${activeBand ? `${pct.toFixed(1)}%, ${((pct / 100) * activeBand.mean).toFixed(1)} ${activeBand.unit} assay-equivalent` : value.toPrecision(3)}${outside ? "; outside study controls" : ""}`}>
+            const risk = cell["ferroptosisRisk"] ?? 0;
+            return <div key={`${ri}-${ci}`} className="relative aspect-square rounded-[2px]" style={{ background: color(value), outline: baseline ? "2px solid var(--foreground)" : undefined, outlineOffset: -1, borderTop: rowDose === studyRows[0]?.dose ? "2px dashed var(--foreground)" : rowDose === studyRows[1]?.dose ? "2px solid var(--foreground)" : undefined }} title={`Fe ${(cell["x"] ?? 0).toFixed(1)} µM, ${grid.dy.label} ${(cell["y"] ?? 0).toFixed(1)} J/cm2: ${payload.shownOutput} ${activeBand ? `${pct.toFixed(1)}%, ${((pct / 100) * activeBand.mean).toFixed(1)} ${activeBand.unit} assay-equivalent` : value.toPrecision(3)}${outside ? "; outside study controls" : ""}`}>
               {outside && <span data-testid="iron-light-range-halo" className="pointer-events-none absolute inset-[2px] rounded-[2px] border-2 border-dashed border-destructive" />}
               {risk >= 100 ? <span className="absolute inset-0 m-auto h-2 w-2 rounded-full bg-foreground" /> : risk >= 50 ? <span className="absolute inset-0 m-auto h-2 w-2 rounded-full border border-foreground" /> : null}
             </div>;

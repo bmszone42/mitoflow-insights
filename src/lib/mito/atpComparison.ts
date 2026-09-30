@@ -49,6 +49,6 @@ export function atpComparisonRows(
   return {
     rows,
     totalAbs: rows.reduce((sum, row) => sum + Math.abs(row.diff), 0),
-    top: rows.reduce((best, row) => Math.abs(row.diff) > Math.abs(best.diff) ? row : best, rows[0]),
+    top: rows.reduce<AtpComparisonRow | undefined>((best, row) => !best || Math.abs(row.diff) > Math.abs(best.diff) ? row : best, undefined),
   };
 }
