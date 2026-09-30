@@ -25,3 +25,4 @@
 - Light effects come only from `photoreceptor(i)` in `src/lib/mito/model.ts` (one downstream effect per chromophore), and the 71 THz output is a pumped coherence term inside `simulate`, so the photon chain stays auditable in one place.
 - The 3D viewer shares `layout(geo)` for scene and camera presets, and uses thresholded bloom on model-driven particles, not membranes, to preserve detail.
 - Warburg physiology compares ATP to cited ranges and named ROS source rates to the same-geometry healthy default; unmapped steps remain unassessed.
+- Physiology and Compare attribute step ATP rate as ATP per pair × routed ETC flux ÷ 2; exclude the overall chain summary from contribution totals to prevent double-counting.
