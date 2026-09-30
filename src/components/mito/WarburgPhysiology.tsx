@@ -47,22 +47,30 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
   const liveCost = effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling);
   const baselineCost = effectiveAtpCost(defaultInputs.deltaPsi, defaultInputs.uncoupling);
   const flagContext = atpFlagContext(inputs.deltaPsi, inputs.uncoupling);
+  const fluxForStep = (outputs: Outputs, index: number) =>
+    index <= 2 ? outputs.fluxCI : index === 3 ? outputs.fluxCII : outputs.fluxCIV;
 
   const rows = etcSteps.map((step, index) => {
     const atp = liveAtpPerPair(step, inputs.deltaPsi, inputs.uncoupling).proton;
     const atpBaseline = liveAtpPerPair(step, defaultInputs.deltaPsi, defaultInputs.uncoupling).proton;
     const atpDelta = pctChange(atp, atpBaseline);
+    const atpRate = (atp * fluxForStep(out, index)) / 2;
+    const atpRateBaseline = (atpBaseline * fluxForStep(baseline, index)) / 2;
+    const atpRateGap = atpRate - atpRateBaseline;
     const flags = atpNetworkRangeFlags(step, baselineCost, liveCost);
     const atpFlagged = flags.evOutside || flags.costBOutside;
     const atpCause = flags.costBOutside ? atpCostFlagCause(step, flagContext) : null;
     const ros = rosForStep(index, out, baseline);
     const rosDelta = ros ? pctChange(ros.current, ros.baseline) : null;
     const rosFlagged = rosDelta !== null && Math.abs(rosDelta) >= ROS_FLAG_PERCENT;
-    return { step, atp, atpBaseline, atpDelta, atpFlagged, atpCause, flags, ros, rosDelta, rosFlagged };
+    return { step, atp, atpBaseline, atpDelta, atpRate, atpRateBaseline, atpRateGap, atpFlagged, atpCause, flags, ros, rosDelta, rosFlagged };
   });
 
+  const independentRows = rows.slice(0, -1);
+  const totalIndependentGap = independentRows.reduce((sum, row) => sum + Math.abs(row.atpRateGap), 0);
   const atpFlags = rows.filter((row) => row.atpFlagged).length;
   const rosFlags = rows.filter((row) => row.rosFlagged).length;
+  const wholeChainGap = out.atpFlux - baseline.atpFlux;
 
   return (
     <div className="space-y-4" data-testid="warburg-physiology">
@@ -80,13 +88,23 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
         </div>
       </div>
 
+      <div className="grid gap-px border border-border bg-border sm:grid-cols-3" data-testid="warburg-atp-gap-summary">
+        <GapMetric label="Healthy ATP flux" value={baseline.atpFlux} />
+        <GapMetric label="Current ATP flux" value={out.atpFlux} />
+        <GapMetric label="Whole-chain gap" value={wholeChainGap} signed />
+      </div>
+
       <div className="overflow-x-auto border-y border-border">
-        <table className="w-full min-w-[1100px] text-left text-xs" data-testid="warburg-physiology-steps">
+        <table className="w-full min-w-[1480px] text-left text-xs" data-testid="warburg-physiology-steps">
           <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground">
             <tr>
               <th scope="col" className="px-3 py-3 font-medium">Step / electron path</th>
               <th scope="col" className="px-3 py-3 font-medium">Textbook ΔE</th>
               <th scope="col" className="px-3 py-3 font-medium">ATP / pair</th>
+              <th scope="col" className="px-3 py-3 font-medium">Healthy ATP rate</th>
+              <th scope="col" className="px-3 py-3 font-medium">Current ATP rate</th>
+              <th scope="col" className="px-3 py-3 font-medium">ATP rate gap</th>
+              <th scope="col" className="px-3 py-3 font-medium">Gap contribution</th>
               <th scope="col" className="px-3 py-3 font-medium">ATP status</th>
               <th scope="col" className="px-3 py-3 font-medium">Modeled ROS source</th>
               <th scope="col" className="px-3 py-3 font-medium">ROS status</th>
@@ -115,6 +133,21 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
                   <span className="block text-[10px] text-muted-foreground">
                     healthy {row.atpBaseline.toFixed(2)} · {formatDelta(row.atpDelta)}
                   </span>
+                </td>
+                <td className="px-3 py-3 font-mono">{formatRate(row.atpRateBaseline)}</td>
+                <td className="px-3 py-3 font-mono">{formatRate(row.atpRate)}</td>
+                <td
+                  className={`px-3 py-3 font-mono ${row.atpRateGap < 0 ? "text-destructive" : row.atpRateGap > 0 ? "text-primary" : "text-muted-foreground"}`}
+                  data-testid="warburg-atp-rate-gap"
+                >
+                  {formatSignedRate(row.atpRateGap)}
+                </td>
+                <td className="px-3 py-3 font-mono" data-testid="warburg-atp-gap-share">
+                  {row === rows[rows.length - 1]
+                    ? <span className="font-sans text-[10px] text-muted-foreground">Chain summary</span>
+                    : totalIndependentGap > 0
+                      ? `${((Math.abs(row.atpRateGap) / totalIndependentGap) * 100).toFixed(1)}%`
+                      : "0.0%"}
                 </td>
                 <td className={`max-w-[230px] px-3 py-3 font-medium ${row.atpFlagged ? "text-destructive" : "text-primary"}`}>
                   {row.atpFlagged ? <AlertTriangle className="mr-1 inline size-3.5" aria-hidden /> : <CheckCircle2 className="mr-1 inline size-3.5" aria-hidden />}
@@ -157,7 +190,7 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
       </div>
 
       <p className="text-xs leading-relaxed text-muted-foreground">
-        ATP flags use the cited redox intervals and the shared 0.50–0.62 eV/ATP effective-cost proxy. ROS values are site-resolved superoxide production rates, not concentrations. Their ±{ROS_FLAG_PERCENT}% flag band is a model comparison with the healthy default run, not a published normal range. Carrier and Complex IV rows remain unassessed where the model has no direct ROS source.
+        ATP rate = ATP per pair × routed electron flux ÷ 2, in relative units. Gap contribution is each independent step's absolute share of the independent-step rate gap; Overall NADH to O2 is a chain summary and is excluded to prevent double-counting. ATP flags use the cited redox intervals and the shared 0.50–0.62 eV/ATP effective-cost proxy. ROS values are site-resolved superoxide production rates, not concentrations. Their ±{ROS_FLAG_PERCENT}% flag band is a model comparison with the healthy default run, not a published normal range. Carrier and Complex IV rows remain unassessed where the model has no direct ROS source.
       </p>
     </div>
   );
@@ -175,4 +208,25 @@ function FlagSummary({ label, count }: { label: string; count: number }) {
 function formatDelta(value: number) {
   if (!Number.isFinite(value)) return "+∞%";
   return `${value >= 0 ? "+" : ""}${value.toFixed(0)}%`;
+}
+
+function formatRate(value: number) {
+  return Number(value.toPrecision(3));
+}
+
+function formatSignedRate(value: number) {
+  const formatted = formatRate(Math.abs(value));
+  return value > 0 ? `+${formatted}` : value < 0 ? `−${formatted}` : "0";
+}
+
+function GapMetric({ label, value, signed = false }: { label: string; value: number; signed?: boolean }) {
+  const displayed = signed ? formatSignedRate(value) : formatRate(value);
+  return (
+    <div className="bg-background px-4 py-3">
+      <div className="mono-label">{label}</div>
+      <div className={`mt-1 font-mono text-lg font-semibold ${signed ? value < 0 ? "text-destructive" : "text-primary" : "text-foreground"}`}>
+        {displayed} <span className="text-xs font-normal text-muted-foreground">µM/s</span>
+      </div>
+    </div>
+  );
 }

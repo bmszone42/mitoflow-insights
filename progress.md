@@ -102,6 +102,14 @@ parameter comment block and to this file.
 Educational and research tool only. Not a medical device and not for diagnosis or treatment. If
 clinical claims or patient data are ever introduced, HIPAA and GDPR review is required first.
 
+## Update: Warburg ATP gap breakdown
+
+- ✅ Warburg Physiology shows healthy and current ATP rates, signed rate gaps, and each ETC step's share of the independent-step gap.
+- ✅ Overall NADH to O2 is labeled as a chain summary and excluded from contribution totals to prevent double-counting.
+- ✅ Healthy, current, and whole-chain ATP flux are summarized above the Physiology table.
+- Security: derived entirely from the existing in-browser model; no new data collection, network access, secrets, or permissions.
+- Deployment: no configuration changes required; verify the production preview after publishing.
+
 
 ## Update: scenarios and AI interpretation
 - ✅ Save, update, rename, delete, load scenarios: in your account when signed in (any device), in this browser when signed out
