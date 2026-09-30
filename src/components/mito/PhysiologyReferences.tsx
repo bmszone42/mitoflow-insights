@@ -36,7 +36,7 @@ export function PhysiologyReferences() {
     <div className="border-b border-border pb-4">
       <div className="mono-label">Source index</div>
       <h2 id="physiology-references-title" className="mt-1 text-xl font-semibold">Physiology references</h2>
-      <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">Full publication details and printed page spans or article numbers for the linked model studies. A span identifies the publication, not the exact page supporting each model value. Named tables are shown when cited. Model-derived bands and proxies are not measured textbook intervals.</p>
+      <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">Full publication details and printed page spans or article numbers for the linked model studies. A span identifies the publication, not the exact page supporting each model value. Named tables are shown when cited. Model-derived bands and proxies are not measured textbook intervals. The 2026 cohort paper is a published measurement, not a textbook source.</p>
     </div>
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="relative w-full max-w-sm"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input aria-label="Search studies" placeholder="Search studies or model terms" value={query} onChange={(event) => setQuery(event.target.value)} className="pl-9" /></div>

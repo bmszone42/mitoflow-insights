@@ -126,7 +126,7 @@ export const studyReferences: StudyReference[] = [
   {
     "doi": "10.1016/S0891-5849(02)01006-7",
     "authors": "Or Kakhlon, Zvi Ioav Cabantchik",
-    "title": "The labile iron pool: characterization, measurement, and participation in cellular processes1 1This article is part of a series of reviews on “Iron and Cellular Redox Status.” The full list of papers may be found on the homepage of the journal.",
+    "title": "The labile iron pool: characterization, measurement, and participation in cellular processes",
     "journal": "Free Radical Biology and Medicine 33(8)",
     "year": 2002,
     "location": "pp. 1037–1046",
