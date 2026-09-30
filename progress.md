@@ -1,3 +1,9 @@
+## Model settings reference dashboard
+- ✅ Physiology overview lists all 16 model inputs and 8 membrane geometry controls in five groups with live and default values, cited context, and source limitations.
+- ✅ Comparable membrane potential and model-equivalent uncoupling controls show within/outside flags and the exact distance to the closest boundary. Context-dependent controls have no false normal-range flags.
+- ✅ The summary names every currently flagged setting; slider limits are explicitly distinguished from literature comparisons. This is research context, not a diagnosis.
+- ❌ Before clinical use: validate proxy bands and assay-specific interpretations for each tissue and preparation.
+
 # Cristae Lab, progress
 
 ## Project overview
