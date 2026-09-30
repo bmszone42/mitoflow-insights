@@ -585,5 +585,5 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Acceptance: all cited steps show ATP and source details; ROS appears only where the model names a production site; flags update immediately with Warburg settings.
 
 ### Testing and deployment
-- Verify both inner Warburg tabs, the nine physiology rows, baseline state and a Warburg preset with ATP/ROS warnings.
+- [x] ✅ Verified both inner Warburg tabs, all nine physiology rows, zero baseline ROS flags and five ROS flags after the Warburg shift preset, with no page errors.
 - No new API, storage, authentication or personal-data surface was added. Keep the educational-use caveat and ROS baseline limitation visible before publishing.
