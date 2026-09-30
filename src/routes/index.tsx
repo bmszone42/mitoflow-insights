@@ -15,7 +15,7 @@ import { Compare } from "@/components/mito/Compare";
 import { Interpreter } from "@/components/mito/Interpreter";
 import { WarburgDashboard } from "@/components/mito/WarburgDashboard";
 import { WarburgPhysiology } from "@/components/mito/WarburgPhysiology";
-import { Physiology } from "@/components/mito/Physiology";
+import { PhysiologyOverview } from "@/components/mito/PhysiologyOverview";
 import { PatientData } from "@/components/mito/PatientData";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
@@ -194,7 +194,7 @@ function Index() {
             </Tabs>
           </TabsContent>
           <TabsContent value="physiology" className="mt-4">
-            <Physiology inputs={inputs} out={out} />
+            <PhysiologyOverview inputs={inputs} geo={geo} out={out} refreshKey={refreshKey} />
           </TabsContent>
           <TabsContent value="patients" className="mt-4">
             <PatientData inputs={inputs} out={out} />

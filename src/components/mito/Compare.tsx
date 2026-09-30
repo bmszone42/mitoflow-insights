@@ -1,4 +1,5 @@
 import { AtpDriverNetwork } from "./AtpDriverNetwork";
+import { atpComparisonRows } from "@/lib/mito/atpComparison";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -97,17 +98,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
   // Per-step ATP rates and driver shares, shared by the energetics table and its bar chart.
   const etcRows = useMemo(() => {
     if (!oa || !ob || !ia || !ib) return null;
-    const fluxOf = (o: Outputs, i: number) => (i <= 2 ? o.fluxCI : i === 3 ? o.fluxCII : o.fluxCIV);
-    const rows = etcSteps.map((s, i) => {
-      const ya = liveAtpPerPair(s, ia.deltaPsi, ia.uncoupling).proton;
-      const yb = liveAtpPerPair(s, ib.deltaPsi, ib.uncoupling).proton;
-      const ra = (ya * fluxOf(oa, i)) / 2;
-      const rb = (yb * fluxOf(ob, i)) / 2;
-      return { s, ya, yb, ra, rb, diff: rb - ra, costA: effectiveAtpCost(ia.deltaPsi, ia.uncoupling), costB: effectiveAtpCost(ib.deltaPsi, ib.uncoupling), contextA: atpFlagContext(ia.deltaPsi, ia.uncoupling), contextB: atpFlagContext(ib.deltaPsi, ib.uncoupling) };
-    });
-    const totalAbs = rows.reduce((acc, r) => acc + Math.abs(r.diff), 0);
-    const top = rows.reduce((best, r) => (Math.abs(r.diff) > Math.abs(best.diff) ? r : best), rows[0]!);
-    return { rows, totalAbs, top };
+    return atpComparisonRows(ia, oa, ib, ob);
   }, [oa, ob, ia, ib]);
 
   const [netFocus, setNetFocus] = useState<number | null>(null);

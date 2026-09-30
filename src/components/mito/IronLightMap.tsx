@@ -47,9 +47,13 @@ function buildPayload(inputs: Inputs, geo: Geometry, lightKey: "redDose" | "nirD
   };
 }
 
-export function IronLightMap({ inputs, geo, onInterpret, interpreting = false, compact = false }: { inputs: Inputs; geo: Geometry; onInterpret?: (payload: IronLightPayload, context: { lightKey: "redDose" | "nirDose"; mapOutput: SensOutputKey }) => void; interpreting?: boolean; compact?: boolean }) {
-  const [lightKey, setLightKey] = useState<"redDose" | "nirDose">("redDose");
-  const [mapOutput, setMapOutput] = useState<SensOutputKey>(compact ? "fesIntact" : "hydroxylRadical");
+export function IronLightMap({ inputs, geo, onInterpret, interpreting = false, compact = false, lightKey: controlledLightKey, onLightKeyChange, mapOutput: controlledMapOutput, onMapOutputChange }: { inputs: Inputs; geo: Geometry; onInterpret?: (payload: IronLightPayload, context: { lightKey: "redDose" | "nirDose"; mapOutput: SensOutputKey }) => void; interpreting?: boolean; compact?: boolean; lightKey?: "redDose" | "nirDose"; onLightKeyChange?: (value: "redDose" | "nirDose") => void; mapOutput?: SensOutputKey; onMapOutputChange?: (value: SensOutputKey) => void }) {
+  const [localLightKey, setLocalLightKey] = useState<"redDose" | "nirDose">("redDose");
+  const [localMapOutput, setLocalMapOutput] = useState<SensOutputKey>(compact ? "fesIntact" : "hydroxylRadical");
+  const lightKey = controlledLightKey ?? localLightKey;
+  const mapOutput = controlledMapOutput ?? localMapOutput;
+  const setLightKey = (value: "redDose" | "nirDose") => onLightKeyChange ? onLightKeyChange(value) : setLocalLightKey(value);
+  const setMapOutput = (value: SensOutputKey) => onMapOutputChange ? onMapOutputChange(value) : setLocalMapOutput(value);
   const grid = useMemo(() => grid2d(inputs, "labileIron", lightKey), [inputs, lightKey]);
   const payload = useMemo(() => buildPayload(inputs, geo, lightKey, mapOutput), [inputs, geo, lightKey, mapOutput]);
   const values = grid.cells.flat().map((c) => c[mapOutput] ?? 0);

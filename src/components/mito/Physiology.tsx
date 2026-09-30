@@ -15,7 +15,7 @@ import {
 } from "@/lib/mito/reference";
 import { StandardStateNote } from "./StandardState";
 
-export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
+export function Physiology({ inputs, out, focusStep = null }: { inputs: Inputs; out: Outputs; focusStep?: number | null }) {
   const cost = effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling);
   const standardCost = effectiveAtpCost(STD_PSI, STD_UNCOUPLING);
   const flagContext = atpFlagContext(inputs.deltaPsi, inputs.uncoupling);
@@ -74,8 +74,8 @@ export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
               </tr>
             </thead>
             <tbody>
-              {steps.map(({ step, flags, cause, flagged }) => (
-                <tr key={step.step} data-testid="physiology-step" data-outside={flagged} className={`border-t border-border/60 ${flagged ? "bg-destructive/10" : ""}`}>
+              {steps.map(({ step, flags, cause, flagged }, index) => (
+                <tr key={step.step} data-testid="physiology-step" data-physiology-step-index={index} data-selected={focusStep === index} data-outside={flagged} className={`border-t border-border/60 ${flagged ? "bg-destructive/10" : ""} ${focusStep === index ? "ring-1 ring-inset ring-primary bg-primary/10" : ""}`}>
                   <th scope="row" className="px-3 py-3 font-medium text-foreground">
                     {step.step}
                     <div className="mt-0.5 font-normal text-muted-foreground">{step.donor} → {step.acceptor}</div>
