@@ -12,7 +12,7 @@
 ## Project rules
 
 - Keep cited redox math in `src/lib/mito/model.ts` for auditability.
-- Keep shared bands in `src/lib/mito/reference.ts` and show them in `src/components/mito/Physiology.tsx`; shared bands align network and physiology flags without changing math.
+- Keep shared bands and ATP flag attribution in `reference.ts`; sliders are causes and P/O is the resulting readout.
 - Workspace state lives in `src/routes/index.tsx`; components in `src/components/mito/`; scenarios in `src/lib/mito/scenarios.ts` use owner-only Cloud or signed-out IndexedDB and legacy geometry defaults.
 
 - AI interpretation streams through `src/routes/api/interpret.ts`, keeping the gateway key server-side.

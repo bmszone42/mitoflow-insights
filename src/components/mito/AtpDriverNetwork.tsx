@@ -4,9 +4,9 @@
  * ATP gap and colored by direction (green: B raises, red: B lowers).
  * Edges follow electron flow and inherit the share of their target step.
  */
-import { ATP_COST_TEXTBOOK, atpNetworkRangeFlags } from "@/lib/mito/reference";
+import { ATP_COST_TEXTBOOK, atpCostFlagCause, atpNetworkRangeFlags, type AtpFlagContext } from "@/lib/mito/reference";
 
-type Row = { s: { step: string; ev: number; tbLo: number; tbHi: number; protons: number }; ra: number; rb: number; diff: number; costA: number; costB: number };
+type Row = { s: { step: string; ev: number; tbLo: number; tbHi: number; protons: number }; ra: number; rb: number; diff: number; costA: number; costB: number; contextA: AtpFlagContext; contextB: AtpFlagContext };
 
 // Index into etcSteps -> position (viewBox 0..720 x 0..300)
 const POS: Record<number, { x: number; y: number; short: string }> = {
@@ -50,6 +50,8 @@ export function AtpDriverNetwork({
   const outsideEv = (r: Row) => atpNetworkRangeFlags(r.s, r.costA, r.costB).evOutside;
   const outsideCost = (r: Row) => atpNetworkRangeFlags(r.s, r.costA, r.costB).costBOutside;
   const outsideTb = (r: Row) => outsideEv(r) || outsideCost(r);
+  const causeA = (r: Row) => atpNetworkRangeFlags(r.s, r.costA, r.costB).costAOutside ? atpCostFlagCause(r.s, r.contextA) : null;
+  const causeB = (r: Row) => outsideCost(r) ? atpCostFlagCause(r.s, r.contextB) : null;
   const sel = focus != null ? rows[focus] : null;
 
   return (
@@ -88,7 +90,7 @@ export function AtpDriverNetwork({
           const on = focus === i;
           return (
             <g key={r.s.step} className="cursor-pointer" onClick={() => onFocus(on ? null : i)}>
-              <title>{`${r.s.step}: ${(share(i) * 100).toFixed(0)}% share, ${pct(r) > 0 ? "+" : ""}${pct(r).toFixed(0)}% B vs A; redox drop ${r.s.ev} eV (textbook ${r.s.tbLo} to ${r.s.tbHi})${r.s.protons > 0 ? `; effective ATP cost A ${r.costA.toFixed(2)}, B ${r.costB.toFixed(2)} eV/ATP (textbook ${ATP_COST_TEXTBOOK.lo.toFixed(2)} to ${ATP_COST_TEXTBOOK.hi.toFixed(2)})` : "; no step ATP synthesis"}${outsideEv(r) ? "; redox drop outside" : ""}${outsideCost(r) ? "; live ATP cost outside" : ""}`}</title>
+              <title>{`${r.s.step}: ${(share(i) * 100).toFixed(0)}% share, ${pct(r) > 0 ? "+" : ""}${pct(r).toFixed(0)}% B vs A; redox drop ${r.s.ev} eV (reference ${r.s.tbLo} to ${r.s.tbHi})${r.s.protons > 0 ? `; effective ATP cost A ${r.costA.toFixed(2)}, B ${r.costB.toFixed(2)} eV/ATP (reference ${ATP_COST_TEXTBOOK.lo.toFixed(2)} to ${ATP_COST_TEXTBOOK.hi.toFixed(2)})` : "; no step ATP synthesis"}${outsideEv(r) ? "; fixed redox drop outside, not slider-caused" : ""}${causeA(r) ? `; A cause: ${causeA(r)}` : ""}${causeB(r) ? `; B cause: ${causeB(r)}` : ""}`}</title>
               {outsideTb(r) && (
                 <circle
                   data-testid={`tb-halo-${i}`}
@@ -140,6 +142,12 @@ export function AtpDriverNetwork({
             {" "}· effective ATP cost A {sel.costA.toFixed(2)}, B {sel.costB.toFixed(2)} eV/ATP
             (reference {ATP_COST_TEXTBOOK.lo.toFixed(2)} to {ATP_COST_TEXTBOOK.hi.toFixed(2)}{outsideCost(sel) ? ", B outside" : ""})
           </span>}
+          {(causeA(sel) || causeB(sel)) && (
+            <span className="mt-1 block text-destructive" data-testid="atp-network-flag-cause">
+              {causeA(sel) ? `A cause: ${causeA(sel)}. ` : ""}{causeB(sel) ? `B cause: ${causeB(sel)}.` : ""}
+            </span>
+          )}
+          {outsideEv(sel) && <span className="mt-1 block text-destructive">Redox cause: fixed model drop, not a slider change.</span>}
         </div>
       )}
     </div>

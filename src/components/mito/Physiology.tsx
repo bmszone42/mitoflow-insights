@@ -2,6 +2,8 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import type { Inputs, Outputs } from "@/lib/mito/model";
 import {
   ATP_COST_TEXTBOOK,
+  atpCostFlagCause,
+  atpFlagContext,
   atpNetworkRangeFlags,
   effectiveAtpCost,
   etcSteps,
@@ -16,9 +18,11 @@ import { StandardStateNote } from "./StandardState";
 export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
   const cost = effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling);
   const standardCost = effectiveAtpCost(STD_PSI, STD_UNCOUPLING);
+  const flagContext = atpFlagContext(inputs.deltaPsi, inputs.uncoupling);
   const steps = etcSteps.map((step) => {
     const flags = atpNetworkRangeFlags(step, standardCost, cost);
-    return { step, flags, flagged: flags.evOutside || flags.costBOutside };
+    const cause = flags.costBOutside ? atpCostFlagCause(step, flagContext) : null;
+    return { step, flags, cause, flagged: flags.evOutside || flags.costBOutside };
   });
   const ironRows = [
     { band: ironLightReferenceBands.fesIntact, value: out.fesIntact * 100 },
@@ -70,7 +74,7 @@ export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
               </tr>
             </thead>
             <tbody>
-              {steps.map(({ step, flags, flagged }) => (
+              {steps.map(({ step, flags, cause, flagged }) => (
                 <tr key={step.step} data-testid="physiology-step" data-outside={flagged} className={`border-t border-border/60 ${flagged ? "bg-destructive/10" : ""}`}>
                   <th scope="row" className="px-3 py-3 font-medium text-foreground">
                     {step.step}
@@ -84,6 +88,8 @@ export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
                   </td>
                   <td className={`px-3 py-3 font-medium ${flagged ? "text-destructive" : "text-primary"}`}>
                     {flags.evOutside && flags.costBOutside ? "Drop + cost outside" : flags.evOutside ? "Drop outside" : flags.costBOutside ? "Cost outside" : "Within range"}
+                    {cause && <span className="mt-1 block max-w-[250px] text-[10px] font-normal leading-relaxed" data-testid="physiology-flag-cause">Cause: {cause}</span>}
+                    {flags.evOutside && <span className="mt-1 block max-w-[250px] text-[10px] font-normal leading-relaxed">Fixed model redox drop, not caused by a slider.</span>}
                   </td>
                   <td className="max-w-[330px] px-3 py-3 text-muted-foreground">
                     <a href={step.sourceUrl} target="_blank" rel="noreferrer" className="font-medium text-foreground underline decoration-border underline-offset-2 hover:text-primary">
@@ -97,7 +103,7 @@ export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
           </table>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Redox drops are fixed model parameters, not live measurements. Each comparison interval is calculated from reported pH 7 midpoint potentials in the cited source, not copied from a universal textbook range. Protein environment, pH, preparation and redox state shift those potentials. Live membrane potential and uncoupling change ATP yield and the effective cost proxy on pumping steps. The 0.50–0.62 eV/ATP band is a derived overall synthesis-energy estimate, not a measured per-step interval. Overall NADH to O₂ is a chain summary, not an additional reaction.
+          Redox drops are fixed model parameters, not live measurements. Each comparison interval is calculated from reported pH 7 midpoint potentials in the cited source, not copied from a universal textbook range. Protein environment, pH, preparation and redox state shift those potentials. Live membrane potential and uncoupling change ATP yield and the effective cost proxy on pumping steps. P/O is the resulting efficiency readout, not a separate slider. The 0.50–0.62 eV/ATP band is a derived overall synthesis-energy estimate, not a measured per-step interval. Overall NADH to O₂ is a chain summary, not an additional reaction.
         </p>
       </section>
 
