@@ -5,3 +5,4 @@
 - [x] Compose Physiology overview with linked network and ETC rows.
 - [x] Update project documentation and architecture rules.
 - [x] Verify desktop, narrow layout, saved-scenario empty state, and current preview health.
+- [x] Show per-step slider cause attribution on Warburg ATP networks and Physiology flags.

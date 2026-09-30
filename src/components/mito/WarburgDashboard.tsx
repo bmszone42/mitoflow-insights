@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
-import { atpFlagContext, atpSplit, effectiveAtpCost, etcSteps, liveAtpPerPair, phenotype, stdAtpPerPair } from "@/lib/mito/reference";
+import { atpCostFlagCause, atpFlagContext, atpNetworkRangeFlags, atpSplit, effectiveAtpCost, etcSteps, liveAtpPerPair, phenotype, stdAtpPerPair } from "@/lib/mito/reference";
 
 const GREEN = "#4EDEAE";
 const AMBER = "#FFBE5C";
@@ -46,7 +46,15 @@ export function WarburgDashboard({
       const rate = (y * fluxOf(out, i)) / 2;
       const rateB = (yb * fluxOf(base, i)) / 2;
       const ok = y >= stdAtpPerPair(s).proton - 1e-9;
-      return { step: s.step, ev: s.ev, y, rate, rateB, diff: rate - rateB, ok };
+      const flags = atpNetworkRangeFlags(
+        s,
+        effectiveAtpCost(defaultInputs.deltaPsi, defaultInputs.uncoupling),
+        effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling),
+      );
+      const sliderCause = flags.costBOutside
+        ? atpCostFlagCause(s, atpFlagContext(inputs.deltaPsi, inputs.uncoupling))
+        : null;
+      return { step: s.step, ev: s.ev, y, rate, rateB, diff: rate - rateB, ok, flags, sliderCause };
     });
     const tot = r.reduce((a, x) => a + Math.abs(x.diff), 0);
     return r.map((x) => ({
@@ -174,6 +182,16 @@ export function WarburgDashboard({
                 {r.ev > 0 ? "+" : ""}{r.ev} eV ·{" "}
                 <span style={{ color: r.ok ? GREEN : AMBER }}>{r.y.toFixed(2)} ATP/pr</span> · {r.rate.toFixed(1)} µM/s
               </div>
+               {r.sliderCause && (
+                 <div className="mt-1 text-[10px] leading-relaxed text-destructive" data-testid="warburg-step-flag-cause">
+                   Slider cause: {r.sliderCause}
+                 </div>
+               )}
+               {r.flags.evOutside && (
+                 <div className="mt-1 text-[10px] leading-relaxed text-destructive">
+                   Model parameter: fixed redox drop, not a slider change.
+                 </div>
+               )}
             </div>
           ))}
         </div>

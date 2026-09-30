@@ -88,7 +88,7 @@ export function Physiology({ inputs, out, focusStep = null }: { inputs: Inputs; 
                   </td>
                   <td className={`px-3 py-3 font-medium ${flagged ? "text-destructive" : "text-primary"}`}>
                     {flags.evOutside && flags.costBOutside ? "Drop + cost outside" : flags.evOutside ? "Drop outside" : flags.costBOutside ? "Cost outside" : "Within range"}
-                    {cause && <span className="mt-1 block max-w-[250px] text-[10px] font-normal leading-relaxed" data-testid="physiology-flag-cause">Cause: {cause}</span>}
+                    {cause && <span className="mt-1 block max-w-[250px] text-[10px] font-normal leading-relaxed" data-testid="physiology-flag-cause">Slider cause: {cause}</span>}
                     {flags.evOutside && <span className="mt-1 block max-w-[250px] text-[10px] font-normal leading-relaxed">Fixed model redox drop, not caused by a slider.</span>}
                   </td>
                   <td className="max-w-[330px] px-3 py-3 text-muted-foreground">
