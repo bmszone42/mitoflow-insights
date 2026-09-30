@@ -61,7 +61,20 @@ export function SettingsReferenceDashboard({ inputs, geo }: { inputs: Inputs; ge
               <h3 className="text-sm font-semibold">{group}</h3>
               <span className="font-mono text-[10px] text-muted-foreground">{groupRows.length} settings</span>
             </div>
-            <div className="overflow-x-auto border-b border-border">
+            <div className="divide-y divide-border border-b border-border sm:hidden">
+              {groupRows.map((row) => (
+                <div key={row.id} className={`space-y-2 py-3 ${row.status === "Outside range" ? "bg-destructive/5" : ""}`} data-testid="settings-reference-mobile-row" data-setting={row.id} data-status={row.status}>
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="min-w-0 text-xs font-semibold">{row.label}</span>
+                    <span className={`shrink-0 font-mono text-xs ${statusClass[row.status]}`}>{row.live}</span>
+                  </div>
+                  <div className={`flex items-center gap-1 text-[11px] ${statusClass[row.status]}`}><StatusIcon status={row.status} />{row.status}{row.drift ? ` · ${row.drift}` : ""}</div>
+                  <div className="text-[10px] leading-relaxed text-muted-foreground">Default {row.baseline} · {row.reference}</div>
+                  <div className="text-[10px] leading-relaxed text-muted-foreground"><a href={row.url} target="_blank" rel="noreferrer" className="text-foreground underline decoration-border underline-offset-2">{row.source}</a> · {row.note}</div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden overflow-x-auto border-b border-border sm:block">
               <table className="w-full min-w-[780px] table-fixed text-left text-xs">
                 <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground">
                   <tr>
