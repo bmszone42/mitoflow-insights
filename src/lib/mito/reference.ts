@@ -136,17 +136,37 @@ export const fesClusters: FesEntry[] = [
   },
 ];
 
-// Literature-informed comparison bands, expressed against an intact/active
-// control (= 100%). These are visualization cutoffs, NOT universal published
-// physiological reference intervals: Fe-S intact fraction is a model-wide
-// latent variable without a single measured normal range, while aconitase
-// activity varies with tissue and assay. Scandroglio et al., Free Radic Res
-// 48:684-693 (2014), report respiration-impact thresholds at 63-98% *inhibition*
-// of aconitase, not a 63% activity lower limit. The 63% activity cutoff below
-// is a conservative display threshold, not that study's measured limit.
+// Human research-assay envelope from platelet mitochondrial ACO2 activity in
+// 22 healthy controls. The model's relative activity is anchored to the study
+// mean (375.41 mU/mg), so these are assay-equivalent proxies, not clinical
+// measurements or universal reference intervals. Fe-S integrity has no direct
+// human clinical interval and is represented by the same ACO2-dependent proxy.
+const plateletAco2Study = {
+  lo: 209.41,
+  hi: 541.41,
+  mean: 375.41,
+  unit: "mU/mg protein",
+  cohort: "22 healthy controls",
+  specimen: "isolated platelet mitochondria",
+  source: "González-Mingot et al., J Clin Med (2023)",
+  sourceUrl: "https://doi.org/10.3390/jcm12103560",
+} as const;
+
 export const ironLightReferenceBands = {
-  fesIntact: { lo: 80, hi: 100, label: "Fe-S intact", source: "Literature-informed model cutoff" },
-  aconitaseActivity: { lo: 63, hi: 100, label: "Aconitase", source: "Literature-informed activity cutoff" },
+  fesIntact: {
+    lo: (plateletAco2Study.lo / plateletAco2Study.mean) * 100,
+    hi: (plateletAco2Study.hi / plateletAco2Study.mean) * 100,
+    label: "Fe-S via platelet ACO2 proxy",
+    ...plateletAco2Study,
+    proxy: true,
+  },
+  aconitaseActivity: {
+    lo: (plateletAco2Study.lo / plateletAco2Study.mean) * 100,
+    hi: (plateletAco2Study.hi / plateletAco2Study.mean) * 100,
+    label: "Aconitase assay-equivalent",
+    ...plateletAco2Study,
+    proxy: false,
+  },
 } as const;
 
 export const ironSteps = [

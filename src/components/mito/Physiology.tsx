@@ -121,13 +121,13 @@ export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
                   <h4 className="text-sm font-medium">{band.label}</h4>
                   <span className={`font-mono text-sm ${flagged ? "text-destructive" : "text-primary"}`}>{value.toFixed(1)}%</span>
                 </div>
-                <p className="mt-1 font-mono text-xs text-muted-foreground">Display band: {band.lo}–{band.hi}% · {flagged ? "Outside" : "Within range"}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{band.source}</p>
+                <p className="mt-1 font-mono text-xs text-muted-foreground">Study-normalized band: {band.lo.toFixed(1)}–{band.hi.toFixed(1)}% · {flagged ? "Outside controls" : "Within controls"}</p>
+                <p className="mt-1 text-xs text-muted-foreground"><a href={band.sourceUrl} target="_blank" rel="noreferrer" className="text-foreground underline decoration-border underline-offset-2 hover:text-primary">{band.source}</a> · {band.cohort} · {band.specimen}</p>
               </div>
             );
           })}
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">Fe-S intact fraction is a model-wide latent quantity; aconitase depends on tissue and assay. These two bands are display cutoffs, not universal physiological or clinical reference intervals.</p>
+        <p className="mt-2 text-xs text-muted-foreground">The model is scaled to a published platelet mitochondrial ACO2 control envelope of 209.41–541.41 mU/mg protein. Fe-S integrity uses ACO2 as an Fe-S-dependent proxy. These are assay-equivalent model estimates, not patient measurements or universal clinical reference intervals.</p>
       </section>
     </div>
   );

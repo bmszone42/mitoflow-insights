@@ -607,3 +607,16 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ### Testing and deployment
 - [x] ✅ Verified both inner Warburg tabs, all nine physiology rows, zero baseline ROS flags and five ROS flags after the Warburg shift preset, with no page errors.
 - No new API, storage, authentication or personal-data surface was added. Keep the educational-use caveat and ROS baseline limitation visible before publishing.
+
+## Iron × light human control envelopes (2026-09-30)
+
+- [x] ✅ Replaced the unsupported Fe-S and aconitase display cutoffs with the published platelet mitochondrial ACO2 control envelope, 209.41–541.41 mU/mg protein in 22 healthy controls.
+- [x] ✅ Scaled relative model activity to the study mean of 375.41 mU/mg and labeled every value as assay-equivalent, not measured.
+- [x] ✅ Map cells outside the study-control envelope receive red dashed flags and report the assay-equivalent value in hover details.
+- [x] ✅ Fe-S flags explicitly use ACO2 activity as an Fe-S-dependent proxy because no direct human Fe-S integrity interval exists.
+- [x] ✅ AI map interpretation receives the cohort, specimen, assay envelope, flagged-cell count, and proxy status.
+- [ ] ❌ This single platelet study is not a universal clinical reference interval; validate against the intended specimen and assay before clinical use.
+
+### Testing, security and compliance
+- Verify both Fe-S and aconitase map outputs, flagged counts, citation link, AI payload validation, and narrow-screen horizontal scrolling.
+- No new personal data, storage, endpoint, or secret was added. Keep the research-only and non-diagnostic wording visible before deployment.
