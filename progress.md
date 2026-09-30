@@ -6,6 +6,16 @@
 
 # Cristae Lab, progress
 
+## Published healthy-control check (2026-09-30)
+- ✅ Physiology compares live NADH and succinate P/O with published estimates and aconitase with a platelet control study via a labeled assay-equivalent proxy.
+- ✅ ATP network labels its reference as a simulation; healthy blood-cell oxygen consumption is cited but not flagged against incompatible ATP-flux units.
+- ✅ Non-comparable uncoupling and derived ATP cost no longer receive misleading measured-data flags in the whole-mitochondrion table.
+- ❌ No paired patient specimen and assay calibration exist for clinically validated flags; this is research-only and not diagnostic.
+
+### Security before deployment
+- No patient uploads or personal measurements are accepted. Keep measurements read-only, never present proxies as clinical results, and review assay compatibility before clinical interpretation.
+
+
 ## Project overview
 
 A browser workspace for modeling mitochondrial structure together with redox chemistry. It links
