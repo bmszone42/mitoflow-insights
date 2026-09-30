@@ -24,5 +24,5 @@
 - The 3D viewer shares `layout(geo)` for scene and camera presets, and uses thresholded bloom on model-driven particles, not membranes, to preserve detail.
 - Warburg physiology compares ATP to cited ranges and named ROS rates to the same-geometry healthy default; unmapped steps remain unassessed. Step ATP rate is ATP/pair × routed flux ÷ 2; exclude the chain summary from totals.
 - Keep patient metadata, citations, synthetic cohort values, and robust cohort flags in `patientReference.ts`; never present model proxies as clinical measurements.
-- Keep setting reference metadata and drift flags in `settingsReference.ts`; this separates slider limits from literature and leaves context-dependent controls unflagged.
+- Keep setting bands in `settingsReference.ts`; slider limits are not literature, and non-comparable controls (e.g. uncoupling) stay unflagged.
 - Reuse `atpComparisonRows` and `IronLightMap` across comparison views so ATP-gap math and iron-light flags stay aligned.
