@@ -110,6 +110,18 @@ clinical claims or patient data are ever introduced, HIPAA and GDPR review is re
 - Security: derived entirely from the existing in-browser model; no new data collection, network access, secrets, or permissions.
 - Deployment: no configuration changes required; verify the production preview after publishing.
 
+## Update: synthetic patient data comparison
+
+- ✅ Patient Data tab compares the live Simulator with six explicitly synthetic, de-identified demo records.
+- ✅ Covers bioenergetics, ROS/redox, iron/Fe-S, and clinical laboratory measurements.
+- ✅ Each row includes assay context, patient and compatible model values, published range where defensible, demo cohort statistics, source, and limitations.
+- ✅ Flags distinguish literature outliers, robust demo-cohort outliers, both, and cohort-only context.
+- ✅ Model proxies are labeled; clinical labs without safe model equivalents show "Not modeled".
+- Testing: check every record, source link, flag count, live model column, and desktop/narrow layout.
+- Security: no patient information is accepted, stored, or transmitted. Real health data requires access controls, encryption, audit logs, retention rules, consent, and privacy review.
+- Compliance: educational and research use only, not diagnosis. Ranges vary by assay, tissue, age, preparation, and laboratory.
+- Deployment: no new secrets, backend tables, storage, or service configuration.
+
 
 ## Update: scenarios and AI interpretation
 - ✅ Save, update, rename, delete, load scenarios: in your account when signed in (any device), in this browser when signed out

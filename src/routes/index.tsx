@@ -16,6 +16,7 @@ import { Interpreter } from "@/components/mito/Interpreter";
 import { WarburgDashboard } from "@/components/mito/WarburgDashboard";
 import { WarburgPhysiology } from "@/components/mito/WarburgPhysiology";
 import { Physiology } from "@/components/mito/Physiology";
+import { PatientData } from "@/components/mito/PatientData";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
@@ -112,6 +113,7 @@ function Index() {
             <TabsTrigger value="structure">Structure</TabsTrigger>
             <TabsTrigger value="warburg">Warburg</TabsTrigger>
             <TabsTrigger value="physiology">Physiology</TabsTrigger>
+            <TabsTrigger value="patients">Patient Data</TabsTrigger>
             <TabsTrigger value="library">Reference</TabsTrigger>
           </TabsList>
           <TabsContent value="sim" className="mt-4">
@@ -193,6 +195,9 @@ function Index() {
           </TabsContent>
           <TabsContent value="physiology" className="mt-4">
             <Physiology inputs={inputs} out={out} />
+          </TabsContent>
+          <TabsContent value="patients" className="mt-4">
+            <PatientData inputs={inputs} out={out} />
           </TabsContent>
           <TabsContent value="library" className="mt-4">
             <ReferenceLibrary onWarburg={() => { selectTerm("warburg"); window.scrollTo({ top: 0 }); }} />

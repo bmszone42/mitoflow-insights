@@ -24,5 +24,5 @@
 - Membrane geometry feeds `simulate(inputs, geo)` only through `geometryEffects` in `model.ts` (all multipliers 1 at `defaultGeometry`), and the 3D viewer `src/components/mito/Cristae3D.tsx` is lazy-loaded after mount so three.js never runs during SSR.
 - Light effects come only from `photoreceptor(i)` in `src/lib/mito/model.ts` (one downstream effect per chromophore), and the 71 THz output is a pumped coherence term inside `simulate`, so the photon chain stays auditable in one place.
 - The 3D viewer shares `layout(geo)` for scene and camera presets, and uses thresholded bloom on model-driven particles, not membranes, to preserve detail.
-- Warburg physiology compares ATP to cited ranges and named ROS source rates to the same-geometry healthy default; unmapped steps remain unassessed.
-- Physiology and Compare attribute step ATP rate as ATP per pair × routed ETC flux ÷ 2; exclude the overall chain summary from contribution totals to prevent double-counting.
+- Warburg physiology compares ATP to cited ranges and named ROS rates to the same-geometry healthy default; unmapped steps remain unassessed. Step ATP rate is ATP/pair × routed flux ÷ 2; exclude the chain summary from totals.
+- Keep patient metadata, citations, synthetic cohort values, and robust cohort flags in `patientReference.ts`; never present model proxies as clinical measurements.
