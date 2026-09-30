@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
-import { atpSplit, effectiveAtpCost, etcSteps, liveAtpPerPair, phenotype, stdAtpPerPair } from "@/lib/mito/reference";
+import { atpFlagContext, atpSplit, effectiveAtpCost, etcSteps, liveAtpPerPair, phenotype, stdAtpPerPair } from "@/lib/mito/reference";
 
 const GREEN = "#4EDEAE";
 const AMBER = "#FFBE5C";
@@ -60,7 +60,7 @@ export function WarburgDashboard({
     () =>
       rows.map((r, i) => {
         const s = etcSteps[i]!;
-        return { s: { step: s.step, ev: s.ev, tbLo: s.tbLo, tbHi: s.tbHi, protons: s.protons }, ra: r.rateB, rb: r.rate, diff: r.diff, costA: effectiveAtpCost(defaultInputs.deltaPsi, defaultInputs.uncoupling), costB: effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling) };
+        return { s: { step: s.step, ev: s.ev, tbLo: s.tbLo, tbHi: s.tbHi, protons: s.protons }, ra: r.rateB, rb: r.rate, diff: r.diff, costA: effectiveAtpCost(defaultInputs.deltaPsi, defaultInputs.uncoupling), costB: effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling), contextA: atpFlagContext(defaultInputs.deltaPsi, defaultInputs.uncoupling), contextB: atpFlagContext(inputs.deltaPsi, inputs.uncoupling) };
       }),
     [rows, inputs.deltaPsi, inputs.uncoupling],
   );

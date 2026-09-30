@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, loadDriverReply, saveDriverReply, type Scenario } from "@/lib/mito/scenarios";
 import { ShapeSketch, ShapeOverlay } from "@/components/mito/ShapeSketch";
-import { ATP_COST_TEXTBOOK, atpNetworkRangeFlags, effectiveAtpCost, liveAtpPerPair, stdAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
+import { ATP_COST_TEXTBOOK, atpFlagContext, atpNetworkRangeFlags, effectiveAtpCost, liveAtpPerPair, stdAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
 
 const outRows: { key: keyof Outputs; label: string; unit: string }[] = [
   { key: "atpFlux", label: "ATP flux", unit: "µM/s" },
@@ -103,7 +103,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
       const yb = liveAtpPerPair(s, ib.deltaPsi, ib.uncoupling).proton;
       const ra = (ya * fluxOf(oa, i)) / 2;
       const rb = (yb * fluxOf(ob, i)) / 2;
-      return { s, ya, yb, ra, rb, diff: rb - ra, costA: effectiveAtpCost(ia.deltaPsi, ia.uncoupling), costB: effectiveAtpCost(ib.deltaPsi, ib.uncoupling) };
+      return { s, ya, yb, ra, rb, diff: rb - ra, costA: effectiveAtpCost(ia.deltaPsi, ia.uncoupling), costB: effectiveAtpCost(ib.deltaPsi, ib.uncoupling), contextA: atpFlagContext(ia.deltaPsi, ia.uncoupling), contextB: atpFlagContext(ib.deltaPsi, ib.uncoupling) };
     });
     const totalAbs = rows.reduce((acc, r) => acc + Math.abs(r.diff), 0);
     const top = rows.reduce((best, r) => (Math.abs(r.diff) > Math.abs(best.diff) ? r : best), rows[0]!);

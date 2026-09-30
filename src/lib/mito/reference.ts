@@ -370,6 +370,49 @@ export function atpNetworkRangeFlags(
     costBOutside: outsideCost(costB),
   };
 }
+
+export type AtpFlagContext = {
+  psi: number;
+  uncoupling: number;
+  poNadh: number;
+  poFadh2: number;
+};
+
+export function atpFlagContext(psi: number, uncoupling: number): AtpFlagContext {
+  return {
+    psi,
+    uncoupling,
+    poNadh: poRatio(psi, uncoupling, "nadh"),
+    poFadh2: poRatio(psi, uncoupling, "fadh2"),
+  };
+}
+
+export function atpCostFlagCause(
+  step: Pick<EtcStep, "step" | "protons">,
+  context: AtpFlagContext,
+): string | null {
+  if (step.protons <= 0) return null;
+  const cost = effectiveAtpCost(context.psi, context.uncoupling);
+  const high = cost > ATP_COST_TEXTBOOK.hi + 1e-9;
+  const low = cost < ATP_COST_TEXTBOOK.lo - 1e-9;
+  if (!high && !low) return null;
+
+  const drivers: string[] = [];
+  if ((high && context.psi > STD_PSI) || (low && context.psi < STD_PSI)) {
+    drivers.push(`membrane potential ${context.psi.toFixed(0)} mV vs ${STD_PSI} mV`);
+  }
+  if ((high && context.uncoupling > STD_UNCOUPLING) || (low && context.uncoupling < STD_UNCOUPLING)) {
+    drivers.push(`uncoupling ${(context.uncoupling * 100).toFixed(0)}% vs ${(STD_UNCOUPLING * 100).toFixed(0)}%`);
+  }
+  if (drivers.length === 0) {
+    drivers.push(`combined membrane potential ${context.psi.toFixed(0)} mV and uncoupling ${(context.uncoupling * 100).toFixed(0)}%`);
+  }
+
+  const fadhPath = step.step.includes("II (FADH2)");
+  const po = fadhPath ? context.poFadh2 : context.poNadh;
+  const stdPo = poRatio(STD_PSI, STD_UNCOUPLING, fadhPath ? "fadh2" : "nadh");
+  return `${drivers.join(" + ")}; resulting ${fadhPath ? "FADH2" : "NADH"} P/O ${po.toFixed(2)} vs ${stdPo.toFixed(2)}`;
+}
 export function atpPerPair(s: EtcStep): { proton: number; energy: number } {
   return {
     proton: s.protons / H_PER_ATP,
