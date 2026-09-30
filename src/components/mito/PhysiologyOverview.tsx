@@ -3,6 +3,7 @@ import { Activity, Atom, Gauge, Zap } from "lucide-react";
 import { AtpDriverNetwork } from "./AtpDriverNetwork";
 import { IronLightMap } from "./IronLightMap";
 import { Physiology } from "./Physiology";
+import { SettingsReferenceDashboard } from "./SettingsReferenceDashboard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { atpComparisonRows } from "@/lib/mito/atpComparison";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
@@ -33,6 +34,7 @@ export function PhysiologyOverview({ inputs, geo, out, refreshKey }: { inputs: I
   return <div className="space-y-6" data-testid="physiology-overview">
     <div className="border-b border-border pb-4"><div className="mono-label">Integrated reference view</div><h2 className="mt-1 text-xl font-semibold">Physiology overview</h2><p className="mt-1 text-xs text-muted-foreground">Live energetics, cited physiological bands, and iron-light stress in one coordinated view.</p></div>
     <div className="grid gap-px overflow-hidden rounded-md border border-border bg-border sm:grid-cols-2 xl:grid-cols-4">{metrics.map(({ label, value, icon: Icon }) => <div key={label} className="bg-card p-3"><div className="flex items-center gap-2 text-muted-foreground"><Icon className="size-3.5" /><span className="text-[10px] uppercase">{label}</span></div><div className="mt-1 font-mono text-lg">{value}</div></div>)}</div>
+    <SettingsReferenceDashboard inputs={inputs} geo={geo} />
     <div className="grid min-w-0 gap-4 xl:grid-cols-2">
       <section className="panel min-w-0 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><div className="mono-label">ATP gap attribution</div><p className="mt-1 text-xs text-muted-foreground">A = {baselineLabel}; B = current model</p></div><div className="flex flex-wrap gap-2"><Select value={mode} onValueChange={(value) => setMode(value as "healthy" | "saved")}><SelectTrigger className="h-8 w-[155px]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="healthy">Healthy reference</SelectItem><SelectItem value="saved" disabled={scenarios.length === 0}>Saved scenario</SelectItem></SelectContent></Select>{mode === "saved" && scenarios.length > 0 && <Select value={scenarioId} onValueChange={setScenarioId}><SelectTrigger className="h-8 w-[190px]"><SelectValue placeholder="Choose scenario" /></SelectTrigger><SelectContent>{scenarios.map((scenario) => <SelectItem key={scenario.id} value={scenario.id}>{scenario.name}</SelectItem>)}</SelectContent></Select>}</div></div>
         <div className="mt-3"><AtpDriverNetwork rows={comparison.rows} totalAbs={Math.max(comparison.totalAbs, 1)} focus={focus} onFocus={selectFocus} /></div>
