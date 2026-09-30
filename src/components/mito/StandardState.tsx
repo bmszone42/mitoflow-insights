@@ -15,6 +15,7 @@ type Ref = {
   hi: number;
   range: string;
   source: string;
+  derived?: boolean;
 };
 
 export function StandardStateNote({
@@ -73,6 +74,7 @@ export function StandardStateNote({
       hi: 2.7,
       range: "2.5 (measured 2.3 to 2.7)",
       source: "Hinkle 2005; Watt et al. 2010",
+      derived: true,
     });
   if (poFadh != null)
     refs.push({
@@ -84,6 +86,7 @@ export function StandardStateNote({
       hi: 1.7,
       range: "1.5 (measured 1.4 to 1.7)",
       source: "Hinkle 2005",
+      derived: true,
     });
 
   return (
@@ -119,11 +122,14 @@ export function StandardStateNote({
             {refs.map((r) => {
               const inside = r.live >= r.lo - 1e-9 && r.live <= r.hi + 1e-9;
               return (
-                <tr key={r.label} className="border-t border-border/60">
-                  <td className="py-0.5 pr-2 text-foreground">{r.label}</td>
+                <tr key={r.label} className="border-t border-border/60" data-testid={r.derived ? "physiology-po-row" : undefined} data-outside={!inside}>
+                  <td className="py-0.5 pr-2 text-foreground">{r.label}{r.derived && <span className="block text-[10px] text-muted-foreground">Derived efficiency</span>}</td>
                   <td className="pr-2 font-mono">{r.model}</td>
                   <td className="pr-2 font-mono">
                     <span className={inside ? "text-primary" : "text-destructive"}>{r.liveText}</span>
+                    {r.derived && <span className={`block max-w-[260px] text-[10px] leading-relaxed ${inside ? "text-muted-foreground" : "text-destructive"}`} data-testid="physiology-po-dependency">
+                      {inside ? "Within range" : "Outside range"} · dependent on membrane potential {psi.toFixed(0)} mV (standard {STD_PSI}) and uncoupling {(uncoupling * 100).toFixed(0)}% (standard {(STD_UNCOUPLING * 100).toFixed(0)}%). Not a separate slider.
+                    </span>}
                   </td>
                   <td className="pr-2">{r.range}</td>
                   <td className="italic">{r.source}</td>

@@ -598,6 +598,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - No new endpoint or data storage. Keep educational-use caveats visible and review source citations before publishing.
 
 ## ATP flag cause attribution (2026-09-30)
+- [x] ✅ Physiology P/O reference rows show an explicit within/outside status and name membrane potential and uncoupling as the dependent inputs, rather than implying P/O is an adjustable slider.
+- [x] ✅ Corrected the FADH₂ P/O path to exclude only Complex I steps; Complex III and IV still contribute to succinate-derived ATP yield.
 - [x] ✅ Out-of-range ATP-cost warnings identify membrane potential and uncoupling changes against the healthy reference.
 - [x] ✅ Each warning includes the resulting NADH or FADH₂ P/O value and labels P/O as a derived readout, not an independent slider.
 - [x] ✅ Physiology, Compare and Warburg network details share the same cause logic; fixed redox flags explicitly state that sliders did not cause them.
