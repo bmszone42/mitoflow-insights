@@ -189,15 +189,18 @@ export type EtcStep = {
   ev: number; // energy released per electron, eV (1 V = 1 eV per electron)
   protons: number; // H+ pumped per electron pair
   note: string;
-  // Published range for the step's redox span (eV per electron), from the
-  // midpoint-potential spreads tabulated in Nicholls & Ferguson 2013, Table 3.1.
-  // Ranges reflect component-to-component and preparation variation, not fit data.
+  // Literature-derived comparison interval for ΔE, calculated from reported
+  // pH 7 midpoint potentials. It is not a clinical or in situ normal range.
   tbLo: number;
   tbHi: number;
+  rangeBasis: string;
+  sourceCitation: string;
+  sourceUrl: string;
 };
 
-// Midpoint potentials E'm (mV, pH 7) from standard bioenergetics tables
-// (Nicholls & Ferguson, Bioenergetics 4th ed.). eV = deltaE in volts per electron.
+// Point estimates are retained model parameters. Comparison intervals below are
+// derived as acceptor E'm minus donor E'm from the cited experimental or review
+// values. eV per electron is numerically equal to ΔE in volts.
 export const etcSteps: EtcStep[] = [
   {
     step: "Complex I entry",
@@ -209,7 +212,10 @@ export const etcSteps: EtcStep[] = [
     protons: 0,
     note: "NADH binds and reduces FMN; the small gap keeps flavin superoxide low at rest.",
     tbLo: 0.0,
-    tbHi: 0.05,
+    tbHi: 0.09,
+    rangeBasis: "NADH −320 mV; bound FMN one-electron couples −414 and −336 mV (bovine heart, pH 7.5).",
+    sourceCitation: "Sled VD et al. Biochemistry. 1994;33:10069–10075. doi:10.1021/bi00199a034",
+    sourceUrl: "https://doi.org/10.1021/bi00199a034",
   },
   {
     step: "Complex I Fe-S relay",
@@ -220,8 +226,11 @@ export const etcSteps: EtcStep[] = [
     ev: 0.26,
     protons: 4,
     note: "Electrons cross N3-N7 to N2; the ~0.26 eV drop drives the four pumped protons.",
-    tbLo: 0.2,
-    tbHi: 0.32,
+    tbLo: 0.1,
+    tbHi: 0.35,
+    rangeBasis: "Envelope from bound FMN values and the pH- and preparation-dependent N2 potential (approximately −150 to 0 mV).",
+    sourceCitation: "Ingledew WJ, Ohnishi T. Biochem J. 1980;186:111–117. doi:10.1042/bj1860111",
+    sourceUrl: "https://doi.org/10.1042/bj1860111",
   },
   {
     step: "Complex I to Q",
@@ -232,8 +241,11 @@ export const etcSteps: EtcStep[] = [
     ev: 0.13,
     protons: 0,
     note: "Two electrons plus two matrix protons reduce ubiquinone to ubiquinol.",
-    tbLo: 0.09,
-    tbHi: 0.17,
+    tbLo: 0.05,
+    tbHi: 0.2,
+    rangeBasis: "Derived from Q-pool midpoint potentials near +65 to +112 mV and the preparation-dependent N2 potential.",
+    sourceCitation: "Urban PF, Klingenberg M. Eur J Biochem. 1969;9:519–525. doi:10.1111/j.1432-1033.1969.tb00639.x",
+    sourceUrl: "https://doi.org/10.1111/j.1432-1033.1969.tb00639.x",
   },
   {
     step: "Complex II (FADH2)",
@@ -244,8 +256,11 @@ export const etcSteps: EtcStep[] = [
     ev: -0.06,
     protons: 0,
     note: "Slightly uphill; driven by succinate mass action, so no protons are pumped.",
-    tbLo: -0.1,
-    tbHi: -0.02,
+    tbLo: -0.09,
+    tbHi: -0.01,
+    rangeBasis: "Magnitude shown for the slightly uphill forward reaction, using succinate/fumarate +30 mV and Q 0 to +40 mV at pH 7.",
+    sourceCitation: "Ramsay RR. ChemTexts. 2019;5:9. doi:10.1007/s40828-019-0085-4",
+    sourceUrl: "https://doi.org/10.1007/s40828-019-0085-4",
   },
   {
     step: "Complex III Qo",
@@ -256,8 +271,11 @@ export const etcSteps: EtcStep[] = [
     ev: 0.19,
     protons: 4,
     note: "Q-cycle bifurcation: one electron to Rieske, one back to Qi; semiquinone here leaks O2•-.",
-    tbLo: 0.15,
-    tbHi: 0.24,
+    tbLo: 0.1,
+    tbHi: 0.28,
+    rangeBasis: "Derived from Q-pool values and reported Rieske potentials; Qo quinone potentials are strongly site- and pH-dependent.",
+    sourceCitation: "Moser CC, Wraight CA, Dutton PL. J Bioenerg Biomembr. 2008;40:493–499. doi:10.1007/s10863-008-9174-6",
+    sourceUrl: "https://doi.org/10.1007/s10863-008-9174-6",
   },
   {
     step: "Cytochrome c shuttle",
@@ -268,8 +286,11 @@ export const etcSteps: EtcStep[] = [
     ev: -0.045,
     protons: 0,
     note: "Near-equilibrium shuttle; cardiolipin-bound cyt c is the ferroptosis peroxidase switch.",
-    tbLo: -0.08,
-    tbHi: 0.0,
+    tbLo: -0.06,
+    tbHi: 0.04,
+    rangeBasis: "Derived from cytochrome c1 near +220 mV and cytochrome c +254 mV at pH 7; local redox state controls direction.",
+    sourceCitation: "Ramsay RR. ChemTexts. 2019;5:9, Table 1. doi:10.1007/s40828-019-0085-4",
+    sourceUrl: "https://doi.org/10.1007/s40828-019-0085-4",
   },
   {
     step: "Complex IV CuA / heme a",
@@ -280,8 +301,11 @@ export const etcSteps: EtcStep[] = [
     ev: 0.055,
     protons: 0,
     note: "CuA is the main 810 nm chromophore; heme a/a3 absorbs 660 nm.",
-    tbLo: 0.03,
-    tbHi: 0.09,
+    tbLo: -0.02,
+    tbHi: 0.1,
+    rangeBasis: "Derived from cytochrome c +254 mV, CuA +240 mV and heme a +290 mV; assignments vary with redox state and method.",
+    sourceCitation: "Ramsay RR. ChemTexts. 2019;5:9, Table 1; Lucas MF et al. BBA. 2011;1807:1305–1313. doi:10.1016/j.bbabio.2011.03.003",
+    sourceUrl: "https://doi.org/10.1016/j.bbabio.2011.03.003",
   },
   {
     step: "Complex IV to O2",
@@ -290,8 +314,11 @@ export const etcSteps: EtcStep[] = [
     emDonor: 290,
     emAcceptor: 820,
     ev: 0.53,
-    tbLo: 0.45,
+    tbLo: 0.2,
     tbHi: 0.6,
+    rangeBasis: "Envelope between equilibrium heme a3/CuB values and O2/H2O +800 mV; the catalytic active-state potential remains uncertain.",
+    sourceCitation: "Vilhjálmsdóttir J et al. Sci Rep. 2018;8:7761. doi:10.1038/s41598-018-25779-w",
+    sourceUrl: "https://doi.org/10.1038/s41598-018-25779-w",
     protons: 2,
     note: "The largest drop; 2 H+ pumped plus 2 chemical H+ per pair. NO binds here and light releases it.",
   },
@@ -304,8 +331,11 @@ export const etcSteps: EtcStep[] = [
     ev: 1.14,
     protons: 10,
     note: "1.14 eV per electron, about 52 kcal/mol per pair; roughly 40% is captured as ATP.",
-    tbLo: 1.1,
-    tbHi: 1.18,
+    tbLo: 1.12,
+    tbHi: 1.14,
+    rangeBasis: "Direct standard-state endpoint difference: O2/H2O +800 to +820 mV minus NADH/NAD+ −320 mV at pH 7.",
+    sourceCitation: "Ramsay RR. ChemTexts. 2019;5:9, Table 1. doi:10.1007/s40828-019-0085-4",
+    sourceUrl: "https://doi.org/10.1007/s40828-019-0085-4",
   },
 ];
 

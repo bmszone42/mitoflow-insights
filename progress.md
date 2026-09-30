@@ -555,3 +555,12 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [ ] ❌ Validate literature-informed bands against tissue- and assay-specific measurements before clinical interpretation.
 ### Security before deployment
 - No new endpoint or data storage. Keep educational-use caveats visible and review source citations before publishing.
+
+
+## Physiology citation audit (2026-09-30)
+- [x] ✅ Replaced inferred ETC textbook bands with literature-derived ΔE intervals calculated from cited midpoint potentials.
+- [x] ✅ Added a full citation, DOI link and derivation note to every ETC step in Physiology.
+- [x] ✅ Removed the unsupported claim that one textbook table published all nine ranges; preparation, pH and active-state uncertainty are now explicit.
+- [ ] ❌ The intervals remain comparison envelopes, not clinical normal ranges; validate against the exact tissue, species and assay before clinical interpretation.
+### Security before deployment
+- No new data collection or network endpoint. Citation links open directly to DOI records and use safe external-link attributes.

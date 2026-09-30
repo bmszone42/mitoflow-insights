@@ -62,7 +62,7 @@ export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
               <tr>
                 <th scope="col" className="px-3 py-3 font-medium">Step / electron path</th>
                 <th scope="col" className="px-3 py-3 font-medium">Model drop</th>
-                <th scope="col" className="px-3 py-3 font-medium">Reference drop</th>
+                <th scope="col" className="px-3 py-3 font-medium">Literature-derived ΔE</th>
                 <th scope="col" className="px-3 py-3 font-medium">Live ATP / pair</th>
                 <th scope="col" className="px-3 py-3 font-medium">Effective ATP cost</th>
                 <th scope="col" className="px-3 py-3 font-medium">Status</th>
@@ -85,14 +85,19 @@ export function Physiology({ inputs, out }: { inputs: Inputs; out: Outputs }) {
                   <td className={`px-3 py-3 font-medium ${flagged ? "text-destructive" : "text-primary"}`}>
                     {flags.evOutside && flags.costBOutside ? "Drop + cost outside" : flags.evOutside ? "Drop outside" : flags.costBOutside ? "Cost outside" : "Within range"}
                   </td>
-                  <td className="px-3 py-3 text-muted-foreground">Nicholls & Ferguson, <cite>Bioenergetics 4</cite> (2013), Table 3.1</td>
+                  <td className="max-w-[330px] px-3 py-3 text-muted-foreground">
+                    <a href={step.sourceUrl} target="_blank" rel="noreferrer" className="font-medium text-foreground underline decoration-border underline-offset-2 hover:text-primary">
+                      {step.sourceCitation}
+                    </a>
+                    <span className="mt-1 block text-[10px] leading-relaxed">{step.rangeBasis}</span>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Redox drops are fixed model parameters, not live measurements. Live membrane potential and uncoupling change ATP yield and the effective cost proxy on pumping steps. The 0.50–0.62 eV/ATP band is an overall synthesis-energy estimate, not a measured per-step interval. Overall NADH to O₂ is a chain summary, not an additional reaction.
+          Redox drops are fixed model parameters, not live measurements. Each comparison interval is calculated from reported pH 7 midpoint potentials in the cited source, not copied from a universal textbook range. Protein environment, pH, preparation and redox state shift those potentials. Live membrane potential and uncoupling change ATP yield and the effective cost proxy on pumping steps. The 0.50–0.62 eV/ATP band is a derived overall synthesis-energy estimate, not a measured per-step interval. Overall NADH to O₂ is a chain summary, not an additional reaction.
         </p>
       </section>
 
