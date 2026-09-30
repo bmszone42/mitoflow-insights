@@ -16,6 +16,7 @@ type Ref = {
   range: string;
   source: string;
   derived?: boolean;
+  comparable?: boolean;
 };
 
 export function StandardStateNote({
@@ -50,8 +51,9 @@ export function StandardStateNote({
       liveText: `${(uncoupling * 100).toFixed(0)}%`,
       lo: 5,
       hi: 25,
-      range: "5 to 25% of respiration",
+      range: "No comparable range for model fraction",
       source: "Rolfe & Brand 1997; Brand 2005",
+      comparable: false,
     },
     {
       label: "ATP synthesis cost",
@@ -61,7 +63,8 @@ export function StandardStateNote({
       lo: ATP_COST_TEXTBOOK.lo,
       hi: ATP_COST_TEXTBOOK.hi,
       range: "0.50 to 0.62 eV (48 to 60 kJ/mol)",
-      source: "Nicholls & Ferguson 2013; Rich 2003",
+      source: "Derived energetic cost, not a measured patient value",
+      comparable: false,
     },
   ];
   if (poNadh != null)
@@ -121,12 +124,14 @@ export function StandardStateNote({
           <tbody>
             {refs.map((r) => {
               const inside = r.live >= r.lo - 1e-9 && r.live <= r.hi + 1e-9;
+              const comparable = r.comparable !== false;
               return (
-                <tr key={r.label} className="border-t border-border/60" data-testid={r.derived ? "physiology-po-row" : undefined} data-outside={!inside}>
+                <tr key={r.label} className="border-t border-border/60" data-testid={r.derived ? "physiology-po-row" : undefined} data-outside={comparable && !inside}>
                   <td className="py-0.5 pr-2 text-foreground">{r.label}{r.derived && <span className="block text-[10px] text-muted-foreground">Derived efficiency</span>}</td>
                   <td className="pr-2 font-mono">{r.model}</td>
                   <td className="pr-2 font-mono">
-                    <span className={inside ? "text-primary" : "text-destructive"}>{r.liveText}</span>
+                    <span className={!comparable ? "text-muted-foreground" : inside ? "text-primary" : "text-destructive"}>{r.liveText}</span>
+                    {!comparable && <span className="block text-[10px] text-muted-foreground">Not directly comparable to measured values</span>}
                     {r.derived && <span className={`block max-w-[260px] text-[10px] leading-relaxed ${inside ? "text-muted-foreground" : "text-destructive"}`} data-testid="physiology-po-dependency">
                       {inside ? "Within range" : "Outside range"} · dependent on membrane potential {psi.toFixed(0)} mV (standard {STD_PSI}) and uncoupling {(uncoupling * 100).toFixed(0)}% (standard {(STD_UNCOUPLING * 100).toFixed(0)}%). Not a separate slider.
                     </span>}
@@ -139,8 +144,7 @@ export function StandardStateNote({
           </tbody>
         </table>
         <div className="mt-1 text-[10px]">
-          Live value in primary color when inside the published range, red when outside. Ranges are for
-          isolated mammalian mitochondria and intact cells; tissue values vary.
+          Flags apply only to comparable quantities. P/O bands summarize published isolated-mitochondria estimates; membrane potential is an approximate intact-cell band. Uncoupling is a model control, not a measured proton-leak share; ATP cost is a derived energetic proxy. Tissue and assay values vary.
         </div>
       </div>
     </div>

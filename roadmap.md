@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Compare live healthy default with independent published P/O estimates and platelet aconitase controls as an explicitly scaled proxy.
+- [x] Distinguish simulated ATP network baseline from measured controls; never flag ATP flux against oxygen-consumption units.
+- [ ] Clinical validation requires matched specimen, assay, calibration and actual patient measurements; unavailable here.
+
 - [x] Flag NADH and FADH2 P/O as derived efficiencies in Physiology and name membrane potential and uncoupling as their inputs.
 
 - [x] Show all 24 live input and geometry controls in the Physiology settings reference dashboard.
