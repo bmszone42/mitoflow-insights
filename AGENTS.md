@@ -13,14 +13,15 @@
 
 - Keep cited redox math in `src/lib/mito/model.ts` for auditability.
 - Keep shared bands and ATP flag attribution in `reference.ts`; sliders are causes and P/O is the resulting readout.
-- Workspace state lives in `src/routes/index.tsx`; components in `src/components/mito/`; scenarios in `src/lib/mito/scenarios.ts` use owner-only Cloud or signed-out IndexedDB and legacy geometry defaults.
+- Workspace state lives in `index.tsx`; mito components stay together; scenarios use owner-only Cloud or signed-out IndexedDB with legacy geometry defaults.
 
 - AI interpretation streams through `src/routes/api/interpret.ts`, keeping the gateway key server-side.
-- All AI routes (`/api/interpret`, `/api/suggest`, `/api/analyze-image`, `/api/explain-sensitivity`) go through `src/lib/mito/rate-limit.server.ts` (in-memory, per instance) so abuse limits live in one place; move to a database if strict limits are needed.
+- All AI routes share the in-memory rate limiter; use database limits when strict enforcement is needed.
 - `inputRanges` in `src/lib/mito/model.ts` is the source of slider ranges for clamping AI suggestions and for comparison labels.
-- Micrograph analysis runs through `src/routes/api/analyze-image.ts` (Responses API, image sent inline as a resized JPEG data URL, never stored server side); Structure geometry state lives in `src/routes/index.tsx` and `geometryRanges` in `model.ts` clamps AI geometry suggestions.
+- Micrographs are resized JPEGs sent inline and never stored server-side; `geometryRanges` clamps AI suggestions.
 
 - Ferroptosis math lives inside `simulate` in `src/lib/mito/model.ts` and exposes numeric outputs through `sensOutputs`, so Sensitivity, CSV and AI routes pick it up with no extra wiring.
 - Membrane geometry feeds `simulate(inputs, geo)` only through `geometryEffects` in `model.ts` (all multipliers 1 at `defaultGeometry`), and the 3D viewer `src/components/mito/Cristae3D.tsx` is lazy-loaded after mount so three.js never runs during SSR.
 - Light effects come only from `photoreceptor(i)` in `src/lib/mito/model.ts` (one downstream effect per chromophore), and the 71 THz output is a pumped coherence term inside `simulate`, so the photon chain stays auditable in one place.
 - The 3D viewer shares `layout(geo)` for scene and camera presets, and uses thresholded bloom on model-driven particles, not membranes, to preserve detail.
+- Warburg physiology compares ATP to cited ranges and named ROS source rates to the same-geometry healthy default; unmapped steps remain unassessed.

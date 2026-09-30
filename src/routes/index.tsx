@@ -14,6 +14,7 @@ import { Scenarios } from "@/components/mito/Scenarios";
 import { Compare } from "@/components/mito/Compare";
 import { Interpreter } from "@/components/mito/Interpreter";
 import { WarburgDashboard } from "@/components/mito/WarburgDashboard";
+import { WarburgPhysiology } from "@/components/mito/WarburgPhysiology";
 import { Physiology } from "@/components/mito/Physiology";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
@@ -177,7 +178,18 @@ function Index() {
             </div>
           </TabsContent>
           <TabsContent value="warburg" className="mt-4">
-            <WarburgDashboard inputs={inputs} setInputs={setInputs} geo={geo} out={out} onOpenSimulator={() => { setTab("sim"); requestAnimationFrame(() => document.querySelector('[data-testid="glycolysis-readout"]')?.scrollIntoView({ behavior: "smooth", block: "center" })); }} />
+            <Tabs defaultValue="dashboard" data-testid="warburg-tabs">
+              <TabsList aria-label="Warburg views">
+                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+                <TabsTrigger value="physiology">Physiology</TabsTrigger>
+              </TabsList>
+              <TabsContent value="dashboard" className="mt-4">
+                <WarburgDashboard inputs={inputs} setInputs={setInputs} geo={geo} out={out} onOpenSimulator={() => { setTab("sim"); requestAnimationFrame(() => document.querySelector('[data-testid="glycolysis-readout"]')?.scrollIntoView({ behavior: "smooth", block: "center" })); }} />
+              </TabsContent>
+              <TabsContent value="physiology" className="mt-4">
+                <WarburgPhysiology inputs={inputs} geo={geo} out={out} />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
           <TabsContent value="physiology" className="mt-4">
             <Physiology inputs={inputs} out={out} />
