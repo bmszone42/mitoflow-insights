@@ -465,9 +465,8 @@ export function liveAtpPerPair(s: EtcStep, psi: number, uncoupling: number): { p
  * the classic 2.5 and 1.5.
  */
 export function poRatio(psi: number, uncoupling: number, path: "nadh" | "fadh2"): number {
-  const skip = path === "fadh2" ? "Complex I" : "\0";
   return etcSteps
-    .filter((s) => !s.step.startsWith("Overall") && !s.step.startsWith(skip))
+    .filter((s) => !s.step.startsWith("Overall") && !(path === "fadh2" && s.step.startsWith("Complex I ")))
     .reduce((acc, s) => acc + liveAtpPerPair(s, psi, uncoupling).proton, 0);
 }
 
