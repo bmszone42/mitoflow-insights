@@ -321,7 +321,7 @@ export const studyReferences: StudyReference[] = [
     "section": "Light and ferroptosis",
     "locator": ""
   }
-] as StudyReference[];
+] satisfies StudyReference[];
 
 export const studySections = ["ETC energetics", "ATP and respiratory controls", "ROS, iron and assays", "Light and ferroptosis", "Cristae and membrane geometry"] as const;
 
