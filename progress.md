@@ -572,3 +572,18 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [ ] ❌ The intervals remain comparison envelopes, not clinical normal ranges; validate against the exact tissue, species and assay before clinical interpretation.
 ### Security before deployment
 - No new data collection or network endpoint. Citation links open directly to DOI records and use safe external-link attributes.
+
+## Warburg physiology subtab (2026-09-30)
+- [x] ✅ Added Dashboard and Physiology views inside Warburg, preserving the dashboard as the default.
+- [x] ✅ Listed all nine electron-transfer rows with literature-derived ΔE values, source links, live ATP per pair, healthy-baseline ATP and ATP flags.
+- [x] ✅ Compared named CI IF, CI IQ/RET, CII IIF and CIII Qo superoxide production rates with the same-geometry healthy respiration baseline.
+- [x] ✅ Flagged modeled ROS source changes at or beyond ±25%; rows without a direct modeled source are explicitly unassessed.
+- [ ] ❌ The ±25% ROS band is a model comparison threshold, not a published physiological range; validate it for the intended tissue and assay before interpretation.
+
+### Feature specification
+- User story: as a Warburg modeler, I can inspect each electron-transfer step and see whether ATP energetics or modeled ROS production departs from its stated reference.
+- Acceptance: all cited steps show ATP and source details; ROS appears only where the model names a production site; flags update immediately with Warburg settings.
+
+### Testing and deployment
+- Verify both inner Warburg tabs, the nine physiology rows, baseline state and a Warburg preset with ATP/ROS warnings.
+- No new API, storage, authentication or personal-data surface was added. Keep the educational-use caveat and ROS baseline limitation visible before publishing.
