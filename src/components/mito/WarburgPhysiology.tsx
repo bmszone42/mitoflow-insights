@@ -152,7 +152,8 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
                 <td className={`max-w-[230px] px-3 py-3 font-medium ${row.atpFlagged ? "text-destructive" : "text-primary"}`}>
                   {row.atpFlagged ? <AlertTriangle className="mr-1 inline size-3.5" aria-hidden /> : <CheckCircle2 className="mr-1 inline size-3.5" aria-hidden />}
                   {row.flags.evOutside && row.flags.costBOutside ? "Drop + cost outside" : row.flags.evOutside ? "Drop outside" : row.flags.costBOutside ? "Cost outside" : "Within range"}
-                  {row.atpCause && <span className="mt-1 block text-[10px] font-normal leading-relaxed">Cause: {row.atpCause}</span>}
+                  {row.atpCause && <span className="mt-1 block text-[10px] font-normal leading-relaxed" data-testid="warburg-physiology-flag-cause">Slider cause: {row.atpCause}</span>}
+                  {row.flags.evOutside && <span className="mt-1 block text-[10px] font-normal leading-relaxed">Model parameter: fixed redox drop, not a slider change.</span>}
                 </td>
                 <td className="px-3 py-3">
                   {row.ros ? (

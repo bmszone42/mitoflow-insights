@@ -52,6 +52,9 @@ export function AtpDriverNetwork({
   const outsideTb = (r: Row) => outsideEv(r) || outsideCost(r);
   const causeA = (r: Row) => atpNetworkRangeFlags(r.s, r.costA, r.costB).costAOutside ? atpCostFlagCause(r.s, r.contextA) : null;
   const causeB = (r: Row) => outsideCost(r) ? atpCostFlagCause(r.s, r.contextB) : null;
+  const flaggedRows = rows
+    .map((row, index) => ({ row, index, evOutside: outsideEv(row), sliderCause: causeB(row) }))
+    .filter(({ evOutside, sliderCause }) => evOutside || sliderCause);
   const sel = focus != null ? rows[focus] : null;
 
   return (
@@ -130,6 +133,25 @@ export function AtpDriverNetwork({
         </span>
         . Effective cost factors in membrane potential and uncoupling; it is a model proxy, not a measured step-specific range.
       </div>
+      {flaggedRows.length > 0 && (
+        <div className="mt-3 border-t border-border pt-2" data-testid="atp-network-flag-causes">
+          <div className="text-[10px] font-medium uppercase text-destructive">Flag causes</div>
+          <div className="mt-1 grid gap-1 sm:grid-cols-2">
+            {flaggedRows.map(({ row, index, evOutside, sliderCause }) => (
+              <button
+                key={row.s.step}
+                type="button"
+                className="rounded-sm border border-destructive/30 bg-destructive/5 px-2 py-1.5 text-left text-[10px] leading-relaxed text-destructive hover:bg-destructive/10"
+                onClick={() => onFocus(focus === index ? null : index)}
+              >
+                <span className="font-medium">{row.s.step}:</span>{" "}
+                {sliderCause ? `Slider cause: ${sliderCause}` : "Model parameter: fixed redox drop outside the cited range."}
+                {sliderCause && evOutside ? " Fixed redox drop is also outside the cited range." : ""}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {sel && (
         <div className="mt-1 font-mono text-[11px]" data-testid="atp-network-detail">
           {sel.s.step}: A {sel.ra.toFixed(2)} vs B {sel.rb.toFixed(2)} ATP rate, {pct(sel) > 0 ? "+" : ""}
@@ -144,7 +166,7 @@ export function AtpDriverNetwork({
           </span>}
           {(causeA(sel) || causeB(sel)) && (
             <span className="mt-1 block text-destructive" data-testid="atp-network-flag-cause">
-              {causeA(sel) ? `A cause: ${causeA(sel)}. ` : ""}{causeB(sel) ? `B cause: ${causeB(sel)}.` : ""}
+              {causeA(sel) ? `A slider cause: ${causeA(sel)}. ` : ""}{causeB(sel) ? `B slider cause: ${causeB(sel)}.` : ""}
             </span>
           )}
           {outsideEv(sel) && <span className="mt-1 block text-destructive">Redox cause: fixed model drop, not a slider change.</span>}

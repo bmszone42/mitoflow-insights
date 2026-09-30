@@ -110,6 +110,7 @@ clinical claims or patient data are ever introduced, HIPAA and GDPR review is re
 - ✅ ATP gaps compare the current model against either the healthy default or a browser/account-saved scenario using the shared scenario storage facade.
 - ✅ Clicking a network node highlights and scrolls to the matching physiology row.
 - ✅ The reusable iron × light map preserves NO crossing doses, ferroptosis markers, study-dose lines, ACO2 study-control flags, proxy labels, and citations.
+- ✅ Physiology and Warburg ATP flags identify membrane-potential or uncoupling slider causes and label P/O as the resulting readout; fixed redox flags are separated from slider attribution.
 - Acceptance: both ATP baseline modes update direction and gap share; map wavelength and output selectors update independently; desktop and narrow layouts remain readable.
 - Testing: typecheck, preview build status, desktop interaction flow, and 390 px narrow-layout overflow checks.
 - Security: no new data collection or permissions; signed-in scenarios remain owner-scoped and signed-out scenarios remain in browser storage.
