@@ -4,6 +4,10 @@
 - [ ] Calibrate all matrix concentrations, effective ROS sink pools, flux capacities and light/Fe-S multipliers to matched tissue-specific experiments before interpreting absolute µM/s as measurements.
 # Roadmap
 
+- [x] Show cited PBMC ROS assay control measurements separately from invented patient values.
+- [x] Flag entered ROS assay results only against matched local control limits, with probe-specific direction and no saved patient data.
+- [ ] Clinical ROS comparison requires a performing laboratory's assay-matched controls and validated intervals; none are supplied by these method papers.
+
 - [x] Link eleven modeled ROS sources to upstream input effects, including indirect effects.
 - [x] Attribute ROS flags with one-input-at-a-time comparisons and link selected sources to table rows on desktop and mobile.
 

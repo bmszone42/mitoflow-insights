@@ -3,6 +3,7 @@ import { AlertCircle, AlertTriangle, CheckCircle2, FlaskConical, Minus } from "l
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PatientRosAssays } from "@/components/mito/PatientRosAssays";
 import type { Inputs, Outputs } from "@/lib/mito/model";
 import { cohortStats, demoPatients, isCohortOutlier, isReferenceOutlier, patientGroups, patientMetrics, type PatientMetric } from "@/lib/mito/patientReference";
 
@@ -44,7 +45,7 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
       <Alert className="border-warning/60 bg-warning/10">
         <FlaskConical className="size-4 text-warning" aria-hidden />
         <AlertTitle>Synthetic demo data</AlertTitle>
-         <AlertDescription>These {demoPatients.length} records are invented, not real patients or disease-specific measured distributions. Assay signals are illustrative; flags support research exploration only and are not diagnoses.</AlertDescription>
+         <AlertDescription>These {demoPatients.length} records are invented, not real patients or disease-specific measured distributions. The ROS measurements section below accepts separate assay results for local comparison. Synthetic flags are not diagnoses.</AlertDescription>
       </Alert>
 
       <div className="grid gap-4 border-b border-border pb-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
@@ -99,7 +100,7 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
                       <th scope="row" className="px-3 py-3 font-medium">{metric.label}<span className="mt-0.5 block font-normal text-muted-foreground">{metric.specimen} · {metric.method}</span></th>
                       <td className={`px-3 py-3 font-mono font-medium ${isFlagged ? "text-destructive" : "text-foreground"}`}>{formatValue(value, metric.decimals)} {metric.unit}</td>
                       <td className="px-3 py-3 font-mono">{displayedModel === null ? <span className="inline-flex items-center gap-1 font-sans text-muted-foreground"><Minus className="size-3.5" aria-hidden />Not modeled</span> : <>{displayedModel}<span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{metric.modelLabel}</span></>}</td>
-                       <td className="px-3 py-3 font-mono">{referenceApplicable ? formatRange(metric) : "Not applied"} {referenceApplicable && metric.reference ? metric.unit : ""}{!referenceApplicable && <span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{patient.age < 18 ? "Adult band; pediatric interval needed" : "Nonfasting acute sample"}</span>}{referenceApplicable && metric.reference && <span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{metric.reference.label}</span>}</td>
+                       <td className="px-3 py-3 font-mono">{referenceApplicable ? formatRange(metric) : "Not applied"} {referenceApplicable && metric.reference ? metric.unit : ""}{!referenceApplicable && metric.reference && <span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{patient.age < 18 ? "Adult band; pediatric interval needed" : "Nonfasting acute sample"}</span>}{referenceApplicable && metric.reference && <span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{metric.reference.label}</span>}</td>
                       <td className="px-3 py-3 font-mono">{formatValue(stats.median, metric.decimals)} median<span className="mt-0.5 block text-[10px] text-muted-foreground">{formatValue(stats.min, metric.decimals)}–{formatValue(stats.max, metric.decimals)} range</span></td>
                       <td className={`px-3 py-3 font-medium ${isFlagged ? "text-destructive" : status === "Within range" ? "text-primary" : "text-muted-foreground"}`}>{isFlagged ? <AlertTriangle className="mr-1 inline size-3.5" aria-hidden /> : status === "Within range" ? <CheckCircle2 className="mr-1 inline size-3.5" aria-hidden /> : <AlertCircle className="mr-1 inline size-3.5" aria-hidden />}{status}</td>
                       <td className="max-w-[330px] px-3 py-3 text-muted-foreground"><a href={metric.sourceUrl} target="_blank" rel="noreferrer" className="font-medium text-foreground underline decoration-border underline-offset-2 hover:text-primary">{metric.sourceCitation}</a><span className="mt-1 block text-[10px] leading-relaxed">{metric.note}</span></td>
@@ -112,7 +113,9 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
         );
       })}
 
-       <p className="text-xs leading-relaxed text-muted-foreground">Cohort flags use a robust modified z-score greater than 3.5 across {demoPatients.length} deliberately mixed synthetic profiles, not a healthy reference population. Adult bands are not applied to children; fasting glucose bands are not applied in acute nonfasting cases. Published intervals vary by specimen, assay, age, preparation and laboratory. P/O, mitochondrial voltage, ROS and Fe-S values are illustrative hypothetical assay outputs, not validated disease-specific patient data. Clinical interpretation requires real, paired, assay-matched measurements.</p>
+      <PatientRosAssays />
+
+       <p className="text-xs leading-relaxed text-muted-foreground">Synthetic cohort flags use a robust modified z-score greater than 3.5 across {demoPatients.length} deliberately mixed invented profiles, not a healthy reference population. Adult bands are not applied to children; fasting glucose bands are not applied in acute nonfasting cases. The separate ROS assay flags use only entered measurements and matched local controls. P/O, mitochondrial voltage, synthetic ROS and Fe-S values are hypothetical, not validated disease-specific patient data. Clinical interpretation requires real, paired, assay-matched measurements.</p>
     </div>
   );
 }

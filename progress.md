@@ -1,3 +1,14 @@
+## Patient ROS assay comparisons (2026-10-01)
+
+- [x] ✅ Added optional, transient ROS measurement entry for PBMC DCFH-DA, fluor-DHPE, MitoSOX and C11-BODIPY, each with its own unit, probe direction and citation.
+- [x] ✅ Verified du Plessis et al. 2010 original study: 15 unexposed controls had unstimulated DCFH-DA 3.78 ± 1.20 MFI and fluor-DHPE 957.02 ± 51.55 MFI (mean ± SEM). These are context, not cutoffs; MitoSOX and C11-BODIPY method papers supply no transferable control intervals.
+- [x] ✅ Entered-result flags require numeric limits from the same laboratory assay; synthetic cohort flags remain separate. Assay entries remain in the open page only.
+- [x] ✅ Browser-tested at desktop and mobile: an entered result without limits stays unflagged; DCFH-DA above controls and fluor-DHPE below controls flag with the correct oxidation direction; clearing removes entries; no page errors.
+- [ ] ❌ Clinical use requires actual specimen-matched measurements, laboratory controls and locally validated decision limits. Published instrument-specific means are not diagnostic ranges.
+
+### Security before deployment
+- No uploaded sample or identifier, network submission, or persistent assay storage was added. Retain the no-identifiers warning and check that entered values remain client-only before deployment.
+
 ## ROS driver network (2026-10-01)
 
 - [x] ✅ Added a selectable network for all eleven modeled ROS sources; changed controls show red/green rate effects and selected sources highlight matching physiology rows.
