@@ -199,7 +199,7 @@ function Index() {
           </TabsContent>
           <TabsContent value="physiology" className="mt-4">
             <Tabs defaultValue="overview" data-testid="physiology-tabs">
-              <TabsList aria-label="Physiology views">
+              <TabsList aria-label="Physiology views" className="flex h-auto w-full flex-wrap justify-start">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="ros-atp">ROS + ATP flags</TabsTrigger>
                 <TabsTrigger value="ros">ROS physiology</TabsTrigger>
