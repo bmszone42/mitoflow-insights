@@ -102,8 +102,8 @@ export function AtpDriverNetwork({
                   r={rad + 4}
                   fill="none"
                   stroke="var(--destructive)"
-                  strokeWidth={2}
-                  strokeDasharray="2 3"
+                  strokeWidth={3}
+                  strokeDasharray="5 3"
                 />
               )}
               <circle
@@ -116,7 +116,8 @@ export function AtpDriverNetwork({
                 strokeWidth={on ? 3 : 1.5}
                 strokeDasharray={i === 8 ? "4 3" : undefined}
               />
-              <text x={p.x} y={p.y - 2} textAnchor="middle" fontSize="11" fill="var(--foreground)">{p.short}</text>
+               {outsideTb(r) && <text x={p.x + rad - 2} y={p.y - rad + 3} textAnchor="middle" fontSize="18" fontWeight="bold" fill="var(--destructive)" paintOrder="stroke" stroke="var(--background)" strokeWidth="3" aria-label="Outside comparison band">!</text>}
+               <text x={p.x} y={p.y - 2} textAnchor="middle" fontSize="11" fill="var(--foreground)">{p.short}</text>
               <text x={p.x} y={p.y + 12} textAnchor="middle" fontSize="10" fontFamily="monospace" fill="var(--muted-foreground)">
                 {(share(i) * 100).toFixed(0)}%
               </text>
@@ -128,7 +129,7 @@ export function AtpDriverNetwork({
         Node size and edge width: share of the A/B ATP gap. Green: B raises that step's ATP rate. Red: B lowers it.
         The dashed Overall node is the whole-chain summary. Click a node to highlight its table row.{" "}
         <span className="text-destructive">
-          A red dashed halo means its eV drop is outside the textbook range, or a pumping step's
+           A red dashed halo and exclamation mark mean its eV drop is outside the literature-derived band, or a pumping step's
           live effective ATP cost is outside {ATP_COST_TEXTBOOK.lo.toFixed(2)} to {ATP_COST_TEXTBOOK.hi.toFixed(2)} eV/ATP
         </span>
         . Effective cost factors in membrane potential and uncoupling; it is a model proxy, not a measured step-specific range.

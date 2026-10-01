@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Inputs, type Outputs } from "@/lib/mito/model";
-import { ATP_COST_EV, H_PER_ATP, atpPerPair, stdAtpPerPair, liveAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
+import { ATP_COST_EV, H_PER_ATP, atpPerPair, stdAtpPerPair, liveAtpPerPair, etcSteps, atpSplit, phenotype, atpNetworkRangeFlags, effectiveAtpCost } from "@/lib/mito/reference";
 
 type Node = { id: string; x: number; y: number; label: string; value: (o: Outputs) => number; unit: string; digits?: number; tone: "ros" | "iron" | "lipid" | "light" | "fes" | "glyco" };
 type Edge = { from: string; to: string; flux: (o: Outputs) => number; brake?: string };
@@ -205,6 +205,8 @@ export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs
   const unc = inputs?.uncoupling ?? defaultInputs.uncoupling;
   const live = psi !== defaultInputs.deltaPsi || unc !== defaultInputs.uncoupling;
   const costEv = ATP_COST_EV * (psi / 160);
+  const effectiveCost = effectiveAtpCost(psi, unc);
+  const standardCost = effectiveAtpCost(defaultInputs.deltaPsi, defaultInputs.uncoupling);
   const totalProton = steps.reduce((acc, s) => acc + liveAtpPerPair(s, psi, unc).proton, 0);
   const totalEnergy = steps.reduce((acc, s) => acc + liveAtpPerPair(s, psi, unc).energy, 0);
   return (
@@ -226,17 +228,21 @@ export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs
           const tone = ok ? "rgba(78, 222, 174, 0.6)" : "rgba(255, 190, 92, 0.75)";
           const toneText = ok ? "#4EDEAE" : "#FFBE5C";
           const focused = focusStep === i;
+           const flags = atpNetworkRangeFlags(s, standardCost, effectiveCost);
+           const flagged = flags.evOutside || flags.costBOutside;
           return (
             <div
               key={s.step}
               data-testid={focused ? "step-detail" : undefined}
-              className={focused ? "rounded-md border border-primary/70 bg-primary/10 p-2 -m-2" : "rounded-md border-l-2 p-2"}
-              style={focused ? undefined : { borderLeftColor: tone }}
+               data-atp-step-index={i}
+               data-outside={flagged}
+               className={`rounded-md border-l-2 p-2 ${flagged ? "border-destructive bg-destructive/10" : "border-primary/40"} ${focused ? "ring-1 ring-primary" : ""}`}
             >
               {focused && <p className="mb-1 text-[11px] font-semibold text-primary">Selected from the 3D viewer. Live values follow the sliders.</p>}
               <div className="flex items-baseline justify-between gap-2 text-xs">
                 <span>
                   <span className="font-semibold">{s.step}</span>{" "}
+                   {flagged && <span className="mr-1 font-semibold text-destructive" aria-label="Outside comparison band">⚠ Outside range{flags.evOutside && flags.costBOutside ? " (drop + cost)" : flags.evOutside ? " (drop)" : " (cost)"}</span>}{" "}
                   <span className="text-muted-foreground">
                     {s.donor} → {s.acceptor}
                   </span>
@@ -267,7 +273,7 @@ export function EtcEnergyCard({ out, inputs, focusStep }: { out: Outputs; inputs
         })}
       </div>
       <p className="mt-2 text-[10px] text-muted-foreground">
-        Green: live ATP per pair at or above standard state. Amber: below standard.
+        Green: live ATP per pair at or above standard state. Amber: below standard. Red highlight: fixed redox drop or live effective ATP cost outside its comparison band. Overall is a chain summary.
       </p>
       {(() => {
         const split = atpSplit(out);
