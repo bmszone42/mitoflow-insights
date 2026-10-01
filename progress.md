@@ -747,3 +747,11 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ### Testing, security and compliance
 - Verify both Fe-S and aconitase map outputs, flagged counts, citation link, AI payload validation, and narrow-screen horizontal scrolling.
 - No new personal data, storage, endpoint, or secret was added. Keep the research-only and non-diagnostic wording visible before deployment.
+
+## ROS + ATP flag dashboard (2026-10-01)
+- [x] ✅ Added a side-by-side Physiology view of all nine ATP step flags and eleven modeled ROS source flags, with current and same-geometry simulated-default values.
+- [x] ✅ Shows membrane potential and uncoupling separately using one-control-reset simulations, including remaining flags and ATP/ROS effects at each site.
+- [x] ✅ Verified at 1280px and 390px: default 0 ATP/0 ROS flags; stressed run 4 ATP/7 ROS flags, reset comparisons update, no page errors. Narrow viewport overflow comes from the existing tab strip, not dashboard rows. Typecheck clean.
+- [ ] ❌ ROS ±25% is an exploratory change threshold and ATP cost is a model proxy, not a clinical limit; matched tissue-specific validation remains necessary.
+### Security before deployment
+- The dashboard collects no patient data and adds no endpoint or persistence. Keep the model-only caveats visible and do not use flag counts for diagnosis.
