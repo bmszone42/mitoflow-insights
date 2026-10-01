@@ -1,3 +1,14 @@
+## Expanded synthetic patient cohort (2026-10-01)
+
+- ✅ Eighteen invented profiles span ages 3 to 84: three healthy comparators and 15 conditions including Leigh syndrome, PDH deficiency, Friedreich ataxia, POLG-related disease, MELAS, Parkinson disease, Alzheimer disease, ALS, Huntington disease, TBI, stroke, sepsis-associated AKI, heart failure, sarcopenia and iron overload.
+- ✅ Each profile has 14 internally consistent illustrative observations and a specimen/timing context; lactate:pyruvate is calculated from paired venous values, not independently invented.
+- ✅ Adult reference bands are withheld for pediatric records, and fasting-glucose bands are withheld for acute nonfasting cases. OCR is no longer fabricated from incompatible modeled ATP flux.
+- ✅ Mixed-condition cohort statistics and redox/Fe-S signals are explicitly described as hypothetical teaching examples, not disease-specific norms or diagnoses.
+- ❌ Validate any disease-specific numerical distribution against measured, assay-matched patient cohorts before clinical use.
+
+### Security before deployment
+- All profiles are static synthetic data, without uploads, personal identifiers or new network storage. Keep the demo-only notice visible and never ingest real clinical data without a privacy, consent, access-control and medical-device review.
+
 ## ROS physiology source comparison (2026-10-01)
 
 - ✅ Added a separate ROS Physiology view with 11 named production pathways spanning superoxide, hydrogen peroxide, peroxynitrite and hydroxyl radical.
