@@ -201,7 +201,7 @@ function Index() {
             </Tabs>
           </TabsContent>
           <TabsContent value="physiology" className="mt-4">
-            <div className="mb-4 flex justify-end"><Button variant="outline" size="sm" asChild><Link to="/patient-baseline">Profiles vs healthy baseline</Link></Button></div>
+            <div className="mb-4 flex justify-end"><Button variant="outline" size="sm" asChild><Link to="/patient-baseline">Profiles vs healthy baseline</Link></Button><Button variant="outline" size="sm" asChild className="ml-2"><Link to="/diagnosis">Diagnosis</Link></Button></div>
             <Tabs defaultValue="overview" data-testid="physiology-tabs">
               <TabsList aria-label="Physiology views" className="flex h-auto w-full flex-wrap justify-start">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -222,7 +222,7 @@ function Index() {
             </Tabs>
           </TabsContent>
           <TabsContent value="patients" className="mt-4">
-            <div className="mb-4 flex justify-end"><Button variant="outline" size="sm" asChild><Link to="/patient-baseline">Profiles vs healthy baseline</Link></Button></div>
+            <div className="mb-4 flex justify-end"><Button variant="outline" size="sm" asChild><Link to="/patient-baseline">Profiles vs healthy baseline</Link></Button><Button variant="outline" size="sm" asChild className="ml-2"><Link to="/diagnosis">Diagnosis</Link></Button></div>
             <PatientData inputs={inputs} out={out} />
           </TabsContent>
           <TabsContent value="library" className="mt-4">

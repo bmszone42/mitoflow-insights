@@ -88,3 +88,7 @@
 ## Profile ATP assay flags (2026-10-01)
 - ✅ ROS + ATP flags tab: profile P/O and ATP-linked OCR vs healthy control beside model ATP flags
 - ❌ Real paired assay data with matched controls
+
+## Diagnosis mechanism review (2026-10-01)
+- ✅ /diagnosis ranks five mechanisms per synthetic profile from Patient Data, ROS and ATP assay and model flags, with label-fit check
+- ❌ Rule weights need validation against real cohorts before any clinical use
