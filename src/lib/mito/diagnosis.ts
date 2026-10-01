@@ -109,7 +109,10 @@ export function diagnoseProfile(p: DemoPatient) {
     if (mech === "coupling" && atpModel) supporting.push(modelFlags[0]!);
     if (mech === "oxidant" && rosModel) supporting.push(modelFlags[modelFlags.length - 1]!);
     const score = supporting.reduce((s, e) => s + weight[e.type], 0) - conflicting.reduce((s, e) => s + weight[e.type], 0);
-    return { mechanism: mech, name: mechanismNames[mech], score: Math.max(0, score), supporting, conflicting };
+    // ROS probe signals are nonspecific: any primary defect can raise them, so
+    // oxidant load counts at half weight as a downstream signal.
+    const scaled = mech === "oxidant" ? score * 0.5 : score;
+    return { mechanism: mech, name: mechanismNames[mech], score: Math.max(0, scaled), supporting, conflicting };
   }).sort((a, b) => b.score - a.score || order.indexOf(a.mechanism) - order.indexOf(b.mechanism));
 
   const strong = causes.filter((c) => c.score >= 1.5);
