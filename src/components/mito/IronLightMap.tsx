@@ -25,9 +25,6 @@ function buildPayload(inputs: Inputs, geo: Geometry, lightKey: "redDose" | "nirD
     return { label: o.label, base: base[o.key], xOnlyPct: xOnly, yOnlyPct: yOnly, bothPct: both, synergyPct: both - xOnly - yOnly, min: Math.min(...vals), max: Math.max(...vals) };
   });
   const activeBand = mapOutput === "fesIntact" || mapOutput === "aconitaseActivity" ? ironLightReferenceBands[mapOutput] : null;
-   const current = activeBand ? simulate(inputs, geo) : null;
-   const currentPct = current ? mapOutput === "fesIntact" ? current.fesIntact * 100 : current.aconitaseActivity : null;
-   const currentOutside = activeBand && currentPct !== null && (currentPct < activeBand.lo || currentPct > activeBand.hi);
   const flaggedCells = activeBand ? grid.cells.flat().filter((c) => {
     const pct = mapOutput === "fesIntact" ? (c["fesIntact"] ?? 0) * 100 : (c["aconitaseActivity"] ?? 0);
     return pct < activeBand.lo || pct > activeBand.hi;
@@ -68,6 +65,9 @@ export function IronLightMap({ inputs, geo, onInterpret, interpreting = false, c
     return `color-mix(in oklch, var(--accent) ${Math.round(10 + t * 85)}%, transparent)`;
   };
   const activeBand = mapOutput === "fesIntact" || mapOutput === "aconitaseActivity" ? ironLightReferenceBands[mapOutput] : null;
+  const current = useMemo(() => activeBand ? simulate(inputs) : null, [inputs, activeBand]);
+  const currentPct = current ? mapOutput === "fesIntact" ? current.fesIntact * 100 : current.aconitaseActivity : null;
+  const currentOutside = activeBand && currentPct !== null && (currentPct < activeBand.lo || currentPct > activeBand.hi);
   const nearest = (target: number) => grid.ys.reduce((best, y) => Math.abs(y - target) < Math.abs(best - target) ? y : best, grid.ys[0] ?? 0);
   const studyRows = [3, 30].map((target) => { const dose = nearest(target); const out = simulate({ ...inputs, [lightKey]: dose }); return { dose, fes: out.fesIntact * 100 }; });
   const committed = grid.cells.flat().filter((c) => (c["ferroptosisRisk"] ?? 0) >= 100);
