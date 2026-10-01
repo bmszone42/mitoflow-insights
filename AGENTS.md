@@ -27,3 +27,4 @@
 - Keep setting bands in `settingsReference.ts`; non-comparable controls stay unflagged. Published controls stay separate from simulated ATP baselines to prevent false measurement claims.
 - Reuse `atpComparisonRows` and `IronLightMap` across views.
 - Verified study metadata belongs in `studyReferences.ts`; publication spans are not claim-specific pages.
+- ROS source comparison metadata lives in `rosPhysiology.ts`; rate flags compare same-geometry simulations because site-specific clinical rate intervals are unavailable.

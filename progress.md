@@ -1,3 +1,13 @@
+## ROS physiology source comparison (2026-10-01)
+
+- ✅ Added a separate ROS Physiology view with 11 named production pathways spanning superoxide, hydrogen peroxide, peroxynitrite and hydroxyl radical.
+- ✅ Each row shows current and same-geometry simulated default rates, cited mechanism or kinetic context, changed relevant settings and a ±25% model-change flag. Previously inactive sources flag on activation.
+- ✅ Distinguishes reaction constants and model assumptions from source-specific production-rate intervals; singlet oxygen and lipid peroxyl remain unassessed as source-resolved rates.
+- ❌ Source-specific reference rates require matched tissue, preparation and assay measurements; no universal textbook rate interval was invented.
+
+### Security before deployment
+- No new personal data, network endpoint or stored result. Literature links open in a separate tab with safe external-link attributes; model-only flags must not be represented as clinical findings.
+
 ## Physiology study references (2026-09-30)
 
 - ✅ Added a searchable References view inside Physiology with 29 deduplicated studies grouped by model domain.

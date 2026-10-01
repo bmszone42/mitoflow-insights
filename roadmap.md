@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Add a separate ROS Physiology view for each modeled source with live and same-geometry default production rates.
+- [x] Show cited mechanism or kinetic context and label model-only change flags without implying textbook normal-rate intervals.
+- [ ] Validate source-specific ROS rates against matched experimental preparations before treating rate flags as physiological abnormalities; matched assays unavailable.
+
 - [x] Add a searchable Physiology study index with verified full citations and publication locators.
 - [x] Map each verified study to the model settings, ETC steps, assays, or benchmark it supports.
 - [x] Separate unresolved citation fragments from verified bibliography records and correct mismatched DOI links.

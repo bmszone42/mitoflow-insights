@@ -17,6 +17,7 @@ import { WarburgDashboard } from "@/components/mito/WarburgDashboard";
 import { WarburgPhysiology } from "@/components/mito/WarburgPhysiology";
 import { PhysiologyOverview } from "@/components/mito/PhysiologyOverview";
 import { PhysiologyReferences } from "@/components/mito/PhysiologyReferences";
+import { RosPhysiology } from "@/components/mito/RosPhysiology";
 import { PatientData } from "@/components/mito/PatientData";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
@@ -198,9 +199,11 @@ function Index() {
             <Tabs defaultValue="overview" data-testid="physiology-tabs">
               <TabsList aria-label="Physiology views">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="ros">ROS physiology</TabsTrigger>
                 <TabsTrigger value="references">References</TabsTrigger>
               </TabsList>
               <TabsContent value="overview" className="mt-4"><PhysiologyOverview inputs={inputs} geo={geo} out={out} refreshKey={refreshKey} /></TabsContent>
+              <TabsContent value="ros" className="mt-4"><RosPhysiology inputs={inputs} geo={geo} out={out} /></TabsContent>
               <TabsContent value="references" className="mt-4"><PhysiologyReferences /></TabsContent>
             </Tabs>
           </TabsContent>
