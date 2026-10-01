@@ -4,6 +4,9 @@
 - [ ] Calibrate all matrix concentrations, effective ROS sink pools, flux capacities and light/Fe-S multipliers to matched tissue-specific experiments before interpreting absolute µM/s as measurements.
 # Roadmap
 
+- [x] Link eleven modeled ROS sources to upstream input effects, including indirect effects.
+- [x] Attribute ROS flags with one-input-at-a-time comparisons and link selected sources to table rows on desktop and mobile.
+
 - [x] Verify published platelet ACO2 control statistics and expose current model study-control status on the iron × light map.
 - [ ] Clinical reference intervals for Fe-S and this model-derived aconitase estimate require assay-matched validation; no universal interval is available.
 

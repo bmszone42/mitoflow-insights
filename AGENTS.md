@@ -22,9 +22,9 @@
 - Membrane geometry feeds `simulate(inputs, geo)` only through `geometryEffects` in `model.ts` (all multipliers 1 at `defaultGeometry`), and the 3D viewer `src/components/mito/Cristae3D.tsx` is lazy-loaded after mount so three.js never runs during SSR.
 - Light effects come from `photoreceptor(i)` in `model.ts`; 71 THz is a pumped coherence term in `simulate`.
 - 3D viewer shares `layout(geo)`; bloom affects particles, not membranes.
-- Warburg physiology compares ATP to cited ranges and named ROS rates to the same-geometry healthy default; unmapped steps remain unassessed. Step ATP rate is ATP/pair × routed flux ÷ 2; exclude the chain summary from totals. ROS gap shares count five primary O2•- sites once, including OGDH, not downstream products.
+- Warburg compares ATP with cited ranges and ROS with same-geometry defaults. ATP step rate = ATP/pair × routed flux ÷ 2; omit chain summary. ROS gap counts five primary O2•- sites once, including OGDH.
 - Keep invented patient data in `patientReference.ts`: derive paired L:P; age and fasting context govern flags; proxies are not assays.
 - Keep setting bands in `settingsReference.ts`; non-comparable controls stay unflagged. Published controls stay separate from simulated ATP baselines to prevent false measurement claims.
 - Reuse `atpComparisonRows` and `IronLightMap` across views.
 - Verified study metadata belongs in `studyReferences.ts`; publication spans are not claim-specific pages.
-- ROS flags compare simulations, not clinical intervals.
+- ROS flags are simulated, nonclinical; driver effects reset one changed input at a time, include indirect paths, and do not add.
