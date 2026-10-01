@@ -1,4 +1,4 @@
-import type { Inputs, Outputs } from "./model";
+import { simulate, type Geometry, type Inputs, type Outputs } from "./model";
 
 type BudgetKey = "superoxideSources" | "h2o2Sources" | "hydroxylSources";
 type RosSource = {
@@ -16,10 +16,18 @@ type RosSource = {
 
 export const rosFlagPercent = 25;
 
+export const rosInputNames: Record<keyof Inputs, string> = {
+  nadhRatio: "NADH ratio", succinate: "Succinate", oxygen: "Oxygen", deltaPsi: "Membrane potential",
+  adp: "ADP", labileIron: "Labile iron", nitricOxide: "Nitric oxide", redDose: "Red-light dose",
+  nirDose: "Near-infrared dose", irradiance: "Irradiance", tissueDepth: "Tissue depth",
+  antioxidantCapacity: "Antioxidant capacity", uncoupling: "Uncoupling", gpx4: "GPx4",
+  fsp1: "FSP1", cardiolipinPufa: "Cardiolipin PUFA",
+};
+
 // Published quantities below describe mechanisms or reaction constants, not
 // interchangeable in-situ production rates. Rates and flags compare simulations.
 export const rosSources: RosSource[] = [
-  { species: "O2•-", label: "Complex I · site IF", budget: "superoxideSources", key: "CI IF", drivers: ["nadhRatio", "deltaPsi", "uncoupling", "oxygen", "redDose", "nirDose"], mechanism: "Reduced flavin at the NADH entry site; increases with NADH and membrane potential.", literatureValue: "Total respiratory electron leak ~0.1–2% of flux; no transferable IF-specific µM/s interval.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
+  { species: "O2•-", label: "Complex I · site IF", budget: "superoxideSources", key: "CI IF", drivers: ["nadhRatio", "adp", "deltaPsi", "uncoupling", "oxygen", "redDose", "nirDose", "irradiance", "tissueDepth"], mechanism: "Reduced flavin at the NADH entry site; increases with NADH and membrane potential.", literatureValue: "Total respiratory electron leak ~0.1–2% of flux; no transferable IF-specific µM/s interval.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
   { species: "O2•-", label: "Complex I · site IQ / RET", budget: "superoxideSources", key: "CI IQ (RET)", drivers: ["succinate", "deltaPsi", "uncoupling", "oxygen"], mechanism: "Reverse electron transport needs a reduced Q pool and high membrane potential.", literatureValue: "RET is strongly potential dependent; no transferable IQ-specific µM/s interval.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
   { species: "O2•-", label: "Complex III · site IIIQo", budget: "superoxideSources", key: "CIII Qo", drivers: ["nadhRatio", "succinate", "deltaPsi", "uncoupling", "oxygen", "redDose", "nirDose"], mechanism: "Qo semiquinone transfers electrons to oxygen; model partitions half the rate to the intermembrane space.", literatureValue: "Model IMS partition 50%; not a universal measured site-specific rate.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
   { species: "O2•-", label: "Complex II · site IIF", budget: "superoxideSources", key: "CII IIF", drivers: ["succinate", "oxygen"], mechanism: "Flavin-linked release, sensitive to succinate occupancy.", literatureValue: "Site identified; no transferable IIF-specific µM/s interval.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
@@ -34,12 +42,29 @@ export const rosSources: RosSource[] = [
 
 export function rosSourceRows(current: Outputs, baseline: Outputs, inputs: Inputs, defaultInputs: Inputs) {
   return rosSources.map((source) => {
-    const value = (out: Outputs) => source.formation?.(out) ?? (source.budget && source.key ? out.rosBudget[source.budget][source.key] ?? 0 : 0);
-    const live = value(current);
-    const base = value(baseline);
+    const live = rosSourceRate(source, current);
+    const base = rosSourceRate(source, baseline);
     const percent = base > 0 ? ((live - base) / base) * 100 : null;
     const flagged = base > 0 ? Math.abs(percent ?? 0) >= rosFlagPercent : live > 0;
     const changedDrivers = source.drivers.filter((key) => inputs[key] !== defaultInputs[key]);
     return { ...source, live, base, percent, flagged, changedDrivers };
   });
+}
+
+export function rosSourceRate(source: RosSource, out: Outputs) {
+  return source.formation?.(out) ?? (source.budget && source.key ? out.rosBudget[source.budget][source.key] ?? 0 : 0);
+}
+
+// Leave-one-control-out counterfactuals, evaluated at the CURRENT settings.
+// Effects interact and cannot be added together or treated as clinical causality.
+export function rosDriverAttributions(
+  rows: ReturnType<typeof rosSourceRows>, inputs: Inputs, defaults: Inputs, geo: Geometry,
+) {
+  const changed = [...new Set(rows.flatMap((row) => row.changedDrivers))];
+  const reverted = new Map(changed.map((key) => [key, simulate({ ...inputs, [key]: defaults[key] }, geo)]));
+  return rows.map((row) => row.changedDrivers.map((key) => {
+    const without = reverted.get(key);
+    const rateWithout = without ? rosSourceRate(row, without) : row.live;
+    return { key, from: defaults[key], to: inputs[key], delta: row.live - rateWithout, rateWithout };
+  }).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)));
 }
