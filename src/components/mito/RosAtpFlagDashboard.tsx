@@ -1,4 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { demoPatients } from "@/lib/mito/patientReference";
+import { atpAssayFlag, atpAssayFlagPercent } from "@/lib/mito/atpComparison";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const healthyControl = demoPatients.find((p) => p.id === "demo-01")!;
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { ATP_COST_TEXTBOOK, atpCostFlagCause, atpFlagContext, atpNetworkRangeFlags, effectiveAtpCost, etcSteps, liveAtpPerPair, poRatio, STD_PSI, STD_UNCOUPLING } from "@/lib/mito/reference";
@@ -29,6 +34,8 @@ export function RosAtpFlagDashboard({ inputs, geo, out }: { inputs: Inputs; geo:
     const ros = rosSourceRows(out, baseline.out, inputs, defaultInputs);
     return { snapshots, ros, rosNoPsi: rosSourceRows(noPsi.out, baseline.out, noPsiInputs, defaultInputs), rosNoLeak: rosSourceRows(noLeak.out, baseline.out, noLeakInputs, defaultInputs), atpCurrent: atpFlags(inputs), atpNoPsi: atpFlags(noPsiInputs), atpNoLeak: atpFlags(noLeakInputs) };
   }, [inputs, geo, out]);
+  const [profileId, setProfileId] = useState("none");
+  const profile = demoPatients.find((p) => p.id === profileId);
   const { snapshots, ros, rosNoPsi, rosNoLeak, atpCurrent, atpNoPsi, atpNoLeak } = comparison;
   const psiChanged = inputs.deltaPsi !== defaultInputs.deltaPsi;
   const leakChanged = inputs.uncoupling !== defaultInputs.uncoupling;
@@ -46,6 +53,14 @@ export function RosAtpFlagDashboard({ inputs, geo, out }: { inputs: Inputs; geo:
       <div className="mono-label">Coupling and redox</div>
       <h2 id="ros-atp-heading" className="mt-1 text-xl font-semibold">ROS + ATP flags</h2>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Same membrane geometry throughout. Reset rows change only one control at a time while every other current setting stays fixed. Differences can interact and must not be added together.</p>
+    </div>
+    <div data-testid="atp-assay-profile">
+      <label className="block text-xs font-medium" htmlFor="atp-assay-profile">Profile ATP measurements</label>
+      <Select value={profileId} onValueChange={setProfileId}>
+        <SelectTrigger id="atp-assay-profile" aria-label="Profile ATP measurements" className="mt-2 w-full max-w-md" data-testid="atp-assay-select"><SelectValue /></SelectTrigger>
+        <SelectContent className="max-h-[min(70vh,440px)]"><SelectItem value="none">No profile</SelectItem>{demoPatients.map((p) => <SelectItem key={p.id} value={p.id}>{p.label} · {p.age}y · {p.phenotype}</SelectItem>)}</SelectContent>
+      </Select>
+      {profile && <p className="mt-2 text-xs text-muted-foreground" data-testid="atp-assay-count">{etcSteps.filter((step) => atpAssayFlag(step.step, liveAtpPerPair(step, STD_PSI, STD_UNCOUPLING).proton > 0, profile.values, healthyControl.values)?.flagged).length} / {etcSteps.length} steps flagged by profile assays (NADH P/O {profile.values.poNadh} vs healthy {healthyControl.values.poNadh}; ATP-linked OCR {profile.values.atpLinkedOcr} vs {healthyControl.values.atpLinkedOcr} pmol/min/µg; ±{atpAssayFlagPercent}%). Synthetic whole-chain assays, shared across pumping steps.</p>}
     </div>
     <div className="grid gap-px border border-border bg-border sm:grid-cols-2 xl:grid-cols-4" aria-label="Setting comparison">
       {states.map(({ label, snapshot, rosFlags, atpFlags: count }) => <div key={label} className="min-w-0 bg-card p-3" data-testid="ros-atp-state">
@@ -65,7 +80,7 @@ export function RosAtpFlagDashboard({ inputs, geo, out }: { inputs: Inputs; geo:
           const cause = flagged ? [flags.costBOutside ? atpCostFlagCause(step, atpFlagContext(inputs.deltaPsi, inputs.uncoupling)) : null, flags.evOutside ? "Fixed redox drop" : null].filter(Boolean).join("; ") : "Within comparison bands";
           const currentYield = liveAtpPerPair(step, inputs.deltaPsi, inputs.uncoupling).proton;
           return <div key={step.step} className={`grid gap-2 border-b border-border/60 px-2 py-3 text-xs last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] ${flagged ? "bg-destructive/10" : ""}`} data-testid="ros-atp-atp-row" data-outside={flagged}>
-            <div className="min-w-0"><div className="flex items-center gap-2 font-medium">{flagged ? <AlertTriangle className="size-3.5 shrink-0 text-destructive" aria-hidden /> : <CheckCircle2 className="size-3.5 shrink-0 text-primary" aria-hidden />}{step.step}</div><div className="mt-1 pl-5 text-[11px] text-muted-foreground">{cause} · {currentYield.toFixed(2)} ATP/pair</div></div>
+            <div className="min-w-0"><div className="flex items-center gap-2 font-medium">{flagged ? <AlertTriangle className="size-3.5 shrink-0 text-destructive" aria-hidden /> : <CheckCircle2 className="size-3.5 shrink-0 text-primary" aria-hidden />}{step.step}</div><div className="mt-1 pl-5 text-[11px] text-muted-foreground">{cause} · {currentYield.toFixed(2)} ATP/pair</div>{(() => { if (!profile) return null; const a = atpAssayFlag(step.step, liveAtpPerPair(step, STD_PSI, STD_UNCOUPLING).proton > 0, profile.values, healthyControl.values); return <div className={`mt-1 pl-5 text-[11px] ${a?.flagged ? "text-destructive" : a ? "text-primary" : "text-muted-foreground"}`} data-testid="atp-assay-flag" data-assay-outside={a?.flagged ?? false}>{a ? `Profile ${a.label} ${a.value}${a.unit ? ` ${a.unit}` : ""} vs healthy ${a.control} (${a.percent >= 0 ? "+" : ""}${a.percent.toFixed(0)}%) · ${a.flagged ? "assay flag" : "within ±25%"} · ${a.flagged === flagged ? "agrees with model" : "disagrees with model"}` : "Not comparable: no assay for a non-pumping step"}</div>; })()}</div>
             <div className="min-w-0 text-[11px] text-muted-foreground sm:text-right">{psiChanged && <div>Potential effect: {(currentYield - liveAtpPerPair(step, defaultInputs.deltaPsi, inputs.uncoupling).proton).toFixed(2)} ATP/pair · reset {atpNoPsi[index] ? "flagged" : "clear"}</div>}{leakChanged && <div>Uncoupling effect: {(currentYield - liveAtpPerPair(step, inputs.deltaPsi, defaultInputs.uncoupling).proton).toFixed(2)} ATP/pair · reset {atpNoLeak[index] ? "flagged" : "clear"}</div>}</div>
           </div>;
         })}</div>

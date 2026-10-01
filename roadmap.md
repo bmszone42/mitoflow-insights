@@ -84,3 +84,7 @@
 ## Clinical interpretation view (2026-10-01)
 - ✅ Physiology Interpretation subtab: summary, ranked slider causes, flagged ATP steps and ROS sources, profile assay agreement, optional AI expansion
 - ❌ Validated causal attribution needs matched experiments
+
+## Profile ATP assay flags (2026-10-01)
+- ✅ ROS + ATP flags tab: profile P/O and ATP-linked OCR vs healthy control beside model ATP flags
+- ❌ Real paired assay data with matched controls

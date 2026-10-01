@@ -52,3 +52,17 @@ export function atpComparisonRows(
     top: rows.reduce<AtpComparisonRow | undefined>((best, row) => !best || Math.abs(row.diff) > Math.abs(best.diff) ? row : best, undefined),
   };
 }
+// Profile ATP assay flags: a synthetic profile's own P/O and ATP-linked OCR
+// versus the healthy control profile (±25%). Assays are whole-chain readouts,
+// so one flag is shared by every proton-pumping step; OCR applies to the chain
+// summary only. Never a step-specific measurement.
+export const atpAssayFlagPercent = 25;
+type AtpAssayValues = { poNadh: number; atpLinkedOcr: number };
+export function atpAssayFlag(stepName: string, pumping: boolean, profile: AtpAssayValues | undefined, control: AtpAssayValues) {
+  if (!profile) return null;
+  const overall = stepName.startsWith("Overall");
+  if (!pumping && !overall) return null;
+  const metric: keyof AtpAssayValues = overall ? "atpLinkedOcr" : "poNadh";
+  const percent = (profile[metric] / control[metric] - 1) * 100;
+  return { metric, label: overall ? "ATP-linked OCR" : "NADH P/O", unit: overall ? "pmol/min/µg" : "", value: profile[metric], control: control[metric], percent, flagged: Math.abs(percent) >= atpAssayFlagPercent };
+}
