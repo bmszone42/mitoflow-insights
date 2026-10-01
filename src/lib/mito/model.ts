@@ -276,10 +276,14 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const fluxCII = 30 * ge.capacity * (i.succinate / (i.succinate + 0.5));
   const fluxCIV =
     Math.min(fluxCI + fluxCII, 80 * ge.capacity) * ge.cytcRetention * o2Sat * noInhib * photonGain * (0.4 + 0.6 * adpDrive);
-  // Nominal NADH-linked P/O = 10 pumped H+ / 4 H+ per ATP (Hinkle 2005).
-  // A mixed NADH/succinate input does not have this exact yield; this remains
-  // a lumped capacity estimate, not a measured ATP production rate.
-  const atpFlux = fluxCIV * (10 / 4) * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive) * ge.atpEfficiency;
+  // Hinkle 2005: 10 H+ per NADH and 6 H+ per succinate-derived electron pair;
+  // 4 H+ per ATP including transport -> 2.5 and 1.5 P/O respectively.
+  // Route the CIV electron-pair flux proportionally to CI/CII supply after
+  // oxygen/NO inhibition, rather than assigning NADH yield to every pair.
+  const chainSupply = fluxCI + fluxCII;
+  const mixedPo = chainSupply > 0 ? (fluxCI * 2.5 + fluxCII * 1.5) / chainSupply : 0;
+  // ADP / geometry multipliers remain unfitted: this is not a measured rate.
+  const atpFlux = fluxCIV * mixedPo * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive) * ge.atpEfficiency;
 
   // --- Superoxide: site-resolved production (Brand 2016; Quinlan et al. 2013) ---
   // Leak rises steeply with deltaPsi (reduced CoQ pool), damped by uncoupling.
