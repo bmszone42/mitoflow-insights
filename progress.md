@@ -618,6 +618,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 
 ## AI ATP driver reference flags (2026-09-29)
 - [x] ✅ ATP driver interpretations now receive verified step-specific DOI links and publication citations from the shared ETC references; the prompt distinguishes evidence for redox steps from simulated ATP-rate attribution.
+- [x] ✅ Saved ATP replies also show a deterministic, clickable paper index for all nine steps, even if the AI omits links. Live Respiration versus Warburg shift check confirmed nine correct DOI links, no page errors, and a clean preview build.
 - [x] ✅ Compare sends each step's redox band, effective ATP cost for A and B, and out-of-range flags to the AI interpretation.
 - [x] ✅ AI names flagged steps, specifies which run is outside the band, and distinguishes published redox references from the model-derived effective ATP-cost proxy. The overall chain node is identified as a summary, not an independent step.
 - [x] ✅ Browser-verified Respiration versus Warburg shift at 30% uncoupling: four map halos, four flagged payload rows, and an AI reply naming CI Fe-S, CIII Qo, CIV to O₂, and the Overall node at 0.71 eV/ATP against 0.50 to 0.62. No page errors; typecheck clean.
