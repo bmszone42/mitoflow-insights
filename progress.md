@@ -1,3 +1,11 @@
+## ROS paper citations and high-uncoupling check (2026-10-01)
+- [x] ✅ ROS Physiology now gives full linked citations for all 11 source rows and distinguishes paper context from a nonexistent transferable source-specific µM/s range.
+- [x] ✅ Verified 40% uncoupling in the browser: 2 of 11 model-change flags, CI IQ/RET −29% (0.0169 to 0.0119 µM/s) and Fenton −29% (0.000142 to 0.000101 µM/s). Both attribute the effect to uncoupling, Fenton indirectly; no browser errors.
+- [ ] ❌ No cited experimental range crossings can be judged until modeled rates are calibrated to a matched assay and preparation.
+
+### Security before deployment
+- Keep exploratory ROS change flags separate from research measurements and clinical normal ranges; avoid presenting them as diagnoses.
+
 ## ROS patient-profile comparisons (2026-10-01)
 - [x] ✅ Select any synthetic profile in ROS Physiology and compare the live 11-source simulation against its membrane-potential-matched model state at current geometry.
 - [x] ✅ Show the profile's illustrative ROS assay signals separately; rate flags remain ±25% model changes, not textbook or clinical outliers.
