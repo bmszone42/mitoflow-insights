@@ -1,5 +1,6 @@
 import { AtpDriverNetwork } from "./AtpDriverNetwork";
 import { atpComparisonRows } from "@/lib/mito/atpComparison";
+import { studyReferences } from "@/lib/mito/studyReferences";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -503,6 +504,23 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                   <div className="prose prose-sm prose-invert mt-2 max-w-none text-sm">
                     <ReactMarkdown>{aiText}</ReactMarkdown>
                   </div>
+                   {!aiBusy && etcRows && (
+                     <div data-testid="driver-paper-sources" className="mt-4 border-t border-border pt-3">
+                       <div className="mono-label mb-2">ATP step papers</div>
+                       <p className="mb-2 text-xs text-muted-foreground">These papers document redox pathways and potentials, not the simulated ATP-rate gap or its cause.</p>
+                       <ul className="grid gap-2 text-xs sm:grid-cols-2">
+                         {etcRows.rows.map(({ s }) => {
+                           const study = studyReferences.find((entry) => entry.url === s.sourceUrl);
+                           return (
+                             <li key={s.step}>
+                               <a href={s.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-primary underline underline-offset-2">{s.step}</a>
+                               <span className="block text-muted-foreground">{study ? `${study.authors.split(",")[0]} et al. (${study.year}). ${study.title}. ${study.journal}, ${study.location}.` : s.sourceCitation}</span>
+                             </li>
+                           );
+                         })}
+                       </ul>
+                     </div>
+                   )}
                 </div>
               )}
             </div>
