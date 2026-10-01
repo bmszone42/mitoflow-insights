@@ -6,7 +6,7 @@ import { assayStatus, patientRosAssays, type AssayObservation, type RosAssayKey 
 const empty = (): AssayObservation => ({ value: "", controlLo: "", controlHi: "" });
 
 export function PatientRosAssays() {
-  const [observations, setObservations] = useState<Record<RosAssayKey, AssayObservation>>({ dc​fh: empty(), fluorDhpe: empty(), mitosox: empty(), c11: empty() } as Record<RosAssayKey, AssayObservation>);
+  const [observations, setObservations] = useState<Record<RosAssayKey, AssayObservation>>({ dcfh: empty(), fluorDhpe: empty(), mitosox: empty(), c11: empty() });
   const [confirmed, setConfirmed] = useState(false);
   const update = (key: RosAssayKey, field: keyof AssayObservation, value: string) => setObservations((old) => ({ ...old, [key]: { ...old[key], [field]: value } }));
 
@@ -21,7 +21,7 @@ export function PatientRosAssays() {
     </div>
     {!confirmed ? <div className="flex items-center gap-3 text-xs"><Button variant="outline" size="sm" onClick={() => setConfirmed(true)}>Enter assay results</Button><span className="text-muted-foreground">Do not enter names or other identifying details. Entries remain in this open page only.</span></div> : <div className="grid gap-5 lg:grid-cols-2">{patientRosAssays.map((assay) => {
       const observation = observations[assay.key];
-      const status = assayStatus(assay, observation);
+      const status = assayStatus(observation);
       const outside = status === "Above local controls" || status === "Below local controls";
       const concerning = outside && (assay.direction === "high" ? status === "Above local controls" : status === "Below local controls");
       return <article key={assay.key} className={`border-l-2 pl-3 ${outside ? "border-destructive" : "border-border"}`} data-testid="patient-ros-assay" data-assay={assay.key} data-status={status}>

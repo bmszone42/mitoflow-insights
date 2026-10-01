@@ -39,7 +39,7 @@ export const patientRosAssays: RosAssay[] = [
 
 export type AssayObservation = { value: string; controlLo: string; controlHi: string };
 
-export function assayStatus(assay: RosAssay, observation: AssayObservation): "No assay result" | "Needs matched controls" | "Invalid controls" | "Within local controls" | "Above local controls" | "Below local controls" {
+export function assayStatus(observation: AssayObservation): "No assay result" | "Needs matched controls" | "Invalid controls" | "Within local controls" | "Above local controls" | "Below local controls" {
   if (!observation.value.trim()) return "No assay result";
   const value = Number(observation.value);
   if (!Number.isFinite(value) || value < 0) return "Invalid controls";
