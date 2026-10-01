@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Add site-level ROS rate gaps and contribution shares beside the Warburg ATP gap breakdown, without counting shared or aggregate sources twice.
-- [ ] Verify Warburg baseline and shifted settings show consistent ROS and ATP site shares on desktop and narrow screens.
+- [x] Add site-level ROS rate gaps and contribution shares beside the Warburg ATP gap breakdown, without counting shared or aggregate sources twice.
+- [x] Verify Warburg baseline and shifted settings show consistent ROS and ATP site shares on desktop and narrow screens.
 
 - [x] Link each named ETC step in the ATP driver interpretation to its verified paper, distinguishing published redox evidence from simulated ATP-rate changes.
 
