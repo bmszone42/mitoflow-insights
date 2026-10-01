@@ -1,22 +1,18 @@
+import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Minus } from "lucide-react";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
-import { rosFlagPercent, rosSourceRows } from "@/lib/mito/rosPhysiology";
-
-const inputNames: Record<keyof Inputs, string> = {
-  nadhRatio: "NADH ratio", succinate: "succinate", oxygen: "oxygen", deltaPsi: "membrane potential",
-  adp: "ADP", labileIron: "labile iron", nitricOxide: "nitric oxide", redDose: "red-light dose",
-  nirDose: "near-infrared dose", irradiance: "irradiance", tissueDepth: "tissue depth",
-  antioxidantCapacity: "antioxidant capacity", uncoupling: "uncoupling", gpx4: "GPx4",
-  fsp1: "FSP1", cardiolipinPufa: "cardiolipin PUFA",
-};
+import { rosDriverAttributions, rosFlagPercent, rosInputNames, rosSourceRows } from "@/lib/mito/rosPhysiology";
+import { RosDriverNetwork } from "./RosDriverNetwork";
 
 function rate(value: number) {
   return value === 0 ? "0" : value.toPrecision(3);
 }
 
 export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geometry; out: Outputs }) {
+  const [focus, setFocus] = useState<number | null>(null);
   const baseline = simulate(defaultInputs, geo);
   const rows = rosSourceRows(out, baseline, inputs, defaultInputs);
+  const attributions = rosDriverAttributions(rows, inputs, defaultInputs, geo);
   const flagged = rows.filter((row) => row.flagged);
 
   return <section className="space-y-5" data-testid="ros-physiology">
@@ -36,6 +32,8 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
       <span className="font-semibold">Flagged sources: </span>{flagged.map((row) => row.label).join(" · ")}
     </div>}
 
+    <RosDriverNetwork rows={rows} attributions={attributions} inputs={inputs} focus={focus} onFocus={setFocus} />
+
     <div className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[930px] text-left text-xs">
         <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground"><tr>
@@ -45,7 +43,7 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
           <th scope="col" className="px-3 py-3 font-medium">Model flag / drivers</th>
           <th scope="col" className="px-3 py-3 font-medium">Published context / source</th>
         </tr></thead>
-        <tbody>{rows.map((row) => <tr key={`${row.species}-${row.label}`} data-testid="ros-source-row" data-outside={row.flagged} className={`border-t border-border/60 align-top ${row.flagged ? "bg-destructive/10" : ""}`}>
+        <tbody>{rows.map((row, index) => <tr key={`${row.species}-${row.label}`} data-testid="ros-source-row" data-ros-source-index={index} data-selected={focus === index} data-outside={row.flagged} className={`border-t border-border/60 align-top ${row.flagged ? "bg-destructive/10" : ""} ${focus === index ? "ring-1 ring-inset ring-primary bg-primary/10" : ""}`}>
           <th scope="row" className="px-3 py-3 font-medium"><span className="font-mono text-primary">{row.species}</span><span className="mt-1 block">{row.label}</span><span className="mt-1 block max-w-[200px] text-[10px] font-normal leading-relaxed text-muted-foreground">{row.mechanism}</span></th>
           <td className="px-3 py-3 font-mono tabular-nums">{rate(row.base)} <span className="block text-[10px] text-muted-foreground">µM/s</span></td>
           <td className="px-3 py-3 font-mono tabular-nums">{rate(row.live)} <span className="block text-[10px] text-muted-foreground">µM/s</span></td>
@@ -53,7 +51,8 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
             {row.flagged ? <AlertTriangle className="mr-1 inline size-3.5" aria-hidden /> : <CheckCircle2 className="mr-1 inline size-3.5" aria-hidden />}
             {row.base === 0 ? row.live > 0 ? "Newly active" : "Inactive in both runs" : `${row.percent !== null && row.percent >= 0 ? "+" : ""}${row.percent?.toFixed(0)}% vs default`}
             <span className="mt-1 block text-[10px] leading-relaxed text-muted-foreground">{row.base > 0 ? `Flag at ±${rosFlagPercent}% of simulated default.` : "Zero baseline: flag if source becomes active."}</span>
-            {row.changedDrivers.length > 0 && <span className="mt-1 block text-[10px] leading-relaxed text-foreground">Changed relevant settings: {row.changedDrivers.map((key) => inputNames[key]).join(", ")}. These are possible drivers, not isolated causal effects.</span>}
+            {row.changedDrivers.length > 0 && <span className="mt-1 block text-[10px] leading-relaxed text-foreground">Changed relevant settings: {row.changedDrivers.map((key) => rosInputNames[key]).join(", ")}. These are possible drivers, not isolated causal effects.</span>}
+            {row.flagged && attributions[index]?.length ? <span className="mt-1 block text-[10px] leading-relaxed text-destructive" data-testid="ros-flag-cause">Largest modeled input effect: {rosInputNames[attributions[index][0].key]} ({attributions[index][0].delta > 0 ? "+" : ""}{rate(attributions[index][0].delta)} µM/s when changed). See network for all input effects.</span> : null}
           </td>
           <td className="max-w-[280px] px-3 py-3 text-muted-foreground"><span className="block leading-relaxed">{row.literatureValue}</span><a href={row.url} target="_blank" rel="noopener noreferrer" className="mt-1 block text-foreground underline decoration-border underline-offset-2 hover:text-primary">{row.citation}</a></td>
         </tr>)}</tbody>
