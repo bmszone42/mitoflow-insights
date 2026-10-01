@@ -53,7 +53,15 @@ const Body = z.object({
         .max(12),
     })
     .optional(),
+  narrative: z.string().max(8000).optional(),
 });
+
+const NARRATIVE_SYSTEM = `You explain flags from a mitochondrial steady-state model for research and teaching. Given deterministic facts (ranked one-at-a-time slider effects, flagged ATP steps with causes, flagged ROS sources with effects and optional synthetic profile assay flags), write Markdown with:
+## What is flagged
+## Most likely drivers (follow the given ranking; explain mechanism briefly)
+## ATP and ROS links (how the same slider moves both)
+## Limits and measurements to check
+Use only the given numbers. Never invent values, ranges or citations. Say plainly this is not a diagnosis. Effects interact and do not add. Never use em dashes. Under about 400 words.`;
 
 const COMPARE_SYSTEM = `
 When a scenario comparison block is given, add a first section "## ATP change drivers" before the others:
