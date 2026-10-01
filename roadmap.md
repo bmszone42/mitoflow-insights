@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Expand synthetic Patient Data to varied ages and at least 10 named mitochondrial-dysfunction conditions including neurodegeneration, traumatic brain injury, acute kidney injury, and stroke.
-- [ ] Keep clinical collection context and age-dependent reference limitations visible; verify the expanded cohort and flags in the live view.
+- [x] Expand synthetic Patient Data to varied ages and at least 10 named mitochondrial-dysfunction conditions including neurodegeneration, traumatic brain injury, acute kidney injury, and stroke.
+- [x] Keep clinical collection context and age-dependent reference limitations visible; verify the expanded cohort and flags in the live view.
 
 - [x] Add a separate ROS Physiology view for each modeled source with live and same-geometry default production rates.
 - [x] Show cited mechanism or kinetic context and label model-only change flags without implying textbook normal-rate intervals.
