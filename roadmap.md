@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Link each named ETC step in the ATP driver interpretation to its verified paper, distinguishing published redox evidence from simulated ATP-rate changes.
+
 - [x] Expand synthetic Patient Data to varied ages and at least 10 named mitochondrial-dysfunction conditions including neurodegeneration, traumatic brain injury, acute kidney injury, and stroke.
 - [x] Keep clinical collection context and age-dependent reference limitations visible; verify the expanded cohort and flags in the live view.
 
