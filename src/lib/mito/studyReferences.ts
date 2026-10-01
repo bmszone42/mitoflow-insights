@@ -361,6 +361,17 @@ export const studyReferences: StudyReference[] = [
     url: "https://doi.org/10.1179/135100001101536373",
     section: "ROS, iron and assays",
   },
+  {
+    doi: "10.1074/jbc.M114.619072",
+    authors: "Renata L. S. Goncalves, Casey L. Quinlan, Irina V. Perevoshchikova, Martin Hey-Mogensen, Martin D. Brand",
+    title: "Sites of Superoxide and Hydrogen Peroxide Production by Muscle Mitochondria Assessed ex Vivo under Conditions Mimicking Rest and Exercise",
+    journal: "Journal of Biological Chemistry 290(1)",
+    year: 2015,
+    location: "pp. 209–227",
+    url: "https://doi.org/10.1074/jbc.M114.619072",
+    section: "ROS, iron and assays",
+    locator: "Figure 3; protein-normalized rates, not a transferable range",
+  },
 ] satisfies StudyReference[];
 
 export const studySections = ["ETC energetics", "ATP and respiratory controls", "ROS, iron and assays", "Light and ferroptosis", "Cristae and membrane geometry"] as const;
