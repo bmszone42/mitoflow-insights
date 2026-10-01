@@ -21,6 +21,7 @@ import { RosPhysiology } from "@/components/mito/RosPhysiology";
 import { RosReferences } from "@/components/mito/RosReferences";
 import { RosAtpFlagDashboard } from "@/components/mito/RosAtpFlagDashboard";
 import { PatientData } from "@/components/mito/PatientData";
+import { PatientComparison } from "@/components/mito/PatientComparison";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
@@ -201,12 +202,14 @@ function Index() {
             <Tabs defaultValue="overview" data-testid="physiology-tabs">
               <TabsList aria-label="Physiology views" className="flex h-auto w-full flex-wrap justify-start">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="patient-comparison">Patient Comparison</TabsTrigger>
                 <TabsTrigger value="ros-atp">ROS + ATP flags</TabsTrigger>
                 <TabsTrigger value="ros">ROS physiology</TabsTrigger>
                 <TabsTrigger value="ros-references">ROS References</TabsTrigger>
                 <TabsTrigger value="references">References</TabsTrigger>
               </TabsList>
               <TabsContent value="overview" className="mt-4"><PhysiologyOverview inputs={inputs} geo={geo} out={out} refreshKey={refreshKey} /></TabsContent>
+              <TabsContent value="patient-comparison" className="mt-4"><PatientComparison /></TabsContent>
               <TabsContent value="ros-atp" className="mt-4"><RosAtpFlagDashboard inputs={inputs} geo={geo} out={out} /></TabsContent>
               <TabsContent value="ros" className="mt-4"><RosPhysiology inputs={inputs} geo={geo} out={out} /></TabsContent>
               <TabsContent value="ros-references" className="mt-4"><RosReferences /></TabsContent>

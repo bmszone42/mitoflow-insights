@@ -39,7 +39,7 @@ export function PatientComparison() {
   const [leftId, setLeftId] = useState("demo-01");
   const [rightId, setRightId] = useState("demo-15");
   const left = demoPatients.find((patient) => patient.id === leftId) ?? demoPatients[0];
-  const right = demoPatients.find((patient) => patient.id === rightId) ?? demoPatients[1];
+  const right = demoPatients.find((patient) => patient.id === rightId) ?? demoPatients[0];
   const flagged = patientMetrics.filter((metric) => status(left, metric) === "Outside band" || status(right, metric) === "Outside band");
   const sliderMetrics = patientMetrics.filter((metric) => metric.key === "membranePotential" || metric.key === "labileIron");
   const sliderFlags = sliderMetrics.filter((metric) => status(left, metric) === "Outside band" || status(right, metric) === "Outside band");
