@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
 import { AccountButton } from "@/components/mito/AccountButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Simulator } from "@/components/mito/Simulator";
 import { termsFor, DRIVER_PART } from "@/components/mito/3d/terms";
 import { partInfo, type PartId } from "@/components/mito/3d/info";
@@ -199,6 +200,7 @@ function Index() {
             </Tabs>
           </TabsContent>
           <TabsContent value="physiology" className="mt-4">
+            <div className="mb-4 flex justify-end"><Button variant="outline" size="sm" asChild><Link to="/patient-baseline">Profiles vs healthy baseline</Link></Button></div>
             <Tabs defaultValue="overview" data-testid="physiology-tabs">
               <TabsList aria-label="Physiology views" className="flex h-auto w-full flex-wrap justify-start">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -217,6 +219,7 @@ function Index() {
             </Tabs>
           </TabsContent>
           <TabsContent value="patients" className="mt-4">
+            <div className="mb-4 flex justify-end"><Button variant="outline" size="sm" asChild><Link to="/patient-baseline">Profiles vs healthy baseline</Link></Button></div>
             <PatientData inputs={inputs} out={out} />
           </TabsContent>
           <TabsContent value="library" className="mt-4">

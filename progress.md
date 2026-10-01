@@ -1,3 +1,11 @@
+## Patient profiles against healthy baseline (2026-10-01)
+- [x] ✅ Added an all-profile comparison page with selected-profile setting and ATP-step details, linked from Physiology and Patient Data.
+- [x] ✅ Only illustrative membrane potential receives a cited adult-range flag. Other sliders are unknown; ATP steps are conditional simulations at default unrecorded settings.
+- [ ] ❌ Patient-specific ATP flags require calibrated paired measurements of coupling and other settings before interpretation.
+
+### Security before deployment
+- Keep invented profiles and conditional projections visibly distinct from measurements or diagnoses; do not infer missing settings from derived assay readouts.
+
 ## ROS paper citations and high-uncoupling check (2026-10-01)
 - [x] ✅ ROS Physiology now gives full linked citations for all 11 source rows and distinguishes paper context from a nonexistent transferable source-specific µM/s range.
 - [x] ✅ Verified 40% uncoupling in the browser: 2 of 11 model-change flags, CI IQ/RET −29% (0.0169 to 0.0119 µM/s) and Fenton −29% (0.000142 to 0.000101 µM/s). Both attribute the effect to uncoupling, Fenton indirectly; no browser errors.

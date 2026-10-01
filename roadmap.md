@@ -1,3 +1,9 @@
+## Synthetic profiles vs healthy baseline (2026-10-01)
+- [x] Add a dedicated profile comparison page reachable from Physiology and Patient Data, listing all 18 invented records.
+- [x] Flag only directly mapped and age-applicable membrane potential against its cited adult band; mark other sliders unknown.
+- [x] Show nine conditional ATP step flags from each profile's potential with all other settings at model defaults, retaining cited redox versus modeled cost distinctions.
+- [ ] Real patient ATP attribution needs paired calibrated measurements of coupling, geometry and flux; synthetic values do not establish these.
+
 - [x] Link ROS Physiology to all synthetic profiles using only their illustrative membrane potential as a modeled comparison state.
 - [x] Keep profile assay signals and published mechanisms separate from source-specific rate flags; no disorder-specific textbook ROS intervals are available.
 - [ ] Validated disorder- and assay-specific site-rate ranges would require matched experiments before any textbook or clinical flag can be offered.
