@@ -21,6 +21,7 @@ import { PhysiologyReferences } from "@/components/mito/PhysiologyReferences";
 import { RosPhysiology } from "@/components/mito/RosPhysiology";
 import { RosReferences } from "@/components/mito/RosReferences";
 import { RosAtpFlagDashboard } from "@/components/mito/RosAtpFlagDashboard";
+import { ClinicalInterpretation } from "@/components/mito/ClinicalInterpretation";
 import { PatientData } from "@/components/mito/PatientData";
 import { PatientComparison } from "@/components/mito/PatientComparison";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
@@ -206,6 +207,7 @@ function Index() {
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="patient-comparison">Patient Comparison</TabsTrigger>
                 <TabsTrigger value="ros-atp">ROS + ATP flags</TabsTrigger>
+                <TabsTrigger value="interpretation">Interpretation</TabsTrigger>
                 <TabsTrigger value="ros">ROS physiology</TabsTrigger>
                 <TabsTrigger value="ros-references">ROS References</TabsTrigger>
                 <TabsTrigger value="references">References</TabsTrigger>
@@ -213,6 +215,7 @@ function Index() {
               <TabsContent value="overview" className="mt-4"><PhysiologyOverview inputs={inputs} geo={geo} out={out} refreshKey={refreshKey} /></TabsContent>
               <TabsContent value="patient-comparison" className="mt-4"><PatientComparison /></TabsContent>
               <TabsContent value="ros-atp" className="mt-4"><RosAtpFlagDashboard inputs={inputs} geo={geo} out={out} /></TabsContent>
+              <TabsContent value="interpretation" className="mt-4"><ClinicalInterpretation inputs={inputs} geo={geo} /></TabsContent>
               <TabsContent value="ros" className="mt-4"><RosPhysiology inputs={inputs} geo={geo} out={out} /></TabsContent>
               <TabsContent value="ros-references" className="mt-4"><RosReferences /></TabsContent>
               <TabsContent value="references" className="mt-4"><PhysiologyReferences /></TabsContent>

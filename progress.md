@@ -803,3 +803,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Profile ROS assay flags (2026-10-01)
 - ✅ ROS Physiology shows species-level assay flags from each profile vs healthy control beside model flags
 - ❌ Real paired assay data with matched controls
+
+## Clinical interpretation view (2026-10-01)
+- ✅ Physiology Interpretation subtab: summary, ranked slider causes, flagged ATP steps and ROS sources, profile assay agreement, optional AI expansion
+- ❌ Validated causal attribution needs matched experiments
