@@ -320,7 +320,7 @@ export const studyReferences: StudyReference[] = [
     "url": "https://doi.org/10.1038/s41586-019-1705-2",
     "section": "Light and ferroptosis",
     "locator": ""
-  }
+  },
   {
     doi: "10.1016/j.freeradbiomed.2016.04.001",
     authors: "Martin D. Brand",
