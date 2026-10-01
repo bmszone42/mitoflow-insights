@@ -101,6 +101,12 @@ export function diagnoseProfile(p: DemoPatient) {
       const ev: Evidence = { label: `${m.label} ${d.dir}`, type: r.type, source: "Patient Data", detail: `${p.values[r.key]} ${m.unit} (${d.basis})` };
       if (d.dir === r.dir) supporting.push(ev);
     }
+    // Ferritin is an acute-phase reactant: in acute illness (TBI, stroke,
+    // sepsis) a raised ferritin often reflects inflammation, not iron stress,
+    // so it counts at quarter weight for those profiles.
+    const acute = NONFASTING.includes(p.id);
+    const evWeight = (e: Evidence) =>
+      acute && mech === "iron" && e.label.startsWith("Ferritin") ? weight[e.type] * 0.25 : weight[e.type];
     // Discriminating conflicts between respiratory and pyruvate-entry patterns.
     const lp = dirs.lactatePyruvate;
     const lpEv: Evidence = { label: `Lactate:pyruvate ratio ${lp.dir}`, type: "Derived ratio", source: "Patient Data", detail: `${p.values.lactatePyruvate} (${lp.basis})` };
@@ -108,7 +114,7 @@ export function diagnoseProfile(p: DemoPatient) {
     if (mech === "respiratory" && dirs.lactate.dir === "high" && lp.dir !== "high") conflicting.push({ ...lpEv, label: "Lactate:pyruvate ratio normal" });
     if (mech === "coupling" && atpModel) supporting.push(modelFlags[0]!);
     if (mech === "oxidant" && rosModel) supporting.push(modelFlags[modelFlags.length - 1]!);
-    const score = supporting.reduce((s, e) => s + weight[e.type], 0) - conflicting.reduce((s, e) => s + weight[e.type], 0);
+    const score = supporting.reduce((s, e) => s + evWeight(e), 0) - conflicting.reduce((s, e) => s + evWeight(e), 0);
     // ROS probe signals are nonspecific: any primary defect can raise them, so
     // oxidant load counts at half weight as a downstream signal.
     const scaled = mech === "oxidant" ? score * 0.5 : score;
