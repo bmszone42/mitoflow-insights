@@ -119,7 +119,7 @@ export function diagnoseProfile(p: DemoPatient) {
   const expected = expectedPattern[p.phenotype] ?? { mechanisms: [], text: "No expected pattern defined." };
   const fit: "matches" | "partly matches" | "does not match" = expected.mechanisms.length === 0
     ? (strong.length === 0 ? "matches" : "does not match")
-    : expected.mechanisms.includes(causes[0]!.mechanism) && causes[0]!.score > 0 ? "matches"
+    : expected.mechanisms.includes(causes[0]!.mechanism) && causes[0]!.score >= 1.5 ? "matches"
     : expected.mechanisms.some((m) => (causes.find((c) => c.mechanism === m)?.score ?? 0) > 0) ? "partly matches" : "does not match";
 
   return { patient: p, causes, top: strong[0] ?? null, patientFlags, rosAssayFlags, atpAssayFlags, modelFlags, expected, fit };
