@@ -60,11 +60,11 @@ export function rosSourceRate(source: RosSource, out: Outputs) {
 export function rosDriverAttributions(
   rows: ReturnType<typeof rosSourceRows>, inputs: Inputs, defaults: Inputs, geo: Geometry,
 ) {
-  const changed = [...new Set(rows.flatMap((row) => row.changedDrivers))];
+  const changed = (Object.keys(defaults) as (keyof Inputs)[]).filter((key) => inputs[key] !== defaults[key]);
   const reverted = new Map(changed.map((key) => [key, simulate({ ...inputs, [key]: defaults[key] }, geo)]));
-  return rows.map((row) => row.changedDrivers.map((key) => {
+  return rows.map((row) => changed.map((key) => {
     const without = reverted.get(key);
     const rateWithout = without ? rosSourceRate(row, without) : row.live;
-    return { key, from: defaults[key], to: inputs[key], delta: row.live - rateWithout, rateWithout };
-  }).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)));
+    return { key, from: defaults[key], to: inputs[key], delta: row.live - rateWithout, rateWithout, direct: row.drivers.includes(key) };
+  }).filter((effect) => Math.abs(effect.delta) > 1e-12).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)));
 }

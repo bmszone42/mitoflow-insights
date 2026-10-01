@@ -42,7 +42,7 @@ export function RosDriverNetwork({ rows, attributions, inputs, focus, onFocus }:
           return <path key={key} d={`M 252 ${y1} C 365 ${y1}, 365 ${y2}, 485 ${y2}`} fill="none" stroke={delta > 0 ? "var(--destructive)" : delta < 0 ? "var(--primary)" : "var(--muted-foreground)"} strokeWidth={Math.min(5, 1.5 + Math.log1p(Math.abs(delta) * 100))} strokeOpacity={0.75} markerEnd={`url(#${marker})`} />;
         })}
         {controls.map((key, i) => {
-          const changed = inputs[key] !== undefined && links.some((link) => link.key === key);
+          const changed = links.some((link) => link.key === key);
           const related = selected?.drivers.includes(key);
           return <g key={key}>
             <rect x="22" y={42 + i * 41} width="230" height="32" rx="3" fill={changed ? "var(--primary)" : "var(--muted)"} fillOpacity={changed ? 0.18 : 0.5} stroke={related ? "var(--primary)" : "var(--border)"} strokeWidth={related ? 1.5 : 1} />
@@ -69,12 +69,12 @@ export function RosDriverNetwork({ rows, attributions, inputs, focus, onFocus }:
     {selected && <div className="mt-4 border-l-2 border-primary pl-3 text-xs" data-testid="ros-network-detail">
       <div className="font-semibold">{selected.species} · {selected.label}</div>
       <div className="mt-1 font-mono text-muted-foreground">{formatRate(selected.base)} → {formatRate(selected.live)} µM/s · {selected.base === 0 ? selected.live > 0 ? "newly active" : "inactive" : `${selected.percent && selected.percent > 0 ? "+" : ""}${selected.percent?.toFixed(0)}%`}</div>
-      {links.length ? <div className="mt-2 flex flex-wrap gap-2" data-testid="ros-network-causes">{links.map(({ key, from, to, delta }) => <span key={key} className="border border-border px-2 py-1.5 text-foreground">{rosInputNames[key]} {from} → {to}: <strong className={delta > 0 ? "text-destructive" : delta < 0 ? "text-primary" : "text-muted-foreground"}>{formatDelta(delta)} µM/s</strong></span>)}</div> : <p className="mt-2 text-muted-foreground">No mapped upstream slider differs from the simulated default.</p>}
-      {selected.flagged && links.length === 0 && <p className="mt-2 text-destructive">Flag has no mapped changed slider. Check model coupling and source metadata before assigning a cause.</p>}
+      {links.length ? <div className="mt-2 flex flex-wrap gap-2" data-testid="ros-network-causes">{links.map(({ key, from, to, delta, direct }) => <span key={key} className="border border-border px-2 py-1.5 text-foreground">{rosInputNames[key]} {from} → {to}: <strong className={delta > 0 ? "text-destructive" : delta < 0 ? "text-primary" : "text-muted-foreground"}>{formatDelta(delta)} µM/s</strong>{direct ? "" : " · indirect"}</span>)}</div> : <p className="mt-2 text-muted-foreground">No changed slider has a detectable one-at-a-time effect on this source.</p>}
+      {selected.flagged && links.length === 0 && <p className="mt-2 text-destructive">Flag has no detectable changed-slider effect. Do not assign a cause.</p>}
     </div>}
     {flagged.length > 0 && <div className="mt-4 border-t border-border pt-3" data-testid="ros-network-flag-causes">
       <div className="text-xs font-semibold text-destructive">Flagged sources and input effects</div>
-      <div className="mt-2 grid gap-x-6 gap-y-2 sm:grid-cols-2">{flagged.map(({ row, index, effects }) => <div key={index} className="border-l-2 border-destructive pl-2 text-[11px] leading-relaxed"><span className="font-medium">{row.label}</span>: {effects.length ? effects.slice(0, 3).map(({ key, delta }) => `${rosInputNames[key]} ${formatDelta(delta)}`).join(" · ") : "No mapped changed slider"}{effects.length > 3 ? ` · +${effects.length - 3} more in selected source` : ""}</div>)}</div>
+      <div className="mt-2 grid gap-x-6 gap-y-2 sm:grid-cols-2">{flagged.map(({ row, index, effects }) => <div key={index} className="border-l-2 border-destructive pl-2 text-[11px] leading-relaxed"><span className="font-medium">{row.label}</span>: {effects.length ? effects.slice(0, 3).map(({ key, delta, direct }) => `${rosInputNames[key]} ${formatDelta(delta)}${direct ? "" : " (indirect)"}`).join(" · ") : "No detectable changed-slider effect"}{effects.length > 3 ? ` · +${effects.length - 3} more in selected source` : ""}</div>)}</div>
     </div>}
     <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">Input effects are one-at-a-time model counterfactuals: each changed slider is reset to its default while every other setting stays current. They interact and do not sum to the total change. Links show modeled associations, not experimentally isolated or clinical causes. Downstream products share upstream production and must not be added to primary superoxide totals.</p>
   </section>;

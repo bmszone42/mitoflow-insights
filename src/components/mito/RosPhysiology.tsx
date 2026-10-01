@@ -43,7 +43,7 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
           <th scope="col" className="px-3 py-3 font-medium">Model flag / drivers</th>
           <th scope="col" className="px-3 py-3 font-medium">Published context / source</th>
         </tr></thead>
-        <tbody>{rows.map((row, index) => <tr key={`${row.species}-${row.label}`} data-testid="ros-source-row" data-ros-source-index={index} data-selected={focus === index} data-outside={row.flagged} className={`border-t border-border/60 align-top ${row.flagged ? "bg-destructive/10" : ""} ${focus === index ? "ring-1 ring-inset ring-primary bg-primary/10" : ""}`}>
+        <tbody>{rows.map((row, index) => { const leading = attributions[index]?.[0]; return <tr key={`${row.species}-${row.label}`} data-testid="ros-source-row" data-ros-source-index={index} data-selected={focus === index} data-outside={row.flagged} className={`border-t border-border/60 align-top ${row.flagged ? "bg-destructive/10" : ""} ${focus === index ? "ring-1 ring-inset ring-primary bg-primary/10" : ""}`}>
           <th scope="row" className="px-3 py-3 font-medium"><span className="font-mono text-primary">{row.species}</span><span className="mt-1 block">{row.label}</span><span className="mt-1 block max-w-[200px] text-[10px] font-normal leading-relaxed text-muted-foreground">{row.mechanism}</span></th>
           <td className="px-3 py-3 font-mono tabular-nums">{rate(row.base)} <span className="block text-[10px] text-muted-foreground">µM/s</span></td>
           <td className="px-3 py-3 font-mono tabular-nums">{rate(row.live)} <span className="block text-[10px] text-muted-foreground">µM/s</span></td>
@@ -52,10 +52,10 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
             {row.base === 0 ? row.live > 0 ? "Newly active" : "Inactive in both runs" : `${row.percent !== null && row.percent >= 0 ? "+" : ""}${row.percent?.toFixed(0)}% vs default`}
             <span className="mt-1 block text-[10px] leading-relaxed text-muted-foreground">{row.base > 0 ? `Flag at ±${rosFlagPercent}% of simulated default.` : "Zero baseline: flag if source becomes active."}</span>
             {row.changedDrivers.length > 0 && <span className="mt-1 block text-[10px] leading-relaxed text-foreground">Changed relevant settings: {row.changedDrivers.map((key) => rosInputNames[key]).join(", ")}. These are possible drivers, not isolated causal effects.</span>}
-            {row.flagged && attributions[index]?.length ? <span className="mt-1 block text-[10px] leading-relaxed text-destructive" data-testid="ros-flag-cause">Largest modeled input effect: {rosInputNames[attributions[index][0].key]} ({attributions[index][0].delta > 0 ? "+" : ""}{rate(attributions[index][0].delta)} µM/s when changed). See network for all input effects.</span> : null}
+            {row.flagged && leading ? <span className="mt-1 block text-[10px] leading-relaxed text-destructive" data-testid="ros-flag-cause">Largest modeled input effect: {rosInputNames[leading.key]} ({leading.delta > 0 ? "+" : ""}{rate(leading.delta)} µM/s{leading.direct ? "" : ", indirect"}). See network for all input effects.</span> : null}
           </td>
           <td className="max-w-[280px] px-3 py-3 text-muted-foreground"><span className="block leading-relaxed">{row.literatureValue}</span><a href={row.url} target="_blank" rel="noopener noreferrer" className="mt-1 block text-foreground underline decoration-border underline-offset-2 hover:text-primary">{row.citation}</a></td>
-        </tr>)}</tbody>
+        </tr>})}</tbody>
       </table>
     </div>
     <p className="text-xs leading-relaxed text-muted-foreground">All rates are model estimates in µM/s, not measured concentrations. The ±{rosFlagPercent}% flag threshold is an exploratory change from the simulated default, not a textbook or clinical normal interval. A zero default is flagged when a source activates. Literature values are reaction constants, qualitative site observations, or labeled model assumptions, never substituted for source-specific rate bands. The model also estimates singlet oxygen and lipid peroxyl concentrations as lumped outputs, but does not expose their source-resolved rates, so they cannot be flagged here. <Minus className="inline size-3" aria-hidden /> No claim of clinical abnormality.</p>
