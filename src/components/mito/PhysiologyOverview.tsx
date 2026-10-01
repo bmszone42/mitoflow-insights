@@ -6,6 +6,7 @@ import { Physiology } from "./Physiology";
 import { SettingsReferenceDashboard } from "./SettingsReferenceDashboard";
 import { MeasuredHealthyBenchmark } from "./MeasuredHealthyBenchmark";
 import { WarburgEfficiency } from "./WarburgEfficiency";
+import { BiochemicalLedger } from "./BiochemicalLedger";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { atpComparisonRows } from "@/lib/mito/atpComparison";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
@@ -37,6 +38,7 @@ export function PhysiologyOverview({ inputs, geo, out, refreshKey }: { inputs: I
     <div className="border-b border-border pb-4"><div className="mono-label">Integrated reference view</div><h2 className="mt-1 text-xl font-semibold">Physiology overview</h2><p className="mt-1 text-xs text-muted-foreground">Live energetics, cited physiological bands, and iron-light stress in one coordinated view.</p></div>
     <div className="grid gap-px overflow-hidden rounded-md border border-border bg-border sm:grid-cols-2 xl:grid-cols-4">{metrics.map(({ label, value, icon: Icon }) => <div key={label} className="bg-card p-3"><div className="flex items-center gap-2 text-muted-foreground"><Icon className="size-3.5" /><span className="text-[10px] uppercase">{label}</span></div><div className="mt-1 font-mono text-lg">{value}</div></div>)}</div>
     <MeasuredHealthyBenchmark inputs={inputs} out={out} />
+    <BiochemicalLedger inputs={inputs} out={out} />
     <WarburgEfficiency inputs={inputs} geo={geo} out={out} />
     <SettingsReferenceDashboard inputs={inputs} geo={geo} />
     <div className="grid min-w-0 gap-4 xl:grid-cols-2">

@@ -1,3 +1,7 @@
+- [x] Add a cited biochemical ledger separating measured reaction constants from assumed mitochondrial concentrations and effective rates.
+- [x] Use measured purified-human Prx3 peroxide kinetics in the modeled clearance term, retaining an explicitly assumed reduced pool and recycling cap.
+- [x] Route simulated ATP yield by NADH and succinate supply using literature P/O stoichiometry rather than one blanket yield.
+- [ ] Calibrate all matrix concentrations, effective ROS sink pools, flux capacities and light/Fe-S multipliers to matched tissue-specific experiments before interpreting absolute µM/s as measurements.
 # Roadmap
 
 - [x] Highlight out-of-band ETC steps in the ATP step list and Warburg flowchart using the existing Physiology flag rules.
