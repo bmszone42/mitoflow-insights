@@ -61,7 +61,7 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
     const atpCause = flags.costBOutside ? atpCostFlagCause(step, flagContext) : null;
     const ros = rosForStep(index, out, baseline);
     const rosDelta = ros ? pctChange(ros.current, ros.baseline) : null;
-    const rosFlagged = rosDelta !== null && Math.abs(rosDelta) >= ROS_FLAG_PERCENT;
+    const rosFlagged = rosDelta !== null && Math.abs(rosDelta) >= rosFlagPercent;
     return { step, atp, atpBaseline, atpDelta, atpRate, atpRateBaseline, atpRateGap, atpFlagged, atpCause, flags, ros, rosDelta, rosFlagged };
   });
 
