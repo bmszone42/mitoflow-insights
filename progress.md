@@ -1,3 +1,13 @@
+## ROS driver network (2026-10-01)
+
+- [x] ✅ Added a selectable network for all eleven modeled ROS sources; changed controls show red/green rate effects and selected sources highlight matching physiology rows.
+- [x] ✅ Flags show direct and indirect input effects using one-control-at-a-time comparisons at current settings. Effects are nonadditive model estimates, not clinical causes or normal-rate intervals.
+- [x] ✅ Verified default and red-light cases at desktop and narrow widths. Flavin peroxide flags when light turns on, with its light effect and matching row visible. No browser errors; preview build OK.
+- [ ] ❌ Source-specific rates and causal effects need matched experimental validation before clinical interpretation.
+
+### Security before deployment
+- No new network endpoint or patient storage. Retain nonclinical labels and review model-rate provenance before release.
+
 ## Verified platelet study-control flags (2026-10-01)
 
 - [x] ✅ Checked González-Mingot et al. 2023, Results §3.2 and Figure 1: 22 controls ranged 209.41–541.41 mU/mg, with mean 375.41 ± 166 mU/mg. Existing study-normalized bounds were correct.
