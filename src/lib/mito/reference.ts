@@ -470,6 +470,15 @@ export function poRatio(psi: number, uncoupling: number, path: "nadh" | "fadh2")
     .reduce((acc, s) => acc + liveAtpPerPair(s, psi, uncoupling).proton, 0);
 }
 
+// Approximate experimental P/O estimates summarized by Hinkle, not clinical
+// intervals. Keep the Physiology benchmark and Warburg view on the same bands.
+export const poLiteratureBands = {
+  nadh: { label: "NADH-linked P/O", low: 2.3, high: 2.7 },
+  fadh2: { label: "Succinate-linked P/O", low: 1.4, high: 1.7 },
+  source: "Hinkle, Biochim Biophys Acta. 2005;1706:1–11",
+  url: "https://doi.org/10.1016/j.bbabio.2004.09.004",
+} as const;
+
 /*
  * Glycolysis vs respiration ATP split. Estimate: glycolysis covers any
  * shortfall below the default-condition ATP demand, with a 5% basal floor.
@@ -527,7 +536,7 @@ export const warburgNotes = [
   },
   {
     title: "Exploring it here",
-    body: "Drop the NADH/NAD+ and succinate sliders to mimic a Warburg-shifted cell: watch ATP flux and the P/O readout fall, ROS and Fe-S erosion ease, and the 71 THz coherence signal dim with the lower pump. Raising them back models a differentiated, oxidative phenotype.",
+    body: "Drop the NADH/NAD+ and succinate sliders to mimic a Warburg-shifted cell: watch ATP flux fall and the glycolysis share rise while the P/O readout remains tied to membrane potential and uncoupling. ROS and Fe-S erosion may ease and the 71 THz coherence signal may dim with the lower pump. Raising fuel supply back models a differentiated, oxidative phenotype.",
   },
 ];
 

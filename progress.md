@@ -1,3 +1,13 @@
+## Warburg P/O efficiency comparison (2026-10-01)
+
+- ✅ Physiology compares current NADH-linked and succinate-linked P/O with simulated respiration and Hinkle's approximate experimental bands, with per-path flags and source link.
+- ✅ Separates estimated glycolysis share from mitochondrial ATP per oxygen atom and names membrane potential and uncoupling as P/O inputs.
+- ✅ Live checks at 1280px and 390px: a Warburg fuel shift raises glycolysis share from 5% to 52% without changing P/O (2.38 and 1.42, both within bands); 40% uncoupling changes them to 1.50 and 0.90, both flagged. No page errors or horizontal overflow.
+- ❌ Literature estimates are not Warburg-specific or patient reference intervals; clinical use requires assay-matched validation.
+
+### Security before deployment
+- No new patient inputs or stored health data. Keep research flags non-diagnostic and citation links safe for external navigation.
+
 ## Expanded synthetic patient cohort (2026-10-01)
 
 - ✅ Eighteen invented profiles span ages 3 to 84: three healthy comparators and 15 conditions including Leigh syndrome, PDH deficiency, Friedreich ataxia, POLG-related disease, MELAS, Parkinson disease, Alzheimer disease, ALS, Huntington disease, TBI, stroke, sepsis-associated AKI, heart failure, sarcopenia and iron overload.

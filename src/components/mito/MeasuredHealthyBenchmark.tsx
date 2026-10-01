@@ -1,20 +1,20 @@
 import { AlertTriangle, CheckCircle2, CircleHelp } from "lucide-react";
 import type { Inputs, Outputs } from "@/lib/mito/model";
-import { ironLightReferenceBands, poRatio } from "@/lib/mito/reference";
+import { ironLightReferenceBands, poLiteratureBands, poRatio } from "@/lib/mito/reference";
 
 export function MeasuredHealthyBenchmark({ inputs, out }: { inputs: Inputs; out: Outputs }) {
   const aconitase = ironLightReferenceBands.aconitaseActivity;
   const rows = [
     {
       name: "NADH-linked P/O", model: poRatio(inputs.deltaPsi, inputs.uncoupling, "nadh"),
-      low: 2.3, high: 2.7, unit: "ATP/O", kind: "Literature estimate",
-      source: "Hinkle, BBA (2005)", url: "https://doi.org/10.1016/j.bbabio.2004.09.004",
+      low: poLiteratureBands.nadh.low, high: poLiteratureBands.nadh.high, unit: "ATP/O", kind: "Literature estimate",
+      source: poLiteratureBands.source, url: poLiteratureBands.url,
       limit: "Review of isolated-mitochondria experiments; 2.3–2.7 is an approximate comparison band, not a clinical reference interval. Model P/O is derived from membrane potential and uncoupling.",
     },
     {
       name: "Succinate-linked P/O", model: poRatio(inputs.deltaPsi, inputs.uncoupling, "fadh2"),
-      low: 1.4, high: 1.7, unit: "ATP/O", kind: "Literature estimate",
-      source: "Hinkle, BBA (2005)", url: "https://doi.org/10.1016/j.bbabio.2004.09.004",
+      low: poLiteratureBands.fadh2.low, high: poLiteratureBands.fadh2.high, unit: "ATP/O", kind: "Literature estimate",
+      source: poLiteratureBands.source, url: poLiteratureBands.url,
       limit: "The review reports about 1.5, with 1.4 also plausible. The band is approximate, not a patient reference interval.",
     },
     {
