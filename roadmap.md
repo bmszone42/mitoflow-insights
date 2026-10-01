@@ -4,6 +4,9 @@
 - [ ] Calibrate all matrix concentrations, effective ROS sink pools, flux capacities and light/Fe-S multipliers to matched tissue-specific experiments before interpreting absolute µM/s as measurements.
 # Roadmap
 
+- [x] Verify published platelet ACO2 control statistics and expose current model study-control status on the iron × light map.
+- [ ] Clinical reference intervals for Fe-S and this model-derived aconitase estimate require assay-matched validation; no universal interval is available.
+
 - [x] Highlight out-of-band ETC steps in the ATP step list and Warburg flowchart using the existing Physiology flag rules.
 - [x] Verify the flagged steps agree across both views at baseline and high uncoupling on desktop and mobile.
 

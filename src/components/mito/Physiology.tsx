@@ -41,7 +41,7 @@ export function Physiology({ inputs, out, focusStep = null }: { inputs: Inputs; 
         </div>
         <div className={`flex items-center gap-2 font-mono text-sm ${flaggedSteps + flaggedIron ? "text-destructive" : "text-primary"}`} role="status">
           {flaggedSteps + flaggedIron ? <AlertTriangle className="size-4" aria-hidden /> : <CheckCircle2 className="size-4" aria-hidden />}
-          {flaggedSteps + flaggedIron} outside range
+           {flaggedSteps + flaggedIron} outside comparison bands
         </div>
       </div>
 
@@ -110,7 +110,7 @@ export function Physiology({ inputs, out, focusStep = null }: { inputs: Inputs; 
       <section aria-labelledby="physiology-iron">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
           <h3 id="physiology-iron" className="text-sm font-semibold">Iron-sulfur integrity</h3>
-          <span className="font-mono text-xs text-muted-foreground">{flaggedIron} / {ironRows.length} flagged</span>
+           <span className="font-mono text-xs text-muted-foreground">{flaggedIron} / {ironRows.length} outside study controls</span>
         </div>
         <div className="grid gap-0 border-y border-border sm:grid-cols-2 sm:divide-x sm:divide-border">
           {ironRows.map(({ band, value }) => {
@@ -127,7 +127,7 @@ export function Physiology({ inputs, out, focusStep = null }: { inputs: Inputs; 
             );
           })}
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">The model is scaled to a published platelet mitochondrial ACO2 control envelope of 209.41–541.41 mU/mg protein. Fe-S integrity uses ACO2 as an Fe-S-dependent proxy. These are assay-equivalent model estimates, not patient measurements or universal clinical reference intervals.</p>
+         <p className="mt-2 text-xs text-muted-foreground">The model is scaled to a published platelet mitochondrial ACO2 control range of 209.41–541.41 mU/mg protein (22 controls). Fe-S integrity uses the same ACO2-dependent proxy, so these two flags are not independent. These are assay-equivalent estimates, not patient measurements, clinical normal ranges or diagnostic thresholds.</p>
       </section>
     </div>
   );

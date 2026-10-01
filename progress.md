@@ -1,3 +1,13 @@
+## Verified platelet study-control flags (2026-10-01)
+
+- [x] ✅ Checked González-Mingot et al. 2023, Results §3.2 and Figure 1: 22 controls ranged 209.41–541.41 mU/mg, with mean 375.41 ± 166 mU/mg. Existing study-normalized bounds were correct.
+- [x] ✅ Added live within/outside study-control status for the current Fe-S or aconitase map selection, alongside already flagged cells and Physiology readouts.
+- [x] ✅ Browser-checked 1280px and 390px: default 332.5 mU/mg assay-equivalent is within controls; 200 mV stress yields 168.1 mU/mg, outside controls, with flagged map cells and both dependent Physiology rows. No page errors.
+- [ ] ❌ No validated universal clinical normal range exists for Fe-S integrity or this modeled aconitase proxy; these duplicated study-control flags are research-only and require specimen/assay calibration before clinical use.
+
+### Security before deployment
+- No new data collection or endpoint. Keep the nonclinical, proxy and non-independent flag caveats visible, and review that external citation links remain safe.
+
 ## Biochemical concentrations and reaction rates (2026-10-01)
 
 - [x] Added a live Physiology concentration/rate ledger with clickable publications, explicit measured-kinetic versus assumed-parameter labels and uncalibrated-output notices.
