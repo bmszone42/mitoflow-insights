@@ -54,4 +54,4 @@
 - [x] Show per-step slider cause attribution on Warburg ATP networks and Physiology flags.
 
 - [x] Add a side-by-side ROS and ATP flag dashboard in Physiology with membrane potential and uncoupling reset comparisons.
-- [ ] Validate the new dashboard at baseline and stressed settings on desktop and narrow screens.
+- [x] Validate the new dashboard at baseline and stressed settings on desktop and narrow screens.
