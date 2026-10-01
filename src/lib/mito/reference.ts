@@ -536,7 +536,7 @@ export const warburgNotes = [
   },
   {
     title: "Exploring it here",
-    body: "Drop the NADH/NAD+ and succinate sliders to mimic a Warburg-shifted cell: watch ATP flux and the P/O readout fall, ROS and Fe-S erosion ease, and the 71 THz coherence signal dim with the lower pump. Raising them back models a differentiated, oxidative phenotype.",
+    body: "Drop the NADH/NAD+ and succinate sliders to mimic a Warburg-shifted cell: watch ATP flux fall and the glycolysis share rise while the P/O readout remains tied to membrane potential and uncoupling. ROS and Fe-S erosion may ease and the 71 THz coherence signal may dim with the lower pump. Raising fuel supply back models a differentiated, oxidative phenotype.",
   },
 ];
 

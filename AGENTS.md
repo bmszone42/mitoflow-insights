@@ -11,7 +11,7 @@
 
 ## Project rules
 
-- Redox math in `model.ts`; ATP bands in `reference.ts`; P/O is a readout.
+- Redox math in `model.ts`; ATP/P/O bands in `reference.ts`; fuel supply changes flux, not P/O.
 - State in `index.tsx`; scenarios use owner-only Cloud or signed-out IndexedDB with legacy geometry defaults.
 - AI interpretation streams through `api/interpret.ts`; key stays server-side.
 - AI routes share an in-memory limiter; use database limits for strict enforcement.
@@ -27,4 +27,4 @@
 - Keep setting bands in `settingsReference.ts`; non-comparable controls stay unflagged. Published controls stay separate from simulated ATP baselines to prevent false measurement claims.
 - Reuse `atpComparisonRows` and `IronLightMap` across views.
 - Verified study metadata belongs in `studyReferences.ts`; publication spans are not claim-specific pages.
-- ROS rates in `rosPhysiology.ts` flag simulated changes, not clinical intervals.
+- ROS flags compare simulations, not clinical intervals.
