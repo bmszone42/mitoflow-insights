@@ -1,3 +1,10 @@
+## Biochemical concentrations and reaction rates (2026-10-01)
+
+- [x] Added a live Physiology concentration/rate ledger with clickable publications, explicit measured-kinetic versus assumed-parameter labels and uncalibrated-output notices.
+- [x] Replaced the Prx3 H₂O₂ removal's uncited standalone saturation law with the measured human Prx3 second-order peroxide rate (Cox et al. 2009, doi:10.1021/bi900558g), multiplied by an explicitly assumed 0.075 µM accessible reduced pool and limited by the existing assumed NADPH recycling cap.
+- [x] Updated ATP flux to weight 2.5 NADH-linked and 1.5 succinate-linked ATP per electron pair by CI/CII contribution, following Hinkle's stoichiometric P/O review. The model's ADP, uncoupling and geometry penalties remain estimates.
+- [x] Typecheck and runtime checks passed for default, high uncoupling, anoxia and red light with finite ATP/ROS outputs.
+- [ ] Relative ROS source coefficients, SOD2 effective sink, NADH/succinate input proxies, accessible Prx3 concentration, Fe-S light multiplier (3.5×), lipid calibration (1.15×), and electron-chain capacities are not measured for a matched tissue. Do not call the resulting rates measured concentrations or clinically valid ranges.
 ## ATP step and Warburg flowchart flags (2026-10-01)
 
 - ✅ Simulator ATP step rows and Warburg step cards now visibly mark out-of-band redox drops or effective ATP costs, while preserving green/amber yield colors as a separate signal.
