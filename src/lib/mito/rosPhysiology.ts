@@ -40,6 +40,23 @@ export const rosSources: RosSource[] = [
   { species: "•OH", label: "ONOOH homolysis", budget: "hydroxylSources", key: "ONOOH homolysis", drivers: ["nitricOxide", "nadhRatio", "succinate", "deltaPsi", "uncoupling"], mechanism: "The model gives hydroxyl-like radical yield to 30% of ONOOH homolysis events.", literatureValue: "30% model yield assumption, not a universal tissue production rate.", citation: "Radi, Acc Chem Res (2013), 46:550–559", url: "https://doi.org/10.1021/ar300234c" },
 ];
 
+// Species-level assay flags: a profile's own assay signal versus the healthy
+// control profile. One assay covers every site of its species; never site-specific.
+export type RosAssayMetric = "mitosox" | "h2o2" | "lipidPeroxidation";
+export const rosAssayBySpecies: Record<string, { metric: RosAssayMetric; label: string; scale: number } | undefined> = {
+  "O2•-": { metric: "mitosox", label: "MitoSOX", scale: 1 },
+  H2O2: { metric: "h2o2", label: "H₂O₂ probe", scale: 1 },
+  "•OH": { metric: "lipidPeroxidation", label: "Lipid oxidation", scale: 100 },
+};
+
+export function rosAssayFlag(species: string, profile: Record<RosAssayMetric, number> | undefined, control: Record<RosAssayMetric, number>) {
+  const assay = rosAssayBySpecies[species];
+  if (!assay || !profile) return null;
+  const ratio = profile[assay.metric] / control[assay.metric];
+  const percent = (ratio - 1) * 100;
+  return { ...assay, value: profile[assay.metric] / assay.scale, control: control[assay.metric] / assay.scale, percent, flagged: Math.abs(percent) >= rosFlagPercent };
+}
+
 export function rosSourceRows(current: Outputs, baseline: Outputs, inputs: Inputs, defaultInputs: Inputs) {
   return rosSources.map((source) => {
     const live = rosSourceRate(source, current);

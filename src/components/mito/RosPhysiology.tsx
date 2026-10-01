@@ -2,7 +2,9 @@ import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Minus } from "lucide-react";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { demoPatients } from "@/lib/mito/patientReference";
-import { rosDriverAttributions, rosFlagPercent, rosInputNames, rosSourceRows } from "@/lib/mito/rosPhysiology";
+import { rosAssayFlag, rosDriverAttributions, rosFlagPercent, rosInputNames, rosSourceRows } from "@/lib/mito/rosPhysiology";
+
+const healthyControl = demoPatients.find((patient) => patient.id === "demo-01")!;
 import { studyReferences } from "@/lib/mito/studyReferences";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RosDriverNetwork } from "./RosDriverNetwork";
