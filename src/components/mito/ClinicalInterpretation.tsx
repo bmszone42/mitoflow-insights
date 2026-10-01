@@ -97,7 +97,7 @@ export function ClinicalInterpretation({ inputs, geo }: { inputs: Inputs; geo: G
 
     <section aria-label="AI expansion" className="space-y-2">
       <Button size="sm" variant="outline" onClick={expand} disabled={aiState === "loading"} data-testid="interp-ai-button"><Sparkles className="mr-1 size-4" aria-hidden />{aiState === "loading" ? "Writing…" : "Ask AI to expand"}</Button>
-      {ai && <div className={`prose prose-sm max-w-none border border-border p-3 text-xs leading-relaxed dark:prose-invert ${aiState === "error" ? "text-destructive" : ""}`} data-testid="interp-ai"><ReactMarkdown>{ai}</ReactMarkdown></div>}
+      {ai && <div className={`prose prose-sm prose-invert max-w-none border border-border p-3 text-xs leading-relaxed [&_h2]:mt-4 [&_h2]:text-base [&_h2]:text-primary ${aiState === "error" ? "text-destructive" : ""}`} data-testid="interp-ai"><ReactMarkdown>{ai}</ReactMarkdown></div>}
     </section>
 
     <section aria-label="Limits" className="text-xs leading-relaxed text-muted-foreground">
