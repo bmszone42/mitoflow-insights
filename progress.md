@@ -3,6 +3,7 @@
 - ✅ Added a separate ROS Physiology view with 11 named production pathways spanning superoxide, hydrogen peroxide, peroxynitrite and hydroxyl radical.
 - ✅ Each row shows current and same-geometry simulated default rates, cited mechanism or kinetic context, changed relevant settings and a ±25% model-change flag. Previously inactive sources flag on activation.
 - ✅ Distinguishes reaction constants and model assumptions from source-specific production-rate intervals; singlet oxygen and lipid peroxyl remain unassessed as source-resolved rates.
+- ✅ Checked at 1280px and 390px: all 11 rows render with zero default flags; 10 J/cm² red light activates the flavin pathway and flags 7 sources without page errors or viewport overflow.
 - ❌ Source-specific reference rates require matched tissue, preparation and assay measurements; no universal textbook rate interval was invented.
 
 ### Security before deployment
