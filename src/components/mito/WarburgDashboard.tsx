@@ -174,10 +174,11 @@ export function WarburgDashboard({
               key={r.step}
               data-testid="warburg-step"
               data-selected={netFocus === i}
-              className={`rounded-md border border-border px-3 py-2 text-xs ${netFocus === i ? "bg-primary/10 ring-1 ring-primary" : ""}`}
-              style={{ borderLeft: `3px solid ${r.ok ? GREEN : AMBER}` }}
+               data-outside={r.flags.evOutside || r.flags.costBOutside}
+               className={`rounded-md border px-3 py-2 text-xs ${r.flags.evOutside || r.flags.costBOutside ? "border-destructive bg-destructive/10" : "border-border"} ${netFocus === i ? "ring-1 ring-primary" : ""}`}
+               style={{ borderLeft: `3px solid ${r.flags.evOutside || r.flags.costBOutside ? "var(--destructive)" : r.ok ? GREEN : AMBER}` }}
             >
-              <div className="font-medium">{r.step}</div>
+               <div className="font-medium">{r.step} {(r.flags.evOutside || r.flags.costBOutside) && <span className="text-destructive">⚠ Outside range{r.flags.evOutside && r.flags.costBOutside ? " (drop + cost)" : r.flags.evOutside ? " (drop)" : " (cost)"}</span>}</div>
               <div className="text-muted-foreground">
                 {r.ev > 0 ? "+" : ""}{r.ev} eV ·{" "}
                 <span style={{ color: r.ok ? GREEN : AMBER }}>{r.y.toFixed(2)} ATP/pr</span> · {r.rate.toFixed(1)} µM/s
