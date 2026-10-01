@@ -1,6 +1,5 @@
 import { useId } from "react";
 import { rosFlagPercent, rosInputNames, type rosDriverAttributions, type rosSourceRows } from "@/lib/mito/rosPhysiology";
-import type { Inputs } from "@/lib/mito/model";
 
 type Row = ReturnType<typeof rosSourceRows>[number];
 type Attribution = ReturnType<typeof rosDriverAttributions>[number];
@@ -9,10 +8,9 @@ const shortNames = ["CI · IF", "CI · IQ / RET", "CIII · IIIQo", "CII · IIF",
 const formatRate = (n: number) => n === 0 ? "0" : n.toPrecision(3);
 const formatDelta = (n: number) => `${n > 0 ? "+" : ""}${formatRate(n)}`;
 
-export function RosDriverNetwork({ rows, attributions, inputs, focus, onFocus }: {
+export function RosDriverNetwork({ rows, attributions, focus, onFocus }: {
   rows: Row[];
   attributions: Attribution[];
-  inputs: Inputs;
   focus: number | null;
   onFocus: (index: number | null) => void;
 }) {

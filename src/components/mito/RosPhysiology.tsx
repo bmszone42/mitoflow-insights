@@ -32,7 +32,7 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
       <span className="font-semibold">Flagged sources: </span>{flagged.map((row) => row.label).join(" · ")}
     </div>}
 
-    <RosDriverNetwork rows={rows} attributions={attributions} inputs={inputs} focus={focus} onFocus={setFocus} />
+    <RosDriverNetwork rows={rows} attributions={attributions} focus={focus} onFocus={setFocus} />
 
     <div className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[930px] text-left text-xs">
