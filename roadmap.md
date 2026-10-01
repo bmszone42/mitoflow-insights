@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Show Warburg respiration-versus-current P/O efficiency with cited literature bands in Physiology.
+- [ ] Verify fuel-supply shifts do not falsely change P/O and altered coupling correctly changes flags.
+
 - [x] Add site-level ROS rate gaps and contribution shares beside the Warburg ATP gap breakdown, without counting shared or aggregate sources twice.
 - [x] Verify Warburg baseline and shifted settings show consistent ROS and ATP site shares on desktop and narrow screens.
 

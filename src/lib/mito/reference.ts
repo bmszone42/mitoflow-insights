@@ -470,6 +470,15 @@ export function poRatio(psi: number, uncoupling: number, path: "nadh" | "fadh2")
     .reduce((acc, s) => acc + liveAtpPerPair(s, psi, uncoupling).proton, 0);
 }
 
+// Approximate experimental P/O estimates summarized by Hinkle, not clinical
+// intervals. Keep the Physiology benchmark and Warburg view on the same bands.
+export const poLiteratureBands = {
+  nadh: { label: "NADH-linked P/O", low: 2.3, high: 2.7 },
+  fadh2: { label: "Succinate-linked P/O", low: 1.4, high: 1.7 },
+  source: "Hinkle, Biochim Biophys Acta. 2005;1706:1–11",
+  url: "https://doi.org/10.1016/j.bbabio.2004.09.004",
+} as const;
+
 /*
  * Glycolysis vs respiration ATP split. Estimate: glycolysis covers any
  * shortfall below the default-condition ATP demand, with a 5% basal floor.
