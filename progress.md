@@ -1,6 +1,7 @@
 ## Patient profile comparison (2026-10-01)
 - [x] ✅ Added a Physiology Patient Comparison view for any two of 18 synthetic profiles, with side-by-side values, linked published context, and per-profile flag counts.
 - [x] ✅ Separates direct slider equivalents from derived P/O and other measurements. Only comparable, applicable published bands produce flags; pediatric and acute nonfasting limits are withheld.
+- [x] ✅ Browser-verified 14 rows on desktop and mobile: healthy adult has zero applicable flags; illustrative AKI profile has six, including membrane potential as the only flagged slider equivalent. A pediatric profile suppresses the adult membrane-potential band. No page errors or horizontal overflow.
 - [ ] ❌ Clinical interpretation requires real matched measurements and validated local intervals; invented profiles remain clearly labeled.
 
 ### Security before deployment
