@@ -8,10 +8,10 @@ import { cohortStats, demoPatients, isCohortOutlier, isReferenceOutlier, patient
 
 type Status = "Within range" | "Literature outlier" | "Cohort outlier" | "Both outliers" | "Cohort only";
 
-function statusFor(value: number, metric: PatientMetric): Status {
-  const reference = isReferenceOutlier(value, metric);
+function statusFor(value: number, metric: PatientMetric, referenceApplicable: boolean): Status {
+  const reference = referenceApplicable && isReferenceOutlier(value, metric);
   const cohort = isCohortOutlier(value, metric.key);
-  if (!metric.reference) return cohort ? "Cohort outlier" : "Cohort only";
+  if (!referenceApplicable || !metric.reference) return cohort ? "Cohort outlier" : "Cohort only";
   if (reference && cohort) return "Both outliers";
   if (reference) return "Literature outlier";
   if (cohort) return "Cohort outlier";
@@ -34,7 +34,7 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
   const rows = useMemo(() => patientMetrics.map((metric) => {
     const value = patient.values[metric.key];
     const referenceApplicable = patient.age >= 18 && !(metric.key === "glucose" && ["demo-13", "demo-14", "demo-15"].includes(patient.id));
-    return { metric, value, modelValue: metric.modelValue?.(inputs, out), stats: cohortStats(metric.key), status: statusFor(value, referenceApplicable ? metric : { ...metric, reference: undefined } as PatientMetric), referenceApplicable };
+    return { metric, value, modelValue: metric.modelValue?.(inputs, out), stats: cohortStats(value, metric, referenceApplicable), referenceApplicable };
   }), [inputs, out, patient]);
   const flagged = rows.filter((row) => row.status.includes("outlier")).length;
   const comparable = rows.filter((row) => row.modelValue !== undefined).length;
