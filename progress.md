@@ -659,6 +659,10 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - No new data collection or network endpoint. Citation links open directly to DOI records and use safe external-link attributes.
 
 ## Warburg physiology subtab (2026-09-30)
+
+- [x] ✅ Added healthy/current primary superoxide production, signed site-level ROS gaps, and each distinct site's share of the absolute five-site gap beside the existing ATP breakdown. OGDH appears separately outside the ETC; the repeated CI Q-site and all-site chain summary are excluded from ROS share totals.
+- [x] ✅ Verified default and Warburg shift cases at 1280px and 390px: baseline gaps are zero, shift ROS shares sum to 100% including OGDH, nine ATP rows remain present, and no page errors occurred.
+- [ ] ❌ These ROS rates and shares are simulated production, not patient measurements; validate with matched site-resolved assays before biological or clinical interpretation.
 - [x] ✅ Added Dashboard and Physiology views inside Warburg, preserving the dashboard as the default.
 - [x] ✅ Listed all nine electron-transfer rows with literature-derived ΔE values, source links, live ATP per pair, healthy-baseline ATP and ATP flags.
 - [x] ✅ Compared named CI IF, CI IQ/RET, CII IIF and CIII Qo superoxide production rates with the same-geometry healthy respiration baseline.
