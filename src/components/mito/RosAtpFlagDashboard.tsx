@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
-import { ATP_COST_TEXTBOOK, atpNetworkRangeFlags, effectiveAtpCost, etcSteps, liveAtpPerPair, poRatio, STD_PSI, STD_UNCOUPLING } from "@/lib/mito/reference";
+import { ATP_COST_TEXTBOOK, atpCostFlagCause, atpFlagContext, atpNetworkRangeFlags, effectiveAtpCost, etcSteps, liveAtpPerPair, poRatio, STD_PSI, STD_UNCOUPLING } from "@/lib/mito/reference";
 import { rosFlagPercent, rosSourceRows } from "@/lib/mito/rosPhysiology";
 
 type Snapshot = { inputs: Inputs; out: Outputs };
@@ -61,9 +61,8 @@ export function RosAtpFlagDashboard({ inputs, geo, out }: { inputs: Inputs; geo:
         <p className="mb-3 text-[11px] text-muted-foreground">Step redox drops versus cited bands; pumping-step effective cost versus {ATP_COST_TEXTBOOK.lo.toFixed(2)}–{ATP_COST_TEXTBOOK.hi.toFixed(2)} eV/ATP.</p>
         <div className="space-y-0 border-y border-border">{etcSteps.map((step, index) => {
           const flagged = atpCurrent[index];
-          const psiCost = psiChanged && flagged && !atpNoPsi[index];
-          const leakCost = leakChanged && flagged && !atpNoLeak[index];
-          const cause = psiCost && leakCost ? "Both changes contribute" : psiCost ? "Membrane potential" : leakCost ? "Uncoupling" : flagged ? "Combined or fixed redox drop" : "No out-of-band step";
+          const flags = atpNetworkRangeFlags(step, effectiveAtpCost(STD_PSI, STD_UNCOUPLING), effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling));
+          const cause = flagged ? [flags.costBOutside ? atpCostFlagCause(step, atpFlagContext(inputs.deltaPsi, inputs.uncoupling)) : null, flags.evOutside ? "Fixed redox drop" : null].filter(Boolean).join("; ") : "Within comparison bands";
           const currentYield = liveAtpPerPair(step, inputs.deltaPsi, inputs.uncoupling).proton;
           return <div key={step.step} className={`grid gap-2 border-b border-border/60 px-2 py-3 text-xs last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] ${flagged ? "bg-destructive/10" : ""}`} data-testid="ros-atp-atp-row" data-outside={flagged}>
             <div className="min-w-0"><div className="flex items-center gap-2 font-medium">{flagged ? <AlertTriangle className="size-3.5 shrink-0 text-destructive" aria-hidden /> : <CheckCircle2 className="size-3.5 shrink-0 text-primary" aria-hidden />}{step.step}</div><div className="mt-1 pl-5 text-[11px] text-muted-foreground">{cause} · {currentYield.toFixed(2)} ATP/pair</div></div>
