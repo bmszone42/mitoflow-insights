@@ -799,3 +799,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - [ ] ❌ ROS ±25% is an exploratory change threshold and ATP cost is a model proxy, not a clinical limit; matched tissue-specific validation remains necessary.
 ### Security before deployment
 - The dashboard collects no patient data and adds no endpoint or persistence. Keep the model-only caveats visible and do not use flag counts for diagnosis.
+
+## Profile ROS assay flags (2026-10-01)
+- ✅ ROS Physiology shows species-level assay flags from each profile vs healthy control beside model flags
+- ❌ Real paired assay data with matched controls

@@ -2,7 +2,9 @@ import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Minus } from "lucide-react";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { demoPatients } from "@/lib/mito/patientReference";
-import { rosDriverAttributions, rosFlagPercent, rosInputNames, rosSourceRows } from "@/lib/mito/rosPhysiology";
+import { rosAssayFlag, rosDriverAttributions, rosFlagPercent, rosInputNames, rosSourceRows } from "@/lib/mito/rosPhysiology";
+
+const healthyControl = demoPatients.find((patient) => patient.id === "demo-01")!;
 import { studyReferences } from "@/lib/mito/studyReferences";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RosDriverNetwork } from "./RosDriverNetwork";
@@ -23,6 +25,8 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
   const attributions = rosDriverAttributions(rows, inputs, comparisonInputs, geo);
   const flagged = rows.filter((row) => row.flagged);
   const comparisonName = profile ? `${profile.label} simulated comparison` : "same-geometry simulated default";
+  const assayFlags = rows.map((row) => rosAssayFlag(row.species, profile?.values, healthyControl.values));
+  const assayFlagged = assayFlags.filter((flag, i) => flag?.flagged && rows[i]).length;
 
   return <section className="space-y-5" data-testid="ros-physiology">
     <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4">
@@ -35,6 +39,7 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
         {flagged.length ? <AlertTriangle className="size-4" aria-hidden /> : <CheckCircle2 className="size-4" aria-hidden />}
         {flagged.length} / {rows.length} changed beyond model band
       </span>
+      {profile && <span className={`font-mono text-sm ${assayFlagged ? "text-destructive" : "text-primary"}`} data-testid="ros-assay-flag-count">{assayFlagged} / {rows.length} flagged by profile assays</span>}
     </div>
 
     <div className="border-y border-border py-4" data-testid="ros-profile-comparison">
@@ -56,12 +61,13 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
     <RosDriverNetwork rows={rows} attributions={attributions} focus={focus} onFocus={setFocus} baselineLabel={comparisonName} />
 
     <div className="overflow-x-auto border-y border-border">
-      <table className="w-full min-w-[930px] text-left text-xs">
+      <table className="w-full min-w-[1150px] text-left text-xs">
         <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground"><tr>
           <th scope="col" className="px-3 py-3 font-medium">ROS / source</th>
           <th scope="col" className="px-3 py-3 font-medium">Comparison rate</th>
           <th scope="col" className="px-3 py-3 font-medium">Current rate</th>
           <th scope="col" className="px-3 py-3 font-medium">Model flag / drivers</th>
+          <th scope="col" className="px-3 py-3 font-medium">Profile assay flag</th>
           <th scope="col" className="px-3 py-3 font-medium">Paper / cited range</th>
         </tr></thead>
         <tbody>{rows.map((row, index) => { const leading = attributions[index]?.[0]; const paper = studyReferences.find((study) => study.url === row.url); return <tr key={`${row.species}-${row.label}`} data-testid="ros-source-row" data-ros-source-index={index} data-selected={focus === index} data-outside={row.flagged} className={`border-t border-border/60 align-top ${row.flagged ? "bg-destructive/10" : ""} ${focus === index ? "ring-1 ring-inset ring-primary bg-primary/10" : ""}`}>
@@ -75,6 +81,7 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
             {row.changedDrivers.length > 0 && <span className="mt-1 block text-[10px] leading-relaxed text-foreground">Changed relevant settings: {row.changedDrivers.map((key) => rosInputNames[key]).join(", ")}. These are possible drivers, not isolated causal effects.</span>}
             {row.flagged && leading ? <span className="mt-1 block text-[10px] leading-relaxed text-destructive" data-testid="ros-flag-cause">Largest modeled input effect: {rosInputNames[leading.key]} ({leading.delta > 0 ? "+" : ""}{rate(leading.delta)} µM/s{leading.direct ? "" : ", indirect"}). See network for all input effects.</span> : null}
           </td>
+          <td className="max-w-[220px] px-3 py-3" data-testid="ros-assay-flag" data-assay-outside={assayFlags[index]?.flagged ?? false}>{(() => { const a = assayFlags[index]; if (!profile) return <span className="text-muted-foreground">Select a profile</span>; if (!a) return <span className="text-muted-foreground">Not comparable: no assay reports this species</span>; return <span className={a.flagged ? "text-destructive" : "text-primary"}>{a.flagged ? <AlertTriangle className="mr-1 inline size-3.5" aria-hidden /> : <CheckCircle2 className="mr-1 inline size-3.5" aria-hidden />}{a.label} {a.value.toFixed(2)}× vs healthy {a.control.toFixed(2)}× ({a.percent >= 0 ? "+" : ""}{a.percent.toFixed(0)}%)<span className="mt-1 block text-[10px] leading-relaxed text-muted-foreground">Species-level: shared by every {row.species} site; flag at ±{rosFlagPercent}%. {a.flagged === row.flagged ? "Agrees with model flag." : "Disagrees with model flag."}</span></span>; })()}</td>
           <td className="max-w-[280px] px-3 py-3 text-muted-foreground">
             <span className="block font-medium text-foreground" data-testid="ros-cited-range">Cited µM/s range: not established for this source</span>
             <span className="mt-1 block leading-relaxed">{row.literatureValue}</span>

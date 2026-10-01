@@ -76,3 +76,7 @@
 
 - [x] Add a side-by-side ROS and ATP flag dashboard in Physiology with membrane potential and uncoupling reset comparisons.
 - [x] Validate the new dashboard at baseline and stressed settings on desktop and narrow screens.
+
+## Profile ROS assay flags (2026-10-01)
+- ✅ ROS Physiology shows species-level assay flags from each profile vs healthy control beside model flags
+- ❌ Real paired assay data with matched controls
