@@ -8,8 +8,7 @@ import {
   etcSteps,
   liveAtpPerPair,
 } from "@/lib/mito/reference";
-
-const ROS_FLAG_PERCENT = 25;
+import { rosFlagPercent } from "@/lib/mito/rosPhysiology";
 
 type RosMapping = {
   label: string;
@@ -68,6 +67,17 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
 
   const independentRows = rows.slice(0, -1);
   const totalIndependentGap = independentRows.reduce((sum, row) => sum + Math.abs(row.atpRateGap), 0);
+  // Five distinct primary O2•- production sites. CI IQ is displayed on two
+  // electron-transfer rows, but contributes only once; downstream H2O2/ONOO-
+  // are conversions of these sources rather than additional primary sites.
+  const ogdhCurrent = sourceValue(out, "OGDH");
+  const ogdhBaseline = sourceValue(baseline, "OGDH");
+  const ogdhGap = ogdhCurrent - ogdhBaseline;
+  const uniqueRosRows = rows.filter((row, index) => index < 5 && index !== 2);
+  const totalRosGap = uniqueRosRows.reduce((sum, row) => sum + Math.abs((row.ros?.current ?? 0) - (row.ros?.baseline ?? 0)), Math.abs(ogdhGap));
+  const rosShare = (gap: number) => totalRosGap > 0 ? `${((Math.abs(gap) / totalRosGap) * 100).toFixed(1)}%` : "0.0%";
+  const superoxideCurrent = Object.values(out.rosBudget.superoxideSources).reduce((sum, value) => sum + value, 0);
+  const superoxideBaseline = Object.values(baseline.rosBudget.superoxideSources).reduce((sum, value) => sum + value, 0);
   const atpFlags = rows.filter((row) => row.atpFlagged).length;
   const rosFlags = rows.filter((row) => row.rosFlagged).length;
   const wholeChainGap = out.atpFlux - baseline.atpFlux;
@@ -93,9 +103,14 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
         <GapMetric label="Current ATP flux" value={out.atpFlux} />
         <GapMetric label="Whole-chain gap" value={wholeChainGap} signed />
       </div>
+      <div className="grid gap-px border border-border bg-border sm:grid-cols-3" data-testid="warburg-ros-gap-summary">
+        <GapMetric label="Healthy O2•- production" value={superoxideBaseline} />
+        <GapMetric label="Current O2•- production" value={superoxideCurrent} />
+        <GapMetric label="O2•- production gap" value={superoxideCurrent - superoxideBaseline} signed />
+      </div>
 
       <div className="overflow-x-auto border-y border-border">
-        <table className="w-full min-w-[1480px] text-left text-xs" data-testid="warburg-physiology-steps">
+        <table className="w-full min-w-[1850px] text-left text-xs" data-testid="warburg-physiology-steps">
           <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground">
             <tr>
               <th scope="col" className="px-3 py-3 font-medium">Step / electron path</th>
@@ -107,12 +122,16 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
               <th scope="col" className="px-3 py-3 font-medium">Gap contribution</th>
               <th scope="col" className="px-3 py-3 font-medium">ATP status</th>
               <th scope="col" className="px-3 py-3 font-medium">Modeled ROS source</th>
+              <th scope="col" className="px-3 py-3 font-medium">Healthy O2•- rate</th>
+              <th scope="col" className="px-3 py-3 font-medium">Current O2•- rate</th>
+              <th scope="col" className="px-3 py-3 font-medium">O2•- rate gap</th>
+              <th scope="col" className="px-3 py-3 font-medium">ROS gap contribution</th>
               <th scope="col" className="px-3 py-3 font-medium">ROS status</th>
               <th scope="col" className="px-3 py-3 font-medium">Source</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {rows.map((row, index) => (
               <tr
                 key={row.step.step}
                 data-testid="warburg-physiology-step"
@@ -167,12 +186,22 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
                     <span className="text-muted-foreground">No direct source in model</span>
                   )}
                 </td>
+                <td className="px-3 py-3 font-mono tabular-nums">{row.ros ? formatRate(row.ros.baseline) : "—"}</td>
+                <td className="px-3 py-3 font-mono tabular-nums">{row.ros ? formatRate(row.ros.current) : "—"}</td>
+                <td className={`px-3 py-3 font-mono tabular-nums ${row.ros && row.ros.current < row.ros.baseline ? "text-destructive" : "text-primary"}`} data-testid="warburg-ros-rate-gap">
+                  {row.ros ? formatSignedRate(row.ros.current - row.ros.baseline) : "—"}
+                </td>
+                <td className="px-3 py-3 font-mono" data-testid="warburg-ros-gap-share">
+                  {index === 2 ? <span className="font-sans text-[10px] text-muted-foreground">Shared with Fe-S relay</span>
+                    : index === 8 ? <span className="font-sans text-[10px] text-muted-foreground">All-site summary</span>
+                    : row.ros ? rosShare(row.ros.current - row.ros.baseline) : "—"}
+                </td>
                 <td className={`px-3 py-3 font-medium ${row.rosFlagged ? "text-destructive" : row.ros ? "text-primary" : "text-muted-foreground"}`}>
                   {row.ros ? (
                     <>
                       {row.rosFlagged ? <AlertTriangle className="mr-1 inline size-3.5" aria-hidden /> : <CheckCircle2 className="mr-1 inline size-3.5" aria-hidden />}
                       {formatDelta(row.rosDelta ?? 0)} vs healthy
-                      <span className="block text-[10px] font-normal">{row.rosFlagged ? `Outside ±${ROS_FLAG_PERCENT}% baseline band` : `Within ±${ROS_FLAG_PERCENT}% baseline band`}</span>
+                       <span className="block text-[10px] font-normal">{row.rosFlagged ? `Outside ±${rosFlagPercent}% baseline band` : `Within ±${rosFlagPercent}% baseline band`}</span>
                     </>
                   ) : (
                     <><Minus className="mr-1 inline size-3.5" aria-hidden />Not assessed</>
@@ -189,9 +218,15 @@ export function WarburgPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: G
           </tbody>
         </table>
       </div>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-b border-border pb-3 text-xs" data-testid="warburg-ogdh-ros-gap">
+        <span className="font-medium">OGDH O2•- · outside ETC</span>
+        <span className="font-mono">Healthy {formatRate(ogdhBaseline)} · current {formatRate(ogdhCurrent)} µM/s</span>
+        <span className="font-mono">Gap {formatSignedRate(ogdhGap)} µM/s</span>
+        <span className="font-mono">ROS gap contribution {rosShare(ogdhGap)}</span>
+      </div>
 
       <p className="text-xs leading-relaxed text-muted-foreground">
-        ATP rate = ATP per pair × routed electron flux ÷ 2, in relative units. Gap contribution is each independent step's absolute share of the independent-step rate gap; Overall NADH to O2 is a chain summary and is excluded to prevent double-counting. ATP flags use the cited redox intervals and the shared 0.50–0.62 eV/ATP effective-cost proxy. ROS values are site-resolved superoxide production rates, not concentrations. Their ±{ROS_FLAG_PERCENT}% flag band is a model comparison with the healthy default run, not a published normal range. Carrier and Complex IV rows remain unassessed where the model has no direct ROS source.
+        ATP rate = ATP per pair × routed electron flux ÷ 2, in relative units. ATP contribution is each independent step's absolute share of the independent-step rate gap; the step gaps do not sum to whole-chain ATP flux. ROS contribution is each distinct primary O2•- site's absolute share of the five-site production-rate gap, including OGDH outside the ETC. Positive and negative changes can cancel in the net ROS gap. Complex I Q-site appears twice but is counted once; the overall chain is a summary and is excluded from both shares. Downstream H2O2 and ONOO- are not added to primary superoxide production. ATP flags use the cited redox intervals and the shared 0.50–0.62 eV/ATP effective-cost proxy. ROS values are modeled production rates, not concentrations. Their ±{rosFlagPercent}% flag band compares with the same-geometry healthy default, not a published normal range. Carrier and Complex IV rows remain unassessed where the model has no direct ROS source.
       </p>
     </div>
   );
