@@ -1,3 +1,13 @@
+## ATP step and Warburg flowchart flags (2026-10-01)
+
+- ✅ Simulator ATP step rows and Warburg step cards now visibly mark out-of-band redox drops or effective ATP costs, while preserving green/amber yield colors as a separate signal.
+- ✅ Warburg ATP network nodes have stronger dashed red halos and exclamation markers for the same flagged steps; a named cause remains available below the diagram.
+- ✅ Verified at 1280px and 390px: zero flags at default settings, then four matching flags at 40% uncoupling (CI Fe-S, CIII Qo, CIV to O2, and the Overall chain summary). No page errors or horizontal overflow; preview build OK.
+- ❌ The effective ATP cost band is a model-wide proxy, not a measured step-specific clinical interval.
+
+### Security before deployment
+- Presentation only: no new data collection or permissions. Keep research-only wording visible; do not represent model flags as patient diagnoses.
+
 ## Warburg P/O efficiency comparison (2026-10-01)
 
 - ✅ Physiology compares current NADH-linked and succinate-linked P/O with simulated respiration and Hinkle's approximate experimental bands, with per-path flags and source link.
