@@ -1,6 +1,7 @@
 ## ROS patient-profile comparisons (2026-10-01)
 - [x] ✅ Select any synthetic profile in ROS Physiology and compare the live 11-source simulation against its membrane-potential-matched model state at current geometry.
 - [x] ✅ Show the profile's illustrative ROS assay signals separately; rate flags remain ±25% model changes, not textbook or clinical outliers.
+- [x] ✅ Checked default and two disorder profiles at desktop and mobile widths: 11 sources appear; the default has 0 flags and both stressed illustrative comparisons have 7, with no page errors or horizontal overflow.
 - [ ] ❌ Disorder-specific site-rate intervals need assay-matched measurements before they can be used as reference flags.
 
 ### Security before deployment
