@@ -1,0 +1,10 @@
+import type { Inputs, Outputs } from "@/lib/mito/model";
+import { biochemicalLedger, biochemicalLiveReadouts } from "@/lib/mito/biochemistry";
+
+export function BiochemicalLedger({ inputs, out }: { inputs: Inputs; out: Outputs }) {
+  return <section className="space-y-3 border-y border-border py-5" data-testid="biochemical-ledger">
+    <div><div className="mono-label">Kinetic context</div><h3 className="mt-1 text-lg font-semibold">Concentrations & reaction rates</h3><p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">Measured enzyme kinetics and literature stoichiometry are distinguished from assumed effective concentrations, capacities and rates. This model is not calibrated to a tissue or patient: simulated µM/s is not a measured ATP or ROS flux.</p></div>
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{biochemicalLiveReadouts(inputs, out).map((item) => <div key={item.name} className="rounded-md border border-border bg-card/60 p-3" data-testid="biochemical-readout"><div className="mono-label">{item.name}</div><div className="mt-1 font-mono text-base text-primary">{item.value}</div><div className="mt-1 text-[11px] text-muted-foreground">{item.note}</div></div>)}</div>
+    <div className="grid gap-2 lg:grid-cols-2">{biochemicalLedger.map((entry) => <div key={entry.name} className="rounded-md border border-border bg-card/40 p-3 text-xs" data-testid="biochemical-source"><div className="flex flex-wrap items-baseline justify-between gap-2"><strong>{entry.name}</strong><span className="font-mono text-primary">{entry.value}</span></div><div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{entry.kind}</div><p className="mt-1 leading-relaxed text-muted-foreground">{entry.basis}</p><a className="mt-2 inline-block underline decoration-border underline-offset-2" href={entry.url} target="_blank" rel="noreferrer">{entry.source}</a></div>)}</div>
+  </section>;
+}
