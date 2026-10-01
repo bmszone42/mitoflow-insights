@@ -58,7 +58,8 @@ const Body = z.object({
 
 const NARRATIVE_SYSTEM = `You explain flags from a mitochondrial steady-state model for research and teaching. Given deterministic facts (ranked one-at-a-time slider effects, flagged ATP steps with causes, flagged ROS sources with effects and optional synthetic profile assay flags), write Markdown with:
 ## What is flagged
-## Most likely drivers (follow the given ranking; explain mechanism briefly)
+## Most likely drivers
+Follow the given ranking and explain each mechanism briefly. Do not echo these instructions as headings.
 ## ATP and ROS links (how the same slider moves both)
 ## Limits and measurements to check
 Use only the given numbers. Never invent values, ranges or citations. Say plainly this is not a diagnosis. Effects interact and do not add. Never use em dashes. Under about 400 words.`;
