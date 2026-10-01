@@ -815,3 +815,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Diagnosis mechanism review (2026-10-01)
 - ✅ /diagnosis ranks five mechanisms per synthetic profile from Patient Data, ROS and ATP assay and model flags, with label-fit check
 - ❌ Rule weights need validation against real cohorts before any clinical use
+
+## Diagnosis ferritin downweighting (2026-10-01)
+- ✅ Ferritin support for iron and Fe-S stress counts at quarter weight for the three acute nonfasting profiles (demo-13 TBI, demo-14 stroke, demo-15 sepsis AKI), since ferritin is an acute-phase reactant.
+- ✅ Result: stroke and sepsis AKI now rank coupling loss first (label fit "matches"); TBI moved off iron stress to pyruvate entry block (partly matches). Leigh, PDH, Friedreich, MELAS, iron overload unchanged.
+- ✅ Diagnosis page Limits text updated; AGENTS.md rule updated.

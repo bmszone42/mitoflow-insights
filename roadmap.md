@@ -91,4 +91,5 @@
 
 ## Diagnosis mechanism review (2026-10-01)
 - ✅ /diagnosis ranks five mechanisms per synthetic profile from Patient Data, ROS and ATP assay and model flags, with label-fit check
+- ✅ Ferritin counts at quarter weight in acute profiles (TBI, stroke, sepsis AKI) since it is an acute-phase marker; stroke and AKI now rank coupling loss first
 - ❌ Rule weights need validation against real cohorts before any clinical use
