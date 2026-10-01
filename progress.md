@@ -2,6 +2,7 @@
 
 - [x] ✅ Added a searchable ROS References view mapping all 11 modeled sources to their four cited papers, with full author lists, titles, journal details, DOI links and verified publication page spans.
 - [x] ✅ Identified Radi's 2013 print year (online 2012) and separated publication spans from unverified claim-specific pages. Marked modeled rates, partitions and yields as assumptions rather than measured intervals.
+- [x] ✅ Browser-verified all 11 citations across four distinct papers, search filtering and no page errors at 1280px and 390px. The Physiology tab strip wraps without page-wide horizontal overflow.
 - [ ] ❌ Check individual claim locations in the full papers before presenting any page as the exact evidence for a model parameter; validate source-specific rates experimentally.
 
 ### Security before deployment
@@ -760,7 +761,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## ROS + ATP flag dashboard (2026-10-01)
 - [x] ✅ Added a side-by-side Physiology view of all nine ATP step flags and eleven modeled ROS source flags, with current and same-geometry simulated-default values.
 - [x] ✅ Shows membrane potential and uncoupling separately using one-control-reset simulations, including remaining flags and ATP/ROS effects at each site.
-- [x] ✅ Verified at 1280px and 390px: default 0 ATP/0 ROS flags; stressed run 4 ATP/7 ROS flags, reset comparisons update, no page errors. Narrow viewport overflow comes from the existing tab strip, not dashboard rows. Typecheck clean.
+- [x] ✅ Verified at 1280px and 390px: default 0 ATP/0 ROS flags; stressed run 4 ATP/7 ROS flags, reset comparisons update, no page errors. The tab strip now wraps on narrow screens. Typecheck clean.
 - [ ] ❌ ROS ±25% is an exploratory change threshold and ATP cost is a model proxy, not a clinical limit; matched tissue-specific validation remains necessary.
 ### Security before deployment
 - The dashboard collects no patient data and adds no endpoint or persistence. Keep the model-only caveats visible and do not use flag counts for diagnosis.
