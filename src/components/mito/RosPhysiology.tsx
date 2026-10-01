@@ -61,7 +61,7 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
     <RosDriverNetwork rows={rows} attributions={attributions} focus={focus} onFocus={setFocus} baselineLabel={comparisonName} />
 
     <div className="overflow-x-auto border-y border-border">
-      <table className="w-full min-w-[930px] text-left text-xs">
+      <table className="w-full min-w-[1150px] text-left text-xs">
         <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground"><tr>
           <th scope="col" className="px-3 py-3 font-medium">ROS / source</th>
           <th scope="col" className="px-3 py-3 font-medium">Comparison rate</th>
