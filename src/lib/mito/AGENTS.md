@@ -7,4 +7,3 @@
 - Keep setting bands in `settingsReference.ts`; non-comparable controls stay unflagged. Published controls stay separate from simulated ATP baselines to prevent false measurement claims.
 - Verified study metadata belongs in `studyReferences.ts`; publication spans are not claim-specific pages.
 - ROS flags are simulated, nonclinical; driver effects reset one changed input at a time, include indirect paths, and do not add.
-- ROS + ATP dashboard resets potential or uncoupling individually against current inputs at fixed geometry; model counterfactuals are conditional, not additive or clinical.
