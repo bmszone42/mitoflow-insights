@@ -34,7 +34,7 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
   const rows = useMemo(() => patientMetrics.map((metric) => {
     const value = patient.values[metric.key];
     const referenceApplicable = patient.age >= 18 && !(metric.key === "glucose" && ["demo-13", "demo-14", "demo-15"].includes(patient.id));
-    return { metric, value, modelValue: metric.modelValue?.(inputs, out), stats: cohortStats(value, metric, referenceApplicable), referenceApplicable };
+    return { metric, value, modelValue: metric.modelValue?.(inputs, out), stats: cohortStats(metric.key), status: statusFor(value, metric, referenceApplicable), referenceApplicable };
   }), [inputs, out, patient]);
   const flagged = rows.filter((row) => row.status.includes("outlier")).length;
   const comparable = rows.filter((row) => row.modelValue !== undefined).length;
