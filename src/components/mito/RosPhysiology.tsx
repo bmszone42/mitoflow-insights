@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Minus } from "lucide-react";
 import { defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
+import { demoPatients } from "@/lib/mito/patientReference";
 import { rosDriverAttributions, rosFlagPercent, rosInputNames, rosSourceRows } from "@/lib/mito/rosPhysiology";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RosDriverNetwork } from "./RosDriverNetwork";
 
 function rate(value: number) {
@@ -10,17 +12,23 @@ function rate(value: number) {
 
 export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geometry; out: Outputs }) {
   const [focus, setFocus] = useState<number | null>(null);
-  const baseline = simulate(defaultInputs, geo);
-  const rows = rosSourceRows(out, baseline, inputs, defaultInputs);
-  const attributions = rosDriverAttributions(rows, inputs, defaultInputs, geo);
+  const [profileId, setProfileId] = useState("default");
+  const profile = demoPatients.find((patient) => patient.id === profileId);
+  // A profile contributes only its illustrative membrane-potential measurement.
+  // Fluorescent ROS signals cannot be inverted into site-specific production rates.
+  const comparisonInputs: Inputs = profile ? { ...defaultInputs, deltaPsi: profile.values.membranePotential } : defaultInputs;
+  const baseline = simulate(comparisonInputs, geo);
+  const rows = rosSourceRows(out, baseline, inputs, comparisonInputs);
+  const attributions = rosDriverAttributions(rows, inputs, comparisonInputs, geo);
   const flagged = rows.filter((row) => row.flagged);
+  const comparisonName = profile ? `${profile.label} simulated comparison` : "same-geometry simulated default";
 
   return <section className="space-y-5" data-testid="ros-physiology">
     <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4">
       <div>
         <div className="mono-label">Source-resolved redox comparison</div>
         <h2 className="mt-1 text-xl font-semibold">ROS physiology</h2>
-        <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">Modeled production rates versus the default inputs at the current membrane geometry. Source citations describe mechanisms and kinetic context, not normal production-rate ranges.</p>
+        <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">Modeled production rates versus {comparisonName} at the current membrane geometry. Source citations describe mechanisms and kinetic context, not disorder-specific normal production-rate ranges.</p>
       </div>
       <span className={`flex items-center gap-2 font-mono text-sm ${flagged.length ? "text-destructive" : "text-primary"}`} role="status" data-testid="ros-flag-count">
         {flagged.length ? <AlertTriangle className="size-4" aria-hidden /> : <CheckCircle2 className="size-4" aria-hidden />}
@@ -28,17 +36,29 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
       </span>
     </div>
 
+    <div className="border-y border-border py-4" data-testid="ros-profile-comparison">
+      <label className="block text-xs font-medium" htmlFor="ros-profile-select">Comparison profile</label>
+      <Select value={profileId} onValueChange={(value) => { setProfileId(value); setFocus(null); }}>
+        <SelectTrigger id="ros-profile-select" aria-label="Comparison profile" className="mt-2 w-full max-w-md" data-testid="ros-profile-select"><SelectValue /></SelectTrigger>
+        <SelectContent className="max-h-[min(70vh,440px)]">
+          <SelectItem value="default">Simulated default</SelectItem>
+          {demoPatients.map((patient) => <SelectItem key={patient.id} value={patient.id}>{patient.label} · {patient.age}y · {patient.phenotype}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      {profile ? <p className="mt-2 max-w-3xl text-xs leading-relaxed text-muted-foreground" data-testid="ros-profile-context">Synthetic {profile.phenotype}, age {profile.age}. Comparison simulation uses its illustrative membrane potential ({profile.values.membranePotential} mV); every other input stays at the simulated default and geometry stays current. Profile MitoSOX {profile.values.mitosox.toFixed(2)}× control, H₂O₂ {profile.values.h2o2.toFixed(2)}× control and lipid oxidation {profile.values.lipidPeroxidation}% control are hypothetical assay signals, not site-specific rates or textbook limits.</p> : <p className="mt-2 text-xs text-muted-foreground">No patient measurements are used in the simulated default.</p>}
+    </div>
+
     {flagged.length > 0 && <div className="border-l-2 border-destructive py-1 pl-3 text-xs" data-testid="ros-flag-summary">
       <span className="font-semibold">Flagged sources: </span>{flagged.map((row) => row.label).join(" · ")}
     </div>}
 
-    <RosDriverNetwork rows={rows} attributions={attributions} focus={focus} onFocus={setFocus} />
+    <RosDriverNetwork rows={rows} attributions={attributions} focus={focus} onFocus={setFocus} baselineLabel={comparisonName} />
 
     <div className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[930px] text-left text-xs">
         <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground"><tr>
           <th scope="col" className="px-3 py-3 font-medium">ROS / source</th>
-          <th scope="col" className="px-3 py-3 font-medium">Default rate</th>
+          <th scope="col" className="px-3 py-3 font-medium">Comparison rate</th>
           <th scope="col" className="px-3 py-3 font-medium">Current rate</th>
           <th scope="col" className="px-3 py-3 font-medium">Model flag / drivers</th>
           <th scope="col" className="px-3 py-3 font-medium">Published context / source</th>
@@ -49,8 +69,8 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
           <td className="px-3 py-3 font-mono tabular-nums">{rate(row.live)} <span className="block text-[10px] text-muted-foreground">µM/s</span></td>
           <td className={`max-w-[240px] px-3 py-3 ${row.flagged ? "text-destructive" : "text-primary"}`}>
             {row.flagged ? <AlertTriangle className="mr-1 inline size-3.5" aria-hidden /> : <CheckCircle2 className="mr-1 inline size-3.5" aria-hidden />}
-            {row.base === 0 ? row.live > 0 ? "Newly active" : "Inactive in both runs" : `${row.percent !== null && row.percent >= 0 ? "+" : ""}${row.percent?.toFixed(0)}% vs default`}
-            <span className="mt-1 block text-[10px] leading-relaxed text-muted-foreground">{row.base > 0 ? `Flag at ±${rosFlagPercent}% of simulated default.` : "Zero baseline: flag if source becomes active."}</span>
+            {row.base === 0 ? row.live > 0 ? "Newly active" : "Inactive in both runs" : `${row.percent !== null && row.percent >= 0 ? "+" : ""}${row.percent?.toFixed(0)}% vs comparison`}
+            <span className="mt-1 block text-[10px] leading-relaxed text-muted-foreground">{row.base > 0 ? `Flag at ±${rosFlagPercent}% of comparison simulation.` : "Zero baseline: flag if source becomes active."}</span>
             {row.changedDrivers.length > 0 && <span className="mt-1 block text-[10px] leading-relaxed text-foreground">Changed relevant settings: {row.changedDrivers.map((key) => rosInputNames[key]).join(", ")}. These are possible drivers, not isolated causal effects.</span>}
             {row.flagged && leading ? <span className="mt-1 block text-[10px] leading-relaxed text-destructive" data-testid="ros-flag-cause">Largest modeled input effect: {rosInputNames[leading.key]} ({leading.delta > 0 ? "+" : ""}{rate(leading.delta)} µM/s{leading.direct ? "" : ", indirect"}). See network for all input effects.</span> : null}
           </td>
@@ -58,6 +78,6 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
         </tr>})}</tbody>
       </table>
     </div>
-    <p className="text-xs leading-relaxed text-muted-foreground">All rates are model estimates in µM/s, not measured concentrations. The ±{rosFlagPercent}% flag threshold is an exploratory change from the simulated default, not a textbook or clinical normal interval. A zero default is flagged when a source activates. Literature values are reaction constants, qualitative site observations, or labeled model assumptions, never substituted for source-specific rate bands. The model also estimates singlet oxygen and lipid peroxyl concentrations as lumped outputs, but does not expose their source-resolved rates, so they cannot be flagged here. <Minus className="inline size-3" aria-hidden /> No claim of clinical abnormality.</p>
+    <p className="text-xs leading-relaxed text-muted-foreground">All rates are model estimates in µM/s, not measured concentrations. The ±{rosFlagPercent}% flag threshold is an exploratory change from the selected simulation, not a textbook or clinical normal interval. A zero comparison rate is flagged when a source activates. Literature values are reaction constants, qualitative site observations, or labeled model assumptions, never substituted for source-specific rate bands. The model also estimates singlet oxygen and lipid peroxyl concentrations as lumped outputs, but does not expose their source-resolved rates, so they cannot be flagged here. <Minus className="inline size-3" aria-hidden /> No claim of clinical abnormality.</p>
   </section>;
 }

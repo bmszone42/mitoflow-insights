@@ -8,11 +8,12 @@ const shortNames = ["CI · IF", "CI · IQ / RET", "CIII · IIIQo", "CII · IIF",
 const formatRate = (n: number) => n === 0 ? "0" : n.toPrecision(3);
 const formatDelta = (n: number) => `${n > 0 ? "+" : ""}${formatRate(n)}`;
 
-export function RosDriverNetwork({ rows, attributions, focus, onFocus }: {
+export function RosDriverNetwork({ rows, attributions, focus, onFocus, baselineLabel = "same-geometry simulated default" }: {
   rows: Row[];
   attributions: Attribution[];
   focus: number | null;
   onFocus: (index: number | null) => void;
+  baselineLabel?: string;
 }) {
   const marker = useId().replace(/:/g, "");
   const selectedIndex = focus ?? rows.findIndex((row) => row.flagged);
@@ -54,7 +55,7 @@ export function RosDriverNetwork({ rows, attributions, focus, onFocus }: {
             {row.flagged && <rect x="481" y={y - 4} width="393" height="47" rx="4" fill="none" stroke="var(--destructive)" strokeWidth="2" strokeDasharray="5 3" />}
             <rect x="486" y={y} width="383" height="39" rx="3" fill={active ? "var(--primary)" : "var(--muted)"} fillOpacity={active ? 0.16 : 0.45} stroke={active ? "var(--primary)" : "var(--border)"} strokeWidth={active ? 2 : 1} />
             <text x="498" y={y + 16} fontSize="12" fill="var(--foreground)" fontWeight={active ? 600 : 400}>{row.flagged ? "!  " : ""}{shortNames[index] ?? row.label}</text>
-            <text x="498" y={y + 31} fontSize="10" fill="var(--muted-foreground)">{row.species} · {row.base === 0 ? row.live > 0 ? "newly active" : "inactive" : `${row.percent && row.percent > 0 ? "+" : ""}${row.percent?.toFixed(0)}% vs default`}</text>
+            <text x="498" y={y + 31} fontSize="10" fill="var(--muted-foreground)">{row.species} · {row.base === 0 ? row.live > 0 ? "newly active" : "inactive" : `${row.percent && row.percent > 0 ? "+" : ""}${row.percent?.toFixed(0)}% vs comparison`}</text>
             <title>{row.label}: {formatRate(row.base)} → {formatRate(row.live)} µM/s. {row.flagged ? "Outside the model-change band." : "Inside the model-change band."}</title>
           </g>;
         })}
@@ -62,7 +63,7 @@ export function RosDriverNetwork({ rows, attributions, focus, onFocus }: {
     </div>
     <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-muted-foreground">
       <span>● Changed input · red line raises rate · green line lowers rate</span>
-      <span>Dashed outline: change ≥ ±{rosFlagPercent}% from same-geometry simulated default, or newly active</span>
+      <span>Dashed outline: change ≥ ±{rosFlagPercent}% from {baselineLabel}, or newly active</span>
     </div>
     {selected && <div className="mt-4 border-l-2 border-primary pl-3 text-xs" data-testid="ros-network-detail">
       <div className="font-semibold">{selected.species} · {selected.label}</div>
@@ -74,6 +75,6 @@ export function RosDriverNetwork({ rows, attributions, focus, onFocus }: {
       <div className="text-xs font-semibold text-destructive">Flagged sources and input effects</div>
       <div className="mt-2 grid gap-x-6 gap-y-2 sm:grid-cols-2">{flagged.map(({ row, index, effects }) => <div key={index} className="border-l-2 border-destructive pl-2 text-[11px] leading-relaxed"><span className="font-medium">{row.label}</span>: {effects.length ? effects.slice(0, 3).map(({ key, delta, direct }) => `${rosInputNames[key]} ${formatDelta(delta)}${direct ? "" : " (indirect)"}`).join(" · ") : "No detectable changed-slider effect"}{effects.length > 3 ? ` · +${effects.length - 3} more in selected source` : ""}</div>)}</div>
     </div>}
-    <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">Input effects are one-at-a-time model counterfactuals: each changed slider is reset to its default while every other setting stays current. They interact and do not sum to the total change. Links show modeled associations, not experimentally isolated or clinical causes. Downstream products share upstream production and must not be added to primary superoxide totals.</p>
+    <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">Input effects are one-at-a-time model counterfactuals: each changed slider is reset to the selected comparison setting while every other setting stays current. They interact and do not sum to the total change. Links show modeled associations, not experimentally isolated or clinical causes. Downstream products share upstream production and must not be added to primary superoxide totals.</p>
   </section>;
 }

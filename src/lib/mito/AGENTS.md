@@ -8,3 +8,4 @@
 - Keep setting bands in `settingsReference.ts`; non-comparable controls stay unflagged. Published controls stay separate from simulated ATP baselines to prevent false measurement claims.
 - Verified study metadata belongs in `studyReferences.ts`; publication spans are not claim-specific pages.
 - ROS flags are simulated, nonclinical; driver effects reset one changed input at a time, include indirect paths, and do not add.
+- ROS profile comparisons use only the synthetic profile's membrane potential with all other default inputs at current geometry; never convert assay fold signals or disorder labels into source-specific textbook rates.
