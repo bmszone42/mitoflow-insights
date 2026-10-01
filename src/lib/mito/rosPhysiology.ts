@@ -1,0 +1,45 @@
+import type { Inputs, Outputs } from "./model";
+
+type BudgetKey = "superoxideSources" | "h2o2Sources" | "hydroxylSources";
+type RosSource = {
+  species: string;
+  label: string;
+  budget?: BudgetKey;
+  key?: string;
+  formation?: (out: Outputs) => number;
+  drivers: (keyof Inputs)[];
+  mechanism: string;
+  literatureValue: string;
+  citation: string;
+  url: string;
+};
+
+export const rosFlagPercent = 25;
+
+// Published quantities below describe mechanisms or reaction constants, not
+// interchangeable in-situ production rates. Rates and flags compare simulations.
+export const rosSources: RosSource[] = [
+  { species: "O2•-", label: "Complex I · site IF", budget: "superoxideSources", key: "CI IF", drivers: ["nadhRatio", "deltaPsi", "uncoupling", "oxygen", "redDose", "nirDose"], mechanism: "Reduced flavin at the NADH entry site; increases with NADH and membrane potential.", literatureValue: "Total respiratory electron leak ~0.1–2% of flux; no transferable IF-specific µM/s interval.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
+  { species: "O2•-", label: "Complex I · site IQ / RET", budget: "superoxideSources", key: "CI IQ (RET)", drivers: ["succinate", "deltaPsi", "uncoupling", "oxygen"], mechanism: "Reverse electron transport needs a reduced Q pool and high membrane potential.", literatureValue: "RET is strongly potential dependent; no transferable IQ-specific µM/s interval.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
+  { species: "O2•-", label: "Complex III · site IIIQo", budget: "superoxideSources", key: "CIII Qo", drivers: ["nadhRatio", "succinate", "deltaPsi", "uncoupling", "oxygen", "redDose", "nirDose"], mechanism: "Qo semiquinone transfers electrons to oxygen; model partitions half the rate to the intermembrane space.", literatureValue: "Model IMS partition 50%; not a universal measured site-specific rate.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
+  { species: "O2•-", label: "Complex II · site IIF", budget: "superoxideSources", key: "CII IIF", drivers: ["succinate", "oxygen"], mechanism: "Flavin-linked release, sensitive to succinate occupancy.", literatureValue: "Site identified; no transferable IIF-specific µM/s interval.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
+  { species: "O2•-", label: "2-oxoglutarate dehydrogenase", budget: "superoxideSources", key: "OGDH", drivers: ["nadhRatio", "oxygen", "redDose", "nirDose"], mechanism: "Reduced DLD flavin releases superoxide; model assigns 40% of this pathway to O2•-.", literatureValue: "40% model partition, not a universal measured fraction.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
+  { species: "H2O2", label: "SOD1 / SOD2 dismutation", budget: "h2o2Sources", key: "Dismutation", drivers: ["nadhRatio", "succinate", "deltaPsi", "uncoupling", "oxygen", "antioxidantCapacity", "nitricOxide"], mechanism: "Two superoxide molecules are dismutated into one H2O2.", literatureValue: "2 O2•- → 1 H2O2; SOD2 k ~2.3 × 10⁹ M⁻¹ s⁻¹. Not an H2O2 rate band.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
+  { species: "H2O2", label: "OGDH · direct peroxide", budget: "h2o2Sources", key: "OGDH", drivers: ["nadhRatio", "oxygen", "redDose", "nirDose"], mechanism: "Direct DLD flavin H2O2 production; model assigns 60% of OGDH ROS here.", literatureValue: "60% model partition, not an assay reference interval.", citation: "Brand, Free Radic Biol Med (2016), 100:14–31", url: "https://doi.org/10.1016/j.freeradbiomed.2016.04.001" },
+  { species: "H2O2", label: "Flavin photosensitization", budget: "h2o2Sources", key: "Flavin photo", drivers: ["redDose", "nirDose", "irradiance", "tissueDepth", "oxygen"], mechanism: "Absorbed light excites flavins; absent without delivered light in this model.", literatureValue: "Light-induced H2O2 described experimentally; dose and preparation dependent, no universal µM/s band.", citation: "Hockberger et al., PNAS (1999), 96:6255–6260", url: "https://doi.org/10.1073/pnas.96.11.6255" },
+  { species: "ONOO-", label: "Superoxide + nitric oxide", formation: (out) => out.rosBudget.superoxideSinks["NO (to ONOO-)"] ?? 0, drivers: ["nitricOxide", "nadhRatio", "succinate", "deltaPsi", "uncoupling", "redDose", "nirDose"], mechanism: "Matrix O2•- reacts with NO; this formation rate is also the modeled O2•- sink to ONOO-.", literatureValue: "Reaction k ~10¹⁰ M⁻¹ s⁻¹ (model assumption); not a production-rate interval.", citation: "Radi, Acc Chem Res (2013), 46:550–559", url: "https://doi.org/10.1021/ar300234c" },
+  { species: "•OH", label: "Fenton · Fe2+ + H2O2", budget: "hydroxylSources", key: "Fenton", drivers: ["labileIron", "nadhRatio", "succinate", "deltaPsi", "oxygen", "antioxidantCapacity", "gpx4"], mechanism: "Labile ferrous iron converts H2O2 into a hydroxyl radical; Fe3+ recycling depends partly on superoxide.", literatureValue: "Reaction k ~10²–10³ M⁻¹ s⁻¹ (model estimate); not a mitochondrial •OH flux interval.", citation: "Koppenol, Redox Rep (2001), 6:229–234", url: "https://doi.org/10.1179/135100001101536373" },
+  { species: "•OH", label: "ONOOH homolysis", budget: "hydroxylSources", key: "ONOOH homolysis", drivers: ["nitricOxide", "nadhRatio", "succinate", "deltaPsi", "uncoupling"], mechanism: "The model gives hydroxyl-like radical yield to 30% of ONOOH homolysis events.", literatureValue: "30% model yield assumption, not a universal tissue production rate.", citation: "Radi, Acc Chem Res (2013), 46:550–559", url: "https://doi.org/10.1021/ar300234c" },
+];
+
+export function rosSourceRows(current: Outputs, baseline: Outputs, inputs: Inputs, defaultInputs: Inputs) {
+  return rosSources.map((source) => {
+    const value = (out: Outputs) => source.formation?.(out) ?? (source.budget && source.key ? out.rosBudget[source.budget][source.key] ?? 0 : 0);
+    const live = value(current);
+    const base = value(baseline);
+    const percent = base > 0 ? ((live - base) / base) * 100 : null;
+    const flagged = base > 0 ? Math.abs(percent ?? 0) >= rosFlagPercent : live > 0;
+    const changedDrivers = source.drivers.filter((key) => inputs[key] !== defaultInputs[key]);
+    return { ...source, live, base, percent, flagged, changedDrivers };
+  });
+}
