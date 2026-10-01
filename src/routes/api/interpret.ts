@@ -105,7 +105,7 @@ export const Route = createFileRoute("/api/interpret")({
           headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
           fetch: runIdFetch.fetch,
         });
-        const { condition, inputs, outputs, compare } = parsed.data;
+        const { condition, inputs, outputs, compare, narrative } = parsed.data;
         const fmt = (o: Record<string, number>) =>
           Object.entries(o)
             .map(([k, v]) => `${k}: ${Number(v.toPrecision(4))}`)
@@ -114,8 +114,8 @@ export const Route = createFileRoute("/api/interpret")({
         let upstreamError: { status: number; message: string } | null = null;
         const result = streamText({
           model: provider.responses("openai/gpt-6-astra"),
-          system: compare ? SYSTEM + COMPARE_SYSTEM : SYSTEM,
-          prompt: `Experimental condition:\n${condition}\n\nModel inputs:\n${fmt(inputs)}\n\nModel outputs:\n${fmt(outputs)}${
+          system: narrative ? NARRATIVE_SYSTEM : compare ? SYSTEM + COMPARE_SYSTEM : SYSTEM,
+          prompt: narrative ? `Model flag facts:\n${narrative}\n\nCurrent inputs:\n${fmt(inputs)}` : `Experimental condition:\n${condition}\n\nModel inputs:\n${fmt(inputs)}\n\nModel outputs:\n${fmt(outputs)}${
             compare
               ? `\n\nScenario comparison (A = ${compare.a}, B = ${compare.b}). Whole chain ATP flux A ${compare.atpFluxA.toPrecision(4)}, B ${compare.atpFluxB.toPrecision(4)}.\nPer-step ATP drivers (step | eV | ATP/pair A, B | rate A, B | driver share % | direction):\n${compare.steps
                   .map((x) => `${x.step} | ${x.ev} | ${x.atpPerPairA.toFixed(2)}, ${x.atpPerPairB.toFixed(2)} | ${x.rateA.toPrecision(3)}, ${x.rateB.toPrecision(3)} | ${x.sharePct.toFixed(1)} | ${x.direction}`)
