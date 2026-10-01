@@ -276,7 +276,10 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const fluxCII = 30 * ge.capacity * (i.succinate / (i.succinate + 0.5));
   const fluxCIV =
     Math.min(fluxCI + fluxCII, 80 * ge.capacity) * ge.cytcRetention * o2Sat * noInhib * photonGain * (0.4 + 0.6 * adpDrive);
-  const atpFlux = fluxCIV * 2.4 * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive) * ge.atpEfficiency;
+  // Nominal NADH-linked P/O = 10 pumped H+ / 4 H+ per ATP (Hinkle 2005).
+  // A mixed NADH/succinate input does not have this exact yield; this remains
+  // a lumped capacity estimate, not a measured ATP production rate.
+  const atpFlux = fluxCIV * (10 / 4) * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive) * ge.atpEfficiency;
 
   // --- Superoxide: site-resolved production (Brand 2016; Quinlan et al. 2013) ---
   // Leak rises steeply with deltaPsi (reduced CoQ pool), damped by uncoupling.
@@ -306,14 +309,21 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const kSod1 = 5e3 * i.antioxidantCapacity ** 0.3;
   const superoxideIMS = vImsO2 / (kSod1 + 2e3 + kNoO2);
 
-  // --- H2O2: sources and saturable Prx3 clearance (Cox et al. 2009, 2010) ---
+  // --- H2O2: sources and reduced-Prx3-dependent clearance ---
   const vDismutation = 0.5 * kSod * superoxideM + 0.25 * kSod1 * superoxideIMS; // 2 O2•- -> H2O2
   const vOGDHh2o2 = 0.6 * vOGDHtotal;
   const vH2O2Photo = pr.h2o2Direct * o2Term; // flavin photosensitization
   const vH2O2 = vDismutation + vOGDHh2o2 + vH2O2Photo;
   const ac = i.antioxidantCapacity;
-  const prxVmax = 3 * ac; // µM s-1, limited by TrxR2 / NADPH recycling
-  const prxKm = 2; // µM
+  // Cox et al. Biochemistry 2009, doi:10.1021/bi900558g measured
+  // k(Prx3 + H2O2) = 2e7 M-1 s-1 in purified human protein.
+  // Active reduced Prx3 (0.075 µM here) is an unfitted accessible-pool
+  // assumption, NOT a measured whole-matrix Prx3 concentration.
+  // 2e7 M-1 s-1 * 1e-6 M/µM * 0.075 µM = 1.5 s-1.
+  const prx3SecondOrder = 2e7 * 1e-6; // µM-1 s-1
+  const prx3Accessible = 0.075 * ac; // µM, effective reduced pool (assumed)
+  const prxVmax = 3 * ac; // µM/s, assumed recycling cap from TrxR2 / NADPH
+  const prxKm = 2; // µM, effective cap transition (assumed)
   const hyper = (h: number) => 1 / (1 + (h / 5) ** 2); // Prx3 hyperoxidation above ~5 µM
   const kGpx1 = 0.3 * ac;
   const kCat = 0.02;
@@ -321,7 +331,8 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // GPx4 also reduces H2O2 weakly (it is primarily a lipid peroxidase),
   // so the GPx4 slider modulates matrix H2O2 and thereby Fe-S attack.
   const kGpx4h2o2 = 0.2 * i.gpx4;
-  const h2o2Removal = (h: number) => (prxVmax * h * hyper(h)) / (prxKm + h) + (kGpx1 + kGpx4h2o2 + kCat + kEfflux) * h;
+  const prx3Removal = (h: number) => Math.min(prx3SecondOrder * prx3Accessible * h, prxVmax * h / (prxKm + h)) * hyper(h);
+  const h2o2Removal = (h: number) => prx3Removal(h) + (kGpx1 + kGpx4h2o2 + kCat + kEfflux) * h;
   const h2o2 = solveSteady((h) => vH2O2 - h2o2Removal(h));
   const prxReduced = hyper(h2o2) * (1 - h2o2 / (prxKm + h2o2) * 0.5);
 
@@ -380,7 +391,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
     superoxideIMS: superoxideIMS * 1e3,
     h2o2Sources: { Dismutation: vDismutation, OGDH: vOGDHh2o2, "Flavin photo": vH2O2Photo },
     h2o2Sinks: {
-      Prx3: (prxVmax * h2o2 * hyper(h2o2)) / (prxKm + h2o2),
+      Prx3: prx3Removal(h2o2),
       GPx1: kGpx1 * h2o2,
       Catalase: kCat * h2o2,
       Efflux: kEfflux * h2o2,
