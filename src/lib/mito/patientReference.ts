@@ -1,4 +1,4 @@
-import type { Inputs, Outputs } from "./model";
+import { defaultInputs, simulate, type Inputs, type Outputs } from "./model";
 import { poRatio } from "./reference";
 
 export type PatientGroup = "Bioenergetics" | "ROS and redox" | "Iron and Fe-S" | "Clinical labs";
@@ -12,6 +12,8 @@ export type PatientMetric = {
 };
 
 export type DemoPatient = { id: string; label: string; age: number; phenotype: string; description: string; context: string; values: Record<PatientMetricKey, number> };
+
+const defaultOut = simulate(defaultInputs);
 
 export const patientMetrics: PatientMetric[] = [
   { key: "membranePotential", group: "Bioenergetics", label: "Mitochondrial membrane potential", unit: "mV", specimen: "Live cells", method: "Potential-sensitive fluorophore", reference: { lo: 150, hi: 180, label: "Approximate physiological band" }, decimals: 0, sourceCitation: "Zorova et al., Anal Biochem (2018)", sourceUrl: "https://doi.org/10.1016/j.ab.2017.07.009", note: "Absolute values depend strongly on probe calibration, cell type, and preparation.", modelValue: (inputs) => inputs.deltaPsi, modelLabel: "Direct model state" },
