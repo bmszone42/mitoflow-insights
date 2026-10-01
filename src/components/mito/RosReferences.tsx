@@ -24,7 +24,7 @@ export function RosReferences() {
       <span className="font-mono text-xs text-muted-foreground">{filtered.length} of {rosSources.length} sources · {rosStudies.length} publications</span>
     </div>
     <div className="divide-y divide-border border-y border-border">
-      {filtered.map(({ source, study }, index) => <article key={`${source.species}-${source.label}`} className="grid gap-3 py-4 text-xs md:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] md:gap-6" data-testid="ros-reference-source">
+      {filtered.map(({ source, study }) => <article key={`${source.species}-${source.label}`} className="grid gap-3 py-4 text-xs md:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] md:gap-6" data-testid="ros-reference-source">
         <div className="min-w-0">
           <div className="font-mono text-[10px] text-primary">{source.species} · {source.label}</div>
           <p className="mt-1 leading-relaxed text-foreground">{source.mechanism}</p>

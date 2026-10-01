@@ -1,3 +1,6 @@
+- [x] Add a searchable ROS References view for all eleven modeled sources with verified full-paper citation spans.
+- [ ] Check claim-specific page numbers in primary papers before attributing specific kinetic or model values to pages; full publication spans are shown instead.
+
 - [x] Add a cited biochemical ledger separating measured reaction constants from assumed mitochondrial concentrations and effective rates.
 - [x] Use measured purified-human Prx3 peroxide kinetics in the modeled clearance term, retaining an explicitly assumed reduced pool and recycling cap.
 - [x] Route simulated ATP yield by NADH and succinate supply using literature P/O stoichiometry rather than one blanket yield.

@@ -1,3 +1,12 @@
+## ROS source references (2026-10-01)
+
+- [x] ✅ Added a searchable ROS References view mapping all 11 modeled sources to their four cited papers, with full author lists, titles, journal details, DOI links and verified publication page spans.
+- [x] ✅ Identified Radi's 2013 print year (online 2012) and separated publication spans from unverified claim-specific pages. Marked modeled rates, partitions and yields as assumptions rather than measured intervals.
+- [ ] ❌ Check individual claim locations in the full papers before presenting any page as the exact evidence for a model parameter; validate source-specific rates experimentally.
+
+### Security before deployment
+- No new patient collection or external submission. Citation links open with safe external-link attributes. Review citation accuracy and preserve research-only labels before release.
+
 ## Patient ROS assay comparisons (2026-10-01)
 
 - [x] ✅ Added optional, transient ROS measurement entry for PBMC DCFH-DA, fluor-DHPE, MitoSOX and C11-BODIPY, each with its own unit, probe direction and citation.
