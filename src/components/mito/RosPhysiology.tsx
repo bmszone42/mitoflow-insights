@@ -25,6 +25,8 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
   const attributions = rosDriverAttributions(rows, inputs, comparisonInputs, geo);
   const flagged = rows.filter((row) => row.flagged);
   const comparisonName = profile ? `${profile.label} simulated comparison` : "same-geometry simulated default";
+  const assayFlags = rows.map((row) => rosAssayFlag(row.species, profile?.values, healthyControl.values));
+  const assayFlagged = assayFlags.filter((flag, i) => flag?.flagged && rows[i]).length;
 
   return <section className="space-y-5" data-testid="ros-physiology">
     <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4">
@@ -37,6 +39,7 @@ export function RosPhysiology({ inputs, geo, out }: { inputs: Inputs; geo: Geome
         {flagged.length ? <AlertTriangle className="size-4" aria-hidden /> : <CheckCircle2 className="size-4" aria-hidden />}
         {flagged.length} / {rows.length} changed beyond model band
       </span>
+      {profile && <span className={`font-mono text-sm ${assayFlagged ? "text-destructive" : "text-primary"}`} data-testid="ros-assay-flag-count">{assayFlagged} / {rows.length} flagged by profile assays</span>}
     </div>
 
     <div className="border-y border-border py-4" data-testid="ros-profile-comparison">
