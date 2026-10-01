@@ -24,6 +24,6 @@ export function biochemicalLiveReadouts(inputs: Inputs, outputs: Outputs) {
     { name: "ATP production", value: `${outputs.atpFlux.toFixed(2)} µM/s`, note: "Uncalibrated model estimate" },
     { name: "Matrix O₂•⁻", value: `${outputs.superoxide.toPrecision(3)} nM`, note: "Uncalibrated steady state" },
     { name: "H₂O₂", value: `${outputs.hydrogenPeroxide.toPrecision(3)} nM`, note: "Uncalibrated steady state" },
-    { name: "Prx3 H₂O₂ removal", value: `${outputs.rosBudget.h2o2Sinks.Prx3.toPrecision(3)} µM/s`, note: "Measured k, assumed active pool" },
+    { name: "Prx3 H₂O₂ removal", value: `${(outputs.rosBudget.h2o2Sinks["Prx3"] ?? 0).toPrecision(3)} µM/s`, note: "Measured k, assumed active pool" },
   ];
 }
