@@ -1,3 +1,6 @@
+- [x] Compare two synthetic patient profiles side by side in Physiology, separating directly comparable sliders from derived and assay-specific measurements.
+- [x] Apply published bands only when age and sampling context allow, with unflagged status where no transferable range exists.
+
 - [x] Add a searchable ROS References view for all eleven modeled sources with verified full-paper citation spans.
 - [ ] Check claim-specific page numbers in primary papers before attributing specific kinetic or model values to pages; full publication spans are shown instead.
 
