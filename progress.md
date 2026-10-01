@@ -1,3 +1,11 @@
+## ROS patient-profile comparisons (2026-10-01)
+- [x] ✅ Select any synthetic profile in ROS Physiology and compare the live 11-source simulation against its membrane-potential-matched model state at current geometry.
+- [x] ✅ Show the profile's illustrative ROS assay signals separately; rate flags remain ±25% model changes, not textbook or clinical outliers.
+- [ ] ❌ Disorder-specific site-rate intervals need assay-matched measurements before they can be used as reference flags.
+
+### Security before deployment
+- Keep synthetic records and ROS assay signals clearly labeled; never infer clinical or textbook ranges from diagnosis labels or fluorescence folds.
+
 ## Patient profile comparison (2026-10-01)
 - [x] ✅ Added a Physiology Patient Comparison view for any two of 18 synthetic profiles, with side-by-side values, linked published context, and per-profile flag counts.
 - [x] ✅ Separates direct slider equivalents from derived P/O and other measurements. Only comparable, applicable published bands produce flags; pediatric and acute nonfasting limits are withheld.

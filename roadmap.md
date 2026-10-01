@@ -1,3 +1,7 @@
+- [x] Link ROS Physiology to all synthetic profiles using only their illustrative membrane potential as a modeled comparison state.
+- [x] Keep profile assay signals and published mechanisms separate from source-specific rate flags; no disorder-specific textbook ROS intervals are available.
+- [ ] Validated disorder- and assay-specific site-rate ranges would require matched experiments before any textbook or clinical flag can be offered.
+
 - [x] Compare two synthetic patient profiles side by side in Physiology, separating directly comparable sliders from derived and assay-specific measurements.
 - [x] Apply published bands only when age and sampling context allow, with unflagged status where no transferable range exists.
 
