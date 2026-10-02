@@ -16,3 +16,4 @@
 - treatment.ts maps therapies to slider moves for strong Diagnosis causes; "model dose" means slider value only, never drug doses.
 - Timeline visits live in `timeline.ts` module memory only; invented demo follow-ups are labeled synthetic and each visit is scored with `diagnoseProfile`.
 - Therapy calculator dose = fraction of a therapy's slider move via applyTherapyDose; never a drug dose.
+- L:P maps to nadhRatio via LDH equilibrium in `lpMapping` (healthy L:P 10 = default); skipped if synthetic or lactate < 2.5 mmol/L.
