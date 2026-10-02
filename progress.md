@@ -877,3 +877,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Out-of-band values flag inline before adding (e.g. 128 mV shows "15% below the 150 lower limit"); in-band shows "Within range".
 - Fixed: changing the test dropdown now resets the unit to that metric's unit (was keeping the previous unit, blocking mV entry).
 - Verified at 1280: 128 mV flags below band, 165 mV within band, no page errors; typecheck clean.
+
+## Therapy to disorder links (2026-10-02) ✅
+- treatment.ts: therapyTargets(t, all) returns profiles where a therapy matches a strong cause (score >= 1.5), with matched mechanisms and scores.
+- Treatment page: each therapy row has a "Which disorders does this target?" toggle listing matching profiles, each linking to /diagnosis?profile=<id>. Labeled model matches, not clinical indications.
+- Diagnosis page: new optional profile search param preselects the profile from the link.
+- Verified: iron chelation lists Leigh, Friedreich (3.00), POLG, MELAS, TBI; clicking Demo 06 opens /diagnosis?profile=demo-06 with Friedreich preselected. Typecheck clean, no page errors.

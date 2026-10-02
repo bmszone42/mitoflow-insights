@@ -89,7 +89,13 @@ export function rankTherapies(d: ReturnType<typeof diagnoseProfile>) {
   }).sort((a, b) => b.matchScore - a.matchScore || a.therapy.mechanisms.length - b.therapy.mechanisms.length || b.targeted.length - a.targeted.length || b.flagDrop - a.flagDrop);
 }
 
-/** Model dose = the slider value a therapy sets, shown as before to after. Never a drug dose. */
+/** Profiles where this therapy matches a strong cause (score >= 1.5), for the Treatment page's disorder list. */
+export function therapyTargets(t: Therapy, all: ReturnType<typeof diagnoseProfile>[]) {
+  return all.map((d) => {
+    const matched = d.causes.filter((c) => c.score >= 1.5 && t.mechanisms.includes(c.mechanism));
+    return matched.length ? { patient: d.patient, matched } : null;
+  }).filter((x) => x !== null);
+}
 export function modelDoses(base: Inputs, t: Therapy) {
   const after = applyTherapy(base, t);
   return t.moves.map((m) => ({ key: m.key, label: inputRanges[m.key].label, unit: inputRanges[m.key].unit, before: base[m.key], after: after[m.key], clamped: after[m.key] !== (m.mode === "times" ? base[m.key] * m.value : m.mode === "plus" ? base[m.key] + m.value : m.value) }));

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { diagnoseAll, mechanismNames } from "@/lib/mito/diagnosis";
-import { moveLabel, rankTherapies } from "@/lib/mito/treatment";
+import { moveLabel, rankTherapies, therapyTargets } from "@/lib/mito/treatment";
 
 export const Route = createFileRoute("/treatment")({
   validateSearch: (s) => z.object({ profile: z.string().optional() }).parse(s),
@@ -27,6 +27,7 @@ function TreatmentPage() {
   const search = Route.useSearch();
   const all = useMemo(() => diagnoseAll(), []);
   const [id, setId] = useState(search.profile ?? "demo-04");
+  const [openTx, setOpenTx] = useState<string | null>(null);
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const ranked = useMemo(() => rankTherapies(d), [d]);
 
@@ -68,7 +69,15 @@ function TreatmentPage() {
           <span>ROS flags {sim.before.rosFlags} to {sim.after.rosFlags} {flagDrop > 0 ? "(fewer)" : flagDrop < 0 ? "(more)" : ""}</span>
         </div>
         <p className="mt-2 text-muted-foreground">{t.note} {t.citation && <a className="text-primary underline underline-offset-2" href={t.citation.url} target="_blank" rel="noopener noreferrer">{t.citation.text}</a>}</p>
-        <Button size="sm" variant="outline" className="mt-2" asChild><Link to="/" search={{ apply: t.id, psi: d.patient.values.membranePotential }}>Open in Simulator</Link></Button>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" asChild><Link to="/" search={{ apply: t.id, psi: d.patient.values.membranePotential }}>Open in Simulator</Link></Button>
+          <Button size="sm" variant="ghost" onClick={() => setOpenTx(openTx === t.id ? null : t.id)} data-testid={`tx-targets-${t.id}`}>{openTx === t.id ? "Hide targeted disorders" : "Which disorders does this target?"}</Button>
+        </div>
+        {openTx === t.id && (() => { const hits = therapyTargets(t, all); return <div className="mt-2 border-t border-border pt-2" data-testid="tx-targets-list">
+          <p className="text-[11px] text-muted-foreground">Profiles where this therapy matches a strong cause in the model. Synthetic data; a model match is not a clinical indication.</p>
+          {hits.length === 0 ? <p className="mt-1 text-[11px] text-muted-foreground">No profile has a strong cause this therapy targets.</p> :
+            <ul className="mt-1 space-y-1">{hits.map((h) => <li key={h.patient.id} className="text-[11px]"><Link to="/diagnosis" search={{ profile: h.patient.id }} className="font-medium text-primary underline underline-offset-2">{h.patient.label}</Link> <span className="text-muted-foreground">· {h.patient.phenotype} · matches {h.matched.map((c) => `${c.name} (${c.score.toFixed(2)})`).join(", ")}</span></li>)}</ul>}
+        </div>; })()}
       </li>)}</ol>
     </section>
 
