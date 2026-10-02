@@ -16,6 +16,7 @@ import { Route as PatientBaselineRouteImport } from './routes/patient-baseline'
 import { Route as TreatmentRouteImport } from './routes/treatment'
 import { Route as ApiAnalyzeImageRouteImport } from './routes/api/analyze-image'
 import { Route as ApiExplainSensitivityRouteImport } from './routes/api/explain-sensitivity'
+import { Route as ApiExtractLabsRouteImport } from './routes/api/extract-labs'
 import { Route as ApiInterpretRouteImport } from './routes/api/interpret'
 import { Route as ApiSuggestRouteImport } from './routes/api/suggest'
 
@@ -54,6 +55,11 @@ const ApiExplainSensitivityRoute = ApiExplainSensitivityRouteImport.update({
   path: '/api/explain-sensitivity',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExtractLabsRoute = ApiExtractLabsRouteImport.update({
+  id: '/api/extract-labs',
+  path: '/api/extract-labs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiInterpretRoute = ApiInterpretRouteImport.update({
   id: '/api/interpret',
   path: '/api/interpret',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/treatment': typeof TreatmentRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
+  '/api/extract-labs': typeof ApiExtractLabsRoute
   '/api/interpret': typeof ApiInterpretRoute
   '/api/suggest': typeof ApiSuggestRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/treatment': typeof TreatmentRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
+  '/api/extract-labs': typeof ApiExtractLabsRoute
   '/api/interpret': typeof ApiInterpretRoute
   '/api/suggest': typeof ApiSuggestRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/treatment': typeof TreatmentRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
+  '/api/extract-labs': typeof ApiExtractLabsRoute
   '/api/interpret': typeof ApiInterpretRoute
   '/api/suggest': typeof ApiSuggestRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/treatment'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
+    | '/api/extract-labs'
     | '/api/interpret'
     | '/api/suggest'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/treatment'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
+    | '/api/extract-labs'
     | '/api/interpret'
     | '/api/suggest'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/treatment'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
+    | '/api/extract-labs'
     | '/api/interpret'
     | '/api/suggest'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   TreatmentRoute: typeof TreatmentRoute
   ApiAnalyzeImageRoute: typeof ApiAnalyzeImageRoute
   ApiExplainSensitivityRoute: typeof ApiExplainSensitivityRoute
+  ApiExtractLabsRoute: typeof ApiExtractLabsRoute
   ApiInterpretRoute: typeof ApiInterpretRoute
   ApiSuggestRoute: typeof ApiSuggestRoute
 }
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExplainSensitivityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/extract-labs': {
+      id: '/api/extract-labs'
+      path: '/api/extract-labs'
+      fullPath: '/api/extract-labs'
+      preLoaderRoute: typeof ApiExtractLabsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/interpret': {
       id: '/api/interpret'
       path: '/api/interpret'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   TreatmentRoute: TreatmentRoute,
   ApiAnalyzeImageRoute: ApiAnalyzeImageRoute,
   ApiExplainSensitivityRoute: ApiExplainSensitivityRoute,
+  ApiExtractLabsRoute: ApiExtractLabsRoute,
   ApiInterpretRoute: ApiInterpretRoute,
   ApiSuggestRoute: ApiSuggestRoute,
 }
