@@ -137,3 +137,29 @@ export function doseResponse(p: DemoPatient, t: Therapy, doses = calculatorDoses
     return { dose, inputs, ...m, atpChange: zero.atp ? m.atp / zero.atp - 1 : 0, superoxideChange: zero.superoxide ? m.superoxide / zero.superoxide - 1 : 0, h2o2Change: zero.h2o2 ? m.h2o2 / zero.h2o2 - 1 : 0 };
   });
 }
+
+export type TargetDir = "up" | "down" | "flat";
+export const overlapReadouts = [{ key: "atp", label: "ATP flux" }, { key: "superoxide", label: "Superoxide" }, { key: "h2o2", label: "H2O2" }] as const;
+const dirOf = (a: number, b: number): TargetDir => { const c = a ? b / a - 1 : 0; return c > 0.01 ? "up" : c < -0.01 ? "down" : "flat"; };
+
+/** Which therapies move ATP and ROS readouts the same way (±1% at 1x) on this patient's baseline. Shared targets, not equivalence. */
+export function therapyOverlap(p: DemoPatient) {
+  const items = therapies.map((t) => {
+    const s = simulateTherapy(p, t);
+    const dirs = { atp: dirOf(s.before.atp, s.after.atp), superoxide: dirOf(s.before.superoxide, s.after.superoxide), h2o2: dirOf(s.before.h2o2, s.after.h2o2) };
+    return { therapy: t, dirs, sliders: t.moves.map((m) => m.key) };
+  });
+  const sig = (d: Record<string, TargetDir>) => overlapReadouts.map((r) => `${r.label} ${d[r.key]}`).join(", ");
+  const groups = new Map<string, typeof items>();
+  for (const i of items) groups.set(sig(i.dirs), [...(groups.get(sig(i.dirs)) ?? []), i]);
+  const perTherapy = items.map((i) => {
+    const moved = overlapReadouts.filter((r) => i.dirs[r.key] !== "flat");
+    const partners = items.filter((o) => o !== i).map((o) => ({
+      therapy: o.therapy,
+      shared: moved.filter((r) => o.dirs[r.key] === i.dirs[r.key]).map((r) => `${r.label} ${i.dirs[r.key]}`),
+      sliders: i.sliders.filter((k) => o.sliders.includes(k)),
+    })).filter((x) => x.shared.length).sort((a, b) => b.shared.length - a.shared.length || b.sliders.length - a.sliders.length);
+    return { ...i, total: moved.length, partners };
+  });
+  return { groups: [...groups.entries()].map(([signature, members]) => ({ signature, members })).sort((a, b) => b.members.length - a.members.length), perTherapy };
+}

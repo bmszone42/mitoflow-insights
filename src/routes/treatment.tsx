@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { TherapyOverlap } from "@/components/mito/TherapyOverlap";
 import { useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
@@ -87,5 +88,6 @@ function TreatmentPage() {
       <h2 className="text-sm font-semibold text-foreground">Limits</h2>
       <p className="mt-1">Ranking: number of the profile's supported mechanisms a therapy targets, then their Diagnosis scores, then modeled flag reduction. It is not a ranking of clinical benefit. Each therapy is one set of slider moves from the profile's membrane potential with all other inputs at defaults; no pharmacokinetics, dosing, interactions or combined therapies. The model has no disease-specific defect inputs, so effects on a block are indirect. ROS flags are ±25% model comparisons; ATP flags use cited step bands. Profiles are invented.</p>
     </section>
+    <TherapyOverlap patient={d.patient} />
   </main>;
 }
