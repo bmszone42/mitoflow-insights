@@ -71,7 +71,7 @@ function Index() {
     if (!search.patient) return;
     const p = [...userPatients, ...demoPatients].find((x) => x.id === search.patient);
     if (!p) return;
-    setInputs({ ...defaultInputs, ...inputsFromPatient(p) });
+    setInputs({ ...defaultInputs, ...inputsFromPatient(p).patch });
     setPatientRun(`${p.label} (${p.phenotype})`);
     setTab("sim");
   }, [search.patient, userPatients]);
