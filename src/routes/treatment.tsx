@@ -51,7 +51,7 @@ function TreatmentPage() {
     </section>
 
     <section aria-label="Therapies" className="space-y-3">
-      <h2 className="text-sm font-semibold">Ranked for this profile</h2>
+      <h2 className="text-sm font-semibold">Ranked for this profile</h2>{!d.top && <p className="text-xs text-muted-foreground" data-testid="tx-none">No strong cause for this profile, so no therapy is targeted. Rows below show model effects only.</p>}
       <ol className="space-y-3">{ranked.map(({ therapy: t, sim, targeted, flagDrop }, i) => <li key={t.id} data-testid="tx-row" className={`border border-border p-3 text-xs ${targeted.length ? "bg-primary/5" : "opacity-80"}`}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="font-medium"><span className="font-mono text-primary">{i + 1}.</span> {t.name} <span className="font-normal text-muted-foreground">· {t.examples}</span></div>

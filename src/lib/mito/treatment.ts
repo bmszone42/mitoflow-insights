@@ -76,5 +76,5 @@ export function rankTherapies(d: ReturnType<typeof diagnoseProfile>) {
     const flagDrop = sim.before.atpFlags + sim.before.rosFlags - sim.after.atpFlags - sim.after.rosFlags;
     const matchScore = Math.max(0, ...targeted.map((m) => d.causes.find((c) => c.mechanism === m)?.score ?? 0));
     return { therapy: t, sim, targeted, flagDrop, matchScore };
-  }).sort((a, b) => b.matchScore - a.matchScore || b.targeted.length - a.targeted.length || b.flagDrop - a.flagDrop);
+  }).sort((a, b) => b.matchScore - a.matchScore || a.therapy.mechanisms.length - b.therapy.mechanisms.length || b.targeted.length - a.targeted.length || b.flagDrop - a.flagDrop);
 }
