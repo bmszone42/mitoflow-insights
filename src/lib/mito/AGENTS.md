@@ -13,3 +13,4 @@
 - Interpretation narrative is built deterministically in interpretation.ts from existing flags; scores normalize effects to flag thresholds and are not probabilities.
 - ATP assay flags compare a profile's NADH P/O (pumping steps) and ATP-linked OCR (chain summary) with healthy demo-01 at ±25%; whole-chain, never step-specific.
 - Diagnosis page ranks mechanisms, never diseases, via fixed rules in diagnosis.ts; oxidant load half weight (nonspecific probes); ferritin quarter weight in acute profiles (acute-phase marker); scores are not probabilities.
+- Treatment page maps therapy classes to slider moves in treatment.ts; targets only strong Diagnosis causes; illustrative moves, never doses or advice.

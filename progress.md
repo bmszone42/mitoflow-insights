@@ -820,3 +820,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Ferritin support for iron and Fe-S stress counts at quarter weight for the three acute nonfasting profiles (demo-13 TBI, demo-14 stroke, demo-15 sepsis AKI), since ferritin is an acute-phase reactant.
 - ✅ Result: stroke and sepsis AKI now rank coupling loss first (label fit "matches"); TBI moved off iron stress to pyruvate entry block (partly matches). Leigh, PDH, Friedreich, MELAS, iron overload unchanged.
 - ✅ Diagnosis page Limits text updated; AGENTS.md rule updated.
+
+## Treatment page (2026-10-02)
+- ✅ /treatment: 10 therapy classes mapped to slider moves, simulated ATP/ROS before vs after per synthetic profile, ranked by strong Diagnosis causes, Open in Simulator handoff
+- ✅ Linked from Diagnosis, Physiology and Patient Data; verified at 1280 and 390, no page errors
+- ❌ Verify citations for remaining therapy classes; therapy combinations; dose-response
