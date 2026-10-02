@@ -871,3 +871,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - index.tsx: new patient search param; effect finds the profile among user-added then demo profiles, sets sliders from defaults plus the patch, shows a patient-run banner (test id patient-run-banner) naming the profile and the mappings, with a Reset to defaults action.
 - diagnosis.tsx: Run in Simulator button (dx-run-sim) links to /?patient=<id>.
 - Playwright at 1280 and 390 for demo-04 (Leigh): banner shown, sliders read membrane potential 134 mV, labile iron 3.4 µM, antioxidant capacity 0.633 (1/1.58 MitoSOX), all other sliders at defaults; no page errors; typecheck clean.
+
+## Healthy range column in lab upload (2026-10-02) ✅
+- UserLabsPanel review table now shows a Healthy range column per row, resolved with referenceFor against the draft age/sex/fasting: lab ranges for the 7 lab metrics, the 150-180 mV research band for membrane potential (labeled research band, not a lab range), or "no published range".
+- Out-of-band values flag inline before adding (e.g. 128 mV shows "15% below the 150 lower limit"); in-band shows "Within range".
+- Fixed: changing the test dropdown now resets the unit to that metric's unit (was keeping the previous unit, blocking mV entry).
+- Verified at 1280: 128 mV flags below band, 165 mV within band, no page errors; typecheck clean.
