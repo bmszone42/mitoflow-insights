@@ -3,6 +3,9 @@ import { AlertCircle, AlertTriangle, CheckCircle2, FlaskConical, Minus } from "l
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { Play } from "lucide-react";
 import { PatientRosAssays } from "@/components/mito/PatientRosAssays";
 import type { Inputs, Outputs } from "@/lib/mito/model";
 import { PublishedFlagShift } from "@/components/mito/PublishedFlagShift";
@@ -58,6 +61,12 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
             <SelectTrigger id="demo-patient" data-testid="patient-selector" aria-label="Synthetic patient record"><SelectValue /></SelectTrigger>
              <SelectContent className="max-h-[min(70vh,440px)]">{all.map((entry) => <SelectItem key={entry.id} value={entry.id}>{entry.label} · {entry.age}y · {entry.phenotype}</SelectItem>)}</SelectContent>
           </Select>
+          <Button asChild variant="outline" size="sm" className="mt-2 w-full" data-testid="patient-run-sim">
+            <Link to="/" search={{ patient: patient.id }}>
+              <Play className="size-3.5" aria-hidden />Run in Simulator
+            </Link>
+          </Button>
+          <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">Loads this profile's membrane potential, labile iron and antioxidant proxy into the Simulator sliders; unmapped measurements stay at defaults.</p>
         </div>
       </div>
 

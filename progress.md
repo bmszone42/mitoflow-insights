@@ -887,3 +887,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Run in Simulator banner: model vs measured ATP/ROS (fold healthy) and per-slider effect table
 - ✅ /timeline: per-profile visits (baseline, invented follow-ups, tab-only user visits) with lab chart, Diagnosis flags/top mechanism and selected therapies
 - ✅ Published readout bands (P/O Hinkle 2005, H2O2 1-100 nM Sies 2017, ATP-linked OCR Lee 2026) on Lab Ranges and in the Patient Comparison drift check
+
+## Run in Simulator on Patient Data tab (2026-10-02) ✅
+- PatientData.tsx: Run in Simulator button (patient-run-sim) under the record selector links to /?patient=<selected id>; note explains the three mapped sliders and that unmapped measurements stay at defaults.
+- Verified: selecting Demo 04 (Leigh) and clicking loads /?patient=demo-04 with the patient-run banner; no page errors; typecheck clean.
