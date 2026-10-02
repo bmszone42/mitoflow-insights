@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DiagnosisRouteImport } from './routes/diagnosis'
 import { Route as PatientBaselineRouteImport } from './routes/patient-baseline'
+import { Route as TreatmentRouteImport } from './routes/treatment'
 import { Route as ApiAnalyzeImageRouteImport } from './routes/api/analyze-image'
 import { Route as ApiExplainSensitivityRouteImport } from './routes/api/explain-sensitivity'
 import { Route as ApiInterpretRouteImport } from './routes/api/interpret'
@@ -36,6 +37,11 @@ const DiagnosisRoute = DiagnosisRouteImport.update({
 const PatientBaselineRoute = PatientBaselineRouteImport.update({
   id: '/patient-baseline',
   path: '/patient-baseline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TreatmentRoute = TreatmentRouteImport.update({
+  id: '/treatment',
+  path: '/treatment',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAnalyzeImageRoute = ApiAnalyzeImageRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/diagnosis': typeof DiagnosisRoute
   '/patient-baseline': typeof PatientBaselineRoute
+  '/treatment': typeof TreatmentRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/interpret': typeof ApiInterpretRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/diagnosis': typeof DiagnosisRoute
   '/patient-baseline': typeof PatientBaselineRoute
+  '/treatment': typeof TreatmentRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/interpret': typeof ApiInterpretRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/diagnosis': typeof DiagnosisRoute
   '/patient-baseline': typeof PatientBaselineRoute
+  '/treatment': typeof TreatmentRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/interpret': typeof ApiInterpretRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/diagnosis'
     | '/patient-baseline'
+    | '/treatment'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/interpret'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/diagnosis'
     | '/patient-baseline'
+    | '/treatment'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/interpret'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/diagnosis'
     | '/patient-baseline'
+    | '/treatment'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/interpret'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DiagnosisRoute: typeof DiagnosisRoute
   PatientBaselineRoute: typeof PatientBaselineRoute
+  TreatmentRoute: typeof TreatmentRoute
   ApiAnalyzeImageRoute: typeof ApiAnalyzeImageRoute
   ApiExplainSensitivityRoute: typeof ApiExplainSensitivityRoute
   ApiInterpretRoute: typeof ApiInterpretRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/patient-baseline'
       fullPath: '/patient-baseline'
       preLoaderRoute: typeof PatientBaselineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/treatment': {
+      id: '/treatment'
+      path: '/treatment'
+      fullPath: '/treatment'
+      preLoaderRoute: typeof TreatmentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/analyze-image': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DiagnosisRoute: DiagnosisRoute,
   PatientBaselineRoute: PatientBaselineRoute,
+  TreatmentRoute: TreatmentRoute,
   ApiAnalyzeImageRoute: ApiAnalyzeImageRoute,
   ApiExplainSensitivityRoute: ApiExplainSensitivityRoute,
   ApiInterpretRoute: ApiInterpretRoute,

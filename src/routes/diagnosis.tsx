@@ -33,7 +33,7 @@ function DiagnosisPage() {
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
 
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
-    <Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 size-4" aria-hidden />Back to lab</Link></Button>
+    <div className="flex gap-2"><Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 size-4" aria-hidden />Back to lab</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment" search={{ profile: id }} data-testid="dx-treatment">See therapy targets</Link></Button></div>
     <header className="border-b border-border pb-4">
       <div className="mono-label">Mechanism pattern review</div>
       <h1 className="mt-1 text-2xl font-semibold">Diagnosis</h1>
