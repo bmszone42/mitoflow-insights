@@ -886,3 +886,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Treatment therapies stack on the patient's measured baseline (membrane potential, labile iron, inverse MitoSOX) in the Simulator and in Treatment/Plan scoring
 - ✅ Run in Simulator banner: model vs measured ATP/ROS (fold healthy) and per-slider effect table
 - ✅ /timeline: per-profile visits (baseline, invented follow-ups, tab-only user visits) with lab chart, Diagnosis flags/top mechanism and selected therapies
+- ✅ Published readout bands (P/O Hinkle 2005, H2O2 1-100 nM Sies 2017, ATP-linked OCR Lee 2026) on Lab Ranges and in the Patient Comparison drift check

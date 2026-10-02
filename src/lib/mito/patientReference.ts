@@ -218,3 +218,17 @@ export function inputsFromPatient(p: DemoPatient): { patch: Partial<Inputs>; not
   ];
   return { patch, notes };
 }
+
+/** Published bands for model readouts and measurements tied to the slider run. Each band is cited; nothing is converted across units. */
+export const readoutBands = [
+  { key: "po", label: "NADH-linked P/O (model, derived)", lo: 2.3, hi: 2.7, unit: "ATP/O", source: "Hinkle, Biochim Biophys Acta (2005)", url: "https://doi.org/10.1016/j.bbabio.2004.09.004", basis: "Model readout from the profile's slider run", note: "Isolated-mitochondria stoichiometry; varies with substrate and leak." },
+  { key: "h2o2", label: "Steady-state H₂O₂ (model)", lo: 1, hi: 100, unit: "nM", source: "Sies, Redox Biol (2017)", url: "https://doi.org/10.1016/j.redox.2016.12.035", basis: "Model readout from the profile's slider run", note: "1-10 nM is physiological signaling; above about 100 nM is oxidative distress. The 10-100 nM span is adaptive stress, so only values above 100 nM are flagged. Fold-control probe signals cannot be placed on this scale." },
+  { key: "atpLinkedOcr", label: "ATP-linked respiration (measured)", lo: 3.9, hi: 9.6, unit: "pmol/min/µg protein", source: "Lee et al., PLOS One (2026), Table 2", url: "https://doi.org/10.1371/journal.pone.0336939.t002", basis: "Profile measurement; no model conversion from ATP flux is justified", note: "Healthy adult PBMC IQR span, not a clinical interval." },
+] as const;
+
+export function readoutChecks(p: DemoPatient) {
+  const inputs = { ...defaultInputs, ...inputsFromPatient(p).patch };
+  const out = simulate(inputs);
+  const value = { po: poRatio(inputs.deltaPsi, inputs.uncoupling, "nadh"), h2o2: out.hydrogenPeroxide, atpLinkedOcr: p.values.atpLinkedOcr };
+  return readoutBands.map((b) => { const v = value[b.key]; return { ...b, value: v, outside: v < b.lo || v > b.hi, text: outsideText(v, b) }; });
+}

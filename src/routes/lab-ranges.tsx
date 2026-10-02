@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, CircleHelp, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, defaultInputs } from "@/lib/mito/model";
 import { modelSettingRows, settingsGroups, type SettingRow } from "@/lib/mito/settingsReference";
+import { readoutBands } from "@/lib/mito/patientReference";
 import { ATP_COST_EV, ATP_COST_TEXTBOOK, poLiteratureBands } from "@/lib/mito/reference";
 import { demoPatients, formatRangeText, patientGroups, patientMetrics, referenceFor, type PatientMetric } from "@/lib/mito/patientReference";
 
@@ -87,6 +88,8 @@ function LabRangesPage() {
         <li><span className="font-medium">Effective ATP cost:</span> model {ATP_COST_EV} eV/ATP at standard state; compared with {ATP_COST_TEXTBOOK.lo}-{ATP_COST_TEXTBOOK.hi} eV/ATP. <SourceLink source="Nicholls & Ferguson, Bioenergetics (2013)" url="https://doi.org/10.1016/B978-0-12-388425-1.00003-8" /></li>
         <li><span className="font-medium">NADH-linked P/O:</span> {poLiteratureBands.nadh.low}-{poLiteratureBands.nadh.high} ATP/O; <span className="font-medium">succinate-linked P/O:</span> {poLiteratureBands.fadh2.low}-{poLiteratureBands.fadh2.high} ATP/O. <SourceLink source="Hinkle, Biochim Biophys Acta (2005)" url="https://doi.org/10.1016/j.bbabio.2004.09.004" /></li>
       </ul>
+      <h3 className="pt-2 text-xs font-semibold">Readout bands used by the Patient Comparison drift check</h3>
+      <ul className="space-y-1 text-[11px]" data-testid="readout-bands">{readoutBands.map((b) => <li key={b.key}><span className="font-medium">{b.label}:</span> {b.lo}-{b.hi} {b.unit}. {b.basis}. {b.note} <SourceLink source={b.source} url={b.url} /></li>)}</ul>
     </section>
 
     <h2 className="text-sm font-semibold">Model sliders <span className="font-mono text-xs font-normal text-muted-foreground">{rows.length}</span></h2>
