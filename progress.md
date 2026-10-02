@@ -859,3 +859,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - diagnosis.ts: flagOverlaps(p, pool) maps each flagged value of the selected profile to the disorder profiles flagging the same value in the same direction (metricDirection), excluding healthy profiles and the profile itself; returns perFlag overlaps plus disorders ranked by shared flag count.
 - diagnosis.tsx: "Which disorders share these flags" section (test id dx-overlap, rows dx-overlap-row) above the label-fit check; top 6 disorders with shared/total counts and flag lists, collapsible per-flag detail, caveat that overlap is shared flags, not a likelihood.
 - Playwright at 1280 and 390: Leigh syndrome (default) overlaps MELAS 7/8, sepsis AKI 7/8, POLG 6/8; healthy adult shows "No flagged values"; no page errors; typecheck clean.
+
+## Membrane potential reading entry (2026-10-02) ✅
+- userPatients.ts: updateUserPatientValue(id, key, value) updates one entered value on a tab-only user profile in place.
+- New MembranePotentialEntry.tsx on the Patient Data tab (test id membrane-entry): number input 0-300 mV, live band status of the selected profile vs the 150-180 mV research band (Zorova 2018), "Update this profile" for user profiles or "Add as your profile" for demo records (creates a tab-only copy carrying age, sex and fasting state; all other values synthetic fill).
+- Feeds the Patient Comparison slider drift check, which previously read "None" for user profiles because membrane potential was healthy synthetic fill.
+- Playwright at 1280 and 390: 128 mV creates a profile flagged 15% below the 150 lower limit; 165 mV updates in place to within band; drift check flags "Mitochondrial membrane potential (B)" for the out-of-range profile; no page errors; typecheck clean.

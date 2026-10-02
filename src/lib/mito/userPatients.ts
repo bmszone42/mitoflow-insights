@@ -9,6 +9,12 @@ const emit = () => listeners.forEach((l) => l());
 export const useUserPatients = () => useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => users, () => users);
 export const removeUserPatient = (id: string) => { users = users.filter((u) => u.id !== id); emit(); };
 
+// Update one entered value on a user profile in place (tab-only, never stored).
+export const updateUserPatientValue = (id: string, key: PatientMetricKey, value: number) => {
+  users = users.map((u) => u.id === id ? { ...u, values: { ...u.values, [key]: value }, origins: { ...u.origins, [key]: { origin: "user" as const, citation: "Entered by you" } } } : u);
+  emit();
+};
+
 export type UserEntry = { key: PatientMetricKey; value: number; unit?: string | undefined; sourceText?: string | undefined };
 export type UserDraft = { name: string; age: number; sex: "F" | "M"; fasting: boolean; entries: UserEntry[]; via: "manual" | "csv" | "file" };
 
