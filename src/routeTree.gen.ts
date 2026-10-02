@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DiagnosisRouteImport } from './routes/diagnosis'
 import { Route as PatientBaselineRouteImport } from './routes/patient-baseline'
 import { Route as TreatmentRouteImport } from './routes/treatment'
+import { Route as TreatmentPlanRouteImport } from './routes/treatment-plan'
 import { Route as ApiAnalyzeImageRouteImport } from './routes/api/analyze-image'
 import { Route as ApiExplainSensitivityRouteImport } from './routes/api/explain-sensitivity'
 import { Route as ApiExtractLabsRouteImport } from './routes/api/extract-labs'
@@ -43,6 +44,11 @@ const PatientBaselineRoute = PatientBaselineRouteImport.update({
 const TreatmentRoute = TreatmentRouteImport.update({
   id: '/treatment',
   path: '/treatment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TreatmentPlanRoute = TreatmentPlanRouteImport.update({
+  id: '/treatment-plan',
+  path: '/treatment-plan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAnalyzeImageRoute = ApiAnalyzeImageRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/diagnosis': typeof DiagnosisRoute
   '/patient-baseline': typeof PatientBaselineRoute
   '/treatment': typeof TreatmentRoute
+  '/treatment-plan': typeof TreatmentPlanRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/extract-labs': typeof ApiExtractLabsRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/diagnosis': typeof DiagnosisRoute
   '/patient-baseline': typeof PatientBaselineRoute
   '/treatment': typeof TreatmentRoute
+  '/treatment-plan': typeof TreatmentPlanRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/extract-labs': typeof ApiExtractLabsRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/diagnosis': typeof DiagnosisRoute
   '/patient-baseline': typeof PatientBaselineRoute
   '/treatment': typeof TreatmentRoute
+  '/treatment-plan': typeof TreatmentPlanRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/extract-labs': typeof ApiExtractLabsRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/diagnosis'
     | '/patient-baseline'
     | '/treatment'
+    | '/treatment-plan'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/extract-labs'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/diagnosis'
     | '/patient-baseline'
     | '/treatment'
+    | '/treatment-plan'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/extract-labs'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/diagnosis'
     | '/patient-baseline'
     | '/treatment'
+    | '/treatment-plan'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/extract-labs'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   DiagnosisRoute: typeof DiagnosisRoute
   PatientBaselineRoute: typeof PatientBaselineRoute
   TreatmentRoute: typeof TreatmentRoute
+  TreatmentPlanRoute: typeof TreatmentPlanRoute
   ApiAnalyzeImageRoute: typeof ApiAnalyzeImageRoute
   ApiExplainSensitivityRoute: typeof ApiExplainSensitivityRoute
   ApiExtractLabsRoute: typeof ApiExtractLabsRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/treatment'
       fullPath: '/treatment'
       preLoaderRoute: typeof TreatmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/treatment-plan': {
+      id: '/treatment-plan'
+      path: '/treatment-plan'
+      fullPath: '/treatment-plan'
+      preLoaderRoute: typeof TreatmentPlanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/analyze-image': {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiagnosisRoute: DiagnosisRoute,
   PatientBaselineRoute: PatientBaselineRoute,
   TreatmentRoute: TreatmentRoute,
+  TreatmentPlanRoute: TreatmentPlanRoute,
   ApiAnalyzeImageRoute: ApiAnalyzeImageRoute,
   ApiExplainSensitivityRoute: ApiExplainSensitivityRoute,
   ApiExtractLabsRoute: ApiExtractLabsRoute,
