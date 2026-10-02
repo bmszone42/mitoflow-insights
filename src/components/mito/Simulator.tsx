@@ -1,3 +1,4 @@
+import { applyTherapy, moveLabel, therapies } from "@/lib/mito/treatment";
 import {
   Area,
   AreaChart,
@@ -405,6 +406,7 @@ export function Simulator({
 
   // Apply a preset and save the result as a named scenario so presets can be
   // compared side by side in the Compare tab.
+  const [activeTherapy, setActiveTherapy] = useState<string | null>(null);
   const [savedPreset, setSavedPreset] = useState<string | null>(null);
   const [savingCombos, setSavingCombos] = useState(false);
   const [comboSaveStatus, setComboSaveStatus] = useState<string | null>(null);
@@ -459,6 +461,17 @@ export function Simulator({
           <Button variant="ghost" size="sm" onClick={() => setInputs(defaultInputs)}>
             Reset
           </Button>
+        </div>
+        <div className="space-y-1.5" data-testid="sim-therapies">
+          <div className="mono-label">Therapy levers</div>
+          <div className="flex flex-wrap gap-1.5">
+            {therapies.map((t) => (
+              <Button key={t.id} variant={activeTherapy === t.id ? "default" : "outline"} size="sm" className="h-7 px-2 text-xs" title={t.moves.map(moveLabel).join("; ")} aria-pressed={activeTherapy === t.id} data-testid="sim-therapy" onClick={() => { setInputs(applyTherapy(inputs, t)); setActiveTherapy(t.id); }}>
+                {t.name}
+              </Button>
+            ))}
+          </div>
+          {activeTherapy && <p className="text-[11px] text-muted-foreground" data-testid="sim-therapy-applied">Applied: {therapies.find((t) => t.id === activeTherapy)!.moves.map(moveLabel).join("; ")}. Model slider moves from your current settings, not doses.</p>}
         </div>
         <div className="space-y-1.5">
           <div className="mono-label">Drug presets</div>
