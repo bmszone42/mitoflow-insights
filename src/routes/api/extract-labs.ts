@@ -79,7 +79,7 @@ export const Route = createFileRoute("/api/extract-labs")({
           try { json = JSON.parse(text); } catch { return Response.json({ error: "Could not read values from this file. Try a clearer photo." }, { status: 422 }); }
           const out = Result.safeParse(json);
           if (!out.success) return Response.json({ error: "The extracted values were not in the expected format. Try again or enter them by hand." }, { status: 422, headers: { "X-Issue": out.error.issues.map((i) => i.path.join(".")).join(",").slice(0, 200) } });
-          return Response.json(out.data);
+          return Response.json({ ...out.data, _debug: text.slice(0, 500) });
         } catch (error) {
           const e = error as { statusCode?: number; message?: string };
           const status = e.statusCode ?? 500;
