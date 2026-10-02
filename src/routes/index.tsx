@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { applyTherapy, therapies } from "@/lib/mito/treatment";
+import { applyTherapy, therapies, type Therapy } from "@/lib/mito/treatment";
 import { AccountButton } from "@/components/mito/AccountButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +65,7 @@ function Index() {
   const userPatients = useUserPatients();
   const [patientRun, setPatientRun] = useState<string | null>(null);
   const [runPatient, setRunPatient] = useState<DemoPatient | null>(null);
+  const [runTherapy, setRunTherapy] = useState<Therapy | null>(null);
   useEffect(() => {
     const t = therapies.find((x) => x.id === search.apply);
     const p = search.patient ? [...userPatients, ...demoPatients].find((x) => x.id === search.patient) : undefined;
@@ -75,6 +76,7 @@ function Index() {
       : { ...defaultInputs, deltaPsi: search.psi ?? defaultInputs.deltaPsi };
     setInputs(t ? applyTherapy(base, t) : base);
     setRunPatient(p ?? null);
+    setRunTherapy(t ?? null);
     setPatientRun(p ? `${p.label} (${p.phenotype})${t ? ` + ${t.name}` : ""}` : null);
     setTab("sim");
   }, [search.apply, search.psi, search.patient, userPatients]);
@@ -150,8 +152,8 @@ function Index() {
             <TabsTrigger value="library">Reference</TabsTrigger>
           </TabsList>
           <TabsContent value="sim" className="mt-4">
-            {patientRun && <p className="mb-3 border-l-2 border-primary pl-3 text-xs" data-testid="patient-run-banner">Sliders set from {patientRun}: membrane potential, labile iron and antioxidant capacity (inverse MitoSOX proxy). {runPatient ? <span data-testid="patient-run-lp">{lpMapping(runPatient).note}. </span> : null}A therapy, if named, is applied on top of that baseline. All other settings are simulated defaults; ATP-linked respiration, P/O and peroxide have no slider. <button type="button" className="text-primary underline underline-offset-2" onClick={() => { setInputs(defaultInputs); setPatientRun(null); setRunPatient(null); }}>Reset to defaults</button></p>}
-            {patientRun && runPatient && <PatientRunReadouts patient={runPatient} inputs={inputs} geo={geo} />}
+            {patientRun && <p className="mb-3 border-l-2 border-primary pl-3 text-xs" data-testid="patient-run-banner">Sliders set from {patientRun}: membrane potential, labile iron and antioxidant capacity (inverse MitoSOX proxy). {runPatient ? <span data-testid="patient-run-lp">{lpMapping(runPatient).note}. </span> : null}A therapy, if named, is applied on top of that baseline. All other settings are simulated defaults; ATP-linked respiration, P/O and peroxide have no slider. <button type="button" className="text-primary underline underline-offset-2" onClick={() => { setInputs(defaultInputs); setPatientRun(null); setRunPatient(null); setRunTherapy(null); }}>Reset to defaults</button></p>}
+            {patientRun && runPatient && <PatientRunReadouts patient={runPatient} inputs={inputs} geo={geo} therapy={runTherapy} />}
             <Simulator inputs={inputs} setInputs={setInputs} geo={geo} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <PathwayMap out={out} inputs={inputs} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />

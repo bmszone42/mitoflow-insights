@@ -1,18 +1,22 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 import { demoPatients, inputsFromPatient, type DemoPatient } from "@/lib/mito/patientReference";
+import type { Therapy } from "@/lib/mito/treatment";
 
 // Model vs measured, both as fold of a healthy reference: model output / default-input output,
 // measured value / healthy demo-01 (MitoSOX and H2O2 are already fold-control signals).
 const readouts = [
-  { key: "atp", label: "ATP", model: (o: ReturnType<typeof simulate>) => o.atpFlux, measured: (p: DemoPatient, h: DemoPatient) => p.values.atpLinkedOcr / h.values.atpLinkedOcr, measuredLabel: "ATP-linked OCR" },
-  { key: "sox", label: "Superoxide", model: (o: ReturnType<typeof simulate>) => o.superoxide, measured: (p: DemoPatient) => p.values.mitosox, measuredLabel: "MitoSOX" },
-  { key: "h2o2", label: "H₂O₂", model: (o: ReturnType<typeof simulate>) => o.hydrogenPeroxide, measured: (p: DemoPatient) => p.values.h2o2, measuredLabel: "H₂O₂ probe" },
+  { key: "atp", label: "ATP", unit: "µM/s", model: (o: ReturnType<typeof simulate>) => o.atpFlux, measured: (p: DemoPatient, h: DemoPatient) => p.values.atpLinkedOcr / h.values.atpLinkedOcr, measuredLabel: "ATP-linked OCR" },
+  { key: "sox", label: "Superoxide", unit: "nM", model: (o: ReturnType<typeof simulate>) => o.superoxide, measured: (p: DemoPatient) => p.values.mitosox, measuredLabel: "MitoSOX" },
+  { key: "h2o2", label: "H₂O₂", unit: "nM", model: (o: ReturnType<typeof simulate>) => o.hydrogenPeroxide, measured: (p: DemoPatient) => p.values.h2o2, measuredLabel: "H₂O₂ probe" },
 ] as const;
+
+// Three significant digits so small superoxide values don't collapse to 0.00.
+const fmt = (v: number) => (v === 0 ? "0" : Math.abs(v) >= 100 ? v.toFixed(0) : v.toPrecision(3));
 
 const sliderNames: Record<string, string> = { deltaPsi: "Membrane potential", labileIron: "Labile iron", antioxidantCapacity: "Antioxidant capacity" };
 
-export function PatientRunReadouts({ patient, inputs, geo }: { patient: DemoPatient; inputs: Inputs; geo: Geometry }) {
+export function PatientRunReadouts({ patient, inputs, geo, therapy }: { patient: DemoPatient; inputs: Inputs; geo: Geometry; therapy?: Therapy | null }) {
   const data = useMemo(() => {
     const healthy = demoPatients.find((p) => p.id === "demo-01")!;
     const base = simulate(defaultInputs, geo);
@@ -28,8 +32,19 @@ export function PatientRunReadouts({ patient, inputs, geo }: { patient: DemoPati
       const out = simulate({ ...inputs, [k]: defaultInputs[k] }, geo);
       return { key: k, value: inputs[k], deltas: readouts.map((r) => (r.model(cur) - r.model(out)) / r.model(base)) };
     });
-    return { rows, effects };
-  }, [patient, inputs, geo]);
+    // Therapy before/after: patient baseline without the therapy vs current sliders.
+    const therapyRows = therapy
+      ? (() => {
+          const before = simulate({ ...defaultInputs, ...inputsFromPatient(patient).patch }, geo);
+          return readouts.map((r) => {
+            const b = r.model(before);
+            const a = r.model(cur);
+            return { ...r, before: b, after: a, change: b === 0 ? 0 : (a - b) / b };
+          });
+        })()
+      : null;
+    return { rows, effects, therapyRows };
+  }, [patient, inputs, geo, therapy]);
   const pct = (x: number) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(0)}%`;
   return (
     <div className="mt-2 grid gap-3 md:grid-cols-2" data-testid="patient-run-readouts">
@@ -51,7 +66,19 @@ export function PatientRunReadouts({ patient, inputs, geo }: { patient: DemoPati
             {e.deltas.map((d, i) => <td key={i} className="tabular-nums">{pct(d)}</td>)}
           </tr>))}</tbody>
       </table>
-      <p className="text-[10px] text-muted-foreground md:col-span-2">Model values are simulated output divided by output at default settings; measured values are divided by the healthy demo profile (probe signals are already fold control). Gaps over 25% are highlighted. Slider effects reset one slider to default at a time and do not add. MitoSOX also sets antioxidant capacity, so the superoxide row is partly circular. Model comparison only, not a clinical finding.</p>
+      {data.therapyRows && therapy && (
+        <table className="w-full text-[11px] md:col-span-2" data-testid="therapy-before-after">
+          <thead><tr className="text-left text-muted-foreground"><th className="py-1">Therapy effect: {therapy.name}</th><th>Before</th><th>After</th><th>Change</th></tr></thead>
+          <tbody>{data.therapyRows.map((r) => (
+            <tr key={r.key} className="border-t border-border" data-testid="therapy-row">
+              <td className="py-1">{r.label}</td>
+              <td className="tabular-nums">{fmt(r.before)} {r.unit}</td>
+              <td className="tabular-nums">{fmt(r.after)} {r.unit}</td>
+              <td className={`tabular-nums ${Math.abs(r.change) > 0.05 ? "text-primary" : "text-muted-foreground"}`}>{pct(r.change)}</td>
+            </tr>))}</tbody>
+        </table>
+      )}
+      <p className="text-[10px] text-muted-foreground md:col-span-2">Model values are simulated output divided by output at default settings; measured values are divided by the healthy demo profile (probe signals are already fold control). Gaps over 25% are highlighted. Slider effects reset one slider to default at a time and do not add. Therapy before/after compares the patient's baseline sliders with the therapy applied on top. MitoSOX also sets antioxidant capacity, so the superoxide row is partly circular. Model comparison only, not a clinical finding.</p>
     </div>
   );
 }
