@@ -1,4 +1,4 @@
-import { defaultInputs, simulate, type Inputs, type Outputs } from "./model";
+import { defaultInputs, inputRanges, simulate, type Inputs, type Outputs } from "./model";
 import { poRatio } from "./reference";
 
 export type PatientGroup = "Bioenergetics" | "ROS and redox" | "Iron and Fe-S" | "Clinical labs";
@@ -194,7 +194,7 @@ export const outsideText = (value: number, r: { lo?: number; hi?: number }) => {
   return pct > 0 ? `${pct.toFixed(0)}% above the ${r.hi} upper limit` : `${Math.abs(pct).toFixed(0)}% below the ${r.lo} lower limit`;
 };
 
-import { inputRanges, type Inputs } from "./model";
+
 const clampTo = (k: keyof Inputs, v: number) => Math.min(inputRanges[k].max, Math.max(inputRanges[k].min, v));
 
 /**
