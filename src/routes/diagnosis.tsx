@@ -8,6 +8,7 @@ import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
 
 export const Route = createFileRoute("/diagnosis")({
+  validateSearch: (s) => z.object({ profile: z.string().optional() }).parse(s),
   head: () => ({ meta: [
     { title: "Diagnosis: mechanism pattern review | Cristae Lab" },
     { name: "description", content: "Rank likely mitochondrial mechanisms for each synthetic profile by combining Patient Data, ROS and ATP flags. Research and teaching only." },
@@ -32,7 +33,7 @@ function EvidenceList({ title, items, empty }: { title: string; items: Evidence[
 function DiagnosisPage() {
   const users = useUserPatients();
   const all = useMemo(() => diagnoseAll(users), [users]);
-  const [id, setId] = useState("demo-04");
+  const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
 
