@@ -74,6 +74,7 @@ export const Route = createFileRoute("/api/extract-labs")({
             providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", store: false, include: ["reasoning.encrypted_content"] } },
           });
           const text = res.text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+          console.log("[extract-labs] raw", text.slice(0, 600));
           let json: unknown;
           try { json = JSON.parse(text); } catch { return Response.json({ error: "Could not read values from this file. Try a clearer photo." }, { status: 422 }); }
           const out = Result.safeParse(json);
