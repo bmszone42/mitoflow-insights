@@ -72,8 +72,8 @@ export function PatientRunReadouts({ patient, inputs, geo, therapy }: { patient:
           <tbody>{data.therapyRows.map((r) => (
             <tr key={r.key} className="border-t border-border" data-testid="therapy-row">
               <td className="py-1">{r.label}</td>
-              <td className="tabular-nums">{fmt(r.before)}</td>
-              <td className="tabular-nums">{fmt(r.after)}</td>
+              <td className="tabular-nums">{fmt(r.before)} {r.unit}</td>
+              <td className="tabular-nums">{fmt(r.after)} {r.unit}</td>
               <td className={`tabular-nums ${Math.abs(r.change) > 0.05 ? "text-primary" : "text-muted-foreground"}`}>{pct(r.change)}</td>
             </tr>))}</tbody>
         </table>
