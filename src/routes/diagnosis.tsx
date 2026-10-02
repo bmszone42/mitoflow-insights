@@ -34,6 +34,7 @@ function DiagnosisPage() {
   const all = useMemo(() => diagnoseAll(users), [users]);
   const [id, setId] = useState("demo-04");
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
+  const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
 
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
     <div className="flex gap-2"><Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 size-4" aria-hidden />Back to lab</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment" search={{ profile: id }} data-testid="dx-treatment">See therapy targets</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment-plan" search={{ profile: id }} data-testid="dx-plan">Treatment plan</Link></Button></div>
