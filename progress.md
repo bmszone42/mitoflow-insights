@@ -898,3 +898,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Lactate:pyruvate to Simulator
 - ✅ L:P maps to the NADH ratio slider (lpMapping), skipped when synthetic or lactate below 2.5 mmol/L
 - ✅ Dashboard L:P column with mapped tag; Patient Data note
+
+## Therapy before/after in Simulator banner (2026-10-02) ✅
+- PatientRunReadouts.tsx: new "Therapy effect" table (testid therapy-before-after) when a therapy is applied: ATP, superoxide, H2O2 before (patient baseline sliders) vs after (therapy on top), with % change; units shown; 3-significant-digit formatting.
+- index.tsx: tracks runTherapy from ?apply=, passes to PatientRunReadouts, Reset clears it.
+- Verified Leigh + mitochondrial antioxidant: ATP 60.8→60.8 µM/s (+0%), superoxide 0.00992→0.00884 nM (-11%), H2O2 37.1→27.8 nM (-25%); no page errors; tsgo clean.
