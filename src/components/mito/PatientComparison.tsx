@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, CircleHelp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { demoPatients, outsideText, patientGroups, patientMetrics, referenceFor, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
+import { demoPatients, formatRangeText, labMetricKeys, outsideText, patientGroups, patientMetrics, referenceFor, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
 
 function status(patient: DemoPatient, metric: PatientMetric) {
   const ref = referenceFor(patient, metric);
@@ -72,7 +72,7 @@ export function PatientComparison() {
         {patientMetrics.filter((metric) => metric.group === group).map((metric) => <div key={metric.key} className="grid gap-3 py-3 sm:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1fr)]" data-testid="patient-comparison-row" data-metric={metric.key}>
           <div className="min-w-0">
             <div className="text-xs font-semibold">{metric.label}{sliderMetrics.includes(metric) && <span className="ml-2 font-normal text-primary">Model slider</span>}{metric.key === "poNadh" && <span className="ml-2 font-normal text-muted-foreground">Derived readout</span>}</div>
-            <p className="mt-1 text-[11px] text-muted-foreground">{metric.reference ? `${metric.reference.lo === undefined ? "≤ " : ""}${metric.reference.lo !== undefined ? `${metric.reference.lo}–` : ""}${metric.reference.hi ?? ""} ${metric.unit} · ${metric.reference.label}` : "No transferable band"}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">{labMetricKeys.includes(metric.key) ? "Mayo Clinic Laboratories lab range, age and sex specific (shown under each value)" : metric.reference ? `Research band, not a lab range: ${formatRangeText(metric.reference)} ${metric.unit}, adults only` : "No lab reference range"}</p>
             <a href={metric.sourceUrl} target="_blank" rel="noreferrer" className="text-[11px] text-primary underline decoration-border underline-offset-2">{metric.sourceCitation}</a>
           </div>
           <div className="sm:hidden text-[10px] font-semibold uppercase text-muted-foreground">Profile A</div>
