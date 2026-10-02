@@ -57,7 +57,7 @@ function TreatmentPage() {
           <div className="font-medium"><span className="font-mono text-primary">{i + 1}.</span> {t.name} <span className="font-normal text-muted-foreground">· {t.examples}</span></div>
           <span className="font-mono text-[10px] uppercase text-muted-foreground">{t.status}</span>
         </div>
-        <p className="mt-1"><span className="text-muted-foreground">Targets:</span> {t.mechanisms.map((m) => mechanismNames[m]).join(", ")} {targeted.length ? <span className="text-primary">· matches {targeted.length} flagged</span> : <span className="text-muted-foreground">· no matching flag</span>}</p>
+        <p className="mt-1"><span className="text-muted-foreground">Targets:</span> {t.mechanisms.map((m) => mechanismNames[m]).join(", ")} {targeted.length ? <span className="text-primary">· matches {targeted.length} strong cause{targeted.length > 1 ? "s" : ""}</span> : <span className="text-muted-foreground">· no strong cause targeted</span>}</p>
         <p className="mt-1"><span className="text-muted-foreground">Sliders:</span> {t.moves.map(moveLabel).join("; ")}</p>
         <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 font-mono text-[11px] sm:grid-cols-3">
           <span>ATP {fmt(sim.before.atp, 1)} to {fmt(sim.after.atp, 1)} µM/s{delta(sim.before.atp, sim.after.atp)}</span>

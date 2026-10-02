@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { applyTherapy, therapies } from "@/lib/mito/treatment";
 import { AccountButton } from "@/components/mito/AccountButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -29,9 +30,9 @@ import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 
 export const Route = createFileRoute("/")({
-  validateSearch: (s: Record<string, unknown>): { apply?: string; psi?: number } => ({
-    apply: typeof s.apply === "string" ? s.apply : undefined,
-    psi: typeof s.psi === "number" ? s.psi : undefined,
+  validateSearch: (s: Record<string, unknown>): { apply?: string | undefined; psi?: number | undefined } => ({
+    apply: typeof s["apply"] === "string" ? s["apply"] : undefined,
+    psi: typeof s["psi"] === "number" ? s["psi"] : undefined,
   }),
   head: () => ({
     meta: [

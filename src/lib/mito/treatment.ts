@@ -68,12 +68,13 @@ export function simulateTherapy(p: DemoPatient, t: Therapy) {
 }
 
 export function rankTherapies(d: ReturnType<typeof diagnoseProfile>) {
-  const flagged = new Set(d.causes.filter((c) => c.score > 0).map((c) => c.mechanism));
+  // Only strong causes (score >= 1.5, same cutoff as Diagnosis) count as targets.
+  const flagged = new Set(d.causes.filter((c) => c.score >= 1.5).map((c) => c.mechanism));
   return therapies.map((t) => {
     const sim = simulateTherapy(d.patient, t);
     const targeted = t.mechanisms.filter((m) => flagged.has(m));
     const flagDrop = sim.before.atpFlags + sim.before.rosFlags - sim.after.atpFlags - sim.after.rosFlags;
-    const matchScore = t.mechanisms.reduce((s, m) => s + (d.causes.find((c) => c.mechanism === m)?.score ?? 0), 0);
+    const matchScore = Math.max(0, ...targeted.map((m) => d.causes.find((c) => c.mechanism === m)?.score ?? 0));
     return { therapy: t, sim, targeted, flagDrop, matchScore };
-  }).sort((a, b) => b.targeted.length - a.targeted.length || b.matchScore - a.matchScore || b.flagDrop - a.flagDrop);
+  }).sort((a, b) => b.matchScore - a.matchScore || b.targeted.length - a.targeted.length || b.flagDrop - a.flagDrop);
 }
