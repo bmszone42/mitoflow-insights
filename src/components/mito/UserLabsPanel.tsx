@@ -2,11 +2,12 @@ import { useRef, useState } from "react";
 import { FileUp, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { demoPatients, formatRangeText, outsideText, patientMetrics, referenceFor, type PatientMetricKey } from "@/lib/mito/patientReference";
-import { addUserPatient, csvTemplate, parseCsv, removeUserPatient, toAppUnit, useUserPatients, type UserEntry } from "@/lib/mito/userPatients";
+import { demoPatients, formatRangeText, h2o2NmBand, outsideText, patientMetrics, referenceFor, type PatientMetricKey, type RangeResult } from "@/lib/mito/patientReference";
+import { addUserPatient, csvTemplate, h2o2ToNm, parseCsv, removeUserPatient, toAppUnit, useUserPatients, type UserEntry } from "@/lib/mito/userPatients";
 
-type Row = { key: PatientMetricKey; raw: string; unit: string; printedRange?: string | null; sourceText?: string };
-const metricUnit = (k: PatientMetricKey) => patientMetrics.find((m) => m.key === k)!.unit;
+type RowKey = PatientMetricKey | "h2o2Nm";
+type Row = { key: RowKey; raw: string; unit: string; printedRange?: string | null; sourceText?: string };
+const metricUnit = (k: RowKey) => k === "h2o2Nm" ? "nM" : patientMetrics.find((m) => m.key === k)!.unit;
 
 async function shrinkImage(file: File): Promise<string> {
   const url = URL.createObjectURL(file);
@@ -47,7 +48,7 @@ export function UserLabsPanel({ onAdded }: { onAdded?: (id: string) => void }) {
       const res = await fetch("/api/extract-labs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ file: data, filename: f.name.replace(/[^\w.-]/g, "").slice(0, 80) }) });
       const j = await res.json();
       if (!res.ok) { setMsg(j.error ?? "Reading failed."); return; }
-      setRows(j.items.map((i: { key: PatientMetricKey; value: number; unit: string; printedRange?: string | null; sourceText: string }) => ({ key: i.key, raw: String(i.value), unit: i.unit, printedRange: i.printedRange, sourceText: i.sourceText })));
+      setRows(j.items.map((i: { key: RowKey; value: number; unit: string; printedRange?: string | null; sourceText: string }) => ({ key: i.key, raw: String(i.value), unit: i.unit, printedRange: i.printedRange, sourceText: i.sourceText })));
       if (typeof j.age === "number") setAge(String(j.age));
       if (j.sex) setSex(j.sex);
       if (typeof j.fasting === "boolean") setFasting(j.fasting);
@@ -59,27 +60,29 @@ export function UserLabsPanel({ onAdded }: { onAdded?: (id: string) => void }) {
   async function onCsv(f: File) {
     const { entries, error } = parseCsv(await f.text());
     if (error) { setMsg(error); return; }
-    setRows(entries.map((e) => ({ key: e.key, raw: String(e.value), unit: e.unit ?? metricUnit(e.key) })));
-    setVia("csv"); setMsg(`Loaded ${entries.length} values from CSV.`);
+    const { h2o2Nm } = parseCsv(await f.text());
+    setRows([...entries.map((e): Row => ({ key: e.key, raw: String(e.value), unit: e.unit ?? metricUnit(e.key) })), ...(h2o2Nm ? [{ key: "h2o2Nm" as const, raw: String(h2o2Nm.value), unit: h2o2Nm.unit }] : [])]);
+    setVia("csv"); setMsg(`Loaded ${entries.length + (h2o2Nm ? 1 : 0)} values from CSV.`);
     if (csvRef.current) csvRef.current.value = "";
   }
 
   const converted = rows.map((r) => {
     const n = Number(r.raw);
     if (r.raw.trim() === "" || !Number.isFinite(n)) return { r, ok: false as const, why: "Not a number" };
-    const c = toAppUnit(r.key, n, r.unit);
+    const c = r.key === "h2o2Nm" ? (() => { const v = h2o2ToNm(n, r.unit); return v === null ? null : { value: v, note: r.unit && !/^nm$/i.test(r.unit.trim()) ? "converted to nM" : undefined }; })() : toAppUnit(r.key, n, r.unit);
     if (!c) return { r, ok: false as const, why: `Unit "${r.unit}" not understood; expected ${metricUnit(r.key)}` };
     return { r, ok: true as const, value: c.value, note: c.note };
   });
   const usable = converted.filter((c) => c.ok);
   const ageNum = Number(age);
   const draft = { ...demoPatients[0], age: Number.isFinite(ageNum) ? ageNum : 40, sex, fasting };
-  const rangeFor = (k: PatientMetricKey) => referenceFor(draft, patientMetrics.find((m) => m.key === k)!);
+  const rangeFor = (k: RowKey): RangeResult => k === "h2o2Nm" ? { range: { hi: h2o2NmBand.hi, label: h2o2NmBand.label, kind: "Research", source: h2o2NmBand.source, url: h2o2NmBand.url, verified: true } } : referenceFor(draft, patientMetrics.find((m) => m.key === k)!);
 
   function add() {
     if (!usable.length || !Number.isFinite(ageNum) || ageNum < 0 || ageNum > 120) return;
-    const entries: UserEntry[] = usable.map((c) => ({ key: c.r.key, value: c.value!, unit: metricUnit(c.r.key), sourceText: c.r.sourceText }));
-    const p = addUserPatient({ name, age: Math.round(ageNum), sex, fasting, entries, via });
+    const entries: UserEntry[] = usable.flatMap((c) => c.r.key === "h2o2Nm" ? [] : [{ key: c.r.key, value: c.value!, unit: metricUnit(c.r.key), sourceText: c.r.sourceText }]);
+    const nm = usable.find((c) => c.r.key === "h2o2Nm");
+    const p = addUserPatient({ name, age: Math.round(ageNum), sex, fasting, entries, via, h2o2Nm: nm?.value });
     reset(); setOpen(false); onAdded?.(p.id);
   }
 
@@ -111,7 +114,7 @@ export function UserLabsPanel({ onAdded }: { onAdded?: (id: string) => void }) {
       {rows.length > 0 && <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-left text-xs" data-testid="user-labs-review">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr><th className="py-1">Test</th><th>Value</th><th>Unit</th><th>Used as</th><th>Healthy range</th><th>From report</th><th /></tr></thead>
         <tbody>{converted.map((c, i) => <tr key={i} className="border-t border-border/60">
-          <td className="py-1 pr-2"><select value={c.r.key} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, key: e.target.value as PatientMetricKey, unit: metricUnit(e.target.value as PatientMetricKey) } : r))} className="h-7 border border-input bg-background px-1">{patientMetrics.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}</select></td>
+          <td className="py-1 pr-2"><select value={c.r.key} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, key: e.target.value as RowKey, unit: metricUnit(e.target.value as RowKey) } : r))} className="h-7 border border-input bg-background px-1">{patientMetrics.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}<option value="h2o2Nm">Hydrogen peroxide concentration (nM)</option></select></td>
           <td className="pr-2"><Input value={c.r.raw} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, raw: e.target.value } : r))} className="h-7 w-24" /></td>
           <td className="pr-2"><Input value={c.r.unit} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, unit: e.target.value } : r))} className="h-7 w-28" /></td>
           <td className={`pr-2 font-mono ${c.ok ? "" : "text-destructive"}`}>{c.ok ? `${c.value} ${metricUnit(c.r.key)}${c.note ? ` (${c.note})` : ""}` : c.why}</td>

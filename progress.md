@@ -909,3 +909,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Download CSV button (dash-csv): profile, id, phenotype, age, sex, source, L:P, ATP/superoxide/H2O2 with vs-healthy %, flag counts, top mechanism, top overlaps; footer note that it is a research model, not a diagnosis; downloaded in-browser only.
 - Fixed blank sex in profile sublines: demo patients store sex in the sexById map; now uses patientSex(p).
 - Verified: order Demo 15 (18 flags) > Demo 04/Demo 08 (15) > Demo 13 ... > Demo 02/03/10 (0); sex shows in rows and CSV; download produced cristae-lab-patient-dashboard.csv; no page errors; tsgo clean.
+
+## Measured peroxide in nM on Patient Data (2026-10-02) ✅
+- ✅ Optional "Hydrogen peroxide concentration (nM)" entry (manual, CSV row h2o2Nm, PDF/photo), µM and pM converted to nM
+- ✅ Compared with the Sies 2017 band, flagged only above 100 nM, labeled a research band
+- ✅ Patient Comparison drift check uses the measured nM value when present; demo profiles show "Not measured" (no invented values)
+- ✅ Verified: 150 nM flagged 50% above, 40 nM within band, no page errors

@@ -16,7 +16,16 @@ export const updateUserPatientValue = (id: string, key: PatientMetricKey, value:
 };
 
 export type UserEntry = { key: PatientMetricKey; value: number; unit?: string | undefined; sourceText?: string | undefined };
-export type UserDraft = { name: string; age: number; sex: "F" | "M"; fasting: boolean; entries: UserEntry[]; via: "manual" | "csv" | "file" };
+export type UserDraft = { name: string; age: number; sex: "F" | "M"; fasting: boolean; entries: UserEntry[]; via: "manual" | "csv" | "file"; h2o2Nm?: number | undefined };
+
+// Peroxide concentration in nM (separate from the fold-control h2o2 probe signal).
+export function h2o2ToNm(value: number, unit = ""): number | null {
+  const u = unit.toLowerCase().replace(/\s/g, "").replace("μ", "µ");
+  if (!u || u === "nm" || u.includes("nmol")) return value;
+  if (u === "µm" || u === "um" || u.includes("µmol") || u.includes("umol")) return +(value * 1000).toFixed(1);
+  if (u === "pm" || u.includes("pmol")) return +(value / 1000).toFixed(3);
+  return null;
+}
 
 const metricKeys = patientMetrics.map((m) => m.key);
 export const isMetricKey = (k: string): k is PatientMetricKey => (metricKeys as string[]).includes(k);
@@ -36,22 +45,24 @@ export function toAppUnit(key: PatientMetricKey, value: number, unit = ""): { va
 
 const IDENTIFIER = /(name|dob|birth|mrn|record|accession|address|phone|email|ssn|nhs|patient.?id)/i;
 
-export function parseCsv(text: string): { entries: UserEntry[]; error?: string } {
+export function parseCsv(text: string): { entries: UserEntry[]; h2o2Nm?: { value: number; unit: string }; error?: string } {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const header = lines[0]?.split(",").map((h) => h.trim().toLowerCase()) ?? [];
   if (header.some((h) => IDENTIFIER.test(h))) return { entries: [], error: "This file has a column that looks like a personal identifier (name, birth date, record number). Remove it and upload again." };
   if (header[0] !== "test" || header[1] !== "value") return { entries: [], error: "Use the template: columns test, value, unit." };
   const entries: UserEntry[] = [];
+  let h2o2Nm: { value: number; unit: string } | undefined;
   for (const line of lines.slice(1)) {
     const [k, v, unit] = line.split(",").map((c) => c.trim());
+    if (k === "h2o2Nm" && v && Number.isFinite(Number(v))) { h2o2Nm = { value: Number(v), unit: unit || "nM" }; continue; }
     if (!k || !isMetricKey(k)) continue;
     const n = Number(v);
     if (Number.isFinite(n)) entries.push({ key: k, value: n, unit });
   }
-  return entries.length ? { entries } : { entries: [], error: "No recognised tests found. Test names must match the template." };
+  return entries.length || h2o2Nm ? { entries, ...(h2o2Nm ? { h2o2Nm } : {}) } : { entries: [], error: "No recognised tests found. Test names must match the template." };
 }
 
-export const csvTemplate = "test,value,unit\n" + patientMetrics.map((m) => `${m.key},,${m.unit}`).join("\n");
+export const csvTemplate = "test,value,unit\n" + patientMetrics.map((m) => `${m.key},,${m.unit}`).join("\n") + "\nh2o2Nm,,nM";
 
 export function addUserPatient(d: UserDraft): DemoPatient {
   const base = (d.age < 18 ? demoPatients.find((p) => p.id === "demo-02") : demoPatients.find((p) => p.id === "demo-01"))!;
@@ -72,6 +83,7 @@ export function addUserPatient(d: UserDraft): DemoPatient {
     id: `user-${Date.now()}`, label: d.name.trim().slice(0, 40) || `Your results ${n}`, age: d.age, sex: d.sex, nonfasting: !d.fasting,
     phenotype: "Your results", description: `${d.entries.length} of ${metricKeys.length} values from you; the rest are synthetic fill.`,
     context: "Held in this browser tab only, not saved. Not a medical diagnosis.", values, origins, source: "user",
+    ...(d.h2o2Nm !== undefined ? { h2o2Nm: d.h2o2Nm } : {}),
   };
   users = [...users, p];
   emit();

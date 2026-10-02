@@ -18,6 +18,8 @@ export type DemoPatient = {
   inventedValues?: Record<PatientMetricKey, number>;
   sex?: "F" | "M"; nonfasting?: boolean; source?: "synthetic" | "published-case" | "user";
   origins?: Partial<Record<PatientMetricKey, ValueOrigin>>;
+  /** Measured H2O2 concentration in nM, only when the user entered one. Never invented. */
+  h2o2Nm?: number;
 };
 
 const defaultOut = simulate(defaultInputs);
@@ -246,9 +248,19 @@ export const readoutBands = [
   { key: "atpLinkedOcr", label: "ATP-linked respiration (measured)", lo: 3.9, hi: 9.6, unit: "pmol/min/µg protein", source: "Lee et al., PLOS One (2026), Table 2", url: "https://doi.org/10.1371/journal.pone.0336939.t002", basis: "Profile measurement; no model conversion from ATP flux is justified", note: "Healthy adult PBMC IQR span, not a clinical interval." },
 ] as const;
 
+/** Peroxide concentration band (Sies 2017); only values above the upper limit are flagged. */
+export const h2o2NmBand = { hi: 100, label: "Sies 2017: 1-10 nM signaling, 10-100 nM adaptive stress, above 100 nM distress", source: "Sies, Redox Biol (2017)", url: "https://doi.org/10.1016/j.redox.2016.12.035" } as const;
+
 export function readoutChecks(p: DemoPatient) {
   const inputs = { ...defaultInputs, ...inputsFromPatient(p).patch };
   const out = simulate(inputs);
   const value = { po: poRatio(inputs.deltaPsi, inputs.uncoupling, "nadh"), h2o2: out.hydrogenPeroxide, atpLinkedOcr: p.values.atpLinkedOcr };
-  return readoutBands.map((b) => { const v = value[b.key]; return { ...b, value: v, outside: v < b.lo || v > b.hi, text: outsideText(v, b) }; });
+  const measuredH2o2 = p.h2o2Nm !== undefined;
+  if (measuredH2o2) value.h2o2 = p.h2o2Nm!;
+  return readoutBands.map((b) => {
+    const v = value[b.key];
+    const r = b.key === "h2o2" ? { hi: b.hi } : b;
+    const label = b.key === "h2o2" && measuredH2o2 ? "Steady-state H₂O₂ (measured, nM)" : b.label;
+    return { ...b, label, value: v, outside: v > b.hi || (b.key !== "h2o2" && v < b.lo), text: outsideText(v, r) };
+  });
 }

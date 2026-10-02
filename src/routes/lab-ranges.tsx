@@ -90,6 +90,7 @@ function LabRangesPage() {
       </ul>
       <h3 className="pt-2 text-xs font-semibold">Readout bands used by the Patient Comparison drift check</h3>
       <ul className="space-y-1 text-[11px]" data-testid="readout-bands">{readoutBands.map((b) => <li key={b.key}><span className="font-medium">{b.label}:</span> {b.lo}-{b.hi} {b.unit}. {b.basis}. {b.note} <SourceLink source={b.source} url={b.url} /></li>)}</ul>
+      <p className="text-[11px] text-muted-foreground" data-testid="h2o2-nm-note">A measured peroxide concentration entered in nM on Patient Data replaces the model H₂O₂ value in the drift check, flagged only above 100 nM.</p>
     </section>
 
     <h2 className="text-sm font-semibold">Model sliders <span className="font-mono text-xs font-normal text-muted-foreground">{rows.length}</span></h2>
