@@ -11,7 +11,7 @@ export type PatientMetric = {
   modelValue?: (inputs: Inputs, out: Outputs) => number; modelLabel?: string;
 };
 
-export type ValueOrigin = { origin: "published" | "user" | "synthetic"; citation?: string; url?: string; locator?: string };
+export type ValueOrigin = { origin: "published" | "user" | "synthetic"; citation?: string | undefined; url?: string | undefined; locator?: string | undefined };
 export type DemoPatient = {
   id: string; label: string; age: number; phenotype: string; description: string; context: string; values: Record<PatientMetricKey, number>;
   sex?: "F" | "M"; nonfasting?: boolean; source?: "synthetic" | "published-case" | "user";

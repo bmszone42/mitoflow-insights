@@ -9,7 +9,7 @@ const emit = () => listeners.forEach((l) => l());
 export const useUserPatients = () => useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => users, () => users);
 export const removeUserPatient = (id: string) => { users = users.filter((u) => u.id !== id); emit(); };
 
-export type UserEntry = { key: PatientMetricKey; value: number; unit?: string; sourceText?: string };
+export type UserEntry = { key: PatientMetricKey; value: number; unit?: string | undefined; sourceText?: string | undefined };
 export type UserDraft = { name: string; age: number; sex: "F" | "M"; fasting: boolean; entries: UserEntry[]; via: "manual" | "csv" | "file" };
 
 const metricKeys = patientMetrics.map((m) => m.key);
