@@ -65,16 +65,16 @@ function Index() {
   const [patientRun, setPatientRun] = useState<string | null>(null);
   useEffect(() => {
     const t = therapies.find((x) => x.id === search.apply);
-    if (t) { setInputs(applyTherapy({ ...defaultInputs, deltaPsi: search.psi ?? defaultInputs.deltaPsi }, t)); setTab("sim"); }
-  }, [search.apply, search.psi]);
-  useEffect(() => {
-    if (!search.patient) return;
-    const p = [...userPatients, ...demoPatients].find((x) => x.id === search.patient);
-    if (!p) return;
-    setInputs({ ...defaultInputs, ...inputsFromPatient(p).patch });
-    setPatientRun(`${p.label} (${p.phenotype})`);
+    const p = search.patient ? [...userPatients, ...demoPatients].find((x) => x.id === search.patient) : undefined;
+    if (!t && !p) return;
+    // Patient baseline first, then the therapy stacks on top of it.
+    const base: Inputs = p
+      ? { ...defaultInputs, ...inputsFromPatient(p).patch }
+      : { ...defaultInputs, deltaPsi: search.psi ?? defaultInputs.deltaPsi };
+    setInputs(t ? applyTherapy(base, t) : base);
+    setPatientRun(p ? `${p.label} (${p.phenotype})${t ? ` + ${t.name}` : ""}` : null);
     setTab("sim");
-  }, [search.patient, userPatients]);
+  }, [search.apply, search.psi, search.patient, userPatients]);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
   const [tab, setTab] = useState("sim");
   const [stepFocus, setStepFocus] = useState<number | null>(null);
