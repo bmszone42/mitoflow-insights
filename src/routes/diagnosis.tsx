@@ -52,7 +52,7 @@ function DiagnosisPage() {
           <th scope="row" className="px-3 py-2 font-medium">{x.patient.phenotype}<span className="block text-[10px] font-normal text-muted-foreground">{x.patient.label} · {x.patient.age}y · {Math.round(x.realShare * 100)}% real data</span></th>
           <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td>
           <td className="px-3 py-2" data-testid="dx-top">{x.top ? `${x.top.name} (${x.top.score.toFixed(2)})` : <span className="text-muted-foreground">No strong cause</span>}</td>
-          <td className={`px-3 py-2 ${fitStyle[x.fit]}`}>{x.fit}</td>
+          <td className={`px-3 py-2 ${x.patient.source === "user" ? "text-muted-foreground" : fitStyle[x.fit]}`}>{x.patient.source === "user" ? "no label to check" : x.fit}</td>
         </tr>)}</tbody>
       </table>
     </section>
@@ -89,7 +89,7 @@ function DiagnosisPage() {
 
       <div className="border-l-2 border-border pl-3 text-xs" data-testid="dx-fit">
         <h2 className="text-sm font-semibold">Does the label fit?</h2>
-        <p className="mt-1"><span className={`font-medium ${fitStyle[d.fit]}`}>{d.fit}</span>. Pattern this synthetic profile was written to show: {d.expected.text}</p>
+        {d.patient.source === "user" ? <p className="mt-1 text-muted-foreground">Your results carry no condition label, so there is nothing to check against.</p> : <p className="mt-1"><span className={`font-medium ${fitStyle[d.fit]}`}>{d.fit}</span>. Pattern this profile was written to show: {d.expected.text}</p>}
       </div>
     </section>
 
