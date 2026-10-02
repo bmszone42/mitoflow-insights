@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { FileUp, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
+import { demoPatients, formatRangeText, outsideText, patientMetrics, referenceFor, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { addUserPatient, csvTemplate, parseCsv, removeUserPatient, toAppUnit, useUserPatients, type UserEntry } from "@/lib/mito/userPatients";
 
 type Row = { key: PatientMetricKey; raw: string; unit: string; printedRange?: string | null; sourceText?: string };
@@ -73,6 +73,8 @@ export function UserLabsPanel({ onAdded }: { onAdded?: (id: string) => void }) {
   });
   const usable = converted.filter((c) => c.ok);
   const ageNum = Number(age);
+  const draft = { ...demoPatients[0], age: Number.isFinite(ageNum) ? ageNum : 40, sex, fasting };
+  const rangeFor = (k: PatientMetricKey) => referenceFor(draft, patientMetrics.find((m) => m.key === k)!);
 
   function add() {
     if (!usable.length || !Number.isFinite(ageNum) || ageNum < 0 || ageNum > 120) return;
@@ -107,12 +109,13 @@ export function UserLabsPanel({ onAdded }: { onAdded?: (id: string) => void }) {
         <label className="flex items-end gap-2 text-xs"><input type="checkbox" checked={fasting} onChange={(e) => setFasting(e.target.checked)} />Fasting sample</label>
       </div>
       {rows.length > 0 && <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-left text-xs" data-testid="user-labs-review">
-        <thead className="text-[10px] uppercase text-muted-foreground"><tr><th className="py-1">Test</th><th>Value</th><th>Unit</th><th>Used as</th><th>From report</th><th /></tr></thead>
+        <thead className="text-[10px] uppercase text-muted-foreground"><tr><th className="py-1">Test</th><th>Value</th><th>Unit</th><th>Used as</th><th>Healthy range</th><th>From report</th><th /></tr></thead>
         <tbody>{converted.map((c, i) => <tr key={i} className="border-t border-border/60">
           <td className="py-1 pr-2"><select value={c.r.key} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, key: e.target.value as PatientMetricKey } : r))} className="h-7 border border-input bg-background px-1">{patientMetrics.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}</select></td>
           <td className="pr-2"><Input value={c.r.raw} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, raw: e.target.value } : r))} className="h-7 w-24" /></td>
           <td className="pr-2"><Input value={c.r.unit} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, unit: e.target.value } : r))} className="h-7 w-28" /></td>
           <td className={`pr-2 font-mono ${c.ok ? "" : "text-destructive"}`}>{c.ok ? `${c.value} ${metricUnit(c.r.key)}${c.note ? ` (${c.note})` : ""}` : c.why}</td>
+          <td className="max-w-[200px] pr-2">{(() => { if (!c.ok) return <span className="text-muted-foreground">-</span>; const rr = rangeFor(c.r.key); if (!rr.range) return <span className="text-muted-foreground">{rr.reason}</span>; const out = outsideText(c.value, rr.range); return <span>{formatRangeText(rr.range)} {rr.range.unit}{rr.range.kind === "Research" ? " (research band, not a lab range)" : ""}{out ? <span className="block text-destructive">{out}</span> : <span className="block text-muted-foreground">Within range</span>}</span>; })()}</td>
           <td className="max-w-[220px] pr-2 text-muted-foreground">{c.r.sourceText ?? ""}{c.r.printedRange ? ` · range ${c.r.printedRange}` : ""}</td>
           <td><button aria-label="Remove row" onClick={() => setRows(rows.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-3.5" /></button></td>
         </tr>)}</tbody>
