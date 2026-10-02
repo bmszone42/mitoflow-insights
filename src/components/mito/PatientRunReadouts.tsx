@@ -63,7 +63,19 @@ export function PatientRunReadouts({ patient, inputs, geo, therapy }: { patient:
             {e.deltas.map((d, i) => <td key={i} className="tabular-nums">{pct(d)}</td>)}
           </tr>))}</tbody>
       </table>
-      <p className="text-[10px] text-muted-foreground md:col-span-2">Model values are simulated output divided by output at default settings; measured values are divided by the healthy demo profile (probe signals are already fold control). Gaps over 25% are highlighted. Slider effects reset one slider to default at a time and do not add. MitoSOX also sets antioxidant capacity, so the superoxide row is partly circular. Model comparison only, not a clinical finding.</p>
+      {data.therapyRows && therapy && (
+        <table className="w-full text-[11px] md:col-span-2" data-testid="therapy-before-after">
+          <thead><tr className="text-left text-muted-foreground"><th className="py-1">Therapy effect: {therapy.name}</th><th>Before</th><th>After</th><th>Change</th></tr></thead>
+          <tbody>{data.therapyRows.map((r) => (
+            <tr key={r.key} className="border-t border-border" data-testid="therapy-row">
+              <td className="py-1">{r.label}</td>
+              <td className="tabular-nums">{fmt(r.before)}</td>
+              <td className="tabular-nums">{fmt(r.after)}</td>
+              <td className={`tabular-nums ${Math.abs(r.change) > 0.05 ? "text-primary" : "text-muted-foreground"}`}>{pct(r.change)}</td>
+            </tr>))}</tbody>
+        </table>
+      )}
+      <p className="text-[10px] text-muted-foreground md:col-span-2">Model values are simulated output divided by output at default settings; measured values are divided by the healthy demo profile (probe signals are already fold control). Gaps over 25% are highlighted. Slider effects reset one slider to default at a time and do not add. Therapy before/after compares the patient's baseline sliders with the therapy applied on top. MitoSOX also sets antioxidant capacity, so the superoxide row is partly circular. Model comparison only, not a clinical finding.</p>
     </div>
   );
 }
