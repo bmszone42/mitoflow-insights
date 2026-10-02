@@ -152,8 +152,8 @@ function Index() {
             <TabsTrigger value="library">Reference</TabsTrigger>
           </TabsList>
           <TabsContent value="sim" className="mt-4">
-            {patientRun && <p className="mb-3 border-l-2 border-primary pl-3 text-xs" data-testid="patient-run-banner">Sliders set from {patientRun}: membrane potential, labile iron and antioxidant capacity (inverse MitoSOX proxy). {runPatient ? <span data-testid="patient-run-lp">{lpMapping(runPatient).note}. </span> : null}A therapy, if named, is applied on top of that baseline. All other settings are simulated defaults; ATP-linked respiration, P/O and peroxide have no slider. <button type="button" className="text-primary underline underline-offset-2" onClick={() => { setInputs(defaultInputs); setPatientRun(null); setRunPatient(null); }}>Reset to defaults</button></p>}
-            {patientRun && runPatient && <PatientRunReadouts patient={runPatient} inputs={inputs} geo={geo} />}
+            {patientRun && <p className="mb-3 border-l-2 border-primary pl-3 text-xs" data-testid="patient-run-banner">Sliders set from {patientRun}: membrane potential, labile iron and antioxidant capacity (inverse MitoSOX proxy). {runPatient ? <span data-testid="patient-run-lp">{lpMapping(runPatient).note}. </span> : null}A therapy, if named, is applied on top of that baseline. All other settings are simulated defaults; ATP-linked respiration, P/O and peroxide have no slider. <button type="button" className="text-primary underline underline-offset-2" onClick={() => { setInputs(defaultInputs); setPatientRun(null); setRunPatient(null); setRunTherapy(null); }}>Reset to defaults</button></p>}
+            {patientRun && runPatient && <PatientRunReadouts patient={runPatient} inputs={inputs} geo={geo} therapy={runTherapy} />}
             <Simulator inputs={inputs} setInputs={setInputs} geo={geo} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <PathwayMap out={out} inputs={inputs} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
@@ -245,7 +245,7 @@ function Index() {
               <TabsContent value="overview" className="mt-4"><PhysiologyOverview inputs={inputs} geo={geo} out={out} refreshKey={refreshKey} /></TabsContent>
               <TabsContent value="patient-comparison" className="mt-4"><PatientComparison /></TabsContent>
               <TabsContent value="ros-atp" className="mt-4"><RosAtpFlagDashboard inputs={inputs} geo={geo} out={out} /></TabsContent>
-              <TabsContent value="interpretation" className="mt-4"><ClinicalInterpretation inputs={inputs} geo={geo} /></TabsContent>
+              <TabsContent value="interpretation" className="mt-4"><ClinicalInterpretation inputs={inputs} geo={geo} therapy={runTherapy} /></TabsContent>
               <TabsContent value="ros" className="mt-4"><RosPhysiology inputs={inputs} geo={geo} out={out} /></TabsContent>
               <TabsContent value="ros-references" className="mt-4"><RosReferences /></TabsContent>
               <TabsContent value="references" className="mt-4"><PhysiologyReferences /></TabsContent>
