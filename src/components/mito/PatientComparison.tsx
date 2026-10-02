@@ -16,13 +16,14 @@ function ProfileValue({ patient, metric }: { patient: DemoPatient; metric: Patie
   return (
     <div className={`min-w-0 border-l-2 pl-3 ${result === "Outside band" ? "border-destructive text-destructive" : result === "Within band" ? "border-primary" : "border-border"}`} data-testid="patient-comparison-value" data-status={result}>
       <div className="font-mono text-sm font-semibold">{patient.values[metric.key].toFixed(metric.decimals)} <span className="text-[11px] font-normal">{metric.unit}</span></div>
+      {(() => { const o = originOf(patient, metric.key); return <div className="text-[10px] text-muted-foreground" data-testid="comparison-origin" data-origin={o.origin}>{o.origin === "published" ? `Published: ${o.citation}` : o.origin === "user" ? "Your value" : "Synthetic"}</div>; })()}
       <div className={`mt-1 flex items-center gap-1 text-[11px] ${result === "Outside band" ? "text-destructive" : "text-muted-foreground"}`}><Icon className="size-3 shrink-0" aria-hidden />{result}</div>
       {(() => { const ref = referenceFor(patient, metric); const t = ref.range ? outsideText(patient.values[metric.key], ref.range) : ref.reason; return t ? <div className="mt-1 text-[10px]">{t}{ref.range ? ` (${ref.range.label})` : ""}</div> : null; })()}
     </div>
   );
 }
 
-function ProfilePicker({ label, patient, onChange }: { label: string; patient: DemoPatient; onChange: (id: string) => void }) {
+function ProfilePicker({ label, patient, options, onChange }: { label: string; patient: DemoPatient; options: DemoPatient[]; onChange: (id: string) => void }) {
   return <div className="min-w-0">
     <label className="mb-1.5 block text-xs font-medium">{label}</label>
     <Select value={patient.id} onValueChange={onChange}>
@@ -52,8 +53,8 @@ export function PatientComparison() {
     </div>
 
     <div className="grid gap-4 sm:grid-cols-2">
-      <ProfilePicker label="Profile A" patient={left} onChange={setLeftId} />
-      <ProfilePicker label="Profile B" patient={right} onChange={setRightId} />
+      <ProfilePicker options={all} label="Profile A" patient={left} onChange={setLeftId} />
+      <ProfilePicker options={all} label="Profile B" patient={right} onChange={setRightId} />
     </div>
 
     <div className="grid gap-3 border-y border-border py-4 sm:grid-cols-2" data-testid="patient-comparison-summary">
