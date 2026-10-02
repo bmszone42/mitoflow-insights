@@ -65,6 +65,7 @@ function Index() {
   const userPatients = useUserPatients();
   const [patientRun, setPatientRun] = useState<string | null>(null);
   const [runPatient, setRunPatient] = useState<DemoPatient | null>(null);
+  const [runTherapy, setRunTherapy] = useState<Therapy | null>(null);
   useEffect(() => {
     const t = therapies.find((x) => x.id === search.apply);
     const p = search.patient ? [...userPatients, ...demoPatients].find((x) => x.id === search.patient) : undefined;
@@ -75,6 +76,7 @@ function Index() {
       : { ...defaultInputs, deltaPsi: search.psi ?? defaultInputs.deltaPsi };
     setInputs(t ? applyTherapy(base, t) : base);
     setRunPatient(p ?? null);
+    setRunTherapy(t ?? null);
     setPatientRun(p ? `${p.label} (${p.phenotype})${t ? ` + ${t.name}` : ""}` : null);
     setTab("sim");
   }, [search.apply, search.psi, search.patient, userPatients]);

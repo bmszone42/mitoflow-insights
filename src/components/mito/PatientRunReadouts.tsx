@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 import { demoPatients, inputsFromPatient, type DemoPatient } from "@/lib/mito/patientReference";
+import type { Therapy } from "@/lib/mito/treatment";
 
 // Model vs measured, both as fold of a healthy reference: model output / default-input output,
 // measured value / healthy demo-01 (MitoSOX and H2O2 are already fold-control signals).
