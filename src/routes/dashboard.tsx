@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
-import { demoPatients, lpMapping } from "@/lib/mito/patientReference";
+import { demoPatients, lpMapping, patientSex } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { profileInputs } from "@/lib/mito/treatment";
