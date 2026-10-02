@@ -6,10 +6,13 @@ import type { Therapy } from "@/lib/mito/treatment";
 // Model vs measured, both as fold of a healthy reference: model output / default-input output,
 // measured value / healthy demo-01 (MitoSOX and H2O2 are already fold-control signals).
 const readouts = [
-  { key: "atp", label: "ATP", model: (o: ReturnType<typeof simulate>) => o.atpFlux, measured: (p: DemoPatient, h: DemoPatient) => p.values.atpLinkedOcr / h.values.atpLinkedOcr, measuredLabel: "ATP-linked OCR" },
-  { key: "sox", label: "Superoxide", model: (o: ReturnType<typeof simulate>) => o.superoxide, measured: (p: DemoPatient) => p.values.mitosox, measuredLabel: "MitoSOX" },
-  { key: "h2o2", label: "H₂O₂", model: (o: ReturnType<typeof simulate>) => o.hydrogenPeroxide, measured: (p: DemoPatient) => p.values.h2o2, measuredLabel: "H₂O₂ probe" },
+  { key: "atp", label: "ATP", unit: "µM/s", model: (o: ReturnType<typeof simulate>) => o.atpFlux, measured: (p: DemoPatient, h: DemoPatient) => p.values.atpLinkedOcr / h.values.atpLinkedOcr, measuredLabel: "ATP-linked OCR" },
+  { key: "sox", label: "Superoxide", unit: "nM", model: (o: ReturnType<typeof simulate>) => o.superoxide, measured: (p: DemoPatient) => p.values.mitosox, measuredLabel: "MitoSOX" },
+  { key: "h2o2", label: "H₂O₂", unit: "nM", model: (o: ReturnType<typeof simulate>) => o.hydrogenPeroxide, measured: (p: DemoPatient) => p.values.h2o2, measuredLabel: "H₂O₂ probe" },
 ] as const;
+
+// Three significant digits so small superoxide values don't collapse to 0.00.
+const fmt = (v: number) => (v === 0 ? "0" : Math.abs(v) >= 100 ? v.toFixed(0) : v.toPrecision(3));
 
 const sliderNames: Record<string, string> = { deltaPsi: "Membrane potential", labileIron: "Labile iron", antioxidantCapacity: "Antioxidant capacity" };
 
