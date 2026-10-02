@@ -29,6 +29,10 @@ import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 
 export const Route = createFileRoute("/")({
+  validateSearch: (s: Record<string, unknown>): { apply?: string; psi?: number } => ({
+    apply: typeof s.apply === "string" ? s.apply : undefined,
+    psi: typeof s.psi === "number" ? s.psi : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Cristae Lab | Mitochondrial ROS, Fe-S and photon modeling" },
@@ -51,7 +55,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const search = Route.useSearch();
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
+  useEffect(() => {
+    const t = therapies.find((x) => x.id === search.apply);
+    if (t) { setInputs(applyTherapy({ ...defaultInputs, deltaPsi: search.psi ?? defaultInputs.deltaPsi }, t)); setTab("sim"); }
+  }, [search.apply, search.psi]);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
   const [tab, setTab] = useState("sim");
   const [stepFocus, setStepFocus] = useState<number | null>(null);
