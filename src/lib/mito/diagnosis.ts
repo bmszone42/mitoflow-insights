@@ -1,5 +1,5 @@
 import { defaultGeometry, defaultInputs, simulate } from "./model";
-import { demoPatients, outsideText, percentOutside, referenceFor, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
+import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOutside, referenceFor, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosAssayFlag, rosSourceRows } from "./rosPhysiology";
 import { atpAssayFlag } from "./atpComparison";
@@ -18,11 +18,10 @@ const order: Mechanism[] = ["respiratory", "pyruvate", "coupling", "iron", "oxid
 
 export type EvidenceType = "Measured assay" | "Derived ratio" | "Model simulation";
 const weight: Record<EvidenceType, number> = { "Measured assay": 1, "Derived ratio": 0.75, "Model simulation": 0.5 };
-export type Evidence = { label: string; type: EvidenceType; source: "Patient Data" | "ROS assay" | "ATP assay" | "Model"; detail: string };
+export type Evidence = { label: string; type: EvidenceType; source: "Patient Data" | "ROS assay" | "ATP assay" | "Model"; detail: string; origin?: "published" | "user" | "synthetic" };
 
 const adultControl = demoPatients.find((p) => p.id === "demo-01")!;
 const childControl = demoPatients.find((p) => p.id === "demo-02")!;
-const NONFASTING = ["demo-13", "demo-14", "demo-15"];
 const CONTROL_PERCENT = 25;
 
 type Direction = "high" | "low" | "normal";
@@ -76,7 +75,7 @@ export const expectedPattern: Record<string, { mechanisms: Mechanism[]; text: st
 
 export function diagnoseProfile(p: DemoPatient) {
   const dirs = Object.fromEntries(patientMetrics.map((m) => [m.key, metricDirection(p, m.key)])) as Record<PatientMetricKey, { dir: Direction; basis: string }>;
-  const patientFlags: Evidence[] = patientMetrics.filter((m) => dirs[m.key].dir !== "normal").map((m) => ({ label: `${m.label} ${dirs[m.key].dir}`, type: m.key === "lactatePyruvate" ? "Derived ratio" : "Measured assay", source: "Patient Data", detail: `${p.values[m.key]} ${m.unit} (${dirs[m.key].basis})` }));
+  const patientFlags: Evidence[] = patientMetrics.filter((m) => dirs[m.key].dir !== "normal").map((m) => ({ label: `${m.label} ${dirs[m.key].dir}`, type: m.key === "lactatePyruvate" ? "Derived ratio" : "Measured assay", source: "Patient Data", detail: `${p.values[m.key]} ${m.unit} (${dirs[m.key].basis})`, origin: originOf(p, m.key).origin }));
 
   // ROS and ATP profile assay flags (same logic as the tabs).
   const rosAssays = (["O2•-", "H2O2", "•OH"] as const).map((s) => rosAssayFlag(s, p.values, adultControl.values)).filter((a): a is NonNullable<typeof a> => !!a);
@@ -100,18 +99,18 @@ export function diagnoseProfile(p: DemoPatient) {
     for (const r of support[mech]) {
       const d = dirs[r.key];
       const m = patientMetrics.find((x) => x.key === r.key)!;
-      const ev: Evidence = { label: `${m.label} ${d.dir}`, type: r.type, source: "Patient Data", detail: `${p.values[r.key]} ${m.unit} (${d.basis})` };
+      const ev: Evidence = { label: `${m.label} ${d.dir}`, type: r.type, source: "Patient Data", detail: `${p.values[r.key]} ${m.unit} (${d.basis})`, origin: originOf(p, r.key).origin };
       if (d.dir === r.dir) supporting.push(ev);
     }
     // Ferritin is an acute-phase reactant: in acute illness (TBI, stroke,
     // sepsis) a raised ferritin often reflects inflammation, not iron stress,
     // so it counts at quarter weight for those profiles.
-    const acute = NONFASTING.includes(p.id);
+    const acute = isNonfasting(p);
     const evWeight = (e: Evidence) =>
       acute && mech === "iron" && e.label.startsWith("Ferritin") ? weight[e.type] * 0.25 : weight[e.type];
     // Discriminating conflicts between respiratory and pyruvate-entry patterns.
     const lp = dirs.lactatePyruvate;
-    const lpEv: Evidence = { label: `Lactate:pyruvate ratio ${lp.dir}`, type: "Derived ratio", source: "Patient Data", detail: `${p.values.lactatePyruvate} (${lp.basis})` };
+    const lpEv: Evidence = { label: `Lactate:pyruvate ratio ${lp.dir}`, type: "Derived ratio", source: "Patient Data", detail: `${p.values.lactatePyruvate} (${lp.basis})`, origin: originOf(p, "lactatePyruvate").origin };
     if (mech === "pyruvate" && supporting.length) { if (lp.dir === "high") conflicting.push(lpEv); else supporting.push({ ...lpEv, label: "Lactate:pyruvate ratio normal" }); }
     if (mech === "respiratory" && dirs.lactate.dir === "high" && lp.dir !== "high") conflicting.push({ ...lpEv, label: "Lactate:pyruvate ratio normal" });
     if (mech === "coupling" && atpModel) supporting.push(modelFlags[0]!);
@@ -120,7 +119,9 @@ export function diagnoseProfile(p: DemoPatient) {
     // ROS probe signals are nonspecific: any primary defect can raise them, so
     // oxidant load counts at half weight as a downstream signal.
     const scaled = mech === "oxidant" ? score * 0.5 : score;
-    return { mechanism: mech, name: mechanismNames[mech], score: Math.max(0, scaled), supporting, conflicting };
+    const measured = supporting.filter((e) => e.origin);
+    const real = measured.filter((e) => e.origin !== "synthetic").length;
+    return { mechanism: mech, name: mechanismNames[mech], score: Math.max(0, scaled), supporting, conflicting, realEvidence: real, measuredEvidence: measured.length };
   }).sort((a, b) => b.score - a.score || order.indexOf(a.mechanism) - order.indexOf(b.mechanism));
 
   const strong = causes.filter((c) => c.score >= 1.5);
@@ -130,7 +131,7 @@ export function diagnoseProfile(p: DemoPatient) {
     : expected.mechanisms.includes(causes[0]!.mechanism) && causes[0]!.score >= 1.5 ? "matches"
     : expected.mechanisms.some((m) => (causes.find((c) => c.mechanism === m)?.score ?? 0) > 0) ? "partly matches" : "does not match";
 
-  return { patient: p, causes, top: strong[0] ?? null, patientFlags, rosAssayFlags, atpAssayFlags, modelFlags, expected, fit };
+  return { patient: p, causes, top: strong[0] ?? null, patientFlags, rosAssayFlags, atpAssayFlags, modelFlags, expected, fit, realShare: realShare(p) };
 }
 
-export const diagnoseAll = () => demoPatients.map(diagnoseProfile);
+export const diagnoseAll = (extra: DemoPatient[] = []) => [...extra, ...demoPatients].map(diagnoseProfile);
