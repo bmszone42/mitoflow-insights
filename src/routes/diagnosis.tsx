@@ -37,7 +37,7 @@ function DiagnosisPage() {
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
 
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
-    <div className="flex gap-2"><Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 size-4" aria-hidden />Back to lab</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment" search={{ profile: id }} data-testid="dx-treatment">See therapy targets</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment-plan" search={{ profile: id }} data-testid="dx-plan">Treatment plan</Link></Button></div>
+    <div className="flex flex-wrap gap-2"><Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 size-4" aria-hidden />Back to lab</Link></Button><Button variant="outline" size="sm" asChild><Link to="/" search={{ patient: id }} data-testid="dx-run-sim">Run in Simulator</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment" search={{ profile: id }} data-testid="dx-treatment">See therapy targets</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment-plan" search={{ profile: id }} data-testid="dx-plan">Treatment plan</Link></Button></div>
     <header className="border-b border-border pb-4">
       <div className="mono-label">Mechanism pattern review</div>
       <h1 className="mt-1 text-2xl font-semibold">Diagnosis</h1>
