@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { AlertTriangle, ArrowLeft, CheckCircle2, CircleHelp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { diagnoseAll, type Evidence } from "@/lib/mito/diagnosis";
+import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
 
