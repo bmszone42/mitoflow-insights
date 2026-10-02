@@ -892,3 +892,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - PatientData.tsx: Run in Simulator button (patient-run-sim) under the record selector links to /?patient=<selected id>; note explains the three mapped sliders and that unmapped measurements stay at defaults.
 - Verified: selecting Demo 04 (Leigh) and clicking loads /?patient=demo-04 with the patient-run banner; no page errors; typecheck clean.
 - ✅ Therapy calculator page (/therapy-calculator): ATP/ROS readouts per model dose 0-2x on patient baseline
+- ✅ Patient dashboard (/dashboard): all profiles with model ATP/ROS, flag counts, top mechanism, disorder overlap, links to Diagnosis and Simulator
