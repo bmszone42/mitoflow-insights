@@ -846,3 +846,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Simulator "Therapy levers" row: each Treatment therapy applies its slider moves to current settings on click
 - ✅ Patient Data "How flags move with published patient values": published tests flagged vs invented value and vs healthy adult (2026-10-02)
 - ✅ Treatment: 10 more therapies (3 chelators, 4 antioxidant classes, CoQ/idebenone, SS-31, methylene blue); all model proxies, no checked papers yet
+- ✅ L:P cut point 25 now cited to Debray et al. Clin Chem 2007 (PMID 17384007), labeled a published decision cut point, not a lab reference interval
