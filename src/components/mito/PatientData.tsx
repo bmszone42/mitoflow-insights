@@ -12,7 +12,7 @@ import { PublishedFlagShift } from "@/components/mito/PublishedFlagShift";
 import { MembranePotentialEntry } from "@/components/mito/MembranePotentialEntry";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
-import { cohortStats, demoPatients, lpMapping, originOf, formatRangeText, isCohortOutlier, outsideText, patientGroups, patientMetrics, patientSex, percentOutside, referenceFor, type RangeResult } from "@/lib/mito/patientReference";
+import { cohortStats, demoPatients, h2o2NmBand, lpMapping, originOf, formatRangeText, isCohortOutlier, outsideText, patientGroups, patientMetrics, patientSex, percentOutside, referenceFor, type RangeResult } from "@/lib/mito/patientReference";
 
 type Status = "Within range" | "Lab outlier" | "Literature outlier" | "Cohort outlier" | "Both outliers" | "Cohort only";
 
@@ -120,6 +120,13 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
           </section>
         );
       })}
+
+      <section aria-label="Measured peroxide concentration" className="border border-border p-4 text-xs" data-testid="patient-h2o2-nm">
+        <h3 className="text-sm font-semibold">Measured hydrogen peroxide (nM)</h3>
+        {patient.h2o2Nm === undefined
+          ? <p className="mt-1 text-muted-foreground" data-testid="patient-h2o2-nm-status">Not measured. Add a peroxide concentration in nM under Your lab results below to compare it with the 1-100 nM band. The fold-control probe signal above cannot be placed on this scale.</p>
+          : <p className="mt-1" data-testid="patient-h2o2-nm-status"><span className={`font-mono font-medium ${patient.h2o2Nm > h2o2NmBand.hi ? "text-destructive" : "text-primary"}`}>{patient.h2o2Nm} nM</span> · {outsideText(patient.h2o2Nm, { hi: h2o2NmBand.hi }) ?? "Within research band (at or below 100 nM)"}<span className="mt-0.5 block text-[10px] text-muted-foreground">Research band, not a lab range: {h2o2NmBand.label}. <a href={h2o2NmBand.url} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">{h2o2NmBand.source}</a>. Used in the Patient Comparison drift check in place of the model value. P/O is a separate measurement and is not affected.</span></p>}
+      </section>
 
       <PublishedFlagShift selectedId={patientId} />
       <MembranePotentialEntry patient={patient} onAdded={setPatientId} />
