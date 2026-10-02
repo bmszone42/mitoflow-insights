@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AlertTriangle, CheckCircle2, CircleHelp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUserPatients } from "@/lib/mito/userPatients";
-import { demoPatients, originOf, formatRangeText, labMetricKeys, outsideText, patientGroups, patientMetrics, referenceFor, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
+import { demoPatients, originOf, formatRangeText, labMetricKeys, outsideText, patientGroups, patientMetrics, referenceFor, readoutChecks, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
 
 function status(patient: DemoPatient, metric: PatientMetric) {
   const ref = referenceFor(patient, metric);
@@ -66,7 +66,8 @@ export function PatientComparison() {
 
     <div className={`border-l-2 px-3 py-2 text-xs ${flagged.length ? "border-destructive bg-destructive/5" : "border-primary bg-primary/5"}`} data-testid="patient-comparison-drift">
       <p className="font-semibold">Comparable model sliders outside published bands: {sliderFlags.length ? sliderFlags.map((metric) => `${metric.label} (${status(left, metric) === "Outside band" ? "A" : ""}${status(left, metric) === "Outside band" && status(right, metric) === "Outside band" ? " & " : ""}${status(right, metric) === "Outside band" ? "B" : ""})`).join("; ") : "None"}.</p>
-      <p className="mt-1 text-muted-foreground">Only membrane potential has a transferable band among the matched sliders. Labile iron is assay-specific. P/O is a derived efficiency, not a slider; all other profile measurements are not direct slider settings.</p>
+      <ul className="mt-1 space-y-0.5" data-testid="readout-drift">{readoutChecks(left).map((a, i) => { const b = readoutChecks(right)[i]!; return <li key={a.key} data-testid="readout-drift-row" data-flagged={a.outside || b.outside}><span className="font-medium">{a.label}</span> ({a.lo}-{a.hi} {a.unit}, {a.source}): A {a.value.toFixed(2)} {a.outside ? `outside, ${a.text}` : "within"}; B {b.value.toFixed(2)} {b.outside ? `outside, ${b.text}` : "within"}</li>; })}</ul>
+      <p className="mt-1 text-muted-foreground">Membrane potential is the only slider with a direct band. P/O and H₂O₂ are model readouts from each profile's slider run; ATP-linked respiration is the measured value, since model ATP flux cannot be converted to OCR. Labile iron is assay-specific. P/O is a derived efficiency, not a slider; all other profile measurements are not direct slider settings.</p>
       {flagged.length > 0 && <p className="mt-1">Other measurements outside applicable bands: {flagged.filter((metric) => !sliderMetrics.includes(metric)).map((metric) => metric.label).join(", ") || "None"}.</p>}
     </div>
 
