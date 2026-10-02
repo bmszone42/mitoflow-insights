@@ -106,5 +106,6 @@
 - [x] Diagnosis page: disorder overlap per flagged lab value
 - [x] Membrane potential reading entry on Patient Data feeding the comparison drift check
 - [x] Run patient in Simulator: Diagnosis button maps membrane potential, labile iron and MitoSOX onto sliders
+- [x] Same Run in Simulator button on the Patient Data tab (patient-run-sim)
 - [x] Upload review table shows the healthy range per value, with inline out-of-band flags (membrane potential uses the 150-180 mV research band)
 - [x] Treatment therapies expand to list the disorder profiles they target, deep-linking into Diagnosis (new profile search param)
