@@ -89,7 +89,7 @@ function Dashboard() {
           <th className="px-3 py-2">Flags: lab / assay / model</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Open</th>
         </tr></thead>
         <tbody>{rows.map((r) => <tr key={r.p.id} data-testid="dash-row" className="border-t border-border/60 align-top">
-          <th scope="row" className="px-3 py-2 font-medium">{r.p.label}<div className="font-normal text-muted-foreground">{r.p.phenotype} · {r.p.age}y {r.p.sex}</div></th>
+          <th scope="row" className="px-3 py-2 font-medium">{r.p.label}<div className="font-normal text-muted-foreground">{r.p.phenotype} · {r.p.age}y {patientSex(r.p)}</div></th>
           <td className="px-3 py-2 font-mono" data-testid="dash-lp"><span className={r.p.values.lactatePyruvate > 25 ? "text-destructive" : ""}>{r.p.values.lactatePyruvate.toFixed(1)}</span><div className="font-sans text-[10px] text-muted-foreground" title={r.lp.note}>{r.lp.nadhRatio !== undefined ? `Mapped: NADH ${r.lp.nadhRatio.toFixed(2)}` : "Not mapped"}</div></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.atpFlux)} <span className="text-muted-foreground">{pct(r.out.atpFlux, r.healthy.atpFlux)}</span></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.superoxide)} <span className="text-muted-foreground">{pct(r.out.superoxide, r.healthy.superoxide)}</span></td>
