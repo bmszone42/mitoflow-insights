@@ -13,7 +13,7 @@ const readouts = [
 
 const sliderNames: Record<string, string> = { deltaPsi: "Membrane potential", labileIron: "Labile iron", antioxidantCapacity: "Antioxidant capacity" };
 
-export function PatientRunReadouts({ patient, inputs, geo }: { patient: DemoPatient; inputs: Inputs; geo: Geometry }) {
+export function PatientRunReadouts({ patient, inputs, geo, therapy }: { patient: DemoPatient; inputs: Inputs; geo: Geometry; therapy?: Therapy | null }) {
   const data = useMemo(() => {
     const healthy = demoPatients.find((p) => p.id === "demo-01")!;
     const base = simulate(defaultInputs, geo);
@@ -29,8 +29,19 @@ export function PatientRunReadouts({ patient, inputs, geo }: { patient: DemoPati
       const out = simulate({ ...inputs, [k]: defaultInputs[k] }, geo);
       return { key: k, value: inputs[k], deltas: readouts.map((r) => (r.model(cur) - r.model(out)) / r.model(base)) };
     });
-    return { rows, effects };
-  }, [patient, inputs, geo]);
+    // Therapy before/after: patient baseline without the therapy vs current sliders.
+    const therapyRows = therapy
+      ? (() => {
+          const before = simulate({ ...defaultInputs, ...inputsFromPatient(patient).patch }, geo);
+          return readouts.map((r) => {
+            const b = r.model(before);
+            const a = r.model(cur);
+            return { ...r, before: b, after: a, change: b === 0 ? 0 : (a - b) / b };
+          });
+        })()
+      : null;
+    return { rows, effects, therapyRows };
+  }, [patient, inputs, geo, therapy]);
   const pct = (x: number) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(0)}%`;
   return (
     <div className="mt-2 grid gap-3 md:grid-cols-2" data-testid="patient-run-readouts">
