@@ -5,7 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PatientRosAssays } from "@/components/mito/PatientRosAssays";
 import type { Inputs, Outputs } from "@/lib/mito/model";
-import { cohortStats, demoPatients, formatRangeText, isCohortOutlier, outsideText, patientGroups, patientMetrics, patientSex, percentOutside, referenceFor, type RangeResult } from "@/lib/mito/patientReference";
+import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
+import { useUserPatients } from "@/lib/mito/userPatients";
+import { cohortStats, demoPatients, originOf, formatRangeText, isCohortOutlier, outsideText, patientGroups, patientMetrics, patientSex, percentOutside, referenceFor, type RangeResult } from "@/lib/mito/patientReference";
 
 type Status = "Within range" | "Lab outlier" | "Literature outlier" | "Cohort outlier" | "Both outliers" | "Cohort only";
 
@@ -23,7 +25,9 @@ const formatValue = (value: number, decimals: number) => value.toFixed(decimals)
 
 export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
   const [patientId, setPatientId] = useState("demo-01");
-  const patient = demoPatients.find((entry) => entry.id === patientId) ?? demoPatients[0];
+  const users = useUserPatients();
+  const all = [...users, ...demoPatients];
+  const patient = all.find((entry) => entry.id === patientId) ?? demoPatients[0];
   const rows = useMemo(() => patientMetrics.map((metric) => {
     const value = patient.values[metric.key];
     const ref = referenceFor(patient, metric);
@@ -37,7 +41,7 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
       <Alert className="border-warning/60 bg-warning/10">
         <FlaskConical className="size-4 text-warning" aria-hidden />
         <AlertTitle>Synthetic demo data</AlertTitle>
-         <AlertDescription>These {demoPatients.length} records are invented, not real patients or disease-specific measured distributions. The ROS measurements section below accepts separate assay results for local comparison. Synthetic flags are not diagnoses.</AlertDescription>
+         <AlertDescription>These {demoPatients.length} records are invented, not real patients, except values tagged Published (from cited case reports or cohort tables) or Yours (from results you add). Untagged values are synthetic fill. Invented values are or disease-specific measured distributions. The ROS measurements section below accepts separate assay results for local comparison. Synthetic flags are not diagnoses.</AlertDescription>
       </Alert>
 
       <div className="grid gap-4 border-b border-border pb-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
@@ -50,7 +54,7 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
           <label htmlFor="demo-patient" className="mb-1.5 block text-xs font-medium">Synthetic record</label>
           <Select value={patient.id} onValueChange={setPatientId}>
             <SelectTrigger id="demo-patient" data-testid="patient-selector" aria-label="Synthetic patient record"><SelectValue /></SelectTrigger>
-             <SelectContent className="max-h-[min(70vh,440px)]">{demoPatients.map((entry) => <SelectItem key={entry.id} value={entry.id}>{entry.label} · {entry.age}y · {entry.phenotype}</SelectItem>)}</SelectContent>
+             <SelectContent className="max-h-[min(70vh,440px)]">{all.map((entry) => <SelectItem key={entry.id} value={entry.id}>{entry.label} · {entry.age}y · {entry.phenotype}</SelectItem>)}</SelectContent>
           </Select>
         </div>
       </div>
@@ -90,7 +94,7 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
                   return (
                     <tr key={metric.key} data-testid="patient-measurement" data-status={status} className={`border-t border-border/60 ${isFlagged ? "bg-destructive/10" : ""}`}>
                       <th scope="row" className="px-3 py-3 font-medium">{metric.label}<span className="mt-0.5 block font-normal text-muted-foreground">{metric.specimen} · {metric.method}</span></th>
-                      <td className={`px-3 py-3 font-mono font-medium ${isFlagged ? "text-destructive" : "text-foreground"}`}>{formatValue(value, metric.decimals)} {metric.unit}</td>
+                      <td className={`px-3 py-3 font-mono font-medium ${isFlagged ? "text-destructive" : "text-foreground"}`}>{formatValue(value, metric.decimals)} {metric.unit}<OriginTag o={originOf(patient, metric.key)} /></td>
                       <td className="px-3 py-3 font-mono">{displayedModel === null ? <span className="inline-flex items-center gap-1 font-sans text-muted-foreground"><Minus className="size-3.5" aria-hidden />Not modeled</span> : <>{displayedModel}<span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{metric.modelLabel}</span></>}</td>
                        <td className="px-3 py-3 font-mono" data-testid="patient-range">{ref.range ? <>{formatRangeText(ref.range)} {metric.unit}<span className="mt-0.5 block font-sans text-[10px] text-muted-foreground">{ref.range.kind === "Lab" ? "Lab range" : "Research band, not a lab range"} · {ref.range.label}</span>{ref.range.kind === "Lab" && <a href={ref.range.url} target="_blank" rel="noreferrer" className="mt-0.5 block font-sans text-[10px] text-primary underline decoration-border underline-offset-2">{ref.range.source}{ref.range.verified ? "" : " (unverified)"}</a>}<span className={`mt-0.5 block font-sans text-[10px] ${outsideText(value, ref.range) ? "text-destructive" : "text-muted-foreground"}`} data-testid="patient-outside">{outsideText(value, ref.range) ?? (ref.range.kind === "Lab" ? "Within lab range" : "Within research band")}</span></> : <span className="font-sans text-muted-foreground">{ref.reason}</span>}</td>
                       <td className="px-3 py-3 font-mono">{formatValue(stats.median, metric.decimals)} median<span className="mt-0.5 block text-[10px] text-muted-foreground">{formatValue(stats.min, metric.decimals)}–{formatValue(stats.max, metric.decimals)} range</span></td>
@@ -105,6 +109,8 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
         );
       })}
 
+      <UserLabsPanel onAdded={setPatientId} />
+
       <PatientRosAssays />
 
        <p className="text-xs leading-relaxed text-muted-foreground">Synthetic cohort flags use a robust modified z-score greater than 3.5 across {demoPatients.length} deliberately mixed invented profiles, not a healthy reference population. Blood tests use Mayo Clinic Laboratories intervals (age and sex specific where published; profile sex is invented) and show the percent beyond the nearest limit; acute nonfasting cases use the random glucose interval. Research assays have no lab reference range, and their research bands are not applied to children. No model slider has a lab range: membrane potential, the only directly mapped slider, is a research measurement. The separate ROS assay flags use only entered measurements and matched local controls. P/O, mitochondrial voltage, synthetic ROS and Fe-S values are hypothetical, not validated disease-specific patient data. Clinical interpretation requires real, paired, assay-matched measurements.</p>
@@ -114,4 +120,9 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
 
 function Summary({ label, value, detail, alert = false, muted = false }: { label: string; value: string; detail: string; alert?: boolean; muted?: boolean }) {
   return <div className="min-h-28 bg-background p-4"><div className="mono-label">{label}</div><div className={`mt-2 text-lg font-semibold ${alert ? "text-destructive" : muted ? "text-muted-foreground" : "text-foreground"}`}>{value}</div><p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{detail}</p></div>;
+}
+function OriginTag({ o }: { o: ReturnType<typeof originOf> }) {
+  if (o.origin === "synthetic") return <span className="mt-0.5 block font-sans text-[10px] font-normal text-muted-foreground" data-testid="origin-tag" data-origin="synthetic">Synthetic{o.locator ? ` · ${o.locator}` : ""}</span>;
+  const label = o.origin === "published" ? "Published" : "Yours";
+  return <span className="mt-0.5 block font-sans text-[10px] font-normal text-primary" data-testid="origin-tag" data-origin={o.origin}>{o.url ? <a href={o.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">{label}: {o.citation}</a> : `${label}: ${o.citation ?? ""}`}{o.locator ? <span className="block text-muted-foreground">{o.locator}</span> : null}</span>;
 }

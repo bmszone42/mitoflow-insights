@@ -11,7 +11,12 @@ export type PatientMetric = {
   modelValue?: (inputs: Inputs, out: Outputs) => number; modelLabel?: string;
 };
 
-export type DemoPatient = { id: string; label: string; age: number; phenotype: string; description: string; context: string; values: Record<PatientMetricKey, number> };
+export type ValueOrigin = { origin: "published" | "user" | "synthetic"; citation?: string | undefined; url?: string | undefined; locator?: string | undefined };
+export type DemoPatient = {
+  id: string; label: string; age: number; phenotype: string; description: string; context: string; values: Record<PatientMetricKey, number>;
+  sex?: "F" | "M"; nonfasting?: boolean; source?: "synthetic" | "published-case" | "user";
+  origins?: Partial<Record<PatientMetricKey, ValueOrigin>>;
+};
 
 const defaultOut = simulate(defaultInputs);
 
@@ -61,6 +66,43 @@ export const demoPatients: [DemoPatient, ...DemoPatient[]] = [
   record("demo-18", 51, "Iron overload", "Elevated circulating iron indices with illustrative cellular oxidative stress; etiology unspecified.", "Stable outpatient; fasting venous sample and hypothetical PBMC measurements; tissue iron unmeasured.", { membranePotential: 154, poNadh: 2.32, atpLinkedOcr: 4.8, mitosox: 1.56, h2o2: 1.48, lipidPeroxidation: 151, aconitase: 69, labileIron: 4.5, ferritin: 510, transferrinSaturation: 66, lactate: 1.7, pyruvate: 87, glucose: 5.0 }),
 ];
 
+// Published values replace invented ones only where a checked paper reports
+// the same analyte and unit. Everything else stays synthetic fill.
+type Pub = { value: number; locator: string };
+const published: Record<string, { citation: string; url: string; values: Partial<Record<PatientMetricKey, Pub>> }> = {
+  "demo-01": { citation: "Lee et al., PLOS One (2026)", url: "https://doi.org/10.1371/journal.pone.0336939.t002", values: {
+    atpLinkedOcr: { value: 6.4, locator: "Table 2, healthy female median (cohort of 184 adults)" } } },
+  "demo-04": { citation: "Ching et al., Hong Kong Med J 19:357-61 (2013)", url: "https://doi.org/10.12809/hkmj133673", values: {
+    lactate: { value: 9.26, locator: "Abstract, peak of persistent hyperlactataemia 3.34-9.26 mmol/L (single infant case)" },
+    lactatePyruvate: { value: 35, locator: "Abstract, serum L:P up to 35; may not be the same sample as peak lactate" } } },
+  "demo-05": { citation: "Indian J Pediatr 88:88 (2021), PDHA1 case letter", url: "https://doi.org/10.1007/s12098-020-03394-w", values: {
+    lactate: { value: 9.9, locator: "Letter text, admission lactate (45-day-old infant)" },
+    pyruvate: { value: 1000, locator: "Letter text, pyruvate 1 mmol/L" },
+    lactatePyruvate: { value: 9.9, locator: "Letter text, L:P 9.9" } } },
+  "demo-18": { citation: "Sandnes et al., Genes 12:1162 (2021)", url: "https://doi.org/10.3390/genes12081162", values: {
+    ferritin: { value: 855, locator: "Table 4, C282Y/C282Y men median (n = 95)" },
+    transferrinSaturation: { value: 70, locator: "Table 4, C282Y/C282Y men median (n = 95)" } } },
+};
+for (const p of demoPatients) {
+  const pub = published[p.id];
+  if (!pub) continue;
+  p.origins = {};
+  for (const [k, v] of Object.entries(pub.values) as [PatientMetricKey, Pub][]) {
+    p.values[k] = v.value;
+    p.origins[k] = { origin: "published", citation: pub.citation, url: pub.url, locator: v.locator };
+  }
+  // Keep L:P consistent: back-calculate the missing partner as synthetic fill.
+  if (pub.values.lactatePyruvate && !pub.values.pyruvate) p.values.pyruvate = Math.round(p.values.lactate * 1000 / p.values.lactatePyruvate);
+  else if (!pub.values.lactatePyruvate) p.values.lactatePyruvate = Number((p.values.lactate * 1000 / p.values.pyruvate).toFixed(1));
+  p.source = "published-case";
+}
+
+export const originOf = (p: DemoPatient, k: PatientMetricKey): ValueOrigin => p.origins?.[k] ?? { origin: p.source === "user" ? "user" : "synthetic" };
+export const realShare = (p: DemoPatient) => {
+  const keys = Object.keys(p.values) as PatientMetricKey[];
+  return keys.filter((k) => originOf(p, k).origin !== "synthetic").length / keys.length;
+};
+
 export const patientGroups: PatientGroup[] = ["Bioenergetics", "ROS and redox", "Iron and Fe-S", "Clinical labs"];
 
 export function median(values: number[]) {
@@ -95,8 +137,9 @@ export function isReferenceOutlier(value: number, metric: PatientMetric) {
 // for the blood tests only. Research assays have no lab interval and are never given one.
 export type Sex = "F" | "M";
 const sexById: Record<string, Sex> = { "demo-01": "F", "demo-02": "M", "demo-03": "F", "demo-04": "M", "demo-05": "F", "demo-06": "M", "demo-07": "F", "demo-08": "F", "demo-09": "M", "demo-10": "F", "demo-11": "M", "demo-12": "M", "demo-13": "M", "demo-14": "F", "demo-15": "M", "demo-16": "M", "demo-17": "F", "demo-18": "M" };
-export const patientSex = (p: DemoPatient): Sex => sexById[p.id] ?? "F";
+export const patientSex = (p: DemoPatient): Sex => p.sex ?? sexById[p.id] ?? "F";
 export const NONFASTING_IDS = ["demo-13", "demo-14", "demo-15"];
+export const isNonfasting = (p: DemoPatient) => p.nonfasting ?? NONFASTING_IDS.includes(p.id);
 
 export type ResolvedRange = { lo?: number; hi?: number; label: string; kind: "Lab" | "Research"; source: string; url: string; verified: boolean };
 export type RangeResult = { range: ResolvedRange; reason?: undefined } | { range: null; reason: string };
@@ -120,7 +163,7 @@ function labRange(p: DemoPatient, key: PatientMetricKey): RangeResult {
     case "pyruvate": return { range: { lo: 80, hi: 160, label: "Whole blood, 0.08-0.16 mmol/L, no age strata published", ...PYR } };
     case "lactatePyruvate": return { range: { hi: 25, label: "Laboratory decision limit; source page could not be re-checked", kind: "Lab", source: "Alberta Precision Laboratories", url: "https://www.albertahealthservices.ca/webapps/labservices/indexAPL.asp?details=true&id=9335&tests=&zoneid=1", verified: false } };
     case "glucose":
-      if (NONFASTING_IDS.includes(p.id)) return { range: { lo: 3.9, hi: 7.8, label: "Random (nonfasting) interval", ...GLUR } };
+      if (isNonfasting(p)) return { range: { lo: 3.9, hi: 7.8, label: "Random (nonfasting) interval", ...GLUR } };
       return { range: { lo: 3.9, hi: 5.5, label: "Fasting, normal below 100 mg/dL", kind: "Lab", source: "ADA Standards of Care (2026)", url: "https://diabetesjournals.org/care/issue/49/Supplement_1", verified: true } };
     default: return { range: null, reason: "No lab reference range" };
   }

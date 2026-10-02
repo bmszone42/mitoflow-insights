@@ -4,6 +4,8 @@ import { AlertTriangle, ArrowLeft, CheckCircle2, CircleHelp } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { diagnoseAll, type Evidence } from "@/lib/mito/diagnosis";
+import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
+import { useUserPatients } from "@/lib/mito/userPatients";
 
 export const Route = createFileRoute("/diagnosis")({
   head: () => ({ meta: [
@@ -23,12 +25,13 @@ function EvidenceList({ title, items, empty }: { title: string; items: Evidence[
   return <div className="min-w-0 border-t border-border pt-3">
     <h4 className="text-xs font-semibold">{title} <span className="font-mono text-muted-foreground">{items.length}</span></h4>
     {items.length === 0 ? <p className="mt-1 text-[11px] text-muted-foreground">{empty}</p> :
-      <ul className="mt-1 space-y-1 text-[11px]">{items.map((e) => <li key={e.label + e.detail}><span className="font-medium">{e.label}</span> <span className="text-muted-foreground">· {e.detail} · {e.type}</span></li>)}</ul>}
+      <ul className="mt-1 space-y-1 text-[11px]">{items.map((e) => <li key={e.label + e.detail}><span className="font-medium">{e.label}</span> <span className="text-muted-foreground">· {e.detail} · {e.type}{e.origin ? ` · ${e.origin === "synthetic" ? "synthetic value" : e.origin === "published" ? "published value" : "your value"}` : ""}</span></li>)}</ul>}
   </div>;
 }
 
 function DiagnosisPage() {
-  const all = useMemo(() => diagnoseAll(), []);
+  const users = useUserPatients();
+  const all = useMemo(() => diagnoseAll(users), [users]);
   const [id, setId] = useState("demo-04");
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
 
@@ -37,7 +40,7 @@ function DiagnosisPage() {
     <header className="border-b border-border pb-4">
       <div className="mono-label">Mechanism pattern review</div>
       <h1 className="mt-1 text-2xl font-semibold">Diagnosis</h1>
-      <p className="mt-2 border-l-2 border-destructive pl-3 text-xs leading-relaxed" role="note" data-testid="dx-banner">Synthetic data. For research and teaching only, not a medical diagnosis. Causes are mitochondrial mechanisms ranked from model and assay flags; nothing here confirms a disease.</p>
+      <p className="mt-2 border-l-2 border-destructive pl-3 text-xs leading-relaxed" role="note" data-testid="dx-banner">Mostly synthetic data; values from published cases or your own results are labeled. For research and teaching only, not a medical diagnosis. Causes are mitochondrial mechanisms ranked from model and assay flags; nothing here confirms a disease.</p>
     </header>
 
     <section aria-label="All profiles" className="overflow-x-auto border-y border-border">
@@ -46,13 +49,15 @@ function DiagnosisPage() {
           <th className="px-3 py-2 font-medium">Profile</th><th className="px-3 py-2 font-medium">Patient Data</th><th className="px-3 py-2 font-medium">ROS assay</th><th className="px-3 py-2 font-medium">ATP assay</th><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Top cause</th><th className="px-3 py-2 font-medium">Label fit</th>
         </tr></thead>
         <tbody>{all.map((x) => <tr key={x.patient.id} data-testid="dx-row" onClick={() => setId(x.patient.id)} className={`cursor-pointer border-t border-border/60 hover:bg-muted/30 ${x.patient.id === id ? "bg-primary/10" : ""}`}>
-          <th scope="row" className="px-3 py-2 font-medium">{x.patient.phenotype}<span className="block text-[10px] font-normal text-muted-foreground">{x.patient.label} · {x.patient.age}y</span></th>
+          <th scope="row" className="px-3 py-2 font-medium">{x.patient.phenotype}<span className="block text-[10px] font-normal text-muted-foreground">{x.patient.label} · {x.patient.age}y · {Math.round(x.realShare * 100)}% real data</span></th>
           <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td>
           <td className="px-3 py-2" data-testid="dx-top">{x.top ? `${x.top.name} (${x.top.score.toFixed(2)})` : <span className="text-muted-foreground">No strong cause</span>}</td>
-          <td className={`px-3 py-2 ${fitStyle[x.fit]}`}>{x.fit}</td>
+          <td className={`px-3 py-2 ${x.patient.source === "user" ? "text-muted-foreground" : fitStyle[x.fit]}`}>{x.patient.source === "user" ? "no label to check" : x.fit}</td>
         </tr>)}</tbody>
       </table>
     </section>
+
+    <UserLabsPanel onAdded={setId} />
 
     <section aria-label="Selected profile" className="space-y-5">
       <div>
@@ -68,6 +73,7 @@ function DiagnosisPage() {
         <h2 className="text-sm font-semibold">Likely causes</h2>
         <ol className="mt-2 space-y-3">{d.causes.map((c, i) => <li key={c.mechanism} className="border-b border-border/60 pb-3 text-xs last:border-b-0" data-testid="dx-cause">
           <div className="flex flex-wrap items-center gap-2 font-medium">{c.score >= 1.5 ? <AlertTriangle className="size-3.5 text-destructive" aria-hidden /> : c.score > 0 ? <CircleHelp className="size-3.5 text-muted-foreground" aria-hidden /> : <CheckCircle2 className="size-3.5 text-primary" aria-hidden />}<span className="font-mono text-primary">{i + 1}.</span>{c.name}<span className="font-mono text-muted-foreground">score {c.score.toFixed(2)}</span></div>
+          <p className="pl-5 text-[11px] text-muted-foreground" data-testid="dx-real">{c.measuredEvidence ? `${c.realEvidence} of ${c.measuredEvidence} supporting measurements are real (published or yours)${c.realEvidence === 0 ? "; backed only by synthetic fill" : ""}` : "No supporting measurements"}</p>
           {c.supporting.length > 0 && <p className="mt-1 pl-5 text-muted-foreground"><span className="text-foreground">Supports:</span> {c.supporting.map((e) => `${e.label} (${e.detail}; ${e.type})`).join("; ")}</p>}
           {c.conflicting.length > 0 && <p className="mt-1 pl-5 text-muted-foreground"><span className="text-destructive">Conflicts:</span> {c.conflicting.map((e) => `${e.label} (${e.detail})`).join("; ")}</p>}
           {c.mechanism === "oxidant" && c.score > 0 && <p className="mt-1 pl-5 text-[11px] text-muted-foreground">Half weight: ROS probe signals are nonspecific and can follow any primary defect.</p>}
@@ -83,7 +89,7 @@ function DiagnosisPage() {
 
       <div className="border-l-2 border-border pl-3 text-xs" data-testid="dx-fit">
         <h2 className="text-sm font-semibold">Does the label fit?</h2>
-        <p className="mt-1"><span className={`font-medium ${fitStyle[d.fit]}`}>{d.fit}</span>. Pattern this synthetic profile was written to show: {d.expected.text}</p>
+        {d.patient.source === "user" ? <p className="mt-1 text-muted-foreground">Your results carry no condition label, so there is nothing to check against.</p> : <p className="mt-1"><span className={`font-medium ${fitStyle[d.fit]}`}>{d.fit}</span>. Pattern this profile was written to show: {d.expected.text}</p>}
       </div>
     </section>
 
