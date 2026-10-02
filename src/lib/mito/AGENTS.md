@@ -3,7 +3,7 @@
 - Ferroptosis math lives in `simulate` and exposes numeric `sensOutputs` to Sensitivity, CSV and AI routes.
 - Light effects come from `photoreceptor(i)` in `model.ts`; 71 THz is a pumped coherence term in `simulate`.
 - Warburg: ATP step rate = ATP/pair × routed flux ÷ 2, no chain summary; ROS gap counts five O2•- sites once incl. OGDH.
-- Keep invented patient data in `patientReference.ts`: paired L:P, age/fasting flags, proxies not assays. Entered ROS flags require matched local controls; no persistence.
+- Invented patient data in `patientReference.ts`; blood tests flag via `referenceFor` lab ranges (age/sex, % beyond limit); research assays never get lab ranges. Entered ROS flags need matched controls.
 - Profile comparisons flag only applicable cited bands; invented profiles have no full slider state.
 - Keep setting bands in `settingsReference.ts`; non-comparable controls stay unflagged. Published controls stay separate from simulated ATP baselines to prevent false measurement claims.
 - Verified study metadata belongs in `studyReferences.ts`; publication spans are not claim-specific pages.

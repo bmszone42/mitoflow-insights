@@ -96,3 +96,6 @@
 
 - [x] Treatment page linking Diagnosis mechanisms to therapy slider targets
 - [ ] Verified citations for every therapy class
+
+- [x] Real lab reference ranges with percent outside in Patient Data
+- [ ] Verified L:P ratio decision limit
