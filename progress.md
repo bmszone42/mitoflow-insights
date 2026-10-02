@@ -847,3 +847,10 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Patient Data "How flags move with published patient values": published tests flagged vs invented value and vs healthy adult (2026-10-02)
 - ✅ Treatment: 10 more therapies (3 chelators, 4 antioxidant classes, CoQ/idebenone, SS-31, methylene blue); all model proxies, no checked papers yet
 - ✅ L:P cut point 25 now cited to Debray et al. Clin Chem 2007 (PMID 17384007), labeled a published decision cut point, not a lab reference interval
+
+## Lab ranges page (2026-10-02) ✅
+- New route /lab-ranges (src/routes/lab-ranges.tsx), linked from the Physiology and Patient Data tabs next to the Diagnosis link.
+- Lists all 24 model sliders grouped by settingsGroups with default value, reference range (or "No published range"), status at default, source citation link and note; only membrane potential has a published numeric band (150-180 mV, Zorova 2018).
+- Lists all 14 patient metrics grouped by patientGroups with specimen/method, range resolved for the healthy adult profile via referenceFor, kind (Lab vs Research band), source link and note.
+- Derived readouts section: effective ATP cost 0.52 vs 0.50-0.62 eV/ATP (Nicholls & Ferguson) and P/O bands from poLiteratureBands (Hinkle 2005).
+- Verified with Playwright at 1280 and 390: 24 slider rows, 14 metric rows, no overflow, no page errors; typecheck clean.
