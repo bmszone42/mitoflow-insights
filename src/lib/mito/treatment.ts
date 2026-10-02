@@ -112,3 +112,28 @@ export function buildPlan(d: ReturnType<typeof diagnoseProfile>) {
   const after = chosen.reduce((acc, t) => applyTherapy(acc, t), before);
   return { steps, chosen, before: metrics(before), after: metrics(after), inputs: after, startInputs: before };
 }
+
+/** Model dose = fraction of the therapy's slider move (0 = none, 1 = Treatment page move, 2 = double). Never a drug dose. */
+export function applyTherapyDose(base: Inputs, t: Therapy, dose: number): Inputs {
+  const next = { ...base };
+  for (const m of t.moves) {
+    const r = inputRanges[m.key];
+    const b = base[m.key];
+    const v = m.mode === "times" ? b * Math.max(0, 1 + (m.value - 1) * dose) : m.mode === "plus" ? b + m.value * dose : b + (m.value - b) * dose;
+    next[m.key] = Math.min(r.max, Math.max(r.min, v));
+  }
+  return next;
+}
+
+export const calculatorDoses = [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
+/** ATP and ROS readouts across model doses, stacked on the patient's measured baseline. */
+export function doseResponse(p: DemoPatient, t: Therapy, doses = calculatorDoses) {
+  const base = profileInputs(p);
+  const zero = metrics(base);
+  return doses.map((dose) => {
+    const inputs = applyTherapyDose(base, t, dose);
+    const m = metrics(inputs);
+    return { dose, inputs, ...m, atpChange: zero.atp ? m.atp / zero.atp - 1 : 0, superoxideChange: zero.superoxide ? m.superoxide / zero.superoxide - 1 : 0, h2o2Change: zero.h2o2 ? m.h2o2 / zero.h2o2 - 1 : 0 };
+  });
+}

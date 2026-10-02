@@ -35,6 +35,7 @@ function TreatmentPage() {
     <div className="flex flex-wrap gap-2">
       <Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 size-4" aria-hidden />Back to lab</Link></Button>
       <Button variant="ghost" size="sm" asChild><Link to="/diagnosis">Diagnosis</Link></Button>
+      <Button variant="ghost" size="sm" asChild><Link to="/therapy-calculator">Therapy calculator</Link></Button>
     </div>
     <header className="border-b border-border pb-4">
       <div className="mono-label">Therapy targets in the model</div>
