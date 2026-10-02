@@ -903,3 +903,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - PatientRunReadouts.tsx: new "Therapy effect" table (testid therapy-before-after) when a therapy is applied: ATP, superoxide, H2O2 before (patient baseline sliders) vs after (therapy on top), with % change; units shown; 3-significant-digit formatting.
 - index.tsx: tracks runTherapy from ?apply=, passes to PatientRunReadouts, Reset clears it.
 - Verified Leigh + mitochondrial antioxidant: ATP 60.8→60.8 µM/s (+0%), superoxide 0.00992→0.00884 nM (-11%), H2O2 37.1→27.8 nM (-25%); no page errors; tsgo clean.
+
+## Dashboard sort + CSV (2026-10-02) ✅
+- dashboard.tsx: rows sorted by total flag count (lab+assay+model) descending, ties by label; header note says sorted most-flagged first.
+- Download CSV button (dash-csv): profile, id, phenotype, age, sex, source, L:P, ATP/superoxide/H2O2 with vs-healthy %, flag counts, top mechanism, top overlaps; footer note that it is a research model, not a diagnosis; downloaded in-browser only.
+- Fixed blank sex in profile sublines: demo patients store sex in the sexById map; now uses patientSex(p).
+- Verified: order Demo 15 (18 flags) > Demo 04/Demo 08 (15) > Demo 13 ... > Demo 02/03/10 (0); sex shows in rows and CSV; download produced cristae-lab-patient-dashboard.csv; no page errors; tsgo clean.
