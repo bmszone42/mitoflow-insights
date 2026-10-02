@@ -884,3 +884,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Diagnosis page: new optional profile search param preselects the profile from the link.
 - Verified: iron chelation lists Leigh, Friedreich (3.00), POLG, MELAS, TBI; clicking Demo 06 opens /diagnosis?profile=demo-06 with Friedreich preselected. Typecheck clean, no page errors.
 - ✅ Treatment therapies stack on the patient's measured baseline (membrane potential, labile iron, inverse MitoSOX) in the Simulator and in Treatment/Plan scoring
+- ✅ Run in Simulator banner: model vs measured ATP/ROS (fold healthy) and per-slider effect table

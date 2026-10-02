@@ -47,7 +47,7 @@ export function PatientRunReadouts({ patient, inputs, geo }: { patient: DemoPati
         <thead><tr className="text-left text-muted-foreground"><th className="py-1">Slider effect (vs default)</th>{readouts.map((r) => <th key={r.key}>{r.label}</th>)}</tr></thead>
         <tbody>{data.effects.map((e) => (
           <tr key={e.key} className="border-t border-border" data-testid="slider-effect-row">
-            <td className="py-1">{sliderNames[e.key] ?? e.key} <span className="text-muted-foreground tabular-nums">{Number(e.value).toFixed(2)}</span></td>
+            <td className="py-1">{sliderNames[e.key] ?? e.key} <span className="text-muted-foreground tabular-nums">{Number(e.value).toFixed(Math.abs(Number(e.value)) >= 10 ? 0 : 2)}</span></td>
             {e.deltas.map((d, i) => <td key={i} className="tabular-nums">{pct(d)}</td>)}
           </tr>))}</tbody>
       </table>
