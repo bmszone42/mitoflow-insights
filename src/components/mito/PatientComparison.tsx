@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, CircleHelp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { demoPatients, formatRangeText, labMetricKeys, outsideText, patientGroups, patientMetrics, referenceFor, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
+import { useUserPatients } from "@/lib/mito/userPatients";
+import { demoPatients, originOf, formatRangeText, labMetricKeys, outsideText, patientGroups, patientMetrics, referenceFor, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
 
 function status(patient: DemoPatient, metric: PatientMetric) {
   const ref = referenceFor(patient, metric);
@@ -26,7 +27,7 @@ function ProfilePicker({ label, patient, onChange }: { label: string; patient: D
     <label className="mb-1.5 block text-xs font-medium">{label}</label>
     <Select value={patient.id} onValueChange={onChange}>
       <SelectTrigger aria-label={label} className="w-full" data-testid={`comparison-${label.toLowerCase().replace(" ", "-")}`}><SelectValue /></SelectTrigger>
-      <SelectContent className="max-h-[min(70vh,440px)]">{demoPatients.map((entry) => <SelectItem key={entry.id} value={entry.id}>{entry.label} · {entry.age}y · {entry.phenotype}</SelectItem>)}</SelectContent>
+      <SelectContent className="max-h-[min(70vh,440px)]">{options.map((entry) => <SelectItem key={entry.id} value={entry.id}>{entry.label} · {entry.age}y · {entry.phenotype}</SelectItem>)}</SelectContent>
     </Select>
     <p className="mt-2 text-xs text-muted-foreground">Age {patient.age} · {patient.phenotype}</p>
   </div>;
@@ -35,8 +36,10 @@ function ProfilePicker({ label, patient, onChange }: { label: string; patient: D
 export function PatientComparison() {
   const [leftId, setLeftId] = useState("demo-01");
   const [rightId, setRightId] = useState("demo-15");
-  const left = demoPatients.find((patient) => patient.id === leftId) ?? demoPatients[0];
-  const right = demoPatients.find((patient) => patient.id === rightId) ?? demoPatients[0];
+  const users = useUserPatients();
+  const all = [...users, ...demoPatients];
+  const left = all.find((patient) => patient.id === leftId) ?? demoPatients[0];
+  const right = all.find((patient) => patient.id === rightId) ?? demoPatients[0];
   const flagged = patientMetrics.filter((metric) => status(left, metric) === "Outside band" || status(right, metric) === "Outside band");
   const sliderMetrics = patientMetrics.filter((metric) => metric.key === "membranePotential" || metric.key === "labileIron");
   const sliderFlags = sliderMetrics.filter((metric) => status(left, metric) === "Outside band" || status(right, metric) === "Outside band");
