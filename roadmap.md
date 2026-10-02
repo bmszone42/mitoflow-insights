@@ -103,3 +103,4 @@
 - ✅ Real lab data: published values for 4 profiles, user uploads (CSV, PDF, photo via AI), synthetic fill marked
 - ❌ Published values for the other 14 conditions (no checked open source found yet)
 - [x] Lab ranges page listing every slider and metric range with citations
+- [x] Diagnosis page: disorder overlap per flagged lab value
