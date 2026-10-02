@@ -8,12 +8,12 @@ import { useUserPatients } from "@/lib/mito/userPatients";
 import { doseResponse, moveLabel, therapies, applyTherapyDose, profileInputs } from "@/lib/mito/treatment";
 import { inputRanges } from "@/lib/mito/model";
 
-type Search = { profile?: string; therapy?: string };
+type Search = { profile?: string | undefined; therapy?: string | undefined };
 
 export const Route = createFileRoute("/therapy-calculator")({
   validateSearch: (s: Record<string, unknown>): Search => ({
-    profile: typeof s.profile === "string" ? s.profile : undefined,
-    therapy: typeof s.therapy === "string" ? s.therapy : undefined,
+    profile: typeof s["profile"] === "string" ? s["profile"] : undefined,
+    therapy: typeof s["therapy"] === "string" ? s["therapy"] : undefined,
   }),
   head: () => ({ meta: [
     { title: "Therapy calculator: ATP and ROS per model dose | Cristae Lab" },
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/therapy-calculator")({
 });
 
 const pct = (v: number) => `${v >= 0 ? "+" : ""}${Math.round(v * 100)}%`;
-const num = (v: number) => (Math.abs(v) >= 10 ? v.toFixed(0) : v.toFixed(2));
+const num = (v: number) => (Math.abs(v) >= 10 ? v.toFixed(0) : Number(v.toPrecision(3)).toString());
 
 function TherapyCalculator() {
   const search = Route.useSearch();
@@ -35,7 +35,7 @@ function TherapyCalculator() {
   const users = useUserPatients();
   const all = [...users, ...demoPatients];
   const patient = all.find((p) => p.id === search.profile) ?? demoPatients.find((p) => p.id === "demo-04")!;
-  const therapy = therapies.find((t) => t.id === search.therapy) ?? therapies[0];
+  const therapy = therapies.find((t) => t.id === search.therapy) ?? therapies[0]!;
   const rows = useMemo(() => doseResponse(patient, therapy), [patient, therapy]);
   const base = profileInputs(patient);
   const chart = rows.map((r) => ({ dose: `${r.dose}x`, ATP: Math.round(r.atpChange * 100), Superoxide: Math.round(r.superoxideChange * 100), "H2O2": Math.round(r.h2o2Change * 100) }));
@@ -49,11 +49,11 @@ function TherapyCalculator() {
 
     <div className="grid gap-3 sm:grid-cols-2">
       <label className="space-y-1 text-sm"><span className="font-medium">Patient profile</span>
-        <select aria-label="Patient profile" className="w-full rounded-md border border-input bg-background px-2 py-2" value={patient.id} onChange={(e) => navigate({ search: (s) => ({ ...s, profile: e.target.value }) })}>
+        <select aria-label="Patient profile" className="w-full rounded-md border border-input bg-background px-2 py-2" value={patient.id} onChange={(e) => navigate({ search: (prev) => ({ ...prev, profile: e.target.value }) })}>
           {all.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
         </select></label>
       <label className="space-y-1 text-sm"><span className="font-medium">Therapy</span>
-        <select aria-label="Therapy" className="w-full rounded-md border border-input bg-background px-2 py-2" value={therapy.id} onChange={(e) => navigate({ search: (s) => ({ ...s, therapy: e.target.value }) })}>
+        <select aria-label="Therapy" className="w-full rounded-md border border-input bg-background px-2 py-2" value={therapy.id} onChange={(e) => navigate({ search: (prev) => ({ ...prev, therapy: e.target.value }) })}>
           {therapies.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select></label>
     </div>
@@ -63,6 +63,7 @@ function TherapyCalculator() {
       <p className="text-muted-foreground">{therapy.note} Evidence: {therapy.status}.</p>
     </section>
 
+    {rows.every((r) => Math.abs(r.atpChange) < 0.005 && Math.abs(r.superoxideChange) < 0.005 && Math.abs(r.h2o2Change) < 0.005) && <p className="rounded-md border border-border bg-muted/40 p-3 text-sm">This therapy's sliders do not move ATP flux, superoxide or H2O2 in the model at any dose. Its effect shows up elsewhere (for example Fe-S damage or lipid peroxidation in the Simulator).</p>}
     <section aria-label="Dose response chart" className="h-72 rounded-md border border-border p-2">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chart}>
