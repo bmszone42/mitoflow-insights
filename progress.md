@@ -865,3 +865,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - New MembranePotentialEntry.tsx on the Patient Data tab (test id membrane-entry): number input 0-300 mV, live band status of the selected profile vs the 150-180 mV research band (Zorova 2018), "Update this profile" for user profiles or "Add as your profile" for demo records (creates a tab-only copy carrying age, sex and fasting state; all other values synthetic fill).
 - Feeds the Patient Comparison slider drift check, which previously read "None" for user profiles because membrane potential was healthy synthetic fill.
 - Playwright at 1280 and 390: 128 mV creates a profile flagged 15% below the 150 lower limit; 165 mV updates in place to within band; drift check flags "Mitochondrial membrane potential (B)" for the out-of-range profile; no page errors; typecheck clean.
+
+## Run patient in Simulator (2026-10-02) ✅
+- patientReference.ts: inputsFromPatient(p) maps a profile's measured values onto Simulator sliders: membranePotential to deltaPsi, labileIron to labileIron, MitoSOX fold to antioxidantCapacity as an inverse proxy (1/fold), each clamped to inputRanges. Notes list the mappings and state that ATP-linked respiration, P/O, peroxide and lipid oxidation have no slider.
+- index.tsx: new patient search param; effect finds the profile among user-added then demo profiles, sets sliders from defaults plus the patch, shows a patient-run banner (test id patient-run-banner) naming the profile and the mappings, with a Reset to defaults action.
+- diagnosis.tsx: Run in Simulator button (dx-run-sim) links to /?patient=<id>.
+- Playwright at 1280 and 390 for demo-04 (Leigh): banner shown, sliders read membrane potential 134 mV, labile iron 3.4 µM, antioxidant capacity 0.633 (1/1.58 MitoSOX), all other sliders at defaults; no page errors; typecheck clean.

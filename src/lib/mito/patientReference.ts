@@ -1,4 +1,4 @@
-import { defaultInputs, simulate, type Inputs, type Outputs } from "./model";
+import { defaultInputs, inputRanges, simulate, type Inputs, type Outputs } from "./model";
 import { poRatio } from "./reference";
 
 export type PatientGroup = "Bioenergetics" | "ROS and redox" | "Iron and Fe-S" | "Clinical labs";
@@ -193,3 +193,28 @@ export const outsideText = (value: number, r: { lo?: number; hi?: number }) => {
   if (pct === 0) return null;
   return pct > 0 ? `${pct.toFixed(0)}% above the ${r.hi} upper limit` : `${Math.abs(pct).toFixed(0)}% below the ${r.lo} lower limit`;
 };
+
+
+const clampTo = (k: keyof Inputs, v: number) => Math.min(inputRanges[k].max, Math.max(inputRanges[k].min, v));
+
+/**
+ * Map a profile's measured values onto Simulator sliders. Only direct or
+ * clearly labeled proxy mappings are applied; everything else stays at the
+ * simulated default. Returns the slider patch plus human-readable notes.
+ */
+export function inputsFromPatient(p: DemoPatient): { patch: Partial<Inputs>; notes: string[] } {
+  const v = p.values;
+  const patch: Partial<Inputs> = {
+    deltaPsi: clampTo("deltaPsi", v.membranePotential),
+    labileIron: clampTo("labileIron", v.labileIron),
+    // MitoSOX fold vs control as an inverse proxy for antioxidant capacity.
+    antioxidantCapacity: clampTo("antioxidantCapacity", 1 / Math.max(v.mitosox, 0.05)),
+  };
+  const notes = [
+    `Membrane potential ${v.membranePotential.toFixed(0)} mV to the membrane potential slider`,
+    `Labile iron ${v.labileIron.toFixed(1)} µM to the labile iron slider`,
+    `MitoSOX ${v.mitosox.toFixed(2)}x control to antioxidant capacity as an inverse proxy (1/fold)`,
+    "No slider exists for ATP-linked respiration, P/O, peroxide or lipid oxidation; those stay at the simulated default",
+  ];
+  return { patch, notes };
+}

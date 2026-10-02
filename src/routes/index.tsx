@@ -27,12 +27,15 @@ import { PatientData } from "@/components/mito/PatientData";
 import { PatientComparison } from "@/components/mito/PatientComparison";
 import { MicrographAnalyzer } from "@/components/mito/MicrographAnalyzer";
 import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
+import { demoPatients, inputsFromPatient } from "@/lib/mito/patientReference";
+import { useUserPatients } from "@/lib/mito/userPatients";
 import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 
 export const Route = createFileRoute("/")({
-  validateSearch: (s: Record<string, unknown>): { apply?: string | undefined; psi?: number | undefined } => ({
+  validateSearch: (s: Record<string, unknown>): { apply?: string | undefined; psi?: number | undefined; patient?: string | undefined } => ({
     apply: typeof s["apply"] === "string" ? s["apply"] : undefined,
     psi: typeof s["psi"] === "number" ? s["psi"] : undefined,
+    patient: typeof s["patient"] === "string" ? s["patient"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -58,10 +61,20 @@ export const Route = createFileRoute("/")({
 function Index() {
   const search = Route.useSearch();
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
+  const userPatients = useUserPatients();
+  const [patientRun, setPatientRun] = useState<string | null>(null);
   useEffect(() => {
     const t = therapies.find((x) => x.id === search.apply);
     if (t) { setInputs(applyTherapy({ ...defaultInputs, deltaPsi: search.psi ?? defaultInputs.deltaPsi }, t)); setTab("sim"); }
   }, [search.apply, search.psi]);
+  useEffect(() => {
+    if (!search.patient) return;
+    const p = [...userPatients, ...demoPatients].find((x) => x.id === search.patient);
+    if (!p) return;
+    setInputs({ ...defaultInputs, ...inputsFromPatient(p).patch });
+    setPatientRun(`${p.label} (${p.phenotype})`);
+    setTab("sim");
+  }, [search.patient, userPatients]);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
   const [tab, setTab] = useState("sim");
   const [stepFocus, setStepFocus] = useState<number | null>(null);
@@ -134,6 +147,7 @@ function Index() {
             <TabsTrigger value="library">Reference</TabsTrigger>
           </TabsList>
           <TabsContent value="sim" className="mt-4">
+            {patientRun && <p className="mb-3 border-l-2 border-primary pl-3 text-xs" data-testid="patient-run-banner">Sliders set from {patientRun}: membrane potential, labile iron and antioxidant capacity (inverse MitoSOX proxy). All other settings are simulated defaults; ATP-linked respiration, P/O and peroxide have no slider. <button type="button" className="text-primary underline underline-offset-2" onClick={() => { setInputs(defaultInputs); setPatientRun(null); }}>Reset to defaults</button></p>}
             <Simulator inputs={inputs} setInputs={setInputs} geo={geo} out={out} onSaved={() => setRefreshKey((k) => k + 1)} />
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <PathwayMap out={out} inputs={inputs} highlight={termsFor(picked)} source={pickedName} onSelect={selectTerm} complex={picked} />
