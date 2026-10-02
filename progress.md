@@ -825,3 +825,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ /treatment: 10 therapy classes mapped to slider moves, simulated ATP/ROS before vs after per synthetic profile, ranked by strong Diagnosis causes, Open in Simulator handoff
 - ✅ Linked from Diagnosis, Physiology and Patient Data; verified at 1280 and 390, no page errors
 - ❌ Verify citations for remaining therapy classes; therapy combinations; dose-response
+
+## Lab reference ranges (2026-10-02)
+- ✅ Six blood tests use Mayo Clinic Laboratories intervals (FERR1 age/sex, LACS1 age, PYR, SFEC, GLURA random for acute nonfasting) plus ADA fasting glucose; L:P ≤25 kept as unverified
+- ✅ Percent beyond the nearest limit shown in Patient Data, Patient Comparison and Diagnosis; children now flagged against child ranges
+- ✅ Invented sex added; three synthetic pyruvate values raised to fit the real 80-160 µmol/L interval
+- ❌ Verify the L:P decision limit source; research assays have no lab ranges

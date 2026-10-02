@@ -41,8 +41,8 @@ const record = (id: string, age: number, phenotype: string, description: string,
 });
 
 export const demoPatients: [DemoPatient, ...DemoPatient[]] = [
-  record("demo-01", 32, "Healthy adult", "Resting, fasting, reference-like profile.", "Stable outpatient; paired venous lactate and pyruvate; hypothetical fresh PBMC assay.", { membranePotential: 163, poNadh: 2.48, atpLinkedOcr: 6.5, mitosox: 1.02, h2o2: 0.96, lipidPeroxidation: 102, aconitase: 88, labileIron: 2.2, ferritin: 94, transferrinSaturation: 31, lactate: 1.3, pyruvate: 72, glucose: 4.8 }),
-  record("demo-02", 9, "Healthy child", "Healthy pediatric comparator; adult reference bands do not transfer automatically.", "Stable outpatient; paired venous samples; illustrative PBMC values. Pediatric clinical intervals must be checked locally.", { membranePotential: 160, poNadh: 2.42, atpLinkedOcr: 6.8, mitosox: 0.98, h2o2: 1.04, lipidPeroxidation: 99, aconitase: 92, labileIron: 2.0, ferritin: 56, transferrinSaturation: 28, lactate: 1.2, pyruvate: 76, glucose: 4.7 }),
+  record("demo-01", 32, "Healthy adult", "Resting, fasting, reference-like profile.", "Stable outpatient; paired venous lactate and pyruvate; hypothetical fresh PBMC assay.", { membranePotential: 163, poNadh: 2.48, atpLinkedOcr: 6.5, mitosox: 1.02, h2o2: 0.96, lipidPeroxidation: 102, aconitase: 88, labileIron: 2.2, ferritin: 94, transferrinSaturation: 31, lactate: 1.3, pyruvate: 84, glucose: 4.8 }),
+  record("demo-02", 9, "Healthy child", "Healthy pediatric comparator; adult reference bands do not transfer automatically.", "Stable outpatient; paired venous samples; illustrative PBMC values. Pediatric clinical intervals must be checked locally.", { membranePotential: 160, poNadh: 2.42, atpLinkedOcr: 6.8, mitosox: 0.98, h2o2: 1.04, lipidPeroxidation: 99, aconitase: 92, labileIron: 2.0, ferritin: 56, transferrinSaturation: 28, lactate: 1.2, pyruvate: 82, glucose: 4.7 }),
   record("demo-03", 76, "Healthy older adult", "Preserved function in an older adult; age alone is not mitochondrial disease.", "Stable outpatient; paired venous samples and illustrative fresh PBMC assay.", { membranePotential: 158, poNadh: 2.37, atpLinkedOcr: 5.1, mitosox: 1.12, h2o2: 1.08, lipidPeroxidation: 111, aconitase: 83, labileIron: 2.5, ferritin: 117, transferrinSaturation: 30, lactate: 1.4, pyruvate: 83, glucose: 5.1 }),
   record("demo-04", 3, "Leigh syndrome", "Illustrative respiratory-chain disease with systemic lactate elevation; genotype and severity vary.", "Stable assessment after a symptomatic episode, not an acute crisis; venous blood and hypothetical PBMC assay.", { membranePotential: 134, poNadh: 1.86, atpLinkedOcr: 3.2, mitosox: 1.58, h2o2: 1.43, lipidPeroxidation: 143, aconitase: 70, labileIron: 3.4, ferritin: 68, transferrinSaturation: 26, lactate: 4.2, pyruvate: 135, glucose: 4.6 }),
   record("demo-05", 6, "PDH deficiency", "Pyruvate-entry defect: lactate and pyruvate rise together, while their ratio can remain near normal.", "Stable outpatient; paired venous analytes collected together. Mitochondrial assay values are illustrative, not PDH tests.", { membranePotential: 154, poNadh: 2.35, atpLinkedOcr: 5.0, mitosox: 1.08, h2o2: 1.12, lipidPeroxidation: 108, aconitase: 86, labileIron: 2.3, ferritin: 64, transferrinSaturation: 27, lactate: 3.2, pyruvate: 205, glucose: 4.4 }),
@@ -50,7 +50,7 @@ export const demoPatients: [DemoPatient, ...DemoPatient[]] = [
   record("demo-07", 12, "POLG-related disease", "Mitochondrial DNA maintenance disorder, with variable multisystem impairment.", "Stable outpatient without active liver failure or seizure; paired venous sample and illustrative PBMC values.", { membranePotential: 143, poNadh: 2.08, atpLinkedOcr: 4.0, mitosox: 1.49, h2o2: 1.37, lipidPeroxidation: 128, aconitase: 76, labileIron: 3.0, ferritin: 106, transferrinSaturation: 30, lactate: 2.7, pyruvate: 112, glucose: 4.2 }),
   record("demo-08", 27, "MELAS", "Mitochondrial encephalomyopathy outside an acute stroke-like episode.", "Stable outpatient; venous blood is not a CSF or brain-tissue measurement; hypothetical PBMC assay.", { membranePotential: 142, poNadh: 2.02, atpLinkedOcr: 3.8, mitosox: 1.52, h2o2: 1.44, lipidPeroxidation: 132, aconitase: 73, labileIron: 3.1, ferritin: 82, transferrinSaturation: 28, lactate: 3.5, pyruvate: 118, glucose: 5.0 }),
   record("demo-09", 68, "Parkinson disease", "Illustrative modest peripheral mitochondrial stress; nigral iron cannot be inferred from serum ferritin.", "Stable outpatient, fasting venous draw and hypothetical PBMC assay; no brain specimen.", { membranePotential: 156, poNadh: 2.34, atpLinkedOcr: 5.1, mitosox: 1.29, h2o2: 1.22, lipidPeroxidation: 119, aconitase: 81, labileIron: 2.7, ferritin: 135, transferrinSaturation: 32, lactate: 1.5, pyruvate: 81, glucose: 5.0 }),
-  record("demo-10", 79, "Alzheimer disease", "Peripheral values may remain near normal despite regional brain metabolic changes.", "Stable outpatient; venous glucose is not cerebral FDG uptake, and serum iron is not brain iron.", { membranePotential: 159, poNadh: 2.38, atpLinkedOcr: 5.2, mitosox: 1.19, h2o2: 1.15, lipidPeroxidation: 117, aconitase: 82, labileIron: 2.4, ferritin: 119, transferrinSaturation: 30, lactate: 1.4, pyruvate: 78, glucose: 5.1 }),
+  record("demo-10", 79, "Alzheimer disease", "Peripheral values may remain near normal despite regional brain metabolic changes.", "Stable outpatient; venous glucose is not cerebral FDG uptake, and serum iron is not brain iron.", { membranePotential: 159, poNadh: 2.38, atpLinkedOcr: 5.2, mitosox: 1.19, h2o2: 1.15, lipidPeroxidation: 117, aconitase: 82, labileIron: 2.4, ferritin: 119, transferrinSaturation: 30, lactate: 1.4, pyruvate: 84, glucose: 5.1 }),
   record("demo-11", 55, "ALS", "Illustrative mild peripheral redox shift; no blood analyte here diagnoses motor-neuron disease.", "Stable outpatient; hypothetical PBMC assay and paired venous analytes, not motor-neuron measurements.", { membranePotential: 153, poNadh: 2.28, atpLinkedOcr: 4.9, mitosox: 1.37, h2o2: 1.29, lipidPeroxidation: 126, aconitase: 78, labileIron: 2.8, ferritin: 128, transferrinSaturation: 29, lactate: 1.6, pyruvate: 82, glucose: 4.9 }),
   record("demo-12", 46, "Huntington disease", "Illustrative small systemic changes; striatal metabolism is not measured in peripheral blood.", "Stable outpatient; paired venous blood and hypothetical PBMC assay.", { membranePotential: 155, poNadh: 2.31, atpLinkedOcr: 5.0, mitosox: 1.24, h2o2: 1.20, lipidPeroxidation: 121, aconitase: 80, labileIron: 2.5, ferritin: 108, transferrinSaturation: 31, lactate: 1.5, pyruvate: 87, glucose: 4.7 }),
   record("demo-13", 34, "Traumatic brain injury", "Early post-injury peripheral profile; venous L:P can be normal despite cerebral metabolic crisis.", "24 hours after moderate TBI; venous blood, not intracerebral microdialysate; fasting glucose assumption is not valid.", { membranePotential: 148, poNadh: 2.22, atpLinkedOcr: 4.6, mitosox: 1.54, h2o2: 1.41, lipidPeroxidation: 136, aconitase: 74, labileIron: 3.2, ferritin: 179, transferrinSaturation: 26, lactate: 2.3, pyruvate: 111, glucose: 6.7 }),
@@ -90,3 +90,60 @@ export function isReferenceOutlier(value: number, metric: PatientMetric) {
   if (!metric.reference) return false;
   return (metric.reference.lo !== undefined && value < metric.reference.lo) || (metric.reference.hi !== undefined && value > metric.reference.hi);
 }
+
+// Real laboratory reference intervals (Mayo Clinic Laboratories test catalog, checked 2026-10-02)
+// for the blood tests only. Research assays have no lab interval and are never given one.
+export type Sex = "F" | "M";
+const sexById: Record<string, Sex> = { "demo-01": "F", "demo-02": "M", "demo-03": "F", "demo-04": "M", "demo-05": "F", "demo-06": "M", "demo-07": "F", "demo-08": "F", "demo-09": "M", "demo-10": "F", "demo-11": "M", "demo-12": "M", "demo-13": "M", "demo-14": "F", "demo-15": "M", "demo-16": "M", "demo-17": "F", "demo-18": "M" };
+export const patientSex = (p: DemoPatient): Sex => sexById[p.id] ?? "F";
+export const NONFASTING_IDS = ["demo-13", "demo-14", "demo-15"];
+
+export type ResolvedRange = { lo?: number; hi?: number; label: string; kind: "Lab" | "Research"; source: string; url: string; verified: boolean };
+export type RangeResult = { range: ResolvedRange; reason?: undefined } | { range: null; reason: string };
+const mayo = (code: string, url: string) => ({ source: `Mayo Clinic Laboratories, ${code}`, url, verified: true, kind: "Lab" as const });
+const FERR = mayo("FERR1 Ferritin, Serum", "https://www.testcatalog.org/show/FERR1");
+const LACT = mayo("LACS1 Lactate, Plasma", "https://www.testcatalog.org/show/LACS1");
+const PYR = mayo("PYR Pyruvic Acid, Blood", "https://genetics.testcatalog.org/show/PYR");
+const SAT = mayo("SFEC Percent Saturation", "https://www.testcatalog.org/show/SFEC");
+const GLUR = mayo("GLURA Glucose, Random (70-140 mg/dL)", "https://www.testcatalog.org/show/GLURA");
+
+export const labMetricKeys: PatientMetricKey[] = ["ferritin", "transferrinSaturation", "lactate", "pyruvate", "lactatePyruvate", "glucose"];
+
+function labRange(p: DemoPatient, key: PatientMetricKey): RangeResult {
+  const a = p.age; const sex = patientSex(p);
+  switch (key) {
+    case "ferritin":
+      if (sex === "M") return { range: a >= 18 ? { lo: 31, hi: 409, label: "Male, 18 y and older", ...FERR } : a >= 10 ? { lo: 15, hi: 201, label: "Male, 10-17 y", ...FERR } : { lo: 6, hi: 111, label: "Male, 6 mo-9 y", ...FERR } };
+      return { range: a >= 51 ? { lo: 11, hi: 328, label: "Female, 51 y and older", ...FERR } : a >= 18 ? { lo: 6, hi: 175, label: "Female, 18-50 y", ...FERR } : { lo: 8, hi: 115, label: "Female, 6 mo-17 y", ...FERR } };
+    case "transferrinSaturation": return { range: { lo: 14, hi: 50, label: "Single interval, no age or sex strata published", ...SAT } };
+    case "lactate": return { range: a >= 18 ? { lo: 0.5, hi: 2.0, label: "18 y and older", ...LACT } : a > 2 ? { hi: 2.2, label: "25 mo-17 y", ...LACT } : { hi: 3.1, label: "3-24 mo", ...LACT } };
+    case "pyruvate": return { range: { lo: 80, hi: 160, label: "Whole blood, 0.08-0.16 mmol/L, no age strata published", ...PYR } };
+    case "lactatePyruvate": return { range: { hi: 25, label: "Laboratory decision limit; source page could not be re-checked", kind: "Lab", source: "Alberta Precision Laboratories", url: "https://www.albertahealthservices.ca/webapps/labservices/indexAPL.asp?details=true&id=9335&tests=&zoneid=1", verified: false } };
+    case "glucose":
+      if (NONFASTING_IDS.includes(p.id)) return { range: { lo: 3.9, hi: 7.8, label: "Random (nonfasting) interval", ...GLUR } };
+      return { range: { lo: 3.9, hi: 5.5, label: "Fasting, normal below 100 mg/dL", kind: "Lab", source: "ADA Standards of Care (2026)", url: "https://diabetesjournals.org/care/issue/49/Supplement_1", verified: true } };
+    default: return { range: null, reason: "No lab reference range" };
+  }
+}
+
+/** Lab interval for blood tests; adult-only research band otherwise; null with reason when none applies. */
+export function referenceFor(p: DemoPatient, metric: PatientMetric): RangeResult {
+  if (labMetricKeys.includes(metric.key)) return labRange(p, metric.key);
+  if (!metric.reference) return { range: null, reason: "No lab reference range" };
+  if (p.age < 18) return { range: null, reason: "Adult research band; no pediatric interval" };
+  return { range: { ...metric.reference, kind: "Research", source: metric.sourceCitation, url: metric.sourceUrl, verified: true } };
+}
+
+/** Signed percent beyond the nearest limit (positive above, negative below); 0 when inside. */
+export function percentOutside(value: number, r: { lo?: number; hi?: number }) {
+  if (r.hi !== undefined && value > r.hi) return ((value - r.hi) / r.hi) * 100;
+  if (r.lo !== undefined && value < r.lo) return ((value - r.lo) / r.lo) * 100;
+  return 0;
+}
+
+export const formatRangeText = (r: { lo?: number; hi?: number }) => r.lo === undefined ? `≤ ${r.hi}` : r.hi === undefined ? `≥ ${r.lo}` : `${r.lo}-${r.hi}`;
+export const outsideText = (value: number, r: { lo?: number; hi?: number }) => {
+  const pct = percentOutside(value, r);
+  if (pct === 0) return null;
+  return pct > 0 ? `${pct.toFixed(0)}% above the ${r.hi} upper limit` : `${Math.abs(pct).toFixed(0)}% below the ${r.lo} lower limit`;
+};

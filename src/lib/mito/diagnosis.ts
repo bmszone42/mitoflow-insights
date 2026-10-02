@@ -1,5 +1,5 @@
 import { defaultGeometry, defaultInputs, simulate } from "./model";
-import { demoPatients, isReferenceOutlier, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
+import { demoPatients, outsideText, percentOutside, referenceFor, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosAssayFlag, rosSourceRows } from "./rosPhysiology";
 import { atpAssayFlag } from "./atpComparison";
@@ -32,10 +32,12 @@ type Direction = "high" | "low" | "normal";
 export function metricDirection(p: DemoPatient, key: PatientMetricKey): { dir: Direction; basis: string } {
   const metric = patientMetrics.find((m) => m.key === key)!;
   const value = p.values[key];
-  const bandOk = metric.reference && p.age >= 18 && !(key === "glucose" && NONFASTING.includes(p.id));
-  if (bandOk && metric.reference) {
-    if (!isReferenceOutlier(value, metric)) return { dir: "normal", basis: "cited band" };
-    return { dir: metric.reference.hi !== undefined && value > metric.reference.hi ? "high" : "low", basis: "cited band" };
+  const ref = referenceFor(p, metric);
+  if (ref.range) {
+    const basis = ref.range.kind === "Lab" ? "lab range" : "research band";
+    const pct = percentOutside(value, ref.range);
+    if (pct === 0) return { dir: "normal", basis };
+    return { dir: pct > 0 ? "high" : "low", basis: `${outsideText(value, ref.range)}, ${basis}` };
   }
   const control = (p.age < 18 ? childControl : adultControl).values[key];
   const pct = (value / control - 1) * 100;
