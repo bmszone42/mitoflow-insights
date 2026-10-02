@@ -13,4 +13,4 @@
 - interpretation.ts builds the narrative deterministically; scores are not probabilities.
 - ATP assay flags compare a profile's NADH P/O (pumping steps) and ATP-linked OCR (chain summary) with healthy demo-01 at ±25%; whole-chain, never step-specific.
 - Diagnosis page ranks mechanisms, never diseases, via fixed rules in diagnosis.ts; oxidant load half weight (nonspecific probes); ferritin quarter weight in acute profiles (acute-phase marker); scores are not probabilities.
-- treatment.ts maps therapies to slider moves, targeting strong Diagnosis causes only; never doses.
+- treatment.ts maps therapies to slider moves for strong Diagnosis causes; "model dose" means slider value only, never drug doses.

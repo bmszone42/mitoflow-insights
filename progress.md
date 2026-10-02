@@ -839,3 +839,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ "Your lab results" panel on Patient Data and Diagnosis: manual entry, CSV (identifier columns rejected), PDF or photo read by AI (/api/extract-labs), editable review, unit conversion; kept in the tab only, never stored.
 - ❌ Published values for the other 14 conditions.
 - Security: uploads are sent once to the AI and not logged or saved; the AI is told never to return identifiers; users are warned to crop identifiers first. Before deployment, consider sign-in plus a database rate limit on /api/extract-labs.
+
+## Treatment Plan page (2026-10-02)
+- ✅ /treatment-plan: per strong cause therapy options with model doses (slider before to after), combined plan effect; linked from Diagnosis
+- ❌ Checked papers for 8 of 10 therapies

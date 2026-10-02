@@ -78,3 +78,21 @@ export function rankTherapies(d: ReturnType<typeof diagnoseProfile>) {
     return { therapy: t, sim, targeted, flagDrop, matchScore };
   }).sort((a, b) => b.matchScore - a.matchScore || a.therapy.mechanisms.length - b.therapy.mechanisms.length || b.targeted.length - a.targeted.length || b.flagDrop - a.flagDrop);
 }
+
+/** Model dose = the slider value a therapy sets, shown as before to after. Never a drug dose. */
+export function modelDoses(base: Inputs, t: Therapy) {
+  const after = applyTherapy(base, t);
+  return t.moves.map((m) => ({ key: m.key, label: inputRanges[m.key].label, unit: inputRanges[m.key].unit, before: base[m.key], after: after[m.key], clamped: after[m.key] !== (m.mode === "times" ? base[m.key] * m.value : m.mode === "plus" ? base[m.key] + m.value : m.value) }));
+}
+
+/** Plan: per strong cause, the best-ranked therapy targeting it; combined effect applies each once, in order. */
+export function buildPlan(d: ReturnType<typeof diagnoseProfile>) {
+  const ranked = rankTherapies(d);
+  const strong = d.causes.filter((c) => c.score >= 1.5);
+  const steps = strong.map((c) => ({ cause: c, options: ranked.filter((r) => r.therapy.mechanisms.includes(c.mechanism)) }));
+  const chosen: Therapy[] = [];
+  for (const s of steps) { const pick = s.options.find((o) => !chosen.includes(o.therapy)); if (pick) chosen.push(pick.therapy); }
+  const before = profileInputs(d.patient);
+  const after = chosen.reduce((acc, t) => applyTherapy(acc, t), before);
+  return { steps, chosen, before: metrics(before), after: metrics(after), inputs: after, startInputs: before };
+}
