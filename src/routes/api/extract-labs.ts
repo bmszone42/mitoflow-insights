@@ -15,16 +15,16 @@ const keys = ["membranePotential", "poNadh", "atpLinkedOcr", "mitosox", "h2o2", 
 
 const Item = z.object({
   key: z.enum(keys),
-  value: z.number().finite(),
+  value: z.coerce.number().finite(),
   unit: z.string().max(40).nullable().optional(),
   printedRange: z.string().max(80).nullable().optional(),
   sourceText: z.string().max(300).nullable().optional(),
 });
 const Result = z.object({
   items: z.array(z.unknown()).max(40).transform((a) => a.flatMap((x) => { const r = Item.safeParse(x); return r.success ? [r.data] : []; })),
-  age: z.number().int().min(0).max(120).nullable().optional(),
-  sex: z.enum(["F", "M"]).nullable().optional(),
-  fasting: z.boolean().nullable().optional(),
+  age: z.coerce.number().int().min(0).max(120).nullable().optional().catch(null),
+  sex: z.enum(["F", "M"]).nullable().optional().catch(null),
+  fasting: z.preprocess((v) => (v === "yes" || v === "true" ? true : v === "no" || v === "false" ? false : v), z.boolean().nullable().optional()).catch(null),
   notes: z.string().max(1000).nullable().optional(),
 });
 
@@ -74,12 +74,11 @@ export const Route = createFileRoute("/api/extract-labs")({
             providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", store: false, include: ["reasoning.encrypted_content"] } },
           });
           const text = res.text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-          console.log("[extract-labs] raw", text.slice(0, 600));
           let json: unknown;
           try { json = JSON.parse(text); } catch { return Response.json({ error: "Could not read values from this file. Try a clearer photo." }, { status: 422 }); }
           const out = Result.safeParse(json);
-          if (!out.success) return Response.json({ error: "The extracted values were not in the expected format. Try again or enter them by hand." }, { status: 422, headers: { "X-Issue": out.error.issues.map((i) => i.path.join(".")).join(",").slice(0, 200) } });
-          return Response.json({ ...out.data, _debug: text.slice(0, 500) });
+          if (!out.success) return Response.json({ error: "The extracted values were not in the expected format. Try again or enter them by hand." }, { status: 422});
+          return Response.json(out.data);
         } catch (error) {
           const e = error as { statusCode?: number; message?: string };
           const status = e.statusCode ?? 500;
