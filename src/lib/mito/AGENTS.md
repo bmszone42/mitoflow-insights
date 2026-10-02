@@ -15,3 +15,4 @@
 - Diagnosis page ranks mechanisms, never diseases, via fixed rules in diagnosis.ts; oxidant load half weight (nonspecific probes); ferritin quarter weight in acute profiles (acute-phase marker); scores are not probabilities.
 - treatment.ts maps therapies to slider moves for strong Diagnosis causes; "model dose" means slider value only, never drug doses.
 - Timeline visits live in `timeline.ts` module memory only; invented demo follow-ups are labeled synthetic and each visit is scored with `diagnoseProfile`.
+- Therapy calculator dose = fraction of a therapy's slider move via applyTherapyDose; never a drug dose.
