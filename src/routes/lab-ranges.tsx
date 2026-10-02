@@ -85,7 +85,7 @@ function LabRangesPage() {
       <h2 className="text-sm font-semibold">Derived model readouts</h2>
       <ul className="space-y-1 text-[11px]">
         <li><span className="font-medium">Effective ATP cost:</span> model {ATP_COST_EV} eV/ATP at standard state; compared with {ATP_COST_TEXTBOOK.lo}-{ATP_COST_TEXTBOOK.hi} eV/ATP. <SourceLink source="Nicholls & Ferguson, Bioenergetics (2013)" url="https://doi.org/10.1016/B978-0-12-388425-1.00003-8" /></li>
-        <li><span className="font-medium">NADH-linked P/O:</span> {poLiteratureBands.nadh.lo}-{poLiteratureBands.nadh.hi} ATP/O; <span className="font-medium">succinate-linked P/O:</span> {poLiteratureBands.fadh.lo}-{poLiteratureBands.fadh.hi} ATP/O. <SourceLink source="Hinkle, Biochim Biophys Acta (2005)" url="https://doi.org/10.1016/j.bbabio.2004.09.004" /></li>
+        <li><span className="font-medium">NADH-linked P/O:</span> {poLiteratureBands.nadh.low}-{poLiteratureBands.nadh.high} ATP/O; <span className="font-medium">succinate-linked P/O:</span> {poLiteratureBands.fadh2.low}-{poLiteratureBands.fadh2.high} ATP/O. <SourceLink source="Hinkle, Biochim Biophys Acta (2005)" url="https://doi.org/10.1016/j.bbabio.2004.09.004" /></li>
       </ul>
     </section>
 
