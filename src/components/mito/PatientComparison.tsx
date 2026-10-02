@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, CircleHelp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { demoPatients, isReferenceOutlier, patientGroups, patientMetrics, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
-
-function applicable(patient: DemoPatient, metric: PatientMetric) {
-  return patient.age >= 18 && !(metric.key === "glucose" && ["demo-13", "demo-14", "demo-15"].includes(patient.id));
-}
+import { demoPatients, outsideText, patientGroups, patientMetrics, referenceFor, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
 
 function status(patient: DemoPatient, metric: PatientMetric) {
-  if (!metric.reference || !applicable(patient, metric)) return "No comparable band" as const;
-  return isReferenceOutlier(patient.values[metric.key], metric) ? "Outside band" as const : "Within band" as const;
+  const ref = referenceFor(patient, metric);
+  if (!ref.range) return "No comparable band" as const;
+  return outsideText(patient.values[metric.key], ref.range) ? "Outside band" as const : "Within band" as const;
 }
 
 function ProfileValue({ patient, metric }: { patient: DemoPatient; metric: PatientMetric }) {
@@ -19,7 +16,7 @@ function ProfileValue({ patient, metric }: { patient: DemoPatient; metric: Patie
     <div className={`min-w-0 border-l-2 pl-3 ${result === "Outside band" ? "border-destructive text-destructive" : result === "Within band" ? "border-primary" : "border-border"}`} data-testid="patient-comparison-value" data-status={result}>
       <div className="font-mono text-sm font-semibold">{patient.values[metric.key].toFixed(metric.decimals)} <span className="text-[11px] font-normal">{metric.unit}</span></div>
       <div className={`mt-1 flex items-center gap-1 text-[11px] ${result === "Outside band" ? "text-destructive" : "text-muted-foreground"}`}><Icon className="size-3 shrink-0" aria-hidden />{result}</div>
-      {metric.reference && !applicable(patient, metric) && <div className="mt-1 text-[10px] text-muted-foreground">{patient.age < 18 ? "Adult band not applied" : "Nonfasting acute sample"}</div>}
+      {(() => { const ref = referenceFor(patient, metric); const t = ref.range ? outsideText(patient.values[metric.key], ref.range) : ref.reason; return t ? <div className="mt-1 text-[10px]">{t}{ref.range ? ` (${ref.range.label})` : ""}</div> : null; })()}
     </div>
   );
 }
