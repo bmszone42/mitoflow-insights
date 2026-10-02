@@ -894,3 +894,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Therapy calculator page (/therapy-calculator): ATP/ROS readouts per model dose 0-2x on patient baseline
 - ✅ Patient dashboard (/dashboard): all profiles with model ATP/ROS, flag counts, top mechanism, disorder overlap, links to Diagnosis and Simulator
 - ✅ Treatment overlap (Treatment page): therapies grouped by shared ATP/superoxide/H2O2 direction at 1x on patient baseline
+
+## Lactate:pyruvate to Simulator
+- ✅ L:P maps to the NADH ratio slider (lpMapping), skipped when synthetic or lactate below 2.5 mmol/L
+- ✅ Dashboard L:P column with mapped tag; Patient Data note

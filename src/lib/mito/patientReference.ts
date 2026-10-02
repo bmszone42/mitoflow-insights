@@ -202,18 +202,38 @@ const clampTo = (k: keyof Inputs, v: number) => Math.min(inputRanges[k].max, Mat
  * clearly labeled proxy mappings are applied; everything else stays at the
  * simulated default. Returns the slider patch plus human-readable notes.
  */
+/** Healthy reference L:P that corresponds to the default NADH fraction. */
+export const LP_HEALTHY = 10;
+
+/**
+ * L:P to the NADH slider via LDH near-equilibrium (L:P proportional to NADH/NAD+).
+ * Cytosolic redox proxy, not matrix NADH. Skipped when lactate < 2.5 mmol/L
+ * (Debray 2007: ratio unreliable) or when the ratio is synthetic fill.
+ */
+export function lpMapping(p: DemoPatient): { nadhRatio?: number; note: string } {
+  const lp = p.values.lactatePyruvate;
+  if (originOf(p, "lactatePyruvate").origin === "synthetic") return { note: `L:P ${lp.toFixed(1)} is synthetic fill; NADH ratio stays at default` };
+  if (p.values.lactate < 2.5) return { note: `L:P ${lp.toFixed(1)} not mapped: lactate ${p.values.lactate.toFixed(2)} mmol/L is below 2.5, where the ratio is unreliable (Debray 2007)` };
+  const n0 = defaultInputs.nadhRatio, r = (n0 / (1 - n0)) * (lp / LP_HEALTHY);
+  const nadhRatio = clampTo("nadhRatio", r / (1 + r));
+  return { nadhRatio, note: `L:P ${lp.toFixed(1)} sets NADH ratio ${nadhRatio.toFixed(2)} (cytosolic redox proxy via LDH equilibrium, healthy L:P ${LP_HEALTHY} = ${n0})` };
+}
+
 export function inputsFromPatient(p: DemoPatient): { patch: Partial<Inputs>; notes: string[] } {
   const v = p.values;
+  const lp = lpMapping(p);
   const patch: Partial<Inputs> = {
     deltaPsi: clampTo("deltaPsi", v.membranePotential),
     labileIron: clampTo("labileIron", v.labileIron),
     // MitoSOX fold vs control as an inverse proxy for antioxidant capacity.
     antioxidantCapacity: clampTo("antioxidantCapacity", 1 / Math.max(v.mitosox, 0.05)),
+    ...(lp.nadhRatio !== undefined ? { nadhRatio: lp.nadhRatio } : {}),
   };
   const notes = [
     `Membrane potential ${v.membranePotential.toFixed(0)} mV to the membrane potential slider`,
     `Labile iron ${v.labileIron.toFixed(1)} µM to the labile iron slider`,
     `MitoSOX ${v.mitosox.toFixed(2)}x control to antioxidant capacity as an inverse proxy (1/fold)`,
+    lp.note,
     "No slider exists for ATP-linked respiration, P/O, peroxide or lipid oxidation; those stay at the simulated default",
   ];
   return { patch, notes };

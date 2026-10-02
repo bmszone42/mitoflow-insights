@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
-import { demoPatients } from "@/lib/mito/patientReference";
+import { demoPatients, lpMapping } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { profileInputs } from "@/lib/mito/treatment";
@@ -32,7 +32,7 @@ function Dashboard() {
       const out = simulate(profileInputs(p), defaultGeometry);
       const d = diagnoseProfile(p);
       return {
-        p, out, healthy, top: d.top,
+        p, out, healthy, top: d.top, lp: lpMapping(p),
         labFlags: d.patientFlags.length, assayFlags: d.rosAssayFlags.length + d.atpAssayFlags.length, modelFlags: d.modelFlags.length,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
       };
@@ -43,16 +43,17 @@ function Dashboard() {
     <Button asChild variant="ghost" size="sm"><Link to="/"><ArrowLeft className="size-4" aria-hidden />Back to lab</Link></Button>
     <header className="space-y-1">
       <h1 className="text-2xl font-semibold">Patient dashboard</h1>
-      <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. Research model, not a diagnosis. Synthetic values are invented.</p>
+      <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. Research model, not a diagnosis. Synthetic values are invented.</p>
     </header>
     <section className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
-          <th className="px-3 py-2">Profile</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2">Superoxide</th><th className="px-3 py-2">H2O2 (nM)</th>
+          <th className="px-3 py-2">Profile</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2">Superoxide</th><th className="px-3 py-2">H2O2 (nM)</th>
           <th className="px-3 py-2">Flags: lab / assay / model</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Open</th>
         </tr></thead>
         <tbody>{rows.map((r) => <tr key={r.p.id} data-testid="dash-row" className="border-t border-border/60 align-top">
           <th scope="row" className="px-3 py-2 font-medium">{r.p.label}<div className="font-normal text-muted-foreground">{r.p.phenotype} · {r.p.age}y {r.p.sex}</div></th>
+          <td className="px-3 py-2 font-mono" data-testid="dash-lp"><span className={r.p.values.lactatePyruvate > 25 ? "text-destructive" : ""}>{r.p.values.lactatePyruvate.toFixed(1)}</span><div className="font-sans text-[10px] text-muted-foreground" title={r.lp.note}>{r.lp.nadhRatio !== undefined ? `Mapped: NADH ${r.lp.nadhRatio.toFixed(2)}` : "Not mapped"}</div></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.atpFlux)} <span className="text-muted-foreground">{pct(r.out.atpFlux, r.healthy.atpFlux)}</span></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.superoxide)} <span className="text-muted-foreground">{pct(r.out.superoxide, r.healthy.superoxide)}</span></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.hydrogenPeroxide)} <span className="text-muted-foreground">{pct(r.out.hydrogenPeroxide, r.healthy.hydrogenPeroxide)}</span></td>

@@ -12,7 +12,7 @@ import { PublishedFlagShift } from "@/components/mito/PublishedFlagShift";
 import { MembranePotentialEntry } from "@/components/mito/MembranePotentialEntry";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
-import { cohortStats, demoPatients, originOf, formatRangeText, isCohortOutlier, outsideText, patientGroups, patientMetrics, patientSex, percentOutside, referenceFor, type RangeResult } from "@/lib/mito/patientReference";
+import { cohortStats, demoPatients, lpMapping, originOf, formatRangeText, isCohortOutlier, outsideText, patientGroups, patientMetrics, patientSex, percentOutside, referenceFor, type RangeResult } from "@/lib/mito/patientReference";
 
 type Status = "Within range" | "Lab outlier" | "Literature outlier" | "Cohort outlier" | "Both outliers" | "Cohort only";
 
@@ -66,7 +66,8 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
               <Play className="size-3.5" aria-hidden />Run in Simulator
             </Link>
           </Button>
-          <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">Loads this profile's membrane potential, labile iron and antioxidant proxy into the Simulator sliders; unmapped measurements stay at defaults.</p>
+          <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">Loads this profile's membrane potential, labile iron, antioxidant proxy and lactate:pyruvate ratio (as the NADH redox slider) into the Simulator; unmapped measurements stay at defaults.</p>
+          <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground" data-testid="patient-lp-note">{lpMapping(patient).note}</p>
         </div>
       </div>
 
