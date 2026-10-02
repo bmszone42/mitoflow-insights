@@ -893,3 +893,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Verified: selecting Demo 04 (Leigh) and clicking loads /?patient=demo-04 with the patient-run banner; no page errors; typecheck clean.
 - ✅ Therapy calculator page (/therapy-calculator): ATP/ROS readouts per model dose 0-2x on patient baseline
 - ✅ Patient dashboard (/dashboard): all profiles with model ATP/ROS, flag counts, top mechanism, disorder overlap, links to Diagnosis and Simulator
+- ✅ Treatment overlap (Treatment page): therapies grouped by shared ATP/superoxide/H2O2 direction at 1x on patient baseline
