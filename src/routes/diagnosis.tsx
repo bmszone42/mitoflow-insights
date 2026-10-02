@@ -87,6 +87,20 @@ function DiagnosisPage() {
         <EvidenceList title="Model flags" items={d.modelFlags} empty="No model ATP or ROS flag at this profile's membrane potential." />
       </div>
 
+      <div data-testid="dx-overlap">
+        <h2 className="text-sm font-semibold">Which disorders share these flags</h2>
+        {overlap.perFlag.length === 0 ? <p className="mt-1 text-xs text-muted-foreground">No flagged values, so no disorder overlap to show.</p> : <>
+          <ol className="mt-2 space-y-2 text-xs">{overlap.ranked.slice(0, 6).map((r, i) => <li key={r.phenotype} data-testid="dx-overlap-row" className="border-b border-border/60 pb-2 last:border-b-0">
+            <span className="font-mono text-primary">{i + 1}.</span> <span className="font-medium">{r.phenotype}</span> <span className="font-mono text-muted-foreground">shares {r.shared} of {r.total} flags</span>
+            <span className="block pl-5 text-[11px] text-muted-foreground">{r.flags.join("; ")}</span>
+          </li>)}</ol>
+          <details className="mt-2 text-xs"><summary className="cursor-pointer text-muted-foreground">Per flagged value</summary>
+            <ul className="mt-1 space-y-1 pl-4 text-[11px]">{overlap.perFlag.map((f) => <li key={f.key}><span className="font-medium">{f.label} {f.dir}</span> <span className="text-muted-foreground">({f.basis})</span>{f.matches.length ? <span className="text-muted-foreground"> · also flagged in: {f.matches.map((m) => m.phenotype).join(", ")}</span> : <span className="text-muted-foreground"> · no disorder profile flags this value</span>}</li>)}</ul>
+          </details>
+        </>}
+        <p className="mt-2 text-[11px] text-muted-foreground">Overlap counts shared flags only. It is not a likelihood and does not rank diseases; most values are synthetic.</p>
+      </div>
+
       <div className="border-l-2 border-border pl-3 text-xs" data-testid="dx-fit">
         <h2 className="text-sm font-semibold">Does the label fit?</h2>
         {d.patient.source === "user" ? <p className="mt-1 text-muted-foreground">Your results carry no condition label, so there is nothing to check against.</p> : <p className="mt-1"><span className={`font-medium ${fitStyle[d.fit]}`}>{d.fit}</span>. Pattern this profile was written to show: {d.expected.text}</p>}
