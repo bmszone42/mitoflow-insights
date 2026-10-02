@@ -831,3 +831,11 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Percent beyond the nearest limit shown in Patient Data, Patient Comparison and Diagnosis; children now flagged against child ranges
 - ✅ Invented sex added; three synthetic pyruvate values raised to fit the real 80-160 µmol/L interval
 - ❌ Verify the L:P decision limit source; research assays have no lab ranges
+
+## Real lab data and report uploads (2026-10-02)
+- ✅ Each patient value tagged Published, Yours or Synthetic; Diagnosis shows real-data share per profile and per cause.
+- ✅ Published values from checked tables: healthy adult ATP-linked OCR 6.4 (Lee 2026 Table 2); Leigh lactate 9.26, L:P 35 (Ching 2013 HKMJ); PDH lactate 9.9, pyruvate 1000 µmol/L, L:P 9.9 (Indian J Pediatr 2021); iron overload ferritin 855, TSAT 70% (Sandnes 2021 Genes Table 4, C282Y/C282Y men).
+- ✅ Diagnosis rankings unchanged with these values.
+- ✅ "Your lab results" panel on Patient Data and Diagnosis: manual entry, CSV (identifier columns rejected), PDF or photo read by AI (/api/extract-labs), editable review, unit conversion; kept in the tab only, never stored.
+- ❌ Published values for the other 14 conditions.
+- Security: uploads are sent once to the AI and not logged or saved; the AI is told never to return identifiers; users are warned to crop identifiers first. Before deployment, consider sign-in plus a database rate limit on /api/extract-labs.
