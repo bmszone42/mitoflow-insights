@@ -111,7 +111,7 @@ export function UserLabsPanel({ onAdded }: { onAdded?: (id: string) => void }) {
       {rows.length > 0 && <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-left text-xs" data-testid="user-labs-review">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr><th className="py-1">Test</th><th>Value</th><th>Unit</th><th>Used as</th><th>Healthy range</th><th>From report</th><th /></tr></thead>
         <tbody>{converted.map((c, i) => <tr key={i} className="border-t border-border/60">
-          <td className="py-1 pr-2"><select value={c.r.key} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, key: e.target.value as PatientMetricKey } : r))} className="h-7 border border-input bg-background px-1">{patientMetrics.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}</select></td>
+          <td className="py-1 pr-2"><select value={c.r.key} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, key: e.target.value as PatientMetricKey, unit: metricUnit(e.target.value as PatientMetricKey) } : r))} className="h-7 border border-input bg-background px-1">{patientMetrics.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}</select></td>
           <td className="pr-2"><Input value={c.r.raw} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, raw: e.target.value } : r))} className="h-7 w-24" /></td>
           <td className="pr-2"><Input value={c.r.unit} onChange={(e) => setRows(rows.map((r, j) => j === i ? { ...r, unit: e.target.value } : r))} className="h-7 w-28" /></td>
           <td className={`pr-2 font-mono ${c.ok ? "" : "text-destructive"}`}>{c.ok ? `${c.value} ${metricUnit(c.r.key)}${c.note ? ` (${c.note})` : ""}` : c.why}</td>
