@@ -30,9 +30,10 @@ import { scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 
 export const Route = createFileRoute("/")({
-  validateSearch: (s: Record<string, unknown>): { apply?: string | undefined; psi?: number | undefined } => ({
+  validateSearch: (s: Record<string, unknown>): { apply?: string | undefined; psi?: number | undefined; patient?: string | undefined } => ({
     apply: typeof s["apply"] === "string" ? s["apply"] : undefined,
     psi: typeof s["psi"] === "number" ? s["psi"] : undefined,
+    patient: typeof s["patient"] === "string" ? s["patient"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -58,10 +59,20 @@ export const Route = createFileRoute("/")({
 function Index() {
   const search = Route.useSearch();
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
+  const userPatients = useUserPatients();
+  const [patientRun, setPatientRun] = useState<string | null>(null);
   useEffect(() => {
     const t = therapies.find((x) => x.id === search.apply);
     if (t) { setInputs(applyTherapy({ ...defaultInputs, deltaPsi: search.psi ?? defaultInputs.deltaPsi }, t)); setTab("sim"); }
   }, [search.apply, search.psi]);
+  useEffect(() => {
+    if (!search.patient) return;
+    const p = [...userPatients, ...demoPatients].find((x) => x.id === search.patient);
+    if (!p) return;
+    setInputs({ ...defaultInputs, ...inputsFromPatient(p) });
+    setPatientRun(`${p.label} (${p.phenotype})`);
+    setTab("sim");
+  }, [search.patient, userPatients]);
   const [geo, setGeo] = useState<Geometry>(defaultGeometry);
   const [tab, setTab] = useState("sim");
   const [stepFocus, setStepFocus] = useState<number | null>(null);
