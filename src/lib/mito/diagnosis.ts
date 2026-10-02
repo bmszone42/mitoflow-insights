@@ -135,3 +135,31 @@ export function diagnoseProfile(p: DemoPatient) {
 }
 
 export const diagnoseAll = (extra: DemoPatient[] = []) => [...extra, ...demoPatients].map(diagnoseProfile);
+
+const HEALTHY = new Set(["Healthy adult", "Healthy child", "Healthy older adult"]);
+
+export type FlagOverlap = { key: PatientMetricKey; label: string; dir: Direction; basis: string; matches: { id: string; phenotype: string; label: string }[] };
+export type DisorderOverlap = { phenotype: string; shared: number; total: number; flags: string[] };
+
+// For each flagged value of the selected profile, which disorder profiles
+// flag the same value in the same direction. Overlap is shared flags, not a
+// likelihood ratio; healthy profiles and the profile itself are excluded.
+export function flagOverlaps(p: DemoPatient, pool: DemoPatient[] = demoPatients): { perFlag: FlagOverlap[]; ranked: DisorderOverlap[] } {
+  const dirs = Object.fromEntries(patientMetrics.map((m) => [m.key, metricDirection(p, m.key)])) as Record<PatientMetricKey, { dir: Direction; basis: string }>;
+  const others = pool.filter((o) => o.id !== p.id && !HEALTHY.has(o.phenotype));
+  const perFlag: FlagOverlap[] = patientMetrics
+    .filter((m) => dirs[m.key].dir !== "normal")
+    .map((m) => ({
+      key: m.key,
+      label: m.label,
+      dir: dirs[m.key].dir,
+      basis: dirs[m.key].basis,
+      matches: others.filter((o) => metricDirection(o, m.key).dir === dirs[m.key].dir).map((o) => ({ id: o.id, phenotype: o.phenotype, label: o.label })),
+    }));
+  const total = perFlag.length;
+  const ranked: DisorderOverlap[] = others.map((o) => {
+    const shared = perFlag.filter((f) => f.matches.some((x) => x.id === o.id));
+    return { phenotype: o.phenotype, shared: shared.length, total, flags: shared.map((f) => `${f.label} ${f.dir}`) };
+  }).filter((r) => r.shared > 0).sort((a, b) => b.shared - a.shared || a.phenotype.localeCompare(b.phenotype));
+  return { perFlag, ranked };
+}

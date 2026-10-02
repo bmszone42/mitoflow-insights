@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { AlertTriangle, ArrowLeft, CheckCircle2, CircleHelp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { diagnoseAll, type Evidence } from "@/lib/mito/diagnosis";
+import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
 
@@ -34,6 +34,7 @@ function DiagnosisPage() {
   const all = useMemo(() => diagnoseAll(users), [users]);
   const [id, setId] = useState("demo-04");
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
+  const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
 
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
     <div className="flex gap-2"><Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 size-4" aria-hidden />Back to lab</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment" search={{ profile: id }} data-testid="dx-treatment">See therapy targets</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment-plan" search={{ profile: id }} data-testid="dx-plan">Treatment plan</Link></Button></div>
@@ -85,6 +86,20 @@ function DiagnosisPage() {
         <EvidenceList title="ROS assay flags" items={d.rosAssayFlags} empty="MitoSOX, H₂O₂ and lipid oxidation within ±25% of healthy." />
         <EvidenceList title="ATP assay flags" items={d.atpAssayFlags} empty="P/O and ATP-linked respiration within ±25% of healthy." />
         <EvidenceList title="Model flags" items={d.modelFlags} empty="No model ATP or ROS flag at this profile's membrane potential." />
+      </div>
+
+      <div data-testid="dx-overlap">
+        <h2 className="text-sm font-semibold">Which disorders share these flags</h2>
+        {overlap.perFlag.length === 0 ? <p className="mt-1 text-xs text-muted-foreground">No flagged values, so no disorder overlap to show.</p> : <>
+          <ol className="mt-2 space-y-2 text-xs">{overlap.ranked.slice(0, 6).map((r, i) => <li key={r.phenotype} data-testid="dx-overlap-row" className="border-b border-border/60 pb-2 last:border-b-0">
+            <span className="font-mono text-primary">{i + 1}.</span> <span className="font-medium">{r.phenotype}</span> <span className="font-mono text-muted-foreground">shares {r.shared} of {r.total} flags</span>
+            <span className="block pl-5 text-[11px] text-muted-foreground">{r.flags.join("; ")}</span>
+          </li>)}</ol>
+          <details className="mt-2 text-xs"><summary className="cursor-pointer text-muted-foreground">Per flagged value</summary>
+            <ul className="mt-1 space-y-1 pl-4 text-[11px]">{overlap.perFlag.map((f) => <li key={f.key}><span className="font-medium">{f.label} {f.dir}</span> <span className="text-muted-foreground">({f.basis})</span>{f.matches.length ? <span className="text-muted-foreground"> · also flagged in: {f.matches.map((m) => m.phenotype).join(", ")}</span> : <span className="text-muted-foreground"> · no disorder profile flags this value</span>}</li>)}</ul>
+          </details>
+        </>}
+        <p className="mt-2 text-[11px] text-muted-foreground">Overlap counts shared flags only. It is not a likelihood and does not rank diseases; most values are synthetic.</p>
       </div>
 
       <div className="border-l-2 border-border pl-3 text-xs" data-testid="dx-fit">

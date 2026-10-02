@@ -854,3 +854,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Lists all 14 patient metrics grouped by patientGroups with specimen/method, range resolved for the healthy adult profile via referenceFor, kind (Lab vs Research band), source link and note.
 - Derived readouts section: effective ATP cost 0.52 vs 0.50-0.62 eV/ATP (Nicholls & Ferguson) and P/O bands from poLiteratureBands (Hinkle 2005).
 - Verified with Playwright at 1280 and 390: 24 slider rows, 14 metric rows, no overflow, no page errors; typecheck clean.
+
+## Diagnosis disorder overlap (2026-10-02) ✅
+- diagnosis.ts: flagOverlaps(p, pool) maps each flagged value of the selected profile to the disorder profiles flagging the same value in the same direction (metricDirection), excluding healthy profiles and the profile itself; returns perFlag overlaps plus disorders ranked by shared flag count.
+- diagnosis.tsx: "Which disorders share these flags" section (test id dx-overlap, rows dx-overlap-row) above the label-fit check; top 6 disorders with shared/total counts and flag lists, collapsible per-flag detail, caveat that overlap is shared flags, not a likelihood.
+- Playwright at 1280 and 390: Leigh syndrome (default) overlaps MELAS 7/8, sepsis AKI 7/8, POLG 6/8; healthy adult shows "No flagged values"; no page errors; typecheck clean.
