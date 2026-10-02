@@ -245,7 +245,7 @@ function Index() {
               <TabsContent value="overview" className="mt-4"><PhysiologyOverview inputs={inputs} geo={geo} out={out} refreshKey={refreshKey} /></TabsContent>
               <TabsContent value="patient-comparison" className="mt-4"><PatientComparison /></TabsContent>
               <TabsContent value="ros-atp" className="mt-4"><RosAtpFlagDashboard inputs={inputs} geo={geo} out={out} /></TabsContent>
-              <TabsContent value="interpretation" className="mt-4"><ClinicalInterpretation inputs={inputs} geo={geo} therapy={runTherapy} /></TabsContent>
+              <TabsContent value="interpretation" className="mt-4"><ClinicalInterpretation inputs={inputs} geo={geo} /></TabsContent>
               <TabsContent value="ros" className="mt-4"><RosPhysiology inputs={inputs} geo={geo} out={out} /></TabsContent>
               <TabsContent value="ros-references" className="mt-4"><RosReferences /></TabsContent>
               <TabsContent value="references" className="mt-4"><PhysiologyReferences /></TabsContent>
