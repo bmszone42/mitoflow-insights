@@ -16,16 +16,16 @@ const keys = ["membranePotential", "poNadh", "atpLinkedOcr", "mitosox", "h2o2", 
 const Item = z.object({
   key: z.enum(keys),
   value: z.number().finite(),
-  unit: z.string().max(40),
+  unit: z.string().max(40).nullable().optional(),
   printedRange: z.string().max(80).nullable().optional(),
-  sourceText: z.string().max(160),
+  sourceText: z.string().max(300).nullable().optional(),
 });
 const Result = z.object({
-  items: z.array(Item).max(40),
+  items: z.array(z.unknown()).max(40).transform((a) => a.flatMap((x) => { const r = Item.safeParse(x); return r.success ? [r.data] : []; })),
   age: z.number().int().min(0).max(120).nullable().optional(),
   sex: z.enum(["F", "M"]).nullable().optional(),
   fasting: z.boolean().nullable().optional(),
-  notes: z.string().max(400).optional().default(""),
+  notes: z.string().max(1000).nullable().optional(),
 });
 
 const SYSTEM = `You read a laboratory report (photo or PDF) and extract only these analytes when printed on it:
@@ -77,7 +77,7 @@ export const Route = createFileRoute("/api/extract-labs")({
           let json: unknown;
           try { json = JSON.parse(text); } catch { return Response.json({ error: "Could not read values from this file. Try a clearer photo." }, { status: 422 }); }
           const out = Result.safeParse(json);
-          if (!out.success) return Response.json({ error: "The extracted values were not in the expected format. Try again or enter them by hand." }, { status: 422 });
+          if (!out.success) return Response.json({ error: "The extracted values were not in the expected format. Try again or enter them by hand." }, { status: 422, headers: { "X-Issue": out.error.issues.map((i) => i.path.join(".")).join(",").slice(0, 200) } });
           return Response.json(out.data);
         } catch (error) {
           const e = error as { statusCode?: number; message?: string };
