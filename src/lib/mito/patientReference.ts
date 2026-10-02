@@ -14,6 +14,8 @@ export type PatientMetric = {
 export type ValueOrigin = { origin: "published" | "user" | "synthetic"; citation?: string | undefined; url?: string | undefined; locator?: string | undefined };
 export type DemoPatient = {
   id: string; label: string; age: number; phenotype: string; description: string; context: string; values: Record<PatientMetricKey, number>;
+  /** Invented values before published replacement, kept to show how flags move. */
+  inventedValues?: Record<PatientMetricKey, number>;
   sex?: "F" | "M"; nonfasting?: boolean; source?: "synthetic" | "published-case" | "user";
   origins?: Partial<Record<PatientMetricKey, ValueOrigin>>;
 };
@@ -86,6 +88,7 @@ const published: Record<string, { citation: string; url: string; values: Partial
 for (const p of demoPatients) {
   const pub = published[p.id];
   if (!pub) continue;
+  p.inventedValues = { ...p.values };
   p.origins = {};
   for (const [k, v] of Object.entries(pub.values) as [PatientMetricKey, Pub][]) {
     p.values[k] = v.value;

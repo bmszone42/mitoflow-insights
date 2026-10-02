@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PatientRosAssays } from "@/components/mito/PatientRosAssays";
 import type { Inputs, Outputs } from "@/lib/mito/model";
+import { PublishedFlagShift } from "@/components/mito/PublishedFlagShift";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { cohortStats, demoPatients, originOf, formatRangeText, isCohortOutlier, outsideText, patientGroups, patientMetrics, patientSex, percentOutside, referenceFor, type RangeResult } from "@/lib/mito/patientReference";
@@ -109,6 +110,7 @@ export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
         );
       })}
 
+      <PublishedFlagShift selectedId={patientId} />
       <UserLabsPanel onAdded={setPatientId} />
 
       <PatientRosAssays />

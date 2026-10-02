@@ -844,3 +844,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ /treatment-plan: per strong cause therapy options with model doses (slider before to after), combined plan effect; linked from Diagnosis
 - ❌ Checked papers for 8 of 10 therapies
 - ✅ Simulator "Therapy levers" row: each Treatment therapy applies its slider moves to current settings on click
+- ✅ Patient Data "How flags move with published patient values": published tests flagged vs invented value and vs healthy adult (2026-10-02)
