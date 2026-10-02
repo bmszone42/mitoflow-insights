@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, CircleHelp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { demoPatients, formatRangeText, labMetricKeys, outsideText, patientGroups, patientMetrics, referenceFor, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
+import { useUserPatients } from "@/lib/mito/userPatients";
+import { demoPatients, originOf, formatRangeText, labMetricKeys, outsideText, patientGroups, patientMetrics, referenceFor, type DemoPatient, type PatientMetric } from "@/lib/mito/patientReference";
 
 function status(patient: DemoPatient, metric: PatientMetric) {
   const ref = referenceFor(patient, metric);
@@ -15,18 +16,19 @@ function ProfileValue({ patient, metric }: { patient: DemoPatient; metric: Patie
   return (
     <div className={`min-w-0 border-l-2 pl-3 ${result === "Outside band" ? "border-destructive text-destructive" : result === "Within band" ? "border-primary" : "border-border"}`} data-testid="patient-comparison-value" data-status={result}>
       <div className="font-mono text-sm font-semibold">{patient.values[metric.key].toFixed(metric.decimals)} <span className="text-[11px] font-normal">{metric.unit}</span></div>
+      {(() => { const o = originOf(patient, metric.key); return <div className="text-[10px] text-muted-foreground" data-testid="comparison-origin" data-origin={o.origin}>{o.origin === "published" ? `Published: ${o.citation}` : o.origin === "user" ? "Your value" : "Synthetic"}</div>; })()}
       <div className={`mt-1 flex items-center gap-1 text-[11px] ${result === "Outside band" ? "text-destructive" : "text-muted-foreground"}`}><Icon className="size-3 shrink-0" aria-hidden />{result}</div>
       {(() => { const ref = referenceFor(patient, metric); const t = ref.range ? outsideText(patient.values[metric.key], ref.range) : ref.reason; return t ? <div className="mt-1 text-[10px]">{t}{ref.range ? ` (${ref.range.label})` : ""}</div> : null; })()}
     </div>
   );
 }
 
-function ProfilePicker({ label, patient, onChange }: { label: string; patient: DemoPatient; onChange: (id: string) => void }) {
+function ProfilePicker({ label, patient, options, onChange }: { label: string; patient: DemoPatient; options: DemoPatient[]; onChange: (id: string) => void }) {
   return <div className="min-w-0">
     <label className="mb-1.5 block text-xs font-medium">{label}</label>
     <Select value={patient.id} onValueChange={onChange}>
       <SelectTrigger aria-label={label} className="w-full" data-testid={`comparison-${label.toLowerCase().replace(" ", "-")}`}><SelectValue /></SelectTrigger>
-      <SelectContent className="max-h-[min(70vh,440px)]">{demoPatients.map((entry) => <SelectItem key={entry.id} value={entry.id}>{entry.label} · {entry.age}y · {entry.phenotype}</SelectItem>)}</SelectContent>
+      <SelectContent className="max-h-[min(70vh,440px)]">{options.map((entry) => <SelectItem key={entry.id} value={entry.id}>{entry.label} · {entry.age}y · {entry.phenotype}</SelectItem>)}</SelectContent>
     </Select>
     <p className="mt-2 text-xs text-muted-foreground">Age {patient.age} · {patient.phenotype}</p>
   </div>;
@@ -35,8 +37,10 @@ function ProfilePicker({ label, patient, onChange }: { label: string; patient: D
 export function PatientComparison() {
   const [leftId, setLeftId] = useState("demo-01");
   const [rightId, setRightId] = useState("demo-15");
-  const left = demoPatients.find((patient) => patient.id === leftId) ?? demoPatients[0];
-  const right = demoPatients.find((patient) => patient.id === rightId) ?? demoPatients[0];
+  const users = useUserPatients();
+  const all = [...users, ...demoPatients];
+  const left = all.find((patient) => patient.id === leftId) ?? demoPatients[0];
+  const right = all.find((patient) => patient.id === rightId) ?? demoPatients[0];
   const flagged = patientMetrics.filter((metric) => status(left, metric) === "Outside band" || status(right, metric) === "Outside band");
   const sliderMetrics = patientMetrics.filter((metric) => metric.key === "membranePotential" || metric.key === "labileIron");
   const sliderFlags = sliderMetrics.filter((metric) => status(left, metric) === "Outside band" || status(right, metric) === "Outside band");
@@ -49,8 +53,8 @@ export function PatientComparison() {
     </div>
 
     <div className="grid gap-4 sm:grid-cols-2">
-      <ProfilePicker label="Profile A" patient={left} onChange={setLeftId} />
-      <ProfilePicker label="Profile B" patient={right} onChange={setRightId} />
+      <ProfilePicker options={all} label="Profile A" patient={left} onChange={setLeftId} />
+      <ProfilePicker options={all} label="Profile B" patient={right} onChange={setRightId} />
     </div>
 
     <div className="grid gap-3 border-y border-border py-4 sm:grid-cols-2" data-testid="patient-comparison-summary">
