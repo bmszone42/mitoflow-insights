@@ -70,7 +70,7 @@ function TreatmentPage() {
         </div>
         <p className="mt-2 text-muted-foreground">{t.note} {t.citation && <a className="text-primary underline underline-offset-2" href={t.citation.url} target="_blank" rel="noopener noreferrer">{t.citation.text}</a>}</p>
         <div className="mt-2 flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" asChild><Link to="/" search={{ apply: t.id, psi: d.patient.values.membranePotential }}>Open in Simulator</Link></Button>
+          <Button size="sm" variant="outline" asChild><Link to="/" search={{ apply: t.id, patient: d.patient.id }}>Open in Simulator</Link></Button>
           <Button size="sm" variant="ghost" onClick={() => setOpenTx(openTx === t.id ? null : t.id)} data-testid={`tx-targets-${t.id}`}>{openTx === t.id ? "Hide targeted disorders" : "Which disorders does this target?"}</Button>
         </div>
         {openTx === t.id && (() => { const hits = therapyTargets(t, all); return <div className="mt-2 border-t border-border pt-2" data-testid="tx-targets-list">

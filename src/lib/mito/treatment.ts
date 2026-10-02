@@ -1,7 +1,7 @@
 import { defaultGeometry, defaultInputs, inputRanges, simulate, type Inputs } from "./model";
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosSourceRows } from "./rosPhysiology";
-import type { DemoPatient } from "./patientReference";
+import { inputsFromPatient, type DemoPatient } from "./patientReference";
 import type { Mechanism, diagnoseProfile } from "./diagnosis";
 
 // Therapy classes mapped to existing model sliders. Research levers only:
@@ -68,8 +68,8 @@ function metrics(inputs: Inputs) {
   return { atp: out.atpFlux, cost, superoxide: out.superoxide, h2o2: out.hydrogenPeroxide, atpFlags, rosFlags };
 }
 
-/** Profile state = its membrane potential, other inputs default (same rule as Diagnosis). */
-export const profileInputs = (p: DemoPatient): Inputs => ({ ...defaultInputs, deltaPsi: p.values.membranePotential });
+/** Profile state = measured baseline (membrane potential, labile iron, inverse MitoSOX), same mapping as "Run in Simulator". */
+export const profileInputs = (p: DemoPatient): Inputs => ({ ...defaultInputs, ...inputsFromPatient(p).patch });
 
 export function simulateTherapy(p: DemoPatient, t: Therapy) {
   const before = profileInputs(p);
