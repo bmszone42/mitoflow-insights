@@ -104,3 +104,4 @@
 - ❌ Published values for the other 14 conditions (no checked open source found yet)
 - [x] Lab ranges page listing every slider and metric range with citations
 - [x] Diagnosis page: disorder overlap per flagged lab value
+- [x] Membrane potential reading entry on Patient Data feeding the comparison drift check
