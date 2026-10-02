@@ -105,3 +105,4 @@
 - [x] Lab ranges page listing every slider and metric range with citations
 - [x] Diagnosis page: disorder overlap per flagged lab value
 - [x] Membrane potential reading entry on Patient Data feeding the comparison drift check
+- [x] Run patient in Simulator: Diagnosis button maps membrane potential, labile iron and MitoSOX onto sliders
