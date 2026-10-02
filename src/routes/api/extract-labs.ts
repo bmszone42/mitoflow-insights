@@ -11,7 +11,7 @@ const Body = z.object({
   filename: z.string().trim().max(120).optional().default("report"),
 });
 
-const keys = ["membranePotential", "poNadh", "atpLinkedOcr", "mitosox", "h2o2", "lipidPeroxidation", "aconitase", "labileIron", "ferritin", "transferrinSaturation", "lactate", "pyruvate", "lactatePyruvate", "glucose"] as const;
+const keys = ["membranePotential", "poNadh", "atpLinkedOcr", "mitosox", "h2o2", "lipidPeroxidation", "aconitase", "labileIron", "ferritin", "transferrinSaturation", "lactate", "pyruvate", "lactatePyruvate", "glucose", "h2o2Nm"] as const;
 
 const Item = z.object({
   key: z.enum(keys),
@@ -29,7 +29,7 @@ const Result = z.object({
 });
 
 const SYSTEM = `You read a laboratory report (photo or PDF) and extract only these analytes when printed on it:
-membranePotential (mV), poNadh (P/O ratio), atpLinkedOcr (ATP-linked oxygen consumption), mitosox (fold control), h2o2 (fold control), lipidPeroxidation (% control), aconitase, labileIron (µM), ferritin (serum), transferrinSaturation (%), lactate, pyruvate, lactatePyruvate (lactate:pyruvate ratio), glucose.
+membranePotential (mV), poNadh (P/O ratio), atpLinkedOcr (ATP-linked oxygen consumption), mitosox (fold control), h2o2 (fold control probe signal), h2o2Nm (hydrogen peroxide concentration in nM, µM or pM), lipidPeroxidation (% control), aconitase, labileIron (µM), ferritin (serum), transferrinSaturation (%), lactate, pyruvate, lactatePyruvate (lactate:pyruvate ratio), glucose.
 Rules:
 - Copy the value and unit exactly as printed. Do not convert units. Do not guess or infer values that are not printed.
 - printedRange: the report's own reference range for that test if printed, else null.
