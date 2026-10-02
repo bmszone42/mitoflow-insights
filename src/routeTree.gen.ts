@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DiagnosisRouteImport } from './routes/diagnosis'
+import { Route as LabRangesRouteImport } from './routes/lab-ranges'
 import { Route as PatientBaselineRouteImport } from './routes/patient-baseline'
 import { Route as TreatmentRouteImport } from './routes/treatment'
 import { Route as TreatmentPlanRouteImport } from './routes/treatment-plan'
@@ -34,6 +35,11 @@ const AuthRoute = AuthRouteImport.update({
 const DiagnosisRoute = DiagnosisRouteImport.update({
   id: '/diagnosis',
   path: '/diagnosis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabRangesRoute = LabRangesRouteImport.update({
+  id: '/lab-ranges',
+  path: '/lab-ranges',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PatientBaselineRoute = PatientBaselineRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/diagnosis': typeof DiagnosisRoute
+  '/lab-ranges': typeof LabRangesRoute
   '/patient-baseline': typeof PatientBaselineRoute
   '/treatment': typeof TreatmentRoute
   '/treatment-plan': typeof TreatmentPlanRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/diagnosis': typeof DiagnosisRoute
+  '/lab-ranges': typeof LabRangesRoute
   '/patient-baseline': typeof PatientBaselineRoute
   '/treatment': typeof TreatmentRoute
   '/treatment-plan': typeof TreatmentPlanRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/diagnosis': typeof DiagnosisRoute
+  '/lab-ranges': typeof LabRangesRoute
   '/patient-baseline': typeof PatientBaselineRoute
   '/treatment': typeof TreatmentRoute
   '/treatment-plan': typeof TreatmentPlanRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/diagnosis'
+    | '/lab-ranges'
     | '/patient-baseline'
     | '/treatment'
     | '/treatment-plan'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/diagnosis'
+    | '/lab-ranges'
     | '/patient-baseline'
     | '/treatment'
     | '/treatment-plan'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/diagnosis'
+    | '/lab-ranges'
     | '/patient-baseline'
     | '/treatment'
     | '/treatment-plan'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   DiagnosisRoute: typeof DiagnosisRoute
+  LabRangesRoute: typeof LabRangesRoute
   PatientBaselineRoute: typeof PatientBaselineRoute
   TreatmentRoute: typeof TreatmentRoute
   TreatmentPlanRoute: typeof TreatmentPlanRoute
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/diagnosis'
       fullPath: '/diagnosis'
       preLoaderRoute: typeof DiagnosisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab-ranges': {
+      id: '/lab-ranges'
+      path: '/lab-ranges'
+      fullPath: '/lab-ranges'
+      preLoaderRoute: typeof LabRangesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/patient-baseline': {
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   DiagnosisRoute: DiagnosisRoute,
+  LabRangesRoute: LabRangesRoute,
   PatientBaselineRoute: PatientBaselineRoute,
   TreatmentRoute: TreatmentRoute,
   TreatmentPlanRoute: TreatmentPlanRoute,
