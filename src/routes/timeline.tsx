@@ -61,6 +61,13 @@ function TimelinePage() {
     addVisit({ patientId: p.id, date, values: withDerived(values), h2o2Nm, therapies: picked, doses: Object.fromEntries(picked.map((t) => [t, doses[t] ?? 1])) });
     setDraft({}); setPicked([]); setDoses({});
   };
+  const [planDate, setPlanDate] = useState(new Date().toISOString().slice(0, 10));
+  const [planPicked, setPlanPicked] = useState<string[]>([]);
+  const [planDoses, setPlanDoses] = useState<Record<string, number>>({});
+  const savePlan = () => {
+    addPlan({ patientId: p.id, date: planDate, therapies: planPicked, doses: Object.fromEntries(planPicked.map((t) => [t, planDoses[t] ?? 1])) });
+    setPlanPicked([]); setPlanDoses({});
+  };
   const tName = (tid: string) => therapies.find((t) => t.id === tid)?.name ?? tid;
 
   return <main className="mx-auto max-w-6xl px-4 py-6">
