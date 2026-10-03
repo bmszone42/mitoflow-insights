@@ -119,9 +119,15 @@ function Dashboard() {
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Patient dashboard</h1>
-        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at 1x model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
+        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at the chosen model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
       </div>
       <div className="flex flex-col items-end gap-2">
+        <label className="flex items-center gap-2 text-xs" data-testid="dash-dose-label">
+          Model dose
+          <select value={dose} onChange={(e) => setDose(Number(e.target.value))} data-testid="dash-dose" className="rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+            {calculatorDoses.filter((d) => d > 0).map((d) => <option key={d} value={d}>{d}x</option>)}
+          </select>
+        </label>
         <label className="flex items-center gap-2 text-xs" data-testid="dash-readout-only-label">
           <input type="checkbox" checked={readoutOnly} onChange={(e) => setReadoutOnly(e.target.checked)} data-testid="dash-readout-only" className="size-3.5 accent-primary" />
           Only therapies that change ATP, superoxide or peroxide
