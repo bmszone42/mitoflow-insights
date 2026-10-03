@@ -11,7 +11,7 @@
 - ROS profile comparisons use only the synthetic profile's membrane potential with all other default inputs at current geometry; never convert assay fold signals or disorder labels into source-specific textbook rates.
 - ROS assay flags compare a profile's MitoSOX, H2O2 or lipid signal with healthy demo-01 per species (±25%), shown beside model flags; never site-specific.
 - MitoSOX band is one study's healthy-control IQR scaled to its median; never call it a clinical range.
-- The MitoSOX band flag lives in diagnosis rosAssayFlags via readoutChecks; it is excluded from patientFlags so it is never double-counted.
+- The MitoSOX and peroxide (Sies 2017, above 100 nM only) band flags live in diagnosis rosAssayFlags; MitoSOX is excluded from patientFlags and the dashboard adds no separate peroxide count, so neither is double-counted.
 - interpretation.ts builds the narrative deterministically; scores are not probabilities.
 - ATP assay flags compare a profile's NADH P/O (pumping steps) and ATP-linked OCR (chain summary) with healthy demo-01 at ±25%; whole-chain, never step-specific.
 - Diagnosis page ranks mechanisms, never diseases, via fixed rules in diagnosis.ts; oxidant load half weight (nonspecific probes); ferritin quarter weight in acute profiles (acute-phase marker); scores are not probabilities.
