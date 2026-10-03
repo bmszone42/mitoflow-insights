@@ -1,5 +1,5 @@
 import { defaultGeometry, defaultInputs, simulate } from "./model";
-import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOutside, readoutChecks, referenceFor, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
+import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOutside, readoutChecks, referenceFor, patientMetrics, h2o2BandCheck, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosAssayFlag, rosSourceRows } from "./rosPhysiology";
 import { atpAssayFlag } from "./atpComparison";
