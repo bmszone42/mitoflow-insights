@@ -58,7 +58,6 @@ function Dashboard() {
       const hb = h2o2BandCheck(p, out.hydrogenPeroxide);
       const h2o2Flag = (hb.model.outside || hb.measured?.outside) ? 1 : 0;
       const ms = readoutChecks(p).find((b) => b.key === "mitosox")!;
-      const mitosoxFlag = ms.outside ? 1 : 0;
       const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag, modelFlags = d.modelFlags.length;
       const all = labFlags + assayFlags + modelFlags;
       const matrix = responders(p, dose);
