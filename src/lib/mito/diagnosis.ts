@@ -144,7 +144,7 @@ export function diagnoseProfile(p: DemoPatient) {
   const strongMechs = new Set(strong.map((c) => c.mechanism));
   const therapyFlags: Evidence[] = strongMechs.size === 0 ? [] : therapies
     .filter((t) => t.mechanisms.some((m) => strongMechs.has(m)))
-    .map((t) => {
+    .map((t): Evidence | null => {
       const s = simulateTherapy(p, t);
       const parts: string[] = [];
       const pct = (a: number, b: number) => (a ? (b / a - 1) * 100 : 0);
