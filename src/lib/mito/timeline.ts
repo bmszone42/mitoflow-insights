@@ -4,7 +4,7 @@ import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies } from "./treatment";
 
 // Timeline visits live in module memory only (tab-only, never persisted or sent anywhere).
-export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; therapies: string[]; origin: "baseline" | "synthetic" | "user" };
+export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; h2o2Nm?: number | undefined; therapies: string[]; origin: "baseline" | "synthetic" | "user" };
 
 let visits: Visit[] = [];
 const listeners = new Set<() => void>();
@@ -32,12 +32,13 @@ export function syntheticVisits(p: DemoPatient): Visit[] {
       const v = (p.values[m.key] + (healthy.values[m.key] - p.values[m.key]) * share) * wobble;
       values[m.key] = Math.round(v * 10 ** m.decimals) / 10 ** m.decimals;
     }
-    return { id: `${p.id}-s${i + 1}`, patientId: p.id, date: addMonths(BASE_DATE, (i + 1) * 3), values: withDerived(values), therapies: therapy ? [therapy] : [], origin: "synthetic" as const };
+    const h2o2Nm = p.h2o2Nm === undefined ? undefined : Math.round((p.h2o2Nm + (30 - p.h2o2Nm) * share) * (1 + 0.03 * Math.sin(i + 7)));
+    return { id: `${p.id}-s${i + 1}`, patientId: p.id, date: addMonths(BASE_DATE, (i + 1) * 3), values: withDerived(values), h2o2Nm, therapies: therapy ? [therapy] : [], origin: "synthetic" as const };
   });
 }
 
 export function patientTimeline(p: DemoPatient, user: Visit[]): Visit[] {
-  const baseline: Visit = { id: `${p.id}-b`, patientId: p.id, date: BASE_DATE, values: p.values, therapies: [], origin: "baseline" };
+  const baseline: Visit = { id: `${p.id}-b`, patientId: p.id, date: BASE_DATE, values: p.values, h2o2Nm: p.h2o2Nm, therapies: [], origin: "baseline" };
   return [baseline, ...syntheticVisits(p), ...user.filter((v) => v.patientId === p.id)].sort((a, b) => a.date.localeCompare(b.date));
 }
 
