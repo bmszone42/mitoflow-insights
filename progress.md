@@ -942,3 +942,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Dashboard assay flag count includes the MitoSOX band check (Gonzalo 2019, 0.59-1.5x control); new "MitoSOX band" column shows Flagged/Within with "(adult band, child)" for minors.
 - CSV gains "MitoSOX (fold control)" and "MitoSOX vs Gonzalo 2019" columns.
 - Verified: 6 of 18 profiles flag (Leigh age 3, Friedreich 17, MELAS, TBI, sepsis AKI, iron overload); children labeled; no page errors; typecheck clean.
+
+## Therapy comparison page (2026-10-03) ✅
+- New /therapy-compare route: pick a patient profile, two therapies and a model dose for each (0-2x); ATP flux, superoxide and H2O2 shown side by side (baseline, A, B, A+B combined) with percent change.
+- Dose-response chart overlays both therapies across all doses (A solid, B dashed); shared-slider warning when both therapies move the same slider; per-therapy cards show slider targets, note and evidence status.
+- Linked from the Therapy calculator header; search params profile/a/da/b/db.
+- Verified at 1280: Leigh baseline vs mitoAntiox 1x vs complex2 1.5x (ATP 61/61/64, superoxide -15%/+10%, H2O2 -35%/+8%); no page errors; typecheck clean.
