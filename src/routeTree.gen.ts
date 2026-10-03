@@ -16,6 +16,7 @@ import { Route as DiagnosisRouteImport } from './routes/diagnosis'
 import { Route as LabRangesRouteImport } from './routes/lab-ranges'
 import { Route as PatientBaselineRouteImport } from './routes/patient-baseline'
 import { Route as TherapyCalculatorRouteImport } from './routes/therapy-calculator'
+import { Route as TherapyCompareRouteImport } from './routes/therapy-compare'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as TreatmentRouteImport } from './routes/treatment'
 import { Route as TreatmentPlanRouteImport } from './routes/treatment-plan'
@@ -58,6 +59,11 @@ const PatientBaselineRoute = PatientBaselineRouteImport.update({
 const TherapyCalculatorRoute = TherapyCalculatorRouteImport.update({
   id: '/therapy-calculator',
   path: '/therapy-calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TherapyCompareRoute = TherapyCompareRouteImport.update({
+  id: '/therapy-compare',
+  path: '/therapy-compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TimelineRoute = TimelineRouteImport.update({
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/lab-ranges': typeof LabRangesRoute
   '/patient-baseline': typeof PatientBaselineRoute
   '/therapy-calculator': typeof TherapyCalculatorRoute
+  '/therapy-compare': typeof TherapyCompareRoute
   '/timeline': typeof TimelineRoute
   '/treatment': typeof TreatmentRoute
   '/treatment-plan': typeof TreatmentPlanRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/lab-ranges': typeof LabRangesRoute
   '/patient-baseline': typeof PatientBaselineRoute
   '/therapy-calculator': typeof TherapyCalculatorRoute
+  '/therapy-compare': typeof TherapyCompareRoute
   '/timeline': typeof TimelineRoute
   '/treatment': typeof TreatmentRoute
   '/treatment-plan': typeof TreatmentPlanRoute
@@ -144,6 +152,7 @@ export interface FileRoutesById {
   '/lab-ranges': typeof LabRangesRoute
   '/patient-baseline': typeof PatientBaselineRoute
   '/therapy-calculator': typeof TherapyCalculatorRoute
+  '/therapy-compare': typeof TherapyCompareRoute
   '/timeline': typeof TimelineRoute
   '/treatment': typeof TreatmentRoute
   '/treatment-plan': typeof TreatmentPlanRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/lab-ranges'
     | '/patient-baseline'
     | '/therapy-calculator'
+    | '/therapy-compare'
     | '/timeline'
     | '/treatment'
     | '/treatment-plan'
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/lab-ranges'
     | '/patient-baseline'
     | '/therapy-calculator'
+    | '/therapy-compare'
     | '/timeline'
     | '/treatment'
     | '/treatment-plan'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/lab-ranges'
     | '/patient-baseline'
     | '/therapy-calculator'
+    | '/therapy-compare'
     | '/timeline'
     | '/treatment'
     | '/treatment-plan'
@@ -215,6 +227,7 @@ export interface RootRouteChildren {
   LabRangesRoute: typeof LabRangesRoute
   PatientBaselineRoute: typeof PatientBaselineRoute
   TherapyCalculatorRoute: typeof TherapyCalculatorRoute
+  TherapyCompareRoute: typeof TherapyCompareRoute
   TimelineRoute: typeof TimelineRoute
   TreatmentRoute: typeof TreatmentRoute
   TreatmentPlanRoute: typeof TreatmentPlanRoute
@@ -274,6 +287,13 @@ declare module '@tanstack/react-router' {
       path: '/therapy-calculator'
       fullPath: '/therapy-calculator'
       preLoaderRoute: typeof TherapyCalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/therapy-compare': {
+      id: '/therapy-compare'
+      path: '/therapy-compare'
+      fullPath: '/therapy-compare'
+      preLoaderRoute: typeof TherapyCompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/timeline': {
@@ -343,6 +363,7 @@ const rootRouteChildren: RootRouteChildren = {
   LabRangesRoute: LabRangesRoute,
   PatientBaselineRoute: PatientBaselineRoute,
   TherapyCalculatorRoute: TherapyCalculatorRoute,
+  TherapyCompareRoute: TherapyCompareRoute,
   TimelineRoute: TimelineRoute,
   TreatmentRoute: TreatmentRoute,
   TreatmentPlanRoute: TreatmentPlanRoute,
