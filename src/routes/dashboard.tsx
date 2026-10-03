@@ -51,11 +51,12 @@ function Dashboard() {
       const h2o2Flag = (hb.model.outside || hb.measured?.outside) ? 1 : 0;
       const ms = readoutChecks(p).find((b) => b.key === "mitosox")!;
       const mitosoxFlag = ms.outside ? 1 : 0;
-      const all = r.labFlags + r.assayFlags + r.modelFlags;
+      const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags = d.modelFlags.length;
+      const all = labFlags + assayFlags + modelFlags;
       return {
         hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
-        labFlags: d.patientFlags.length, assayFlags: d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags: d.modelFlags.length,
+        labFlags, assayFlags, modelFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
         respAll: all > 0 ? responders(p).slice(0, 3) : null,
       };
