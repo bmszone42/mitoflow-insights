@@ -1,0 +1,18 @@
+import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+
+export type TimelineChartPoint = { date: string; value: number | null; top: number };
+
+export default function TimelineChart({ chart, mLabel, isH2o2, isMitosox }: { chart: TimelineChartPoint[]; mLabel: string; isH2o2: boolean; isMitosox: boolean }) {
+  return <div className="h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={chart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+    <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
+    <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
+    <YAxis yAxisId="v" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} width={40} />
+    <YAxis yAxisId="s" orientation="right" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} width={30} />
+    <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", fontSize: 11 }} />
+    {isH2o2 && <ReferenceLine yAxisId="v" y={100} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "100 nM", fontSize: 9, fill: "var(--destructive)" }} />}
+    {isMitosox && <ReferenceLine yAxisId="v" y={1.5} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "1.5x", fontSize: 9, fill: "var(--destructive)" }} />}
+    {isMitosox && <ReferenceLine yAxisId="v" y={0.59} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "0.59x", fontSize: 9, fill: "var(--destructive)" }} />}
+    <Line yAxisId="v" dataKey="value" name={mLabel} stroke="var(--primary)" strokeWidth={2} dot connectNulls={false} />
+    <Line yAxisId="s" dataKey="top" name="Top mechanism score" stroke="var(--muted-foreground)" strokeDasharray="4 3" dot={false} />
+  </LineChart></ResponsiveContainer></div>;
+}
