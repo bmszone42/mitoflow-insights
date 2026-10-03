@@ -260,6 +260,13 @@ export function h2o2BandCheck(p: DemoPatient, modelNm: number) {
   return { model: chk(modelNm), measured: p.h2o2Nm === undefined ? null : chk(p.h2o2Nm) };
 }
 
+/** Projected peroxide: the measured nM value scaled by the model's own fold change
+ *  with therapy (after / before). A model estimate, not a measurement. */
+export function projectedH2o2(measuredNm: number, modelBefore: number, modelAfter: number) {
+  const value = modelBefore > 0 ? measuredNm * (modelAfter / modelBefore) : measuredNm;
+  return { value, outside: value > h2o2NmBand.hi, text: outsideText(value, { hi: h2o2NmBand.hi }) };
+}
+
 export function readoutChecks(p: DemoPatient) {
   const inputs = { ...defaultInputs, ...inputsFromPatient(p).patch };
   const out = simulate(inputs);
