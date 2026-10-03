@@ -52,7 +52,7 @@ function Dashboard() {
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
-    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", "Lab flags", "Assay flags", "Model flags", "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders"];
+    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", "Lab flags", "Assay flags", "Model flags", "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders"];
     const lines = [header.join(",")];
     for (const r of rows) {
       const src = r.p.source ?? "synthetic";
@@ -65,6 +65,8 @@ function Dashboard() {
         r.hb.measured ? String(r.hb.measured.value) : "Not measured",
         esc(`model ${r.hb.model.text ?? "within"}; measured ${r.hb.measured ? r.hb.measured.text ?? "within" : "not measured"}`),
         (r.hb.measured?.outside || r.hb.model.outside) ? `Flagged >100 nM${r.hb.measured?.outside ? " (measured)" : " (model)"}` : `Within${r.hb.measured ? "" : " (model only)"}`,
+        r.p.values.mitosox.toFixed(2),
+        r.ms.outside ? `Flagged: ${r.ms.text}${r.p.age < 18 ? " (adult band applied to a child)" : ""}` : "Within",
         String(r.labFlags), String(r.assayFlags), String(r.modelFlags), String(r.labFlags + r.assayFlags + r.modelFlags),
         esc(r.top ? r.top.name : "No strong cause"), r.top ? r.top.score.toFixed(2) : "",
         esc(r.overlap.map((o) => `${o.phenotype} ${o.shared}/${o.total}`).join("; ")),
@@ -86,7 +88,7 @@ function Dashboard() {
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Patient dashboard</h1>
-        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag. Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. Research model, not a diagnosis. Synthetic values are invented.</p>
+        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. Research model, not a diagnosis. Synthetic values are invented.</p>
       </div>
       <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
     </header>
@@ -94,7 +96,7 @@ function Dashboard() {
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
           <th className="px-3 py-2">Profile</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2">Superoxide</th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
-          <th className="px-3 py-2">Peroxide flag</th><th className="px-3 py-2">Flags: lab / assay / model</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Open</th>
+          <th className="px-3 py-2">Peroxide flag</th><th className="px-3 py-2">MitoSOX band (Gonzalo 2019)</th><th className="px-3 py-2">Flags: lab / assay / model</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Open</th>
         </tr></thead>
         <tbody>{rows.map((r) => <tr key={r.p.id} data-testid="dash-row" className="border-t border-border/60 align-top">
           <th scope="row" className="px-3 py-2 font-medium">{r.p.label}<div className="font-normal text-muted-foreground">{r.p.phenotype} · {r.p.age}y {patientSex(r.p)}</div></th>
