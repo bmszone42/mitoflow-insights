@@ -48,8 +48,8 @@ function TimelinePage() {
   const save = () => {
     const values = { ...last.values };
     for (const x of patientMetrics) { const n = Number(draft[x.key]); if (draft[x.key] !== undefined && draft[x.key] !== "" && Number.isFinite(n)) values[x.key] = n; }
-    const h2n = Number(draft.h2o2Nm);
-    const h2o2Nm = draft.h2o2Nm !== undefined && draft.h2o2Nm !== "" && Number.isFinite(h2n) ? h2n : last.h2o2Nm;
+    const h2n = Number(draft["h2o2Nm"]);
+    const h2o2Nm = draft["h2o2Nm"] !== undefined && draft["h2o2Nm"] !== "" && Number.isFinite(h2n) ? h2n : last.h2o2Nm;
     addVisit({ patientId: p.id, date, values: withDerived(values), h2o2Nm, therapies: picked });
     setDraft({}); setPicked([]);
   };
@@ -113,7 +113,7 @@ function TimelinePage() {
         <label key={x.key} className="text-[11px]">{x.label} <span className="text-muted-foreground">({x.unit})</span>
           <Input inputMode="decimal" placeholder={String(last.values[x.key])} value={draft[x.key] ?? ""} onChange={(e) => setDraft({ ...draft, [x.key]: e.target.value })} className="mt-0.5 h-8" /></label>)}
         <label className="text-[11px]">Hydrogen peroxide (measured) <span className="text-muted-foreground">(nM)</span>
-          <Input inputMode="decimal" placeholder={last.h2o2Nm !== undefined ? String(last.h2o2Nm) : "Not measured"} value={draft.h2o2Nm ?? ""} onChange={(e) => setDraft({ ...draft, h2o2Nm: e.target.value })} className="mt-0.5 h-8" /></label></div>
+          <Input inputMode="decimal" placeholder={last.h2o2Nm !== undefined ? String(last.h2o2Nm) : "Not measured"} value={draft["h2o2Nm"] ?? ""} onChange={(e) => setDraft({ ...draft, h2o2Nm: e.target.value })} className="mt-0.5 h-8" /></label></div>
       <h3 className="mt-3 text-xs font-semibold">Selected therapies (model levers only)</h3>
       <div className="mt-1 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">{therapies.map((t) =>
         <label key={t.id} className="flex items-center gap-2 text-[11px]"><Checkbox checked={picked.includes(t.id)} onCheckedChange={(c) => setPicked(c ? [...picked, t.id] : picked.filter((x) => x !== t.id))} />{t.name}</label>)}</div>
