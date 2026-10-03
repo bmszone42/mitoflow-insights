@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
-import { addVisit, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { addVisit, addPlan, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
 
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/timeline")({
 type SimKey = "simAtp" | "simSuperoxide" | "simH2o2";
 const simKeys = [{ key: "simAtp", r: "atp", label: "ATP flux (simulated)", unit: "µM/s" }, { key: "simSuperoxide", r: "superoxide", label: "Superoxide (simulated)", unit: "nM" }, { key: "simH2o2", r: "h2o2", label: "Hydrogen peroxide (simulated)", unit: "nM" }] as const;
 const fmt = (x: number) => (Math.abs(x) >= 10 ? x.toFixed(1) : Number(x.toPrecision(3)).toString());
-const originText = { baseline: "Profile values", synthetic: "Invented follow-up", user: "Your visit" } as const;
+const originText = { baseline: "Profile values", synthetic: "Invented follow-up", user: "Your visit", plan: "Plan (no new labs)" } as const;
 
 function TimelinePage() {
   const users = useUserPatients();
