@@ -915,3 +915,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Compared with the Sies 2017 band, flagged only above 100 nM, labeled a research band
 - ✅ Patient Comparison drift check uses the measured nM value when present; demo profiles show "Not measured" (no invented values)
 - ✅ Verified: 150 nM flagged 50% above, 40 nM within band, no page errors
+
+## Published MitoSOX band (2026-10-02) ✅
+- ✅ MitoSOX healthy-control spread 0.59-1.5 fold control (Gonzalo 2019 Front Neurosci: CD3+ T-cell control median 192 MFI, IQR 114-287.5, n=24), labeled study-specific research band
+- ✅ Shown on Lab Ranges, Patient Data range column, and the Patient Comparison drift check (measured value)
+- ✅ Adults only; children show "no pediatric interval"
