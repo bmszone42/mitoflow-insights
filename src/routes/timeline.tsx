@@ -39,6 +39,7 @@ function TimelinePage() {
   const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v), r: visitReadouts(p, v) })), [p, visits]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
   const isH2o2 = metric === "h2o2Nm";
+  const isMitosox = metric === "mitosox";
   const sim = simKeys.find((s) => s.key === metric);
   const m = patientMetrics.find((x) => x.key === metric);
   const mLabel = sim ? sim.label : isH2o2 ? "Hydrogen peroxide (measured)" : m!.label;
@@ -81,6 +82,7 @@ function TimelinePage() {
       <h2 className="text-sm font-semibold">{mLabel} <span className="font-normal text-muted-foreground">({mUnit})</span> and top mechanism score</h2>
       {sim && <p className="text-[11px] text-muted-foreground">Simulated from each visit's labs mapped to sliders, plus that visit's therapies at their model doses. Model dose is a slider value, never a drug dose. Not a clinical prediction.</p>}
       {isH2o2 && <p className="text-[11px] text-muted-foreground">Sies 2017: 1-10 nM signaling, 10-100 nM adaptive stress, above 100 nM distress. Research band, not a lab range. Visits without a measured value show a gap.</p>}
+      {isMitosox && <p className="text-[11px] text-muted-foreground">Gonzalo et al., Front Neurosci 2019: 0.59-1.5 fold of the healthy-control median, one study's healthy-control spread. Research band, not a lab range; for children the adult band is applied with caution.</p>}
       <div className="h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={chart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
         <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
@@ -88,6 +90,8 @@ function TimelinePage() {
         <YAxis yAxisId="s" orientation="right" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} width={30} />
         <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", fontSize: 11 }} />
         {isH2o2 && <ReferenceLine yAxisId="v" y={100} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "100 nM", fontSize: 9, fill: "var(--destructive)" }} />}
+        {isMitosox && <ReferenceLine yAxisId="v" y={1.5} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "1.5x", fontSize: 9, fill: "var(--destructive)" }} />}
+        {isMitosox && <ReferenceLine yAxisId="v" y={0.59} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "0.59x", fontSize: 9, fill: "var(--destructive)" }} />}
         <Line yAxisId="v" dataKey="value" name={mLabel} stroke="var(--primary)" strokeWidth={2} dot connectNulls={false} />
         <Line yAxisId="s" dataKey="top" name="Top mechanism score" stroke="var(--muted-foreground)" strokeDasharray="4 3" dot={false} />
       </LineChart></ResponsiveContainer></div>
