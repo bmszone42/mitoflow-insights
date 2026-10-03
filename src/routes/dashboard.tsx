@@ -57,7 +57,7 @@ function Dashboard() {
       const mitosoxFlag = ms.outside ? 1 : 0;
       const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags = d.modelFlags.length;
       const all = labFlags + assayFlags + modelFlags;
-      const allResp = all > 0 ? responders(p) : null;
+      const allResp = all > 0 ? responders(p, dose) : null;
       return {
         hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
@@ -69,7 +69,7 @@ function Dashboard() {
     }).map((r) => ({
       ...r,
       resp: r.respAll === null ? null : readoutOnly
-        ? responders(r.p).filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
+        ? responders(r.p, dose).filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
         : r.respAll,
     }));
     return built.sort((a, b) => {
@@ -78,7 +78,7 @@ function Dashboard() {
       if (fb !== fa) return fb - fa;
       return a.p.label.localeCompare(b.p.label);
     });
-  }, [users, readoutOnly]);
+  }, [users, readoutOnly, dose]);
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
