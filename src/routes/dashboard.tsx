@@ -43,6 +43,8 @@ function Dashboard() {
   const users = useUserPatients();
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
+  // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
+  const [dose, setDose] = useState(1);
   const rows = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
