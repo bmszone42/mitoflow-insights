@@ -930,3 +930,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - New "Peroxide flag" column on /dashboard, between the H2O2 band detail and the lab/assay/model flag counts: "Flagged >100 nM (measured|model)" in red when the Sies 2017 check trips, otherwise "Within" or "Within (model only)".
 - CSV download gained a matching "Peroxide flag" column.
 - All 18 demo profiles read "Within (model only)" (model peroxide stays 18-37 nM; no demo has a measured nM value). Verified at 1280, no page errors, typecheck clean.
+
+## Peroxide (nM) on the Timeline (2026-10-03) ✅
+- Visit type carries optional h2o2Nm; baseline takes the profile's measured value, synthetic follow-ups drift it toward 30 nM when present.
+- Timeline metric selector gains "Hydrogen peroxide (measured, nM)": chart plots it with a 100 nM Sies 2017 reference line, gaps for visits without a measurement, and a note that the band is research, not a lab range.
+- Add-visit form gains a peroxide field (blank carries over from the latest visit); table shows the value in red above 100 nM or "Not measured".
+- Verified: added a 2026-09-01 visit with 150 nM; row shows 150 in date order among synthetic visits, no page errors, typecheck clean.

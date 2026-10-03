@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import { ArrowLeft, Trash2 } from "lucide-react";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,9 +34,12 @@ function TimelinePage() {
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const p = all.find((x) => x.id === id) ?? all[0]!;
   const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v) })), [p, visits]);
-  const [metric, setMetric] = useState<PatientMetricKey>("lactate");
-  const m = patientMetrics.find((x) => x.key === metric)!;
-  const chart = timeline.map(({ v, d }) => ({ date: v.date, value: v.values[metric], top: d.causes[0]!.score }));
+  const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm">("lactate");
+  const isH2o2 = metric === "h2o2Nm";
+  const m = patientMetrics.find((x) => x.key === metric);
+  const mLabel = isH2o2 ? "Hydrogen peroxide (measured)" : m!.label;
+  const mUnit = isH2o2 ? "nM" : m!.unit;
+  const chart = timeline.map(({ v, d }) => ({ date: v.date, value: isH2o2 ? (v.h2o2Nm ?? null) : v.values[metric as PatientMetricKey], top: d.causes[0]!.score }));
 
   const last = timeline[timeline.length - 1]!.v;
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -45,7 +48,9 @@ function TimelinePage() {
   const save = () => {
     const values = { ...last.values };
     for (const x of patientMetrics) { const n = Number(draft[x.key]); if (draft[x.key] !== undefined && draft[x.key] !== "" && Number.isFinite(n)) values[x.key] = n; }
-    addVisit({ patientId: p.id, date, values: withDerived(values), therapies: picked });
+    const h2n = Number(draft["h2o2Nm"]);
+    const h2o2Nm = draft["h2o2Nm"] !== undefined && draft["h2o2Nm"] !== "" && Number.isFinite(h2n) ? h2n : last.h2o2Nm;
+    addVisit({ patientId: p.id, date, values: withDerived(values), h2o2Nm, therapies: picked });
     setDraft({}); setPicked([]);
   };
   const tName = (tid: string) => therapies.find((t) => t.id === tid)?.name ?? tid;
@@ -63,31 +68,33 @@ function TimelinePage() {
       <Select value={p.id} onValueChange={setId}><SelectTrigger className="w-72" aria-label="Profile"><SelectValue /></SelectTrigger>
         <SelectContent>{all.map((x) => <SelectItem key={x.id} value={x.id}>{x.label} · {x.phenotype}</SelectItem>)}</SelectContent></Select>
       <Select value={metric} onValueChange={(v) => setMetric(v as PatientMetricKey)}><SelectTrigger className="w-64" aria-label="Lab value"><SelectValue /></SelectTrigger>
-        <SelectContent>{patientMetrics.map((x) => <SelectItem key={x.key} value={x.key}>{x.label}</SelectItem>)}</SelectContent></Select>
+        <SelectContent>{patientMetrics.map((x) => <SelectItem key={x.key} value={x.key}>{x.label}</SelectItem>)}<SelectItem value="h2o2Nm">Hydrogen peroxide (measured, nM)</SelectItem></SelectContent></Select>
     </div>
 
     <section className="mt-4 rounded-md border border-border p-3" data-testid="timeline-chart">
-      <h2 className="text-sm font-semibold">{m.label} <span className="font-normal text-muted-foreground">({m.unit})</span> and top mechanism score</h2>
+      <h2 className="text-sm font-semibold">{mLabel} <span className="font-normal text-muted-foreground">({mUnit})</span> and top mechanism score</h2>
+      {isH2o2 && <p className="text-[11px] text-muted-foreground">Sies 2017: 1-10 nM signaling, 10-100 nM adaptive stress, above 100 nM distress. Research band, not a lab range. Visits without a measured value show a gap.</p>}
       <div className="h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={chart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
         <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
         <YAxis yAxisId="v" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} width={40} />
         <YAxis yAxisId="s" orientation="right" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} width={30} />
         <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", fontSize: 11 }} />
-        <Line yAxisId="v" dataKey="value" name={m.label} stroke="var(--primary)" strokeWidth={2} dot />
+        {isH2o2 && <ReferenceLine yAxisId="v" y={100} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "100 nM", fontSize: 9, fill: "var(--destructive)" }} />}
+        <Line yAxisId="v" dataKey="value" name={mLabel} stroke="var(--primary)" strokeWidth={2} dot connectNulls={false} />
         <Line yAxisId="s" dataKey="top" name="Top mechanism score" stroke="var(--muted-foreground)" strokeDasharray="4 3" dot={false} />
       </LineChart></ResponsiveContainer></div>
     </section>
 
     <section className="mt-4 overflow-x-auto">
       <table className="w-full min-w-[640px] text-xs" data-testid="timeline-table">
-        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{m.label}</th><th>Flags</th><th>Top mechanism</th><th>Therapies</th><th /></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>Therapies</th><th /></tr></thead>
         <tbody>{timeline.map(({ v, d }) => {
           const flags = d.patientFlags.length + d.rosAssayFlags.length + d.atpAssayFlags.length + d.modelFlags.length;
           return <tr key={v.id} className="border-t border-border align-top" data-testid="timeline-row">
             <td className="py-1.5 font-mono">{v.date}</td>
             <td>{originText[v.origin]}</td>
-            <td className="tabular-nums">{v.values[metric].toFixed(m.decimals)}</td>
+            <td className="tabular-nums">{isH2o2 ? (v.h2o2Nm !== undefined ? <span className={v.h2o2Nm > 100 ? "text-destructive" : ""}>{v.h2o2Nm.toFixed(0)}</span> : <span className="text-muted-foreground">Not measured</span>) : v.values[metric as PatientMetricKey].toFixed(m!.decimals)}</td>
             <td title={d.patientFlags.map((f) => f.label).join(", ")}>{flags}</td>
             <td>{d.top ? `${d.top.name} (${d.top.score.toFixed(2)})` : "None strong"}</td>
             <td>{v.therapies.length ? v.therapies.map(tName).join(", ") : "None"}</td>
@@ -104,7 +111,9 @@ function TimelinePage() {
       <div className="mt-2 flex items-center gap-2"><label className="text-xs" htmlFor="tl-date">Date</label><Input id="tl-date" type="date" className="w-44" value={date} onChange={(e) => setDate(e.target.value)} /></div>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{patientMetrics.filter((x) => x.key !== "lactatePyruvate").map((x) =>
         <label key={x.key} className="text-[11px]">{x.label} <span className="text-muted-foreground">({x.unit})</span>
-          <Input inputMode="decimal" placeholder={String(last.values[x.key])} value={draft[x.key] ?? ""} onChange={(e) => setDraft({ ...draft, [x.key]: e.target.value })} className="mt-0.5 h-8" /></label>)}</div>
+          <Input inputMode="decimal" placeholder={String(last.values[x.key])} value={draft[x.key] ?? ""} onChange={(e) => setDraft({ ...draft, [x.key]: e.target.value })} className="mt-0.5 h-8" /></label>)}
+        <label className="text-[11px]">Hydrogen peroxide (measured) <span className="text-muted-foreground">(nM)</span>
+          <Input inputMode="decimal" placeholder={last.h2o2Nm !== undefined ? String(last.h2o2Nm) : "Not measured"} value={draft["h2o2Nm"] ?? ""} onChange={(e) => setDraft({ ...draft, h2o2Nm: e.target.value })} className="mt-0.5 h-8" /></label></div>
       <h3 className="mt-3 text-xs font-semibold">Selected therapies (model levers only)</h3>
       <div className="mt-1 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">{therapies.map((t) =>
         <label key={t.id} className="flex items-center gap-2 text-[11px]"><Checkbox checked={picked.includes(t.id)} onCheckedChange={(c) => setPicked(c ? [...picked, t.id] : picked.filter((x) => x !== t.id))} />{t.name}</label>)}</div>
