@@ -49,11 +49,11 @@ function DiagnosisPage() {
     <section aria-label="All profiles" className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[760px] text-left text-xs">
         <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground"><tr>
-          <th className="px-3 py-2 font-medium">Profile</th><th className="px-3 py-2 font-medium">Patient Data</th><th className="px-3 py-2 font-medium">ROS assay</th><th className="px-3 py-2 font-medium">ATP assay</th><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Top cause</th><th className="px-3 py-2 font-medium">Label fit</th>
+          <th className="px-3 py-2 font-medium">Profile</th><th className="px-3 py-2 font-medium">Patient Data</th><th className="px-3 py-2 font-medium">ROS assay</th><th className="px-3 py-2 font-medium">ATP assay</th><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Therapies</th><th className="px-3 py-2 font-medium">Top cause</th><th className="px-3 py-2 font-medium">Label fit</th>
         </tr></thead>
         <tbody>{all.map((x) => <tr key={x.patient.id} data-testid="dx-row" onClick={() => setId(x.patient.id)} className={`cursor-pointer border-t border-border/60 hover:bg-muted/30 ${x.patient.id === id ? "bg-primary/10" : ""}`}>
           <th scope="row" className="px-3 py-2 font-medium">{x.patient.phenotype}<span className="block text-[10px] font-normal text-muted-foreground">{x.patient.label} · {x.patient.age}y · {Math.round(x.realShare * 100)}% real data</span></th>
-          <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td>
+          <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-therapy-count">{x.therapyFlags.length}</td>
           <td className="px-3 py-2" data-testid="dx-top">{x.top ? `${x.top.name} (${x.top.score.toFixed(2)})` : <span className="text-muted-foreground">No strong cause</span>}</td>
           <td className={`px-3 py-2 ${x.patient.source === "user" ? "text-muted-foreground" : fitStyle[x.fit]}`}>{x.patient.source === "user" ? "no label to check" : x.fit}</td>
         </tr>)}</tbody>
@@ -88,6 +88,7 @@ function DiagnosisPage() {
         <EvidenceList title="ROS assay flags" items={d.rosAssayFlags} empty="MitoSOX, H₂O₂ and lipid oxidation within ±25% of healthy." />
         <EvidenceList title="ATP assay flags" items={d.atpAssayFlags} empty="P/O and ATP-linked respiration within ±25% of healthy." />
         <EvidenceList title="Model flags" items={d.modelFlags} empty="No model ATP or ROS flag at this profile's membrane potential." />
+        <EvidenceList title="Therapy flags" items={d.therapyFlags} empty="No model therapy targets a strong cause and moves ATP, superoxide or peroxide by 1% or more." />
       </div>
 
       <div data-testid="dx-overlap">

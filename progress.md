@@ -1013,3 +1013,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Therapy comparison CSV scope picker (2026-10-03) ✅
 - Therapy comparison page gains a "CSV: this profile / all profiles" picker next to Download CSV. "All profiles" exports one row per profile (18 demo + any user-added) with each profile's own baseline ATP/superoxide/H2O2 and the picked therapies A, B and A+B at their chosen model doses (values plus percent vs that profile's baseline), plus therapy/slider footers and the research-model note.
 - Verified live: 18 profile rows, 23 columns, correct per-profile baselines; single-profile CSV unchanged; typecheck clean.
+
+## Diagnosis therapy flags (2026-10-03) ✅
+- diagnoseProfile now returns therapyFlags: model therapies targeting a strong cause (score >= 1.5) that move ATP, superoxide or peroxide by >=1% at 1x model dose on the profile baseline.
+- Diagnosis page: new "Therapies" count column in the all-profiles table and a "Therapy flags" EvidenceList beside the assay flag lists.
+- Model levers only, never drug doses; not counted in assay flag totals. Verified live: Leigh 13, sepsis 15, healthy profiles 0; typecheck clean.
