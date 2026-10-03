@@ -948,3 +948,5 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Dose-response chart overlays both therapies across all doses (A solid, B dashed); shared-slider warning when both therapies move the same slider; per-therapy cards show slider targets, note and evidence status.
 - Linked from the Therapy calculator header; search params profile/a/da/b/db.
 - Verified at 1280: Leigh baseline vs mitoAntiox 1x vs complex2 1.5x (ATP 61/61/64, superoxide -15%/+10%, H2O2 -35%/+8%); no page errors; typecheck clean.
+
+- Timeline therapy doses + simulated ATP/superoxide/H2O2 per visit (2026-10-03) ✅
