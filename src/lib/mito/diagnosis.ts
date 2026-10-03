@@ -206,3 +206,24 @@ export function flagOverlaps(p: DemoPatient, pool: DemoPatient[] = demoPatients)
   }).filter((r) => r.shared > 0).sort((a, b) => b.shared - a.shared || a.phenotype.localeCompare(b.phenotype));
   return { perFlag, ranked };
 }
+
+/**
+ * Therapy plan rows: each flagged therapy (same rule as Therapy flags) on one
+ * profile at a model dose, with readout changes and projected MitoSOX /
+ * peroxide clearance via bestProjectionTherapy. Model estimates only.
+ */
+export function therapyPlanRows(p: DemoPatient, dose = 1) {
+  const d = diagnoseProfile(p, dose);
+  const msOut = readoutChecks(p).find((b) => b.key === "mitosox")!.outside;
+  const h2 = p.h2o2Nm;
+  return d.therapyFlags.map((f) => {
+    const t = therapies.find((x) => x.name === f.label)!;
+    const b = metrics(profileInputs(p)); const a = metrics(applyTherapyDose(profileInputs(p), t, dose));
+    const ch = (x: number, y: number) => (x ? y / x - 1 : 0);
+    const so = bestProjectionTherapy(p, dose, "so", t.id)!; const hh = bestProjectionTherapy(p, dose, "h2", t.id)!;
+    const ms = projectedMitoSox(p.values.mitosox, 1, so.fold);
+    const pH2 = h2 === undefined ? null : projectedH2o2(h2, 1, hh.fold);
+    const clears = (msOut && !ms.outside ? 1 : 0) + (h2 !== undefined && h2 > 100 && pH2 && !pH2.outside ? 1 : 0);
+    return { t, targets: f.detail.split("targets ")[1] ?? "", atp: ch(b.atp, a.atp), so: ch(b.superoxide, a.superoxide), h2: ch(b.h2o2, a.h2o2), ms, msOut, pH2, h2Out: h2 !== undefined && h2 > 100, clears };
+  }).sort((x, y) => y.clears - x.clears || x.ms.value - y.ms.value);
+}
