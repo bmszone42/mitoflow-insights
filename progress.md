@@ -17,3 +17,8 @@
 - New "Add a plan row" section: saves therapies and model doses for a date without new labs; the row reuses the latest earlier visit's labs and shows in the table as "Plan (no new labs)".
 - Plan rows get the same simulated readouts and Projected flag column (MitoSOX and peroxide clearance) as real visits, removable via the trash icon; tab-only, never saved.
 - Verified live: Leigh plan row with the antioxidant at 1x shows MitoSOX 1.32x to 1.12x, no page errors; typecheck and build clean.
+
+## Therapy plan real-world dose column (2026-10-03) ✅
+- Each therapy in treatment.ts gains a clinicalDose field: the published clinical or trial dose the 1x model dose is anchored to (e.g. MitoQ 20-40 mg/day, deferiprone 75-100 mg/kg/day, NAC 600-1800 mg/day; research-only levers say so).
+- Therapy plan table gains a "Real-world dose (1x anchor)" column; at doses other than 1x a note says the model dose scales the slider move only, not this dose. CSV gains the same column and footer wording.
+- Page note: the link between model lever and literature is illustrative, never a dosing guide. Verified live (1x and 2x), no page errors; typecheck clean.
