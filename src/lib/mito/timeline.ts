@@ -1,10 +1,10 @@
 import { useSyncExternalStore } from "react";
 import { demoPatients, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { diagnoseProfile } from "./diagnosis";
-import { rankTherapies } from "./treatment";
+import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
 
 // Timeline visits live in module memory only (tab-only, never persisted or sent anywhere).
-export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; h2o2Nm?: number | undefined; therapies: string[]; origin: "baseline" | "synthetic" | "user" };
+export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; h2o2Nm?: number | undefined; therapies: string[]; doses?: Record<string, number> | undefined; origin: "baseline" | "synthetic" | "user" };
 
 let visits: Visit[] = [];
 const listeners = new Set<() => void>();
@@ -40,6 +40,19 @@ export function syntheticVisits(p: DemoPatient): Visit[] {
 export function patientTimeline(p: DemoPatient, user: Visit[]): Visit[] {
   const baseline: Visit = { id: `${p.id}-b`, patientId: p.id, date: BASE_DATE, values: p.values, h2o2Nm: p.h2o2Nm, therapies: [], origin: "baseline" };
   return [baseline, ...syntheticVisits(p), ...user.filter((v) => v.patientId === p.id)].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+const visitProfile = (p: DemoPatient, v: Visit): DemoPatient => {
+  if (v.origin === "baseline") return p;
+  const origin = v.origin === "user" ? "user" as const : "synthetic" as const;
+  return { ...p, values: v.values, origins: Object.fromEntries(patientMetrics.map((m) => [m.key, { origin }])) } as DemoPatient;
+};
+
+/** Simulated readouts at a visit: that visit's labs mapped to sliders, then each selected therapy applied at its model dose (default 1x). Model dose is a slider value, never a drug dose. */
+export function visitReadouts(p: DemoPatient, v: Visit) {
+  let inputs = profileInputs(visitProfile(p, v));
+  for (const id of v.therapies) { const t = therapies.find((x) => x.id === id); if (t) inputs = applyTherapyDose(inputs, t, v.doses?.[id] ?? 1); }
+  return metrics(inputs);
 }
 
 /** Diagnosis at a visit: same rules as the Diagnosis page, run on that visit's values. */
