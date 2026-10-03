@@ -26,20 +26,25 @@ export const Route = createFileRoute("/dashboard")({
 const fmt = (v: number) => (Math.abs(v) >= 10 ? v.toFixed(0) : Number(v.toPrecision(3)).toString());
 const pct = (v: number, b: number) => { const d = b ? v / b - 1 : 0; return `${d >= 0 ? "+" : ""}${Math.round(d * 100)}%`; };
 
-/** Therapies that improve this profile at the given model dose: ATP up, superoxide or H2O2 down (>=1%), or fewer ATP/ROS flags. Ranked by flags cleared first, then readout change; not efficacy. */
-function responders(p: Parameters<typeof profileInputs>[0], dose = 1) {
+/** Full effect of one therapy on one profile at the given model dose, including sub-1% changes. */
+function therapyEffect(p: Parameters<typeof profileInputs>[0], dose: number, t: Therapy) {
   const base = profileInputs(p);
   const b = metrics(base);
-  return therapies.map((t) => {
-    const a = metrics(applyTherapyDose(base, t, dose));
-    const ch = (x: number, y: number) => (x ? y / x - 1 : 0);
-    const atp = ch(b.atp, a.atp), so = ch(b.superoxide, a.superoxide), h2 = ch(b.h2o2, a.h2o2);
-    const cleared = (b.atpFlags - a.atpFlags) + (b.rosFlags - a.rosFlags);
-    const readoutParts = [atp >= 0.01 && `ATP +${Math.round(atp * 100)}%`, so <= -0.01 && `superoxide ${Math.round(so * 100)}%`, h2 <= -0.01 && `H2O2 ${Math.round(h2 * 100)}%`].filter(Boolean) as string[];
-    const parts = [...readoutParts, cleared > 0 && `${cleared} flag${cleared > 1 ? "s" : ""} cleared`].filter(Boolean) as string[];
-    const score = 100 * Math.max(cleared, 0) + Math.max(atp, 0) - Math.min(so, 0) - Math.min(h2, 0);
-    return { t, parts, readoutParts, hasReadout: readoutParts.length > 0, score };
-  }).filter((r) => r.parts.length).sort((a, b) => b.score - a.score);
+  const a = metrics(applyTherapyDose(base, t, dose));
+  const ch = (x: number, y: number) => (x ? y / x - 1 : 0);
+  const atp = ch(b.atp, a.atp), so = ch(b.superoxide, a.superoxide), h2 = ch(b.h2o2, a.h2o2);
+  const cleared = (b.atpFlags - a.atpFlags) + (b.rosFlags - a.rosFlags);
+  const readoutParts = [atp >= 0.01 && `ATP +${Math.round(atp * 100)}%`, so <= -0.01 && `superoxide ${Math.round(so * 100)}%`, h2 <= -0.01 && `H2O2 ${Math.round(h2 * 100)}%`].filter(Boolean) as string[];
+  const parts = [...readoutParts, cleared > 0 && `${cleared} flag${cleared > 1 ? "s" : ""} cleared`].filter(Boolean) as string[];
+  return { atp, so, h2, cleared, readoutParts, parts, hasReadout: readoutParts.length > 0 };
+}
+
+/** Therapies that improve this profile at the given model dose: ATP up, superoxide or H2O2 down (>=1%), or fewer ATP/ROS flags. Ranked by flags cleared first, then readout change; not efficacy. */
+function responders(p: Parameters<typeof profileInputs>[0], dose = 1) {
+  return therapies.map((t) => ({ t, ...therapyEffect(p, dose, t) }))
+    .filter((r) => r.parts.length)
+    .sort((a, b) => (100 * Math.max(b.cleared, 0) + Math.max(b.atp, 0) - Math.min(b.so, 0) - Math.min(b.h2, 0))
+      - (100 * Math.max(a.cleared, 0) + Math.max(a.atp, 0) - Math.min(a.so, 0) - Math.min(a.h2, 0)));
 }
 
 function Dashboard() {
