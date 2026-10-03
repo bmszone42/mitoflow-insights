@@ -61,7 +61,7 @@ function TherapyPlan() {
         </tr>)}</tbody>
       </table>}
     </section>)}
-    <p className="mt-3 text-[10px] text-muted-foreground">Sorted by projected flags cleared, then lowest projected MitoSOX. Projections scale the measured MitoSOX fold (Gonzalo 2019 band 0.59-1.5x) and measured peroxide (Sies 2017, flagged above 100 nM) by the model's change; model estimates, not lab results. Model dose is a slider value, never a drug dose. Demo profiles are synthetic.</p>
+    <p className="mt-3 text-[10px] text-muted-foreground">Sorted by projected flags cleared, then lowest projected MitoSOX. Projections scale the measured MitoSOX fold (Gonzalo 2019 band 0.59-1.5x) and measured peroxide (Sies 2017, flagged above 100 nM) by the model's change; model estimates, not lab results. Model dose is a slider value, never a drug dose. The real-world dose column is the published clinical or trial dose the 1x model dose is anchored to; it is an illustrative link between the model lever and the literature, never a dosing guide, and other model doses do not scale it. Demo profiles are synthetic.</p>
   </main>;
 }
 
