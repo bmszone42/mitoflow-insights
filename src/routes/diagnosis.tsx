@@ -33,7 +33,9 @@ function EvidenceList({ title, items, empty }: { title: string; items: Evidence[
 
 function DiagnosisPage() {
   const users = useUserPatients();
-  const all = useMemo(() => diagnoseAll(users), [users]);
+  // Model dose for the Therapy flags (fraction of each therapy's slider move; never a drug dose).
+  const [dose, setDose] = useState(1);
+  const all = useMemo(() => diagnoseAll(users, dose), [users, dose]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
@@ -88,7 +90,18 @@ function DiagnosisPage() {
         <EvidenceList title="ROS assay flags" items={d.rosAssayFlags} empty="MitoSOX, H₂O₂ and lipid oxidation within ±25% of healthy." />
         <EvidenceList title="ATP assay flags" items={d.atpAssayFlags} empty="P/O and ATP-linked respiration within ±25% of healthy." />
         <EvidenceList title="Model flags" items={d.modelFlags} empty="No model ATP or ROS flag at this profile's membrane potential." />
-        <EvidenceList title="Therapy flags" items={d.therapyFlags} empty="No model therapy targets a strong cause and moves ATP, superoxide or peroxide by 1% or more." />
+        <div className="min-w-0 border-t border-border pt-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="text-xs font-semibold">Therapy flags <span className="font-mono text-muted-foreground">{d.therapyFlags.length}</span></h4>
+            <label className="flex items-center gap-1 text-[11px] text-muted-foreground">Model dose
+              <select value={String(dose)} onChange={(e) => setDose(Number(e.target.value))} className="rounded border border-border bg-background px-1 py-0.5 font-mono text-[11px]" data-testid="dx-dose">
+                {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((x) => <option key={x} value={x}>{x}x</option>)}
+              </select>
+            </label>
+          </div>
+          {d.therapyFlags.length === 0 ? <p className="mt-1 text-[11px] text-muted-foreground">No model therapy targets a strong cause and moves ATP, superoxide or peroxide by 1% or more at this dose.</p> :
+            <ul className="mt-1 space-y-1 text-[11px]">{d.therapyFlags.map((e) => <li key={e.label + e.detail}><span className="font-medium">{e.label}</span> <span className="text-muted-foreground">· {e.detail} · {e.type}</span></li>)}</ul>}
+        </div>
       </div>
 
       <div data-testid="dx-overlap">
