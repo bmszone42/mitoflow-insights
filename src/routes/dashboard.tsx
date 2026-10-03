@@ -123,18 +123,20 @@ function Dashboard() {
   // Batch export: one row per profile x therapy that responds at the current model dose, including flags-only therapies.
   const downloadBatchCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
-    const header = ["Profile", "ID", "Phenotype", "Total flags", "Therapy", `Model dose`, "ATP change", "Superoxide change", "H2O2 change", "Flags cleared", "Readout effect only"];
+    const header = ["Profile", "ID", "Phenotype", "Total flags", "Baseline ATP (µM/s)", "Baseline superoxide (nM)", "Baseline H2O2 (nM)", "Therapy", `Model dose`, "ATP change", "Superoxide change", "H2O2 change", "Flags cleared", "Readout effect only"];
     const lines = [header.join(",")];
     for (const r of rows) {
       const all = r.respMatrix;
+      const base = [r.out.atpFlux.toFixed(2), r.out.superoxide.toPrecision(3), r.out.hydrogenPeroxide.toFixed(2)];
       if (!all.length) {
-        lines.push([esc(r.p.label), esc(r.p.id), esc(r.p.phenotype), String(r.labFlags + r.assayFlags + r.modelFlags), "(none)", String(dose), "", "", "", "", ""].join(","));
+        lines.push([esc(r.p.label), esc(r.p.id), esc(r.p.phenotype), String(r.labFlags + r.assayFlags + r.modelFlags), ...base, "(none)", String(dose), "", "", "", "", ""].join(","));
         continue;
       }
       for (const x of all) {
         const flagsPart = x.parts.find((p) => p.includes("flag"));
         lines.push([
           esc(r.p.label), esc(r.p.id), esc(r.p.phenotype), String(r.labFlags + r.assayFlags + r.modelFlags),
+          ...base,
           esc(x.t.name), String(dose),
           x.readoutParts.find((p) => p.startsWith("ATP")) ?? "",
           x.readoutParts.find((p) => p.startsWith("superoxide")) ?? "",
