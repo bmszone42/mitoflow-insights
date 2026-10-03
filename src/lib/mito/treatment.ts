@@ -163,3 +163,20 @@ export function therapyOverlap(p: DemoPatient) {
   });
   return { groups: [...groups.entries()].map(([signature, members]) => ({ signature, members })).sort((a, b) => b.members.length - a.members.length), perTherapy };
 }
+
+/**
+ * Single source of truth for projected flag clearance: the therapy that lowers
+ * the model's superoxide ("so") or peroxide ("h2") the most on this profile at
+ * the given model dose. Searches every therapy unless `onlyId` names one.
+ * Returns the after/before fold, used to scale the measured value.
+ */
+export function bestProjectionTherapy(p: DemoPatient, dose: number, readout: "so" | "h2", onlyId?: string): { t: Therapy; fold: number } | null {
+  const b = metrics(profileInputs(p));
+  const base = readout === "so" ? b.superoxide : b.h2o2;
+  const pool = onlyId ? therapies.filter((t) => t.id === onlyId) : therapies;
+  const scored = pool.map((t) => {
+    const a = metrics(applyTherapyDose(profileInputs(p), t, dose));
+    return { t, fold: base > 0 ? (readout === "so" ? a.superoxide : a.h2o2) / base : 1 };
+  });
+  return scored.sort((x, y) => x.fold - y.fold)[0] ?? null;
+}
