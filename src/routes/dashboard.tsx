@@ -92,7 +92,7 @@ function Dashboard() {
         String(r.labFlags), String(r.assayFlags), String(r.modelFlags), String(r.labFlags + r.assayFlags + r.modelFlags),
         esc(r.top ? r.top.name : "No strong cause"), r.top ? r.top.score.toFixed(2) : "",
         esc(r.overlap.map((o) => `${o.phenotype} ${o.shared}/${o.total}`).join("; ")),
-        esc(r.resp === null ? "Not flagged" : r.resp.length ? r.resp.map((x) => `${x.t.name} (${x.parts.join(", ")})`).join("; ") : "No model response"),
+        esc(r.respAll === null ? "Not flagged" : r.respAll.length ? r.respAll.map((x) => `${x.t.name} (${x.parts.join(", ")})`).join("; ") : "No model response"),
       ].join(","));
     }
     lines.push("");
@@ -113,7 +113,13 @@ function Dashboard() {
         <h1 className="text-2xl font-semibold">Patient dashboard</h1>
         <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies that raise ATP, lower superoxide or H2O2 by at least 1%, or clear flags at 1x model dose on that profile; a slider move, not a drug dose or efficacy claim. Research model, not a diagnosis. Synthetic values are invented.</p>
       </div>
-      <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
+      <div className="flex flex-col items-end gap-2">
+        <label className="flex items-center gap-2 text-xs" data-testid="dash-readout-only-label">
+          <input type="checkbox" checked={readoutOnly} onChange={(e) => setReadoutOnly(e.target.checked)} data-testid="dash-readout-only" className="size-3.5 accent-primary" />
+          Only therapies that change ATP, superoxide or peroxide
+        </label>
+        <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
+      </div>
     </header>
     <section className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[1100px] text-left text-xs">
