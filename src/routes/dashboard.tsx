@@ -71,7 +71,7 @@ function Dashboard() {
       };
     }).map((r) => ({
       ...r,
-      resp: r.respMatrix === null ? null : readoutOnly
+      resp: r.respAll === null ? null : readoutOnly
         ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
         : r.respAll,
     }));
