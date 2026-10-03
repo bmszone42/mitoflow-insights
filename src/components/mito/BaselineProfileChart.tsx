@@ -8,7 +8,7 @@ type Profile = Parameters<typeof profileInputs>[0];
 /** Baseline model ATP, superoxide and H2O2 per profile, as percent of the healthy adult (demo-01 = 100%). */
 export function BaselineProfileChart({ profiles }: { profiles: Profile[] }) {
   const rows = useMemo(() => {
-    const healthy = simulate(profileInputs(profiles.find((p) => p.id === "demo-01") ?? profiles[0]), defaultGeometry);
+    const healthy = simulate(profileInputs(profiles.find((p) => p.id === "demo-01") ?? profiles[0]!), defaultGeometry);
     const pct = (v: number, b: number) => (b ? Math.round((v / b) * 1000) / 10 : 0);
     return profiles.map((p) => {
       const out = simulate(profileInputs(p), defaultGeometry);
