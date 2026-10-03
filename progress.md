@@ -963,3 +963,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Off: full list as before, including therapies that qualify only by clearing flags.
 - CSV always carries the full unfiltered list so downloads stay comparable.
 - Verified on all 18 demo profiles: filter on strips 8 "flags cleared" annotations and shows the hidden note on 10 rows (for example Leigh "4 clear flags only"); filter off restores them. No page errors, typecheck clean.
+
+## Dashboard "Responds to" ranked by flags cleared first (2026-10-03) ✅
+- responders() score now 100 x flags cleared + readout score (ATP up minus superoxide/H2O2 down), so therapies that clear flags rank first; readout change is the tiebreak. Header note updated ("ranked by flags cleared first, then by readout change").
+- Verified at 1280 on six profiles, both filter states, no page errors: filter off, iron chelations (1 flag) top Leigh and the antioxidant drops below the succinate bypass on sepsis AKI; filter on keeps the readout-only list (iron chelations hidden, "4 clear flags only" notes intact) and CSV keeps the full ranked list.
