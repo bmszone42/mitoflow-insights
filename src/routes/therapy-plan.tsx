@@ -30,10 +30,10 @@ function TherapyPlan() {
   const groups = useMemo(() => pool.filter((p) => id === "all" || p.id === id).map((p) => ({ p, rows: therapyPlanRows(p, dose) })), [pool, id, dose]);
 
   const csv = () => {
-    const head = ["Profile", "ID", "Therapy", "Model dose", "Targets", "ATP change", "Superoxide change", "H2O2 change", "Measured MitoSOX", "Projected MitoSOX", "MitoSOX status", "Measured H2O2 (nM)", "Projected H2O2 (nM)", "H2O2 status"];
+    const head = ["Profile", "ID", "Therapy", "Model dose", "Real-world dose (1x anchor)", "Targets", "ATP change", "Superoxide change", "H2O2 change", "Measured MitoSOX", "Projected MitoSOX", "MitoSOX status", "Measured H2O2 (nM)", "Projected H2O2 (nM)", "H2O2 status"];
     const q = (s: string | number) => `"${String(s).replace(/"/g, '""')}"`;
-    const lines = groups.flatMap(({ p, rows }) => rows.map((r) => [p.label, p.id, r.t.name, `${dose}x`, r.targets, pc(r.atp), pc(r.so), pc(r.h2), p.values.mitosox.toFixed(2), r.ms.value.toFixed(2), status(r.msOut, r.ms.outside), p.h2o2Nm ?? "", r.pH2 ? r.pH2.value.toFixed(0) : "", r.pH2 ? status(r.h2Out, r.pH2.outside) : "not measured"].map(q).join(",")));
-    const body = [head.map(q).join(","), ...lines, "", q("Research model only. Model dose is a slider value, never a drug dose. Projections scale measured values by model change; not lab results.")].join("\n");
+    const lines = groups.flatMap(({ p, rows }) => rows.map((r) => [p.label, p.id, r.t.name, `${dose}x`, r.t.clinicalDose, r.targets, pc(r.atp), pc(r.so), pc(r.h2), p.values.mitosox.toFixed(2), r.ms.value.toFixed(2), status(r.msOut, r.ms.outside), p.h2o2Nm ?? "", r.pH2 ? r.pH2.value.toFixed(0) : "", r.pH2 ? status(r.h2Out, r.pH2.outside) : "not measured"].map(q).join(",")));
+    const body = [head.map(q).join(","), ...lines, "", q("Research model only. Model dose is a slider value, never a drug dose; the real-world dose is the published clinical or trial dose the 1x model dose is anchored to, an illustrative link only and never a dosing guide. Projections scale measured values by model change; not lab results.")].join("\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([body], { type: "text/csv" })); a.download = `cristae-lab-therapy-plan-${id}-${dose}x.csv`; a.click();
   };
 
@@ -50,9 +50,10 @@ function TherapyPlan() {
       <h2 className="text-sm font-semibold">{p.label}: {p.phenotype} <span className="font-normal text-muted-foreground">({rows.length} flagged {rows.length === 1 ? "therapy" : "therapies"})</span></h2>
       {rows.length === 0 ? <p className="text-xs text-muted-foreground">No flagged therapies: no strong cause, or no therapy moves a readout at {dose}x.</p> :
       <table className="mt-1 w-full min-w-[720px] text-xs">
-        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Therapy ({dose}x)</th><th>Targets</th><th>ATP</th><th>Superoxide</th><th>H2O2</th><th>Projected MitoSOX</th><th>Projected H2O2</th></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Therapy ({dose}x)</th><th>Real-world dose (1x anchor)</th><th>Targets</th><th>ATP</th><th>Superoxide</th><th>H2O2</th><th>Projected MitoSOX</th><th>Projected H2O2</th></tr></thead>
         <tbody>{rows.map((r) => <tr key={r.t.id} className="border-t border-border" data-testid="plan-row">
           <td className="py-1"><Link className="text-primary hover:underline" to="/therapy-calculator" search={{ profile: p.id, therapy: r.t.id }}>{r.t.name}</Link></td>
+          <td className="text-muted-foreground">{r.t.clinicalDose}{dose !== 1 && <span className="block text-[10px]">Model dose {dose}x scales the slider move only, not this dose.</span>}</td>
           <td className="text-muted-foreground">{r.targets}</td>
           <td className="tabular-nums">{pc(r.atp)}</td><td className="tabular-nums">{pc(r.so)}</td><td className="tabular-nums">{pc(r.h2)}</td>
           <td className="tabular-nums">{p.values.mitosox.toFixed(2)}x to {r.ms.value.toFixed(2)}x <Tag s={status(r.msOut, r.ms.outside)} /></td>
@@ -60,7 +61,7 @@ function TherapyPlan() {
         </tr>)}</tbody>
       </table>}
     </section>)}
-    <p className="mt-3 text-[10px] text-muted-foreground">Sorted by projected flags cleared, then lowest projected MitoSOX. Projections scale the measured MitoSOX fold (Gonzalo 2019 band 0.59-1.5x) and measured peroxide (Sies 2017, flagged above 100 nM) by the model's change; model estimates, not lab results. Model dose is a slider value, never a drug dose. Demo profiles are synthetic.</p>
+    <p className="mt-3 text-[10px] text-muted-foreground">Sorted by projected flags cleared, then lowest projected MitoSOX. Projections scale the measured MitoSOX fold (Gonzalo 2019 band 0.59-1.5x) and measured peroxide (Sies 2017, flagged above 100 nM) by the model's change; model estimates, not lab results. Model dose is a slider value, never a drug dose. The real-world dose column is the published clinical or trial dose the 1x model dose is anchored to; it is an illustrative link between the model lever and the literature, never a dosing guide, and other model doses do not scale it. Demo profiles are synthetic.</p>
   </main>;
 }
 
