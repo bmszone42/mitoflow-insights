@@ -1,5 +1,5 @@
 import { defaultGeometry, defaultInputs, simulate } from "./model";
-import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOutside, readoutChecks, referenceFor, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
+import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOutside, readoutChecks, referenceFor, patientMetrics, h2o2BandCheck, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosAssayFlag, rosSourceRows } from "./rosPhysiology";
 import { atpAssayFlag } from "./atpComparison";
@@ -82,19 +82,24 @@ export function diagnoseProfile(p: DemoPatient) {
   // ROS and ATP profile assay flags (same logic as the tabs).
   const rosAssays = (["O2•-", "H2O2", "•OH"] as const).map((s) => rosAssayFlag(s, p.values, adultControl.values)).filter((a): a is NonNullable<typeof a> => !!a);
   const msBand = readoutChecks(p).find((b) => b.key === "mitosox")!;
+  // Model flags from the profile's membrane potential only, other inputs default.
+  const inputs = { ...defaultInputs, deltaPsi: p.values.membranePotential };
+  const simOut = simulate(inputs, defaultGeometry);
+  // Peroxide band (Sies 2017): measured nM when entered, else the model value.
+  const hb = h2o2BandCheck(p, simOut.hydrogenPeroxide);
+  const h2o2Src = hb.measured?.outside ? hb.measured : hb.model.outside ? hb.model : null;
   const rosAssayFlags: Evidence[] = [
     ...rosAssays.filter((a) => a.flagged).map((a) => ({ label: `${a.label} ${a.percent > 0 ? "high" : "low"}`, type: "Measured assay" as const, source: "ROS assay" as const, detail: `${a.percent >= 0 ? "+" : ""}${a.percent.toFixed(0)}% vs healthy adult` })),
     ...(msBand.outside ? [{ label: `MitoSOX signal ${msBand.value > msBand.hi ? "high" : "low"}`, type: "Measured assay" as const, source: "ROS assay" as const, detail: `${msBand.text}, research band (Gonzalo 2019)${p.age < 18 ? "; adult band applied to a child" : ""}`, origin: originOf(p, "mitosox").origin }] : []),
+    ...(h2o2Src ? [{ label: "Hydrogen peroxide high", type: "Measured assay" as const, source: "ROS assay" as const, detail: `${h2o2Src.text} (${h2o2Src.value.toFixed(0)} nM), research band (Sies 2017)${hb.measured?.outside ? "" : ", model value"}`, ...(hb.measured?.outside ? { origin: originOf(p, "h2o2").origin } : {}) }] : []),
   ];
   const atpAssays = [atpAssayFlag("Complex I", true, p.values, adultControl.values), atpAssayFlag("Overall NADH to O2", false, p.values, adultControl.values)].filter((a): a is NonNullable<typeof a> => !!a);
   const atpAssayFlags: Evidence[] = atpAssays.filter((a) => a.flagged).map((a) => ({ label: `${a.label} ${a.percent > 0 ? "high" : "low"}`, type: "Measured assay", source: "ATP assay", detail: `${a.percent >= 0 ? "+" : ""}${a.percent.toFixed(0)}% vs healthy adult` }));
 
-  // Model flags from the profile's membrane potential only, other inputs default.
-  const inputs = { ...defaultInputs, deltaPsi: p.values.membranePotential };
   const cost = effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling);
   const stdCost = effectiveAtpCost(defaultInputs.deltaPsi, defaultInputs.uncoupling);
   const atpModel = etcSteps.filter((s) => { const f = atpNetworkRangeFlags(s, stdCost, cost); return f.evOutside || f.costBOutside; }).length;
-  const rosModel = rosSourceRows(simulate(inputs, defaultGeometry), simulate(defaultInputs, defaultGeometry), inputs, defaultInputs).filter((r) => r.flagged).length;
+  const rosModel = rosSourceRows(simOut, simulate(defaultInputs, defaultGeometry), inputs, defaultInputs).filter((r) => r.flagged).length;
   const modelFlags: Evidence[] = [
     ...(atpModel ? [{ label: `${atpModel} ATP steps flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV, cost ${cost.toFixed(2)} eV/ATP` }] : []),
     ...(rosModel ? [{ label: `${rosModel} ROS sources flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV vs default` }] : []),

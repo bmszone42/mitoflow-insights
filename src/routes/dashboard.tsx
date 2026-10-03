@@ -58,9 +58,10 @@ function Dashboard() {
       const out = simulate(profileInputs(p), defaultGeometry);
       const d = diagnoseProfile(p);
       const hb = h2o2BandCheck(p, out.hydrogenPeroxide);
-      const h2o2Flag = (hb.model.outside || hb.measured?.outside) ? 1 : 0;
       const ms = readoutChecks(p).find((b) => b.key === "mitosox")!;
-      const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag, modelFlags = d.modelFlags.length;
+      // The peroxide band flag lives in diagnosis rosAssayFlags, so it is
+      // counted there, not added again here.
+      const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length, modelFlags = d.modelFlags.length;
       const all = labFlags + assayFlags + modelFlags;
       const matrix = responders(p, dose);
       const allResp = all > 0 ? matrix : null;
