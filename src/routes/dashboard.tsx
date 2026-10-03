@@ -23,10 +23,12 @@ export const Route = createFileRoute("/dashboard")({
 const fmt = (v: number) => (Math.abs(v) >= 10 ? v.toFixed(0) : Number(v.toPrecision(3)).toString());
 const pct = (v: number, b: number) => { const d = b ? v / b - 1 : 0; return `${d >= 0 ? "+" : ""}${Math.round(d * 100)}%`; };
 
-/** Therapies that improve this profile at 1x model dose: ATP up, superoxide or H2O2 down (>=1%), or fewer ATP/ROS flags. Ranked by summed improvement; not efficacy. */
-function responders(p: Parameters<typeof simulateTherapy>[0]) {
+/** Therapies that improve this profile at the given model dose: ATP up, superoxide or H2O2 down (>=1%), or fewer ATP/ROS flags. Ranked by flags cleared first, then readout change; not efficacy. */
+function responders(p: Parameters<typeof profileInputs>[0], dose = 1) {
+  const base = profileInputs(p);
+  const b = metrics(base);
   return therapies.map((t) => {
-    const { before: b, after: a } = simulateTherapy(p, t);
+    const a = metrics(applyTherapyDose(base, t, dose));
     const ch = (x: number, y: number) => (x ? y / x - 1 : 0);
     const atp = ch(b.atp, a.atp), so = ch(b.superoxide, a.superoxide), h2 = ch(b.h2o2, a.h2o2);
     const cleared = (b.atpFlags - a.atpFlags) + (b.rosFlags - a.rosFlags);
