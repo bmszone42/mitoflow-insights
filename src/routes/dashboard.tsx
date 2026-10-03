@@ -56,6 +56,8 @@ function Dashboard() {
   // Charts stay unmounted (and their code unloaded) until the user opens them.
   const [showChart, setShowChart] = useState(false);
   const [showBaselineChart, setShowBaselineChart] = useState(false);
+  // Batch CSV therapy filter: "all" exports every responding therapy; a therapy id exports just that one across every profile.
+  const [batchTherapy, setBatchTherapy] = useState("all");
   const rows = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
