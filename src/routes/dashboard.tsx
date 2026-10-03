@@ -74,7 +74,10 @@ function Dashboard() {
       // Therapy flags at the chosen dose: therapies targeting a strong cause
       // (score >= 1.5) that move ATP, superoxide or H2O2 by 1% or more.
       const strongMechs = new Set(d.causes.filter((c) => c.score >= 1.5).map((c) => c.mechanism));
-      const therapyFlags = matrix.filter((x) => x.t.mechanisms.some((m) => strongMechs.has(m)) && (Math.abs(x.atp) >= 0.01 || Math.abs(x.so) >= 0.01 || Math.abs(x.h2) >= 0.01)).length;
+      const therapyFlags = therapies
+        .filter((t) => t.mechanisms.some((m) => strongMechs.has(m)))
+        .map((t) => therapyEffect(p, dose, t))
+        .filter((x) => Math.abs(x.atp) >= 0.01 || Math.abs(x.so) >= 0.01 || Math.abs(x.h2) >= 0.01).length;
       const allResp = all > 0 ? matrix : null;
       return {
         hb, ms,
