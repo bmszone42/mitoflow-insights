@@ -971,3 +971,5 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Dashboard dose picker for "Responds to" (2026-10-03) ✅
 - New "Model dose" select (0.25x to 2x, default 1x) next to the readout-only checkbox; responders() now takes a dose and applies it via applyTherapyDose on the patient baseline, so the column, ranking and CSV all use the chosen dose. Table header and CSV column show the dose (for example "Responds to (model, 2x)").
 - Verified live: switching 1x to 2x re-ranks the column (sepsis AKI switches to Mild uncoupling first; Leigh drops the antioxidant for uncoupling, cardiolipin and ferroptosis protection). No page errors, typecheck clean.
+
+- Dashboard therapy effect chart across flagged profiles (2026-10-03) ✅
