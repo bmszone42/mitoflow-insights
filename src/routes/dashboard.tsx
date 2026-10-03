@@ -58,19 +58,21 @@ function Dashboard() {
       const mitosoxFlag = ms.outside ? 1 : 0;
       const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags = d.modelFlags.length;
       const all = labFlags + assayFlags + modelFlags;
-      const allResp = all > 0 ? responders(p, dose) : null;
+      const matrix = responders(p, dose);
+      const allResp = all > 0 ? matrix : null;
       return {
         hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
         labFlags, assayFlags, modelFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
         respAll: allResp ? allResp.slice(0, 3) : null,
+        respMatrix: matrix,
         flagsOnlyCount: allResp ? allResp.filter((x) => !x.hasReadout).length : 0,
       };
     }).map((r) => ({
       ...r,
       resp: r.respAll === null ? null : readoutOnly
-        ? responders(r.p, dose).filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
+        ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
         : r.respAll,
     }));
     return built.sort((a, b) => {
@@ -121,7 +123,7 @@ function Dashboard() {
     const header = ["Profile", "ID", "Phenotype", "Total flags", "Therapy", `Model dose`, "ATP change", "Superoxide change", "H2O2 change", "Flags cleared", "Readout effect only"];
     const lines = [header.join(",")];
     for (const r of rows) {
-      const all = responders(r.p, dose);
+      const all = r.respMatrix;
       if (!all.length) {
         lines.push([esc(r.p.label), esc(r.p.id), esc(r.p.phenotype), String(r.labFlags + r.assayFlags + r.modelFlags), "(none)", String(dose), "", "", "", "", ""].join(","));
         continue;
