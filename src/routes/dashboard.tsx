@@ -168,7 +168,10 @@ function Dashboard() {
           <input type="checkbox" checked={readoutOnly} onChange={(e) => setReadoutOnly(e.target.checked)} data-testid="dash-readout-only" className="size-3.5 accent-primary" />
           Only therapies that change ATP, superoxide or peroxide
         </label>
-        <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
+          <Button variant="outline" size="sm" onClick={downloadBatchCsv} data-testid="dash-batch-csv"><Download className="size-4" aria-hidden />Batch therapy CSV</Button>
+        </div>
       </div>
     </header>
     <TherapyProfileChart profiles={rows.map((r) => r.p)} dose={dose} flaggedIds={rows.filter((r) => r.respAll !== null).map((r) => r.p.id)} />
