@@ -60,7 +60,7 @@ export const moveLabel = (m: Therapy["moves"][number]) => {
 };
 
 const stdCost = effectiveAtpCost(defaultInputs.deltaPsi, defaultInputs.uncoupling);
-function metrics(inputs: Inputs) {
+export function metrics(inputs: Inputs) {
   const out = simulate(inputs, defaultGeometry);
   const cost = effectiveAtpCost(inputs.deltaPsi, inputs.uncoupling);
   const atpFlags = etcSteps.filter((s) => { const f = atpNetworkRangeFlags(s, stdCost, cost); return f.evOutside || f.costBOutside; }).length;
