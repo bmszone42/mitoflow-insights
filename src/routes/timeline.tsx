@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
-import { addVisit, diagnoseVisit, visitReadouts, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { addVisit, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
 
@@ -37,7 +37,7 @@ function TimelinePage() {
   const all = useMemo(() => [...users, ...demoPatients], [users]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const p = all.find((x) => x.id === id) ?? all[0]!;
-  const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v), r: visitReadouts(p, v) })), [p, visits]);
+  const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v), r: visitReadouts(p, v), pj: visitProjection(p, v) })), [p, visits]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
   const isH2o2 = metric === "h2o2Nm";
   const isMitosox = metric === "mitosox";
@@ -91,8 +91,8 @@ function TimelinePage() {
 
     <section className="mt-4 overflow-x-auto">
       <table className="w-full min-w-[640px] text-xs" data-testid="timeline-table">
-        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>ATP (µM/s)</th><th>Superoxide (nM)</th><th>H2O2 sim (nM)</th><th>Therapies (model dose)</th><th /></tr></thead>
-        <tbody>{timeline.map(({ v, d, r }) => {
+        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>ATP (µM/s)</th><th>Superoxide (nM)</th><th>H2O2 sim (nM)</th><th>Therapies (model dose)</th><th>Projected flag</th><th /></tr></thead>
+        <tbody>{timeline.map(({ v, d, r, pj }) => {
           const flags = d.patientFlags.length + d.rosAssayFlags.length + d.atpAssayFlags.length + d.modelFlags.length;
           return <tr key={v.id} className="border-t border-border align-top" data-testid="timeline-row">
             <td className="py-1.5 font-mono">{v.date}</td>
@@ -102,11 +102,15 @@ function TimelinePage() {
             <td>{d.top ? `${d.top.name} (${d.top.score.toFixed(2)})` : "None strong"}</td>
             <td className="tabular-nums" data-testid="tl-atp">{fmt(r.atp)}</td><td className="tabular-nums">{fmt(r.superoxide)}</td><td className="tabular-nums">{fmt(r.h2o2)}</td>
             <td>{v.therapies.length ? v.therapies.map((t) => `${tName(t)} ${v.doses?.[t] ?? 1}x`).join(", ") : "None"}</td>
+            <td data-testid="tl-projected">{!pj ? <span className="text-muted-foreground">No therapy</span> : <div className="space-y-0.5">
+              <div>MitoSOX {v.values.mitosox.toFixed(2)}x to {pj.ms.value.toFixed(2)}x {pj.msMeasuredOut && !pj.ms.outside ? <span className="font-medium text-primary">flag clears</span> : pj.ms.outside ? <span className="text-destructive">{pj.msMeasuredOut ? "still outside" : "outside band"}</span> : <span className="text-muted-foreground">within</span>}</div>
+              {pj.h2 && v.h2o2Nm !== undefined && <div>H2O2 {v.h2o2Nm.toFixed(0)} to {pj.h2.value.toFixed(0)} nM {pj.h2MeasuredOut && !pj.h2.outside ? <span className="font-medium text-primary">flag clears</span> : pj.h2.outside ? <span className="text-destructive">{pj.h2MeasuredOut ? "still flagged" : "flagged"}</span> : <span className="text-muted-foreground">within</span>}</div>}
+            </div>}</td>
             <td>{v.origin === "user" && <button type="button" aria-label="Remove visit" onClick={() => removeVisit(v.id)}><Trash2 className="size-3.5 text-muted-foreground" /></button>}</td>
           </tr>;
         })}</tbody>
       </table>
-      <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities.</p>
+      <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags.</p>
     </section>
 
     <section className="mt-6 rounded-md border border-border p-3" data-testid="timeline-add">

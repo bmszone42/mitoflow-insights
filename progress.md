@@ -10,3 +10,4 @@
 - ✅ Projected MitoSOX: measured fold scaled by model superoxide change, in the Simulator therapy table and a dashboard column + CSV; flag clears when the projection re-enters the 0.59-1.5x band
 - ✅ Projected flags on Diagnosis: measured MitoSOX / peroxide band flags shown with the strongest therapy's projected value at the chosen model dose, separate from the measured flag counts; note explains clearance is a model estimate, not a lab result, and why iron chelation and lipid radical-trapping never lower model peroxide while NAD+ precursors can raise it
 - ✅ Best-therapy choice for projected flags unified (Diagnosis and dashboard agree)
+- ✅ Timeline projected flag column (MitoSOX and peroxide per visit, follows each visit's therapies and model doses)
