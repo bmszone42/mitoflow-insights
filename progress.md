@@ -951,3 +951,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 
 - Timeline therapy doses + simulated ATP/superoxide/H2O2 per visit (2026-10-03) ✅
 - Dashboard "Responds to" therapy column + CSV (2026-10-03) ✅
+
+## Therapy comparison CSV download (2026-10-03) ✅
+- Download CSV button on /therapy-compare (header, data-testid cmp-csv).
+- CSV: readout rows (ATP flux, superoxide, H2O2) with baseline, A, B, A+B combined values and percent changes; patient profile line; therapy A/B lines with model dose, slider targets at 1x, note and evidence status; shared sliders line; research-model footer.
+- Filename cristae-lab-therapy-compare-<profileId>.csv.
