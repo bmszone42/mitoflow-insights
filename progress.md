@@ -956,3 +956,10 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Download CSV button on /therapy-compare (header, data-testid cmp-csv).
 - CSV: readout rows (ATP flux, superoxide, H2O2) with baseline, A, B, A+B combined values and percent changes; patient profile line; therapy A/B lines with model dose, slider targets at 1x, note and evidence status; shared sliders line; research-model footer.
 - Filename cristae-lab-therapy-compare-<profileId>.csv.
+
+## Dashboard flagged-only therapy filter (2026-10-03) ✅
+- New checkbox above the table: "Only therapies that change ATP, superoxide or peroxide" (on by default, data-testid dash-readout-only).
+- On: the "Responds to" column shows only therapies that move a readout (ATP up, superoxide or H2O2 down at least 1%), shows only the readout parts of their effects (no "N flags cleared" text), and adds a muted "N clear flags only" note counting therapies whose sole effect is clearing flags.
+- Off: full list as before, including therapies that qualify only by clearing flags.
+- CSV always carries the full unfiltered list so downloads stay comparable.
+- Verified on all 18 demo profiles: filter on strips 8 "flags cleared" annotations and shows the hidden note on 10 rows (for example Leigh "4 clear flags only"); filter off restores them. No page errors, typecheck clean.
