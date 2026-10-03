@@ -192,9 +192,8 @@ export function Simulator({
   const cmp30 = cmpAt(30);
   const cmp60 = cmpAt(60);
 
-  const set = (key: keyof Inputs, value: number) => setInputs({ ...inputs, [key]: value });
-
   return (
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
       <SliderPanel inputs={inputs} setInputs={setInputs} geo={geo} onSaved={onSaved} />
 
       <div className="space-y-4">

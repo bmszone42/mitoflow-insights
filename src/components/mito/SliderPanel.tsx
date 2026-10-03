@@ -193,6 +193,8 @@ export function SliderPanel({
   onSaved?: (() => void) | undefined;
 }) {
 
+  const set = (key: keyof Inputs, value: number) => setInputs({ ...inputs, [key]: value });
+
   const groups: { id: ControlDef["group"]; title: string; note: string }[] = [
     { id: "substrate", title: "Bioenergetics", note: "Substrate supply and coupling" },
     { id: "iron", title: "Iron and defence", note: "Fenton substrate and scavenging" },
@@ -276,7 +278,6 @@ export function SliderPanel({
     }
   };
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
       <div className="panel space-y-5 p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold">Model inputs</h2>
