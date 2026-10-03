@@ -1009,3 +1009,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Lazy-loaded Timeline chart (2026-10-03) ✅
 - Timeline chart extracted to src/components/mito/TimelineChart.tsx and loaded via React.lazy + Suspense with a "Loading chart…" fallback, so recharts no longer ships in the Timeline route's initial bundle (same pattern as the dashboard charts and SimulatorCharts).
 - Verified live: chart renders with all visits and band lines, no page errors; typecheck clean.
+
+## Therapy comparison CSV scope picker (2026-10-03) ✅
+- Therapy comparison page gains a "CSV: this profile / all profiles" picker next to Download CSV. "All profiles" exports one row per profile (18 demo + any user-added) with each profile's own baseline ATP/superoxide/H2O2 and the picked therapies A, B and A+B at their chosen model doses (values plus percent vs that profile's baseline), plus therapy/slider footers and the research-model note.
+- Verified live: 18 profile rows, 23 columns, correct per-profile baselines; single-profile CSV unchanged; typecheck clean.
