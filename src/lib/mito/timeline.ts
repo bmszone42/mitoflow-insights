@@ -41,12 +41,18 @@ export function syntheticVisits(p: DemoPatient): Visit[] {
 
 export function patientTimeline(p: DemoPatient, user: Visit[]): Visit[] {
   const baseline: Visit = { id: `${p.id}-b`, patientId: p.id, date: BASE_DATE, values: p.values, h2o2Nm: p.h2o2Nm, therapies: [], origin: "baseline" };
-  return [baseline, ...syntheticVisits(p), ...user.filter((v) => v.patientId === p.id)].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [baseline, ...syntheticVisits(p), ...user.filter((v) => v.patientId === p.id)].sort((a, b) => a.date.localeCompare(b.date));
+  // Plan rows carry no labs: fill from the latest earlier non-plan visit so readouts and projections still compute.
+  let lastReal: Visit = baseline;
+  return sorted.map((v) => {
+    if (v.origin !== "plan") { lastReal = v; return v; }
+    return { ...v, values: lastReal.values, h2o2Nm: lastReal.h2o2Nm };
+  });
 }
 
 const visitProfile = (p: DemoPatient, v: Visit): DemoPatient => {
   if (v.origin === "baseline") return p;
-  const origin = v.origin === "user" ? "user" as const : "synthetic" as const;
+  const origin = v.origin === "synthetic" ? "synthetic" as const : "user" as const;
   return { ...p, values: v.values, origins: Object.fromEntries(patientMetrics.map((m) => [m.key, { origin }])) } as DemoPatient;
 };
 
