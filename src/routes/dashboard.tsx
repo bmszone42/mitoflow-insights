@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
@@ -30,13 +30,17 @@ function responders(p: Parameters<typeof simulateTherapy>[0]) {
     const ch = (x: number, y: number) => (x ? y / x - 1 : 0);
     const atp = ch(b.atp, a.atp), so = ch(b.superoxide, a.superoxide), h2 = ch(b.h2o2, a.h2o2);
     const cleared = (b.atpFlags - a.atpFlags) + (b.rosFlags - a.rosFlags);
-    const parts = [atp >= 0.01 && `ATP +${Math.round(atp * 100)}%`, so <= -0.01 && `superoxide ${Math.round(so * 100)}%`, h2 <= -0.01 && `H2O2 ${Math.round(h2 * 100)}%`, cleared > 0 && `${cleared} flag${cleared > 1 ? "s" : ""} cleared`].filter(Boolean) as string[];
-    return { t, parts, score: Math.max(atp, 0) - Math.min(so, 0) - Math.min(h2, 0) + 0.1 * Math.max(cleared, 0) };
-  }).filter((r) => r.parts.length).sort((a, b) => b.score - a.score).slice(0, 3);
+    const readoutParts = [atp >= 0.01 && `ATP +${Math.round(atp * 100)}%`, so <= -0.01 && `superoxide ${Math.round(so * 100)}%`, h2 <= -0.01 && `H2O2 ${Math.round(h2 * 100)}%`].filter(Boolean) as string[];
+    const parts = [...readoutParts, cleared > 0 && `${cleared} flag${cleared > 1 ? "s" : ""} cleared`].filter(Boolean) as string[];
+    const score = Math.max(atp, 0) - Math.min(so, 0) - Math.min(h2, 0) + 0.1 * Math.max(cleared, 0);
+    return { t, parts, readoutParts, hasReadout: readoutParts.length > 0, score };
+  }).filter((r) => r.parts.length).sort((a, b) => b.score - a.score);
 }
 
 function Dashboard() {
   const users = useUserPatients();
+  // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
+  const [readoutOnly, setReadoutOnly] = useState(true);
   const rows = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
@@ -47,20 +51,30 @@ function Dashboard() {
       const h2o2Flag = (hb.model.outside || hb.measured?.outside) ? 1 : 0;
       const ms = readoutChecks(p).find((b) => b.key === "mitosox")!;
       const mitosoxFlag = ms.outside ? 1 : 0;
+      const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags = d.modelFlags.length;
+      const all = labFlags + assayFlags + modelFlags;
+      const allResp = all > 0 ? responders(p) : null;
       return {
         hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
-        labFlags: d.patientFlags.length, assayFlags: d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags: d.modelFlags.length,
+        labFlags, assayFlags, modelFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
+        respAll: allResp ? allResp.slice(0, 3) : null,
+        flagsOnlyCount: allResp ? allResp.filter((x) => !x.hasReadout).length : 0,
       };
-    }).map((r) => ({ ...r, resp: r.labFlags + r.assayFlags + r.modelFlags > 0 ? responders(r.p) : null }));
+    }).map((r) => ({
+      ...r,
+      resp: r.respAll === null ? null : readoutOnly
+        ? responders(r.p).filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
+        : r.respAll,
+    }));
     return built.sort((a, b) => {
       const fa = a.labFlags + a.assayFlags + a.modelFlags;
       const fb = b.labFlags + b.assayFlags + b.modelFlags;
       if (fb !== fa) return fb - fa;
       return a.p.label.localeCompare(b.p.label);
     });
-  }, [users]);
+  }, [users, readoutOnly]);
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
@@ -82,7 +96,7 @@ function Dashboard() {
         String(r.labFlags), String(r.assayFlags), String(r.modelFlags), String(r.labFlags + r.assayFlags + r.modelFlags),
         esc(r.top ? r.top.name : "No strong cause"), r.top ? r.top.score.toFixed(2) : "",
         esc(r.overlap.map((o) => `${o.phenotype} ${o.shared}/${o.total}`).join("; ")),
-        esc(r.resp === null ? "Not flagged" : r.resp.length ? r.resp.map((x) => `${x.t.name} (${x.parts.join(", ")})`).join("; ") : "No model response"),
+        esc(r.respAll === null ? "Not flagged" : r.respAll.length ? r.respAll.map((x) => `${x.t.name} (${x.parts.join(", ")})`).join("; ") : "No model response"),
       ].join(","));
     }
     lines.push("");
@@ -101,9 +115,15 @@ function Dashboard() {
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Patient dashboard</h1>
-        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies that raise ATP, lower superoxide or H2O2 by at least 1%, or clear flags at 1x model dose on that profile; a slider move, not a drug dose or efficacy claim. Research model, not a diagnosis. Synthetic values are invented.</p>
+        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at 1x model dose; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
       </div>
-      <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
+      <div className="flex flex-col items-end gap-2">
+        <label className="flex items-center gap-2 text-xs" data-testid="dash-readout-only-label">
+          <input type="checkbox" checked={readoutOnly} onChange={(e) => setReadoutOnly(e.target.checked)} data-testid="dash-readout-only" className="size-3.5 accent-primary" />
+          Only therapies that change ATP, superoxide or peroxide
+        </label>
+        <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
+      </div>
     </header>
     <section className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[1100px] text-left text-xs">
@@ -123,7 +143,11 @@ function Dashboard() {
           <td className="px-3 py-2 font-mono">{r.labFlags} / {r.assayFlags} / {r.modelFlags}</td>
           <td className="px-3 py-2">{r.top ? <>{r.top.name} <span className="font-mono text-muted-foreground">{r.top.score.toFixed(2)}</span></> : <span className="text-muted-foreground">No strong cause</span>}</td>
           <td className="px-3 py-2">{r.overlap.length ? r.overlap.map((o) => <div key={o.phenotype}>{o.phenotype} <span className="font-mono text-muted-foreground">{o.shared}/{o.total}</span></div>) : <span className="text-muted-foreground">None</span>}</td>
-          <td className="px-3 py-2" data-testid="dash-resp">{r.resp === null ? <span className="text-muted-foreground">Not flagged</span> : r.resp.length ? r.resp.map((x) => <div key={x.t.id}><Link className="text-primary underline-offset-2 hover:underline" to="/therapy-calculator" search={{ profile: r.p.id, therapy: x.t.id }}>{x.t.name}</Link> <span className="text-muted-foreground">{x.parts.join(", ")}</span></div>) : <span className="text-muted-foreground">No model response</span>}</td>
+          <td className="px-3 py-2" data-testid="dash-resp">{(() => {
+            if (r.resp === null) return <span className="text-muted-foreground">Not flagged</span>;
+            if (!r.resp.length) return <span className="text-muted-foreground">{readoutOnly ? `No readout response${r.flagsOnlyCount ? ` (${r.flagsOnlyCount} clear flags only)` : ""}` : "No model response"}</span>;
+            return <>{r.resp.map((x) => <div key={x.t.id}><Link className="text-primary underline-offset-2 hover:underline" to="/therapy-calculator" search={{ profile: r.p.id, therapy: x.t.id }}>{x.t.name}</Link> <span className="text-muted-foreground">{x.parts.join(", ")}</span></div>)}{readoutOnly && r.flagsOnlyCount > 0 && <div className="text-[10px] text-muted-foreground" data-testid="dash-resp-hidden">{r.flagsOnlyCount} clear flags only</div>}</>;
+          })()}</td>
           <td className="space-y-1 px-3 py-2">
             <Link className="block text-primary underline-offset-2 hover:underline" to="/diagnosis" search={{ profile: r.p.id }}>Diagnosis</Link>
             <Link className="block text-primary underline-offset-2 hover:underline" to="/" search={{ patient: r.p.id }}>Simulator</Link>
