@@ -3,7 +3,7 @@ import { lazy, Suspense, useMemo, useState } from "react";
 import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
-import { demoPatients, lpMapping, patientSex, h2o2BandCheck, readoutChecks } from "@/lib/mito/patientReference";
+import { demoPatients, lpMapping, patientSex, h2o2BandCheck, projectedH2o2, readoutChecks } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
@@ -79,8 +79,15 @@ function Dashboard() {
         .map((t) => therapyEffect(p, dose, t))
         .filter((x) => Math.abs(x.atp) >= 0.01 || Math.abs(x.so) >= 0.01 || Math.abs(x.h2) >= 0.01).length;
       const allResp = all > 0 ? matrix : null;
+      // Projected peroxide: measured nM (else model nM) scaled by the model's H2O2 change
+      // under the batch-picker therapy, or the strongest peroxide-lowering therapy at this dose.
+      const pick = batchTherapy !== "all"
+        ? therapies.filter((t) => t.id === batchTherapy).map((t) => ({ t, h2: therapyEffect(p, dose, t).h2 }))[0]
+        : therapies.map((t) => ({ t, h2: therapyEffect(p, dose, t).h2 })).sort((a, b) => a.h2 - b.h2)[0];
+      const projBase = hb.measured ? hb.measured.value : hb.model.value;
+      const proj = pick ? { therapy: pick.t.name, base: projBase, measured: !!hb.measured, ...projectedH2o2(projBase, 1, 1 + pick.h2) } : null;
       return {
-        hb, ms,
+        hb, ms, proj,
         p, out, healthy, top: d.top, lp: lpMapping(p),
         labFlags, assayFlags, modelFlags, therapyFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
@@ -100,7 +107,7 @@ function Dashboard() {
       if (fb !== fa) return fb - fa;
       return a.p.label.localeCompare(b.p.label);
     });
-  }, [users, readoutOnly, dose]);
+  }, [users, readoutOnly, dose, batchTherapy]);
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
