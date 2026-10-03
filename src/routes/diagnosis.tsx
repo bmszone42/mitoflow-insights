@@ -88,6 +88,12 @@ function DiagnosisPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         <EvidenceList title="Patient Data flags" items={d.patientFlags} empty="No measurement outside its cited band or ±25% of the age-matched healthy profile." />
         <EvidenceList title="ROS assay flags" items={d.rosAssayFlags} empty="MitoSOX, H₂O₂ and lipid oxidation within ±25% of healthy." />
+        <div className="min-w-0 border-t border-border pt-3" data-testid="dx-projected-flags">
+          <h4 className="text-xs font-semibold">Projected flags <span className="font-mono text-muted-foreground">{d.projectedFlags.length}</span></h4>
+          {d.projectedFlags.length === 0 ? <p className="mt-1 text-[11px] text-muted-foreground">No measured MitoSOX or peroxide band flag to project, or no therapy moves the model readout at this dose.</p> :
+            <ul className="mt-1 space-y-1 text-[11px]">{d.projectedFlags.map((e) => <li key={e.label + e.detail}><span className="font-medium">{e.label}</span> <span className="text-muted-foreground">· {e.detail} · {e.type}</span></li>)}</ul>}
+          <p className="mt-1 text-[10px] text-muted-foreground">Projections scale the measured value by the model's change under the strongest therapy at the chosen model dose. Model estimates, not measurements; the measured flags above are unchanged.</p>
+        </div>
         <EvidenceList title="ATP assay flags" items={d.atpAssayFlags} empty="P/O and ATP-linked respiration within ±25% of healthy." />
         <EvidenceList title="Model flags" items={d.modelFlags} empty="No model ATP or ROS flag at this profile's membrane potential." />
         <div className="min-w-0 border-t border-border pt-3">
