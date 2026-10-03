@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 import { demoPatients, h2o2BandCheck, h2o2NmBand, inputsFromPatient, type DemoPatient } from "@/lib/mito/patientReference";
 import type { Therapy } from "@/lib/mito/treatment";
+import { TherapyEffectTable } from "./TherapyEffectTable";
 
 // Model vs measured, both as fold of a healthy reference: model output / default-input output,
 // measured value / healthy demo-01 (MitoSOX and H2O2 are already fold-control signals).
@@ -32,19 +33,8 @@ export function PatientRunReadouts({ patient, inputs, geo, therapy }: { patient:
       const out = simulate({ ...inputs, [k]: defaultInputs[k] }, geo);
       return { key: k, value: inputs[k], deltas: readouts.map((r) => (r.model(cur) - r.model(out)) / r.model(base)) };
     });
-    // Therapy before/after: patient baseline without the therapy vs current sliders.
-    const therapyRows = therapy
-      ? (() => {
-          const before = simulate({ ...defaultInputs, ...inputsFromPatient(patient).patch }, geo);
-          return readouts.map((r) => {
-            const b = r.model(before);
-            const a = r.model(cur);
-            return { ...r, before: b, after: a, change: b === 0 ? 0 : (a - b) / b };
-          });
-        })()
-      : null;
-    return { rows, effects, therapyRows };
-  }, [patient, inputs, geo, therapy]);
+    return { rows, effects };
+  }, [patient, inputs, geo]);
   const pct = (x: number) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(0)}%`;
   return (
     <div className="mt-2 grid gap-3 md:grid-cols-2" data-testid="patient-run-readouts">
@@ -66,18 +56,7 @@ export function PatientRunReadouts({ patient, inputs, geo, therapy }: { patient:
             {e.deltas.map((d, i) => <td key={i} className="tabular-nums">{pct(d)}</td>)}
           </tr>))}</tbody>
       </table>
-      {data.therapyRows && therapy && (
-        <table className="w-full text-[11px] md:col-span-2" data-testid="therapy-before-after">
-          <thead><tr className="text-left text-muted-foreground"><th className="py-1">Therapy effect: {therapy.name}</th><th>Before</th><th>After</th><th>Change</th></tr></thead>
-          <tbody>{data.therapyRows.map((r) => (
-            <tr key={r.key} className="border-t border-border" data-testid="therapy-row">
-              <td className="py-1">{r.label}</td>
-              <td className="tabular-nums">{fmt(r.before)} {r.unit}</td>
-              <td className="tabular-nums">{fmt(r.after)} {r.unit}</td>
-              <td className={`tabular-nums ${Math.abs(r.change) > 0.05 ? "text-primary" : "text-muted-foreground"}`}>{pct(r.change)}</td>
-            </tr>))}</tbody>
-        </table>
-      )}
+      {therapy && <TherapyEffectTable patient={patient} inputs={inputs} geo={geo} therapy={therapy} />}
       {(() => { const c = h2o2BandCheck(patient, simulate(inputs, geo).hydrogenPeroxide); const t = (x: { value: number; outside: boolean; text: string | null }) => <span className={x.outside ? "text-destructive" : "text-primary"}>{fmt(x.value)} nM, {x.text ?? "within band"}</span>; return (
         <p className="text-[11px] md:col-span-2" data-testid="run-h2o2-band"><span className="font-medium">Peroxide vs Sies 2017 (flagged above {h2o2NmBand.hi} nM):</span> model {t(c.model)}; measured {c.measured ? t(c.measured) : <span className="text-muted-foreground">not measured in nM</span>}. <span className="text-muted-foreground">Measured peroxide does not move any slider.</span></p>
       ); })()}
