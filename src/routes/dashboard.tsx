@@ -58,14 +58,15 @@ function Dashboard() {
       const mitosoxFlag = ms.outside ? 1 : 0;
       const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags = d.modelFlags.length;
       const all = labFlags + assayFlags + modelFlags;
-      const allResp = all > 0 ? responders(p, dose) : null;
+      const matrix = responders(p, dose);
+      const allResp = all > 0 ? matrix : null;
       return {
         hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
         labFlags, assayFlags, modelFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
         respAll: allResp ? allResp.slice(0, 3) : null,
-        respMatrix: allResp,
+        respMatrix: matrix,
         flagsOnlyCount: allResp ? allResp.filter((x) => !x.hasReadout).length : 0,
       };
     }).map((r) => ({
