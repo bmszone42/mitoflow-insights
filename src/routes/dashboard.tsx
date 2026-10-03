@@ -9,6 +9,7 @@ import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies } from "@/lib/mito/treatment";
 // Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
 const TherapyProfileChart = lazy(() => import("@/components/mito/TherapyProfileChart").then((m) => ({ default: m.TherapyProfileChart })));
+const BaselineProfileChart = lazy(() => import("@/components/mito/BaselineProfileChart").then((m) => ({ default: m.BaselineProfileChart })));
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [
@@ -47,8 +48,9 @@ function Dashboard() {
   const [readoutOnly, setReadoutOnly] = useState(true);
   // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
   const [dose, setDose] = useState(1);
-  // Chart stays unmounted (and its code unloaded) until the user opens it.
+  // Charts stay unmounted (and their code unloaded) until the user opens them.
   const [showChart, setShowChart] = useState(false);
+  const [showBaselineChart, setShowBaselineChart] = useState(false);
   const rows = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
@@ -180,6 +182,11 @@ function Dashboard() {
         </div>
       </div>
     </header>
+    {showBaselineChart ? <Suspense fallback={<p className="border-y border-border py-4 text-xs text-muted-foreground">Loading chart...</p>}>
+      <BaselineProfileChart profiles={rows.map((r) => r.p)} />
+    </Suspense> : <div className="border-y border-border py-4">
+      <Button variant="outline" size="sm" onClick={() => setShowBaselineChart(true)} data-testid="dash-show-baseline-chart">Show baseline chart</Button>
+    </div>}
     {showChart ? <Suspense fallback={<p className="border-y border-border py-4 text-xs text-muted-foreground">Loading chart...</p>}>
       <TherapyProfileChart profiles={rows.map((r) => r.p)} dose={dose} flaggedIds={rows.filter((r) => r.respAll !== null).map((r) => r.p.id)} />
     </Suspense> : <div className="border-y border-border py-4">
