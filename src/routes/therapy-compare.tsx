@@ -106,7 +106,10 @@ function TherapyCompare() {
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
     <Button asChild variant="ghost" size="sm"><Link to="/therapy-calculator"><ArrowLeft className="size-4" aria-hidden />Therapy calculator</Link></Button>
     <header className="space-y-1">
-      <h1 className="text-2xl font-semibold">Therapy comparison</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl font-semibold">Therapy comparison</h1>
+        <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="cmp-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
+      </div>
       <p className="text-sm text-muted-foreground">Pick two therapies and a model dose for each; both are stacked on the patient's measured baseline and simulated side by side. Model dose is a slider value only, never a drug dose. Not medical advice.</p>
     </header>
 
