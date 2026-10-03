@@ -123,7 +123,7 @@ function Dashboard() {
     const header = ["Profile", "ID", "Phenotype", "Total flags", "Therapy", `Model dose`, "ATP change", "Superoxide change", "H2O2 change", "Flags cleared", "Readout effect only"];
     const lines = [header.join(",")];
     for (const r of rows) {
-      const all = responders(r.p, dose);
+      const all = r.respMatrix;
       if (!all.length) {
         lines.push([esc(r.p.label), esc(r.p.id), esc(r.p.phenotype), String(r.labFlags + r.assayFlags + r.modelFlags), "(none)", String(dose), "", "", "", "", ""].join(","));
         continue;
