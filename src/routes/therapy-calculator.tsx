@@ -44,7 +44,7 @@ function TherapyCalculator() {
     <Button asChild variant="ghost" size="sm"><Link to="/treatment"><ArrowLeft className="size-4" aria-hidden />Treatment</Link></Button>
     <header className="space-y-1">
       <h1 className="text-2xl font-semibold">Therapy calculator</h1>
-      <p className="text-sm text-muted-foreground">Each therapy moves one or more Simulator sliders. Model dose scales that move: 0x is the patient's baseline, 1x is the move used on the Treatment page, 2x doubles it. Model dose is a slider value only, never a drug dose. Not medical advice.</p>
+      <p className="text-sm text-muted-foreground">Each therapy moves one or more Simulator sliders. Model dose scales that move: 0x is the patient's baseline, 1x is the move used on the Treatment page, 2x doubles it. Model dose is a slider value only, never a drug dose. Not medical advice. <Link className="text-primary underline-offset-2 hover:underline" to="/therapy-compare" search={{ profile: patient.id, a: therapy.id }}>Compare two therapies side by side</Link>.</p>
     </header>
 
     <div className="grid gap-3 sm:grid-cols-2">
