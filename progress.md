@@ -937,6 +937,10 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Add-visit form gains a peroxide field (blank carries over from the latest visit); table shows the value in red above 100 nM or "Not measured".
 - Verified: added a 2026-09-01 visit with 150 nM; row shows 150 in date order among synthetic visits, no page errors, typecheck clean.
 
+## MitoSOX on the Timeline chart (2026-10-03) ✅
+- Picking "MitoSOX signal" in the Timeline metric selector now shows dashed band lines at 0.59x and 1.5x (Gonzalo 2019 healthy-control spread) and a note that the band is research, not a lab range, with the child caution.
+- Verified live on demo-04 (Leigh): chart plots 1.58 → 1.32 across visits against the band lines; no page errors; typecheck clean.
+
 ## MitoSOX band on dashboard + children (2026-10-03) ✅
 - referenceFor now applies adult research bands to children with a caution label ("adult band applied to a child; no pediatric interval exists") instead of returning no range; PatientComparison wording updated to match.
 - Dashboard assay flag count includes the MitoSOX band check (Gonzalo 2019, 0.59-1.5x control); new "MitoSOX band" column shows Flagged/Within with "(adult band, child)" for minors.
