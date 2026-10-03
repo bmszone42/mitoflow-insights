@@ -4,13 +4,15 @@ import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
 
 // Timeline visits live in module memory only (tab-only, never persisted or sent anywhere).
-export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; h2o2Nm?: number | undefined; therapies: string[]; doses?: Record<string, number> | undefined; origin: "baseline" | "synthetic" | "user" };
+export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; h2o2Nm?: number | undefined; therapies: string[]; doses?: Record<string, number> | undefined; origin: "baseline" | "synthetic" | "user" | "plan" };
 
 let visits: Visit[] = [];
 const listeners = new Set<() => void>();
 const emit = () => { visits = [...visits]; listeners.forEach((l) => l()); };
 export const useVisits = () => useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => visits, () => visits);
 export const addVisit = (v: Omit<Visit, "id" | "origin">) => { visits.push({ ...v, id: `v-${Date.now()}-${Math.round(Math.random() * 1e6)}`, origin: "user" }); emit(); };
+/** Plan row: therapies and doses only, no new labs. Labs are filled from the latest earlier non-plan visit in patientTimeline. */
+export const addPlan = (v: Pick<Visit, "patientId" | "date" | "therapies" | "doses">) => { visits.push({ ...v, id: `p-${Date.now()}-${Math.round(Math.random() * 1e6)}`, values: {} as Record<PatientMetricKey, number>, origin: "plan" }); emit(); };
 export const removeVisit = (id: string) => { visits = visits.filter((v) => v.id !== id); emit(); };
 
 /** L:P is derived: lactate (mmol/L) x 1000 / pyruvate (µmol/L). */
