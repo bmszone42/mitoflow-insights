@@ -65,12 +65,13 @@ function Dashboard() {
         labFlags, assayFlags, modelFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
         respAll: allResp ? allResp.slice(0, 3) : null,
+        respMatrix: allResp,
         flagsOnlyCount: allResp ? allResp.filter((x) => !x.hasReadout).length : 0,
       };
     }).map((r) => ({
       ...r,
-      resp: r.respAll === null ? null : readoutOnly
-        ? responders(r.p, dose).filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
+      resp: r.respMatrix === null ? null : readoutOnly
+        ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
         : r.respAll,
     }));
     return built.sort((a, b) => {
