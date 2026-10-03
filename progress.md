@@ -7,3 +7,4 @@
 - Dashboard header text explains the therapy count. Verified live: Demo 15 = 11/5/2/15 (total 18), Demo 04 = 9/6/2/13 matching Diagnosis, both CSVs carry the new columns, no page errors; typecheck clean.
 
 - ✅ Projected peroxide: measured nM scaled by model H2O2 change, in the Simulator therapy table and a dashboard column + CSV (follows dose and Batch therapy picker)
+- ✅ Projected MitoSOX: measured fold scaled by model superoxide change, in the Simulator therapy table and a dashboard column + CSV; flag clears when the projection re-enters the 0.59-1.5x band

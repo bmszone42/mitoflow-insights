@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
-import { h2o2NmBand, inputsFromPatient, projectedH2o2, type DemoPatient } from "@/lib/mito/patientReference";
+import { h2o2NmBand, inputsFromPatient, mitoSoxBand, projectedH2o2, projectedMitoSox, type DemoPatient } from "@/lib/mito/patientReference";
 import type { Therapy } from "@/lib/mito/treatment";
 
 type Out = ReturnType<typeof simulate>;
@@ -25,7 +25,8 @@ export function TherapyEffectTable({ patient, inputs, geo, therapy }: { patient:
       return { ...r, before: b, after: a, change: b === 0 ? 0 : (a - b) / b };
     });
     const proj = patient.h2o2Nm === undefined ? null : projectedH2o2(patient.h2o2Nm, before.hydrogenPeroxide, cur.hydrogenPeroxide);
-    return { rs, proj };
+    const projMs = projectedMitoSox(patient.values.mitosox, before.superoxide, cur.superoxide);
+    return { rs, proj, projMs };
   }, [patient, inputs, geo]);
   const m = patient.h2o2Nm;
   return (
@@ -46,8 +47,14 @@ export function TherapyEffectTable({ patient, inputs, geo, therapy }: { patient:
             <td className="tabular-nums">{m > h2o2NmBand.hi && !data.proj.outside ? <span className="font-medium text-primary">Flag clears</span> : data.proj.outside ? <span className="text-destructive">Flagged &gt;{h2o2NmBand.hi} nM</span> : <span className="text-muted-foreground">Within</span>}</td>
           </tr>
         )}
+        <tr className="border-t border-border" data-testid="therapy-projected-mitosox">
+          <td className="py-1">Projected MitoSOX <span className="text-muted-foreground">(measured x model superoxide change)</span></td>
+          <td className={`tabular-nums ${patient.values.mitosox < mitoSoxBand.lo || patient.values.mitosox > mitoSoxBand.hi ? "text-destructive" : ""}`}>{patient.values.mitosox.toFixed(2)}x</td>
+          <td className={`tabular-nums ${data.projMs.outside ? "text-destructive" : ""}`}>{data.projMs.value.toFixed(2)}x</td>
+          <td className="tabular-nums">{(patient.values.mitosox < mitoSoxBand.lo || patient.values.mitosox > mitoSoxBand.hi) && !data.projMs.outside ? <span className="font-medium text-primary">Flag clears</span> : data.projMs.outside ? <span className="text-destructive">Outside band</span> : <span className="text-muted-foreground">Within</span>}</td>
+        </tr>
       </tbody>
-      {data.proj && <caption className="caption-bottom pt-1 text-left text-[10px] text-muted-foreground">Projected peroxide scales the measured value by the model's peroxide change. A model estimate, not a measurement; the measured flag on Diagnosis is unchanged.</caption>}
+      <caption className="caption-bottom pt-1 text-left text-[10px] text-muted-foreground">Projected peroxide scales the measured value by the model's peroxide change; projected MitoSOX scales the measured fold by the model's superoxide change. Model estimates, not measurements; the measured flags on Diagnosis are unchanged.</caption>
     </table>
   );
 }

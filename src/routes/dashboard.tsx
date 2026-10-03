@@ -3,7 +3,7 @@ import { lazy, Suspense, useMemo, useState } from "react";
 import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
-import { demoPatients, lpMapping, patientSex, h2o2BandCheck, projectedH2o2, readoutChecks } from "@/lib/mito/patientReference";
+import { demoPatients, lpMapping, patientSex, h2o2BandCheck, projectedH2o2, projectedMitoSox, readoutChecks } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
@@ -86,8 +86,14 @@ function Dashboard() {
         : therapies.map((t) => ({ t, h2: therapyEffect(p, dose, t).h2 })).sort((a, b) => a.h2 - b.h2)[0];
       const projBase = hb.measured ? hb.measured.value : hb.model.value;
       const proj = pick ? { therapy: pick.t.name, base: projBase, measured: !!hb.measured, ...projectedH2o2(projBase, 1, 1 + pick.h2) } : null;
+      // Projected MitoSOX: measured fold scaled by the model's superoxide change
+      // under the batch-picker therapy, or the strongest superoxide-lowering therapy at this dose.
+      const msPick = batchTherapy !== "all"
+        ? therapies.filter((t) => t.id === batchTherapy).map((t) => ({ t, so: therapyEffect(p, dose, t).so }))[0]
+        : therapies.map((t) => ({ t, so: therapyEffect(p, dose, t).so })).sort((a, b) => a.so - b.so)[0];
+      const projMs = msPick ? { therapy: msPick.t.name, ...projectedMitoSox(p.values.mitosox, 1, 1 + msPick.so) } : null;
       return {
-        hb, ms, proj,
+        hb, ms, proj, projMs,
         p, out, healthy, top: d.top, lp: lpMapping(p),
         labFlags, assayFlags, modelFlags, therapyFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
@@ -111,7 +117,7 @@ function Dashboard() {
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
-    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", `Projected H2O2 (nM, ${dose}x)`, "Projected H2O2 therapy", "Projected peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", "Lab flags", "Assay flags", "Model flags", `Therapy flags (${dose}x)`, "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders", `Responds to (model, ${dose}x)`];
+    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", `Projected H2O2 (nM, ${dose}x)`, "Projected H2O2 therapy", "Projected peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", `Projected MitoSOX (fold, ${dose}x)`, "Projected MitoSOX therapy", "Projected MitoSOX flag", "Lab flags", "Assay flags", "Model flags", `Therapy flags (${dose}x)`, "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders", `Responds to (model, ${dose}x)`];
     const lines = [header.join(",")];
     for (const r of rows) {
       const src = r.p.source ?? "synthetic";
@@ -128,6 +134,8 @@ function Dashboard() {
         r.proj ? (r.proj.outside ? "Flagged >100 nM (projected)" : r.proj.base > 100 ? "Clears (projected)" : "Within") : "",
         r.p.values.mitosox.toFixed(2),
         r.ms.outside ? `Flagged: ${r.ms.text}${r.p.age < 18 ? " (adult band applied to a child)" : ""}` : "Within",
+        r.projMs ? r.projMs.value.toFixed(2) : "", esc(r.projMs ? r.projMs.therapy : ""),
+        r.projMs ? (r.projMs.outside ? "Outside band (projected)" : r.ms.outside ? "Clears (projected)" : "Within") : "",
         String(r.labFlags), String(r.assayFlags), String(r.modelFlags), String(r.therapyFlags), String(r.labFlags + r.assayFlags + r.modelFlags),
         esc(r.top ? r.top.name : "No strong cause"), r.top ? r.top.score.toFixed(2) : "",
         esc(r.overlap.map((o) => `${o.phenotype} ${o.shared}/${o.total}`).join("; ")),
@@ -196,7 +204,7 @@ function Dashboard() {
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Patient dashboard</h1>
-        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Projected H2O2 scales the measured peroxide (or the model value if not measured) by the model's peroxide change under the Batch therapy pick, or the strongest peroxide-lowering therapy when "All therapies" is picked; a model estimate, not a measurement. The therapy count lists model therapies that target a strong cause and move ATP, superoxide or peroxide by 1% or more; it is not an abnormal flag and is not part of the total. Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at the chosen model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
+        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Projected H2O2 scales the measured peroxide (or the model value if not measured) by the model's peroxide change under the Batch therapy pick, or the strongest peroxide-lowering therapy when "All therapies" is picked; a model estimate, not a measurement. Projected MitoSOX does the same for the measured MitoSOX fold using the model's superoxide change, since MitoSOX reports superoxide. The therapy count lists model therapies that target a strong cause and move ATP, superoxide or peroxide by 1% or more; it is not an abnormal flag and is not part of the total. Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at the chosen model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
       </div>
       <div className="flex flex-col items-end gap-2">
         <label className="flex items-center gap-2 text-xs" data-testid="dash-dose-label">
@@ -236,7 +244,7 @@ function Dashboard() {
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
           <th className="px-3 py-2">Profile</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2">Superoxide</th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
-          <th className="px-3 py-2">Peroxide flag</th><th className="px-3 py-2">Projected H2O2 ({dose}x)</th><th className="px-3 py-2">MitoSOX band (Gonzalo 2019)</th><th className="px-3 py-2">Flags: lab / assay / model / therapy ({dose}x)</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Responds to (model, {dose}x)</th><th className="px-3 py-2">Open</th>
+          <th className="px-3 py-2">Peroxide flag</th><th className="px-3 py-2">Projected H2O2 ({dose}x)</th><th className="px-3 py-2">MitoSOX band (Gonzalo 2019)</th><th className="px-3 py-2">Projected MitoSOX ({dose}x)</th><th className="px-3 py-2">Flags: lab / assay / model / therapy ({dose}x)</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Responds to (model, {dose}x)</th><th className="px-3 py-2">Open</th>
         </tr></thead>
         <tbody>{rows.map((r) => <tr key={r.p.id} data-testid="dash-row" className="border-t border-border/60 align-top">
           <th scope="row" className="px-3 py-2 font-medium">{r.p.label}<div className="font-normal text-muted-foreground">{r.p.phenotype} · {r.p.age}y {patientSex(r.p)}</div></th>
@@ -248,6 +256,7 @@ function Dashboard() {
           <td className="px-3 py-2" data-testid="dash-h2o2-flag">{(r.hb.measured?.outside || r.hb.model.outside) ? <span className="font-medium text-destructive">Flagged &gt;100 nM{r.hb.measured?.outside ? " (measured)" : " (model)"}</span> : <span className="text-muted-foreground">Within{r.hb.measured ? "" : " (model only)"}</span>}</td>
           <td className="px-3 py-2" data-testid="dash-h2o2-projected">{r.proj ? <><div className={r.proj.outside ? "font-medium text-destructive" : ""}>{fmt(r.proj.value)} nM{r.proj.base > 100 && !r.proj.outside ? <span className="font-medium text-primary"> (flag clears)</span> : r.proj.outside ? " (flagged)" : ""}</div><div className="text-[10px] text-muted-foreground">{r.proj.measured ? "Measured" : "Model"} {fmt(r.proj.base)} nM x {r.proj.therapy}</div></> : <span className="text-muted-foreground">None</span>}</td>
           <td className="px-3 py-2" data-testid="dash-mitosox-flag">{r.ms.outside ? <span className="font-medium text-destructive">Flagged: {r.ms.text}{r.p.age < 18 ? " (adult band, child)" : ""}</span> : <span className="text-muted-foreground">Within{r.p.age < 18 ? " (adult band, child)" : ""}</span>}</td>
+          <td className="px-3 py-2" data-testid="dash-mitosox-projected">{r.projMs ? <><div className={r.projMs.outside ? "font-medium text-destructive" : ""}>{r.projMs.value.toFixed(2)}x{r.ms.outside && !r.projMs.outside ? <span className="font-medium text-primary"> (flag clears)</span> : r.projMs.outside ? " (outside)" : ""}</div><div className="text-[10px] text-muted-foreground">Measured {r.p.values.mitosox.toFixed(2)}x x {r.projMs.therapy}</div></> : <span className="text-muted-foreground">None</span>}</td>
           <td className="px-3 py-2 font-mono">{r.labFlags} / {r.assayFlags} / {r.modelFlags} / {r.therapyFlags}</td>
           <td className="px-3 py-2">{r.top ? <>{r.top.name} <span className="font-mono text-muted-foreground">{r.top.score.toFixed(2)}</span></> : <span className="text-muted-foreground">No strong cause</span>}</td>
           <td className="px-3 py-2">{r.overlap.length ? r.overlap.map((o) => <div key={o.phenotype}>{o.phenotype} <span className="font-mono text-muted-foreground">{o.shared}/{o.total}</span></div>) : <span className="text-muted-foreground">None</span>}</td>

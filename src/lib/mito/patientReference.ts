@@ -267,6 +267,17 @@ export function projectedH2o2(measuredNm: number, modelBefore: number, modelAfte
   return { value, outside: value > h2o2NmBand.hi, text: outsideText(value, { hi: h2o2NmBand.hi }) };
 }
 
+/** MitoSOX healthy-control band (Gonzalo 2019), as fold of control. */
+export const mitoSoxBand = { lo: 0.59, hi: 1.5, source: "Gonzalo et al., Front Neurosci (2019)" } as const;
+
+/** Projected MitoSOX: the measured fold value scaled by the model's own superoxide
+ *  fold change with therapy (after / before), since MitoSOX reports superoxide.
+ *  A model estimate, not a measurement. */
+export function projectedMitoSox(measuredFold: number, modelBefore: number, modelAfter: number) {
+  const value = modelBefore > 0 ? measuredFold * (modelAfter / modelBefore) : measuredFold;
+  return { value, outside: value < mitoSoxBand.lo || value > mitoSoxBand.hi, text: outsideText(value, mitoSoxBand) };
+}
+
 export function readoutChecks(p: DemoPatient) {
   const inputs = { ...defaultInputs, ...inputsFromPatient(p).patch };
   const out = simulate(inputs);
