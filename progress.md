@@ -920,3 +920,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ MitoSOX healthy-control spread 0.59-1.5 fold control (Gonzalo 2019 Front Neurosci: CD3+ T-cell control median 192 MFI, IQR 114-287.5, n=24), labeled study-specific research band
 - ✅ Shown on Lab Ranges, Patient Data range column, and the Patient Comparison drift check (measured value)
 - ✅ Adults only; children show "no pediatric interval"
+
+## Measured peroxide (nM) in Simulator and dashboard (2026-10-03) ✅
+- ✅ Simulator patient banner: model and measured H2O2 vs Sies 2017 (flagged above 100 nM); measured value moves no slider
+- ✅ Dashboard: H2O2 band column, +1 assay flag when above 100 nM, CSV columns Measured H2O2 (nM) and H2O2 vs Sies 2017
+- ✅ Verified: 150 nM profile flagged 50% above in both places (0/1/1 flags); demo profiles show Not measured; model H2O2 18-37 nM never flags

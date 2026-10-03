@@ -254,6 +254,12 @@ export const readoutBands = [
 /** Peroxide concentration band (Sies 2017); only values above the upper limit are flagged. */
 export const h2o2NmBand = { hi: 100, label: "Sies 2017: 1-10 nM signaling, 10-100 nM adaptive stress, above 100 nM distress", source: "Sies, Redox Biol (2017)", url: "https://doi.org/10.1016/j.redox.2016.12.035" } as const;
 
+/** Model and measured H2O2 (nM) against the Sies 2017 band; only above 100 nM flags. */
+export function h2o2BandCheck(p: DemoPatient, modelNm: number) {
+  const chk = (v: number) => ({ value: v, outside: v > h2o2NmBand.hi, text: outsideText(v, { hi: h2o2NmBand.hi }) });
+  return { model: chk(modelNm), measured: p.h2o2Nm === undefined ? null : chk(p.h2o2Nm) };
+}
+
 export function readoutChecks(p: DemoPatient) {
   const inputs = { ...defaultInputs, ...inputsFromPatient(p).patch };
   const out = simulate(inputs);

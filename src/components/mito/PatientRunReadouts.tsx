@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
-import { demoPatients, inputsFromPatient, type DemoPatient } from "@/lib/mito/patientReference";
+import { demoPatients, h2o2BandCheck, h2o2NmBand, inputsFromPatient, type DemoPatient } from "@/lib/mito/patientReference";
 import type { Therapy } from "@/lib/mito/treatment";
 
 // Model vs measured, both as fold of a healthy reference: model output / default-input output,
@@ -78,6 +78,9 @@ export function PatientRunReadouts({ patient, inputs, geo, therapy }: { patient:
             </tr>))}</tbody>
         </table>
       )}
+      {(() => { const c = h2o2BandCheck(patient, simulate(inputs, geo).hydrogenPeroxide); const t = (x: { value: number; outside: boolean; text: string | null }) => <span className={x.outside ? "text-destructive" : "text-primary"}>{fmt(x.value)} nM, {x.text ?? "within band"}</span>; return (
+        <p className="text-[11px] md:col-span-2" data-testid="run-h2o2-band"><span className="font-medium">Peroxide vs Sies 2017 (flagged above {h2o2NmBand.hi} nM):</span> model {t(c.model)}; measured {c.measured ? t(c.measured) : <span className="text-muted-foreground">not measured in nM</span>}. <span className="text-muted-foreground">Measured peroxide does not move any slider.</span></p>
+      ); })()}
       <p className="text-[10px] text-muted-foreground md:col-span-2">Model values are simulated output divided by output at default settings; measured values are divided by the healthy demo profile (probe signals are already fold control). Gaps over 25% are highlighted. Slider effects reset one slider to default at a time and do not add. Therapy before/after compares the patient's baseline sliders with the therapy applied on top. MitoSOX also sets antioxidant capacity, so the superoxide row is partly circular. Model comparison only, not a clinical finding.</p>
     </div>
   );
