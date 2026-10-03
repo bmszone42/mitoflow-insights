@@ -53,16 +53,20 @@ function Dashboard() {
       const mitosoxFlag = ms.outside ? 1 : 0;
       const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags = d.modelFlags.length;
       const all = labFlags + assayFlags + modelFlags;
+      const allResp = all > 0 ? responders(p) : null;
       return {
         hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
         labFlags, assayFlags, modelFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
-        respAll: all > 0 ? responders(p).slice(0, 3) : null,
+        respAll: allResp ? allResp.slice(0, 3) : null,
+        flagsOnlyCount: allResp ? allResp.filter((x) => !x.hasReadout).length : 0,
       };
     }).map((r) => ({
       ...r,
-      resp: r.respAll === null ? null : readoutOnly ? r.respAll.filter((x) => x.hasReadout) : r.respAll,
+      resp: r.respAll === null ? null : readoutOnly
+        ? responders(r.p).filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
+        : r.respAll,
     }));
     return built.sort((a, b) => {
       const fa = a.labFlags + a.assayFlags + a.modelFlags;
@@ -141,9 +145,8 @@ function Dashboard() {
           <td className="px-3 py-2">{r.overlap.length ? r.overlap.map((o) => <div key={o.phenotype}>{o.phenotype} <span className="font-mono text-muted-foreground">{o.shared}/{o.total}</span></div>) : <span className="text-muted-foreground">None</span>}</td>
           <td className="px-3 py-2" data-testid="dash-resp">{(() => {
             if (r.resp === null) return <span className="text-muted-foreground">Not flagged</span>;
-            const hidden = (r.respAll?.length ?? 0) - r.resp.length;
-            if (!r.resp.length) return <span className="text-muted-foreground">{readoutOnly ? `No readout response${hidden ? ` (${hidden} clear flags only)` : ""}` : "No model response"}</span>;
-            return <>{r.resp.map((x) => <div key={x.t.id}><Link className="text-primary underline-offset-2 hover:underline" to="/therapy-calculator" search={{ profile: r.p.id, therapy: x.t.id }}>{x.t.name}</Link> <span className="text-muted-foreground">{x.parts.join(", ")}</span></div>)}{readoutOnly && hidden > 0 && <div className="text-[10px] text-muted-foreground">+{hidden} more clear flags only</div>}</>;
+            if (!r.resp.length) return <span className="text-muted-foreground">{readoutOnly ? `No readout response${r.flagsOnlyCount ? ` (${r.flagsOnlyCount} clear flags only)` : ""}` : "No model response"}</span>;
+            return <>{r.resp.map((x) => <div key={x.t.id}><Link className="text-primary underline-offset-2 hover:underline" to="/therapy-calculator" search={{ profile: r.p.id, therapy: x.t.id }}>{x.t.name}</Link> <span className="text-muted-foreground">{x.parts.join(", ")}</span></div>)}{readoutOnly && r.flagsOnlyCount > 0 && <div className="text-[10px] text-muted-foreground" data-testid="dash-resp-hidden">{r.flagsOnlyCount} clear flags only</div>}</>;
           })()}</td>
           <td className="space-y-1 px-3 py-2">
             <Link className="block text-primary underline-offset-2 hover:underline" to="/diagnosis" search={{ profile: r.p.id }}>Diagnosis</Link>
