@@ -161,7 +161,7 @@ export function diagnoseProfile(p: DemoPatient) {
     : expected.mechanisms.includes(causes[0]!.mechanism) && causes[0]!.score >= 1.5 ? "matches"
     : expected.mechanisms.some((m) => (causes.find((c) => c.mechanism === m)?.score ?? 0) > 0) ? "partly matches" : "does not match";
 
-  return { patient: p, causes, top: strong[0] ?? null, patientFlags, rosAssayFlags, atpAssayFlags, modelFlags, expected, fit, realShare: realShare(p) };
+  return { patient: p, causes, top: strong[0] ?? null, patientFlags, rosAssayFlags, atpAssayFlags, modelFlags, therapyFlags, expected, fit, realShare: realShare(p) };
 }
 
 export const diagnoseAll = (extra: DemoPatient[] = []) => [...extra, ...demoPatients].map(diagnoseProfile);
