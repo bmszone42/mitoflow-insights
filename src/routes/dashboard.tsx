@@ -50,7 +50,7 @@ function Dashboard() {
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
-    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Lab flags", "Assay flags", "Model flags", "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders"];
+    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", "Lab flags", "Assay flags", "Model flags", "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders"];
     const lines = [header.join(",")];
     for (const r of rows) {
       const src = r.p.source ?? "synthetic";
@@ -62,6 +62,7 @@ function Dashboard() {
         r.out.hydrogenPeroxide.toFixed(2), pct(r.out.hydrogenPeroxide, r.healthy.hydrogenPeroxide),
         r.hb.measured ? String(r.hb.measured.value) : "Not measured",
         esc(`model ${r.hb.model.text ?? "within"}; measured ${r.hb.measured ? r.hb.measured.text ?? "within" : "not measured"}`),
+        (r.hb.measured?.outside || r.hb.model.outside) ? `Flagged >100 nM${r.hb.measured?.outside ? " (measured)" : " (model)"}` : `Within${r.hb.measured ? "" : " (model only)"}`,
         String(r.labFlags), String(r.assayFlags), String(r.modelFlags), String(r.labFlags + r.assayFlags + r.modelFlags),
         esc(r.top ? r.top.name : "No strong cause"), r.top ? r.top.score.toFixed(2) : "",
         esc(r.overlap.map((o) => `${o.phenotype} ${o.shared}/${o.total}`).join("; ")),
