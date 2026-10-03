@@ -3,7 +3,7 @@ import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOu
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosAssayFlag, rosSourceRows } from "./rosPhysiology";
 import { atpAssayFlag } from "./atpComparison";
-import { therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
+import { therapies, applyTherapyDose, profileInputs, metrics, bestProjectionTherapy } from "./treatment";
 
 // Mechanism pattern review. Fixed rules map existing flags to mechanisms.
 // Scores are weighted flag counts, never probabilities or diagnoses.
@@ -161,13 +161,12 @@ export function diagnoseProfile(p: DemoPatient, dose = 1) {
   // model's superoxide / peroxide change under the therapy that moves it most
   // at this dose. Model estimates, not measurements; kept out of the flag
   // counts so the measured flags are never double-counted.
-  const strongTherapies = therapies.filter((t) => t.mechanisms.some((m) => strongMechs.has(m)));
-  const effects = strongTherapies.map((t) => { const b = metrics(profileInputs(p)); const a = metrics(applyTherapyDose(profileInputs(p), t, dose)); return { t, so: b.superoxide > 0 ? a.superoxide / b.superoxide : 1, h2: b.h2o2 > 0 ? a.h2o2 / b.h2o2 : 1 }; });
-  const bestSo = [...effects].sort((a, b) => a.so - b.so)[0];
-  const bestH2 = [...effects].sort((a, b) => a.h2 - b.h2)[0];
+  // Shared with the dashboard: best therapy across all therapies at this dose.
+  const bestSo = bestProjectionTherapy(p, dose, "so");
+  const bestH2 = bestProjectionTherapy(p, dose, "h2");
   const projectedFlags: Evidence[] = [
-    ...(msBand.outside && bestSo ? [(() => { const pr = projectedMitoSox(p.values.mitosox, 1, bestSo.so); return { label: `MitoSOX signal ${msBand.value > msBand.hi ? "high" : "low"} (projected)`, type: "Model simulation" as const, source: "Model" as const, detail: `${p.values.mitosox.toFixed(2)}x to ${pr.value.toFixed(2)}x with ${bestSo.t.name} at ${dose}x model dose; ${pr.outside ? "still outside band" : "flag clears"}` }; })()] : []),
-    ...(hb.measured?.outside && bestH2 ? [(() => { const pr = projectedH2o2(hb.measured!.value, 1, bestH2.h2); return { label: "Hydrogen peroxide high (projected)", type: "Model simulation" as const, source: "Model" as const, detail: `${hb.measured!.value.toFixed(0)} nM to ${pr.value.toFixed(0)} nM with ${bestH2.t.name} at ${dose}x model dose; ${pr.outside ? "still outside band" : "flag clears"}` }; })()] : []),
+    ...(msBand.outside && bestSo ? [(() => { const pr = projectedMitoSox(p.values.mitosox, 1, bestSo.fold); return { label: `MitoSOX signal ${msBand.value > msBand.hi ? "high" : "low"} (projected)`, type: "Model simulation" as const, source: "Model" as const, detail: `${p.values.mitosox.toFixed(2)}x to ${pr.value.toFixed(2)}x with ${bestSo.t.name} at ${dose}x model dose; ${pr.outside ? "still outside band" : "flag clears"}` }; })()] : []),
+    ...(hb.measured?.outside && bestH2 ? [(() => { const pr = projectedH2o2(hb.measured!.value, 1, bestH2.fold); return { label: "Hydrogen peroxide high (projected)", type: "Model simulation" as const, source: "Model" as const, detail: `${hb.measured!.value.toFixed(0)} nM to ${pr.value.toFixed(0)} nM with ${bestH2.t.name} at ${dose}x model dose; ${pr.outside ? "still outside band" : "flag clears"}` }; })()] : []),
   ];
   const expected = expectedPattern[p.phenotype] ?? { mechanisms: [], text: "No expected pattern defined." };
   const fit: "matches" | "partly matches" | "does not match" = expected.mechanisms.length === 0

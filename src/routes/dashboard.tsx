@@ -6,7 +6,7 @@ import { defaultGeometry, simulate } from "@/lib/mito/model";
 import { demoPatients, lpMapping, patientSex, h2o2BandCheck, projectedH2o2, projectedMitoSox, readoutChecks } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
-import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
+import { applyTherapyDose, bestProjectionTherapy, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
 // Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
 const TherapyProfileChart = lazy(() => import("@/components/mito/TherapyProfileChart").then((m) => ({ default: m.TherapyProfileChart })));
 const BaselineProfileChart = lazy(() => import("@/components/mito/BaselineProfileChart").then((m) => ({ default: m.BaselineProfileChart })));
@@ -81,17 +81,13 @@ function Dashboard() {
       const allResp = all > 0 ? matrix : null;
       // Projected peroxide: measured nM (else model nM) scaled by the model's H2O2 change
       // under the batch-picker therapy, or the strongest peroxide-lowering therapy at this dose.
-      const pick = batchTherapy !== "all"
-        ? therapies.filter((t) => t.id === batchTherapy).map((t) => ({ t, h2: therapyEffect(p, dose, t).h2 }))[0]
-        : therapies.map((t) => ({ t, h2: therapyEffect(p, dose, t).h2 })).sort((a, b) => a.h2 - b.h2)[0];
+      const pick = bestProjectionTherapy(p, dose, "h2", batchTherapy !== "all" ? batchTherapy : undefined);
       const projBase = hb.measured ? hb.measured.value : hb.model.value;
-      const proj = pick ? { therapy: pick.t.name, base: projBase, measured: !!hb.measured, ...projectedH2o2(projBase, 1, 1 + pick.h2) } : null;
+      const proj = pick ? { therapy: pick.t.name, base: projBase, measured: !!hb.measured, ...projectedH2o2(projBase, 1, pick.fold) } : null;
       // Projected MitoSOX: measured fold scaled by the model's superoxide change
       // under the batch-picker therapy, or the strongest superoxide-lowering therapy at this dose.
-      const msPick = batchTherapy !== "all"
-        ? therapies.filter((t) => t.id === batchTherapy).map((t) => ({ t, so: therapyEffect(p, dose, t).so }))[0]
-        : therapies.map((t) => ({ t, so: therapyEffect(p, dose, t).so })).sort((a, b) => a.so - b.so)[0];
-      const projMs = msPick ? { therapy: msPick.t.name, ...projectedMitoSox(p.values.mitosox, 1, 1 + msPick.so) } : null;
+      const msPick = bestProjectionTherapy(p, dose, "so", batchTherapy !== "all" ? batchTherapy : undefined);
+      const projMs = msPick ? { therapy: msPick.t.name, ...projectedMitoSox(p.values.mitosox, 1, msPick.fold) } : null;
       return {
         hb, ms, proj, projMs,
         p, out, healthy, top: d.top, lp: lpMapping(p),
