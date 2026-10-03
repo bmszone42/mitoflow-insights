@@ -1,5 +1,5 @@
 import { defaultGeometry, defaultInputs, simulate } from "./model";
-import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOutside, referenceFor, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
+import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOutside, readoutChecks, referenceFor, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosAssayFlag, rosSourceRows } from "./rosPhysiology";
 import { atpAssayFlag } from "./atpComparison";
@@ -75,11 +75,17 @@ export const expectedPattern: Record<string, { mechanisms: Mechanism[]; text: st
 
 export function diagnoseProfile(p: DemoPatient) {
   const dirs = Object.fromEntries(patientMetrics.map((m) => [m.key, metricDirection(p, m.key)])) as Record<PatientMetricKey, { dir: Direction; basis: string }>;
-  const patientFlags: Evidence[] = patientMetrics.filter((m) => dirs[m.key].dir !== "normal").map((m) => ({ label: `${m.label} ${dirs[m.key].dir}`, type: m.key === "lactatePyruvate" ? "Derived ratio" : "Measured assay", source: "Patient Data", detail: `${p.values[m.key]} ${m.unit} (${dirs[m.key].basis})`, origin: originOf(p, m.key).origin }));
+  // MitoSOX is listed under ROS assay flags (Gonzalo 2019 band), not Patient
+  // Data flags, so the band is not counted twice.
+  const patientFlags: Evidence[] = patientMetrics.filter((m) => m.key !== "mitosox" && dirs[m.key].dir !== "normal").map((m) => ({ label: `${m.label} ${dirs[m.key].dir}`, type: m.key === "lactatePyruvate" ? "Derived ratio" : "Measured assay", source: "Patient Data", detail: `${p.values[m.key]} ${m.unit} (${dirs[m.key].basis})`, origin: originOf(p, m.key).origin }));
 
   // ROS and ATP profile assay flags (same logic as the tabs).
   const rosAssays = (["O2•-", "H2O2", "•OH"] as const).map((s) => rosAssayFlag(s, p.values, adultControl.values)).filter((a): a is NonNullable<typeof a> => !!a);
-  const rosAssayFlags: Evidence[] = rosAssays.filter((a) => a.flagged).map((a) => ({ label: `${a.label} ${a.percent > 0 ? "high" : "low"}`, type: "Measured assay", source: "ROS assay", detail: `${a.percent >= 0 ? "+" : ""}${a.percent.toFixed(0)}% vs healthy adult` }));
+  const msBand = readoutChecks(p).find((b) => b.key === "mitosox")!;
+  const rosAssayFlags: Evidence[] = [
+    ...rosAssays.filter((a) => a.flagged).map((a) => ({ label: `${a.label} ${a.percent > 0 ? "high" : "low"}`, type: "Measured assay" as const, source: "ROS assay" as const, detail: `${a.percent >= 0 ? "+" : ""}${a.percent.toFixed(0)}% vs healthy adult` })),
+    ...(msBand.outside ? [{ label: `MitoSOX signal ${msBand.value > msBand.hi ? "high" : "low"}`, type: "Measured assay" as const, source: "ROS assay" as const, detail: `${msBand.text}, research band (Gonzalo 2019)${p.age < 18 ? "; adult band applied to a child" : ""}`, origin: originOf(p, "mitosox").origin }] : []),
+  ];
   const atpAssays = [atpAssayFlag("Complex I", true, p.values, adultControl.values), atpAssayFlag("Overall NADH to O2", false, p.values, adultControl.values)].filter((a): a is NonNullable<typeof a> => !!a);
   const atpAssayFlags: Evidence[] = atpAssays.filter((a) => a.flagged).map((a) => ({ label: `${a.label} ${a.percent > 0 ? "high" : "low"}`, type: "Measured assay", source: "ATP assay", detail: `${a.percent >= 0 ? "+" : ""}${a.percent.toFixed(0)}% vs healthy adult` }));
 
