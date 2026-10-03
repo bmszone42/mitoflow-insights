@@ -3,6 +3,7 @@ import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOu
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosAssayFlag, rosSourceRows } from "./rosPhysiology";
 import { atpAssayFlag } from "./atpComparison";
+import { therapies, simulateTherapy } from "./treatment";
 
 // Mechanism pattern review. Fixed rules map existing flags to mechanisms.
 // Scores are weighted flag counts, never probabilities or diagnoses.
@@ -104,6 +105,24 @@ export function diagnoseProfile(p: DemoPatient) {
     ...(atpModel ? [{ label: `${atpModel} ATP steps flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV, cost ${cost.toFixed(2)} eV/ATP` }] : []),
     ...(rosModel ? [{ label: `${rosModel} ROS sources flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV vs default` }] : []),
   ];
+
+  // Therapy flags: model therapies that target a strong cause (score >= 1.5)
+  // and move ATP, superoxide or peroxide by at least 1% at the standard 1x
+  // model dose on this profile's baseline. Model levers only, never drug doses.
+  const strongMechs = new Set(causes.filter((c) => c.score >= 1.5).map((c) => c.mechanism));
+  const therapyFlags: Evidence[] = strongMechs.size === 0 ? [] : therapies
+    .filter((t) => t.mechanisms.some((m) => strongMechs.has(m)))
+    .map((t) => {
+      const s = simulateTherapy(p, t);
+      const parts: string[] = [];
+      const pct = (a: number, b: number) => (a ? (b / a - 1) * 100 : 0);
+      const atpPct = pct(s.before.atp, s.after.atp), o2Pct = pct(s.before.superoxide, s.after.superoxide), h2o2Pct = pct(s.before.h2o2, s.after.h2o2);
+      if (Math.abs(atpPct) >= 1) parts.push(`ATP ${atpPct >= 0 ? "+" : ""}${atpPct.toFixed(0)}%`);
+      if (Math.abs(o2Pct) >= 1) parts.push(`superoxide ${o2Pct >= 0 ? "+" : ""}${o2Pct.toFixed(0)}%`);
+      if (Math.abs(h2o2Pct) >= 1) parts.push(`H2O2 ${h2o2Pct >= 0 ? "+" : ""}${h2o2Pct.toFixed(0)}%`);
+      return parts.length ? { label: t.name, type: "Model simulation" as const, source: "Model" as const, detail: `${parts.join(", ")} at 1x model dose; targets ${t.mechanisms.filter((m) => strongMechs.has(m)).map((m) => mechanismNames[m]).join(", ")}` } : null;
+    })
+    .filter((e): e is Evidence => e !== null);
 
   const causes = order.map((mech) => {
     const supporting: Evidence[] = []; const conflicting: Evidence[] = [];
