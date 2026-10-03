@@ -9,6 +9,8 @@ export type PatientMetric = {
   reference?: { lo?: number; hi?: number; label: string };
   sourceCitation: string; sourceUrl: string; note: string; decimals: number;
   modelValue?: (inputs: Inputs, out: Outputs) => number; modelLabel?: string;
+  /** Citation for the reference band when it differs from the metric's method source. */
+  referenceSource?: string; referenceUrl?: string;
 };
 
 export type ValueOrigin = { origin: "published" | "user" | "synthetic"; citation?: string | undefined; url?: string | undefined; locator?: string | undefined };
@@ -28,7 +30,7 @@ export const patientMetrics: PatientMetric[] = [
   { key: "membranePotential", group: "Bioenergetics", label: "Mitochondrial membrane potential", unit: "mV", specimen: "Live cells", method: "Potential-sensitive fluorophore", reference: { lo: 150, hi: 180, label: "Approximate physiological band" }, decimals: 0, sourceCitation: "Zorova et al., Anal Biochem (2018)", sourceUrl: "https://doi.org/10.1016/j.ab.2017.07.009", note: "Absolute values depend strongly on probe calibration, cell type, and preparation.", modelValue: (inputs) => inputs.deltaPsi, modelLabel: "Direct model state" },
   { key: "poNadh", group: "Bioenergetics", label: "NADH-linked P/O ratio", unit: "ATP/O", specimen: "Isolated mitochondria", method: "Oxygen and ATP stoichiometry", reference: { lo: 2.3, hi: 2.7, label: "Accepted central estimate around 2.5" }, decimals: 2, sourceCitation: "Hinkle, Biochim Biophys Acta (2005)", sourceUrl: "https://doi.org/10.1016/j.bbabio.2004.09.004", note: "P/O varies with substrate, preparation, leak, and coupling state.", modelValue: (inputs) => poRatio(inputs.deltaPsi, inputs.uncoupling, "nadh"), modelLabel: "Derived model readout" },
   { key: "atpLinkedOcr", group: "Bioenergetics", label: "ATP-linked respiration", unit: "pmol/min/µg protein", specimen: "Fresh PBMCs", method: "Seahorse XF96 Mito Stress Test", reference: { lo: 3.9, hi: 9.6, label: "Healthy adult sex-stratified IQR span" }, decimals: 1, sourceCitation: "Lee et al., PLOS One (2026), Table 2", sourceUrl: "https://doi.org/10.1371/journal.pone.0336939.t002", note: "Adult healthy-cohort IQR, not a clinical reference interval. No conversion from model ATP flux (µM/s) to OCR per µg protein is justified." },
-  { key: "mitosox", group: "ROS and redox", label: "MitoSOX signal", unit: "fold control", specimen: "PBMCs", method: "MitoSOX flow cytometry", decimals: 2, sourceCitation: "Kauffman et al., React Oxyg Species (2016)", sourceUrl: "https://doi.org/10.20455/ros.2016.865", note: "No transferable clinical interval exists. Signal depends on loading, oxidation, cell type, and instrument settings.", modelValue: (_inputs, out) => out.superoxide / defaultOut.superoxide, modelLabel: "Normalized O₂•⁻ proxy" },
+  { key: "mitosox", group: "ROS and redox", label: "MitoSOX signal", unit: "fold control", specimen: "PBMCs", method: "MitoSOX flow cytometry", reference: { lo: 0.59, hi: 1.5, label: "Healthy-control T-cell IQR, fold of control median (192 MFI, IQR 114-287.5, n=24)" }, referenceSource: "Gonzalo et al., Front Neurosci (2019), Results", referenceUrl: "https://doi.org/10.3389/fnins.2019.00938", decimals: 2, sourceCitation: "Kauffman et al., React Oxyg Species (2016)", sourceUrl: "https://doi.org/10.20455/ros.2016.865", note: "No transferable clinical interval exists. Signal depends on loading, oxidation, cell type, and instrument settings.", modelValue: (_inputs, out) => out.superoxide / defaultOut.superoxide, modelLabel: "Normalized O₂•⁻ proxy" },
   { key: "h2o2", group: "ROS and redox", label: "Hydrogen peroxide signal", unit: "fold control", specimen: "PBMCs", method: "Fluorescent redox probe", decimals: 2, sourceCitation: "Murphy et al., Nat Metab (2022)", sourceUrl: "https://doi.org/10.1038/s42255-022-00591-z", note: "Probe signals are operational measurements; there is no universal clinical H₂O₂ interval.", modelValue: (_inputs, out) => out.hydrogenPeroxide / defaultOut.hydrogenPeroxide, modelLabel: "Normalized H₂O₂ proxy" },
   { key: "lipidPeroxidation", group: "ROS and redox", label: "Lipid peroxidation", unit: "% control", specimen: "PBMCs", method: "C11-BODIPY oxidation", decimals: 0, sourceCitation: "Drummen et al., Free Radic Biol Med (2002)", sourceUrl: "https://doi.org/10.1016/S0891-5849(02)00848-1", note: "Relative fluorescence is assay-specific and has no universal clinical interval.", modelValue: (_inputs, out) => (out.cardiolipinOx / defaultOut.cardiolipinOx) * 100, modelLabel: "Oxidized cardiolipin proxy" },
   { key: "aconitase", group: "Iron and Fe-S", label: "Aconitase activity", unit: "% control", specimen: "PBMC lysate", method: "Enzyme activity assay", decimals: 0, sourceCitation: "González-Mingot et al., J Clin Med (2023)", sourceUrl: "https://doi.org/10.3390/jcm12103560", note: "The cited platelet-mitochondrial assay uses mU/mg, not PBMC % control. No transferable clinical interval exists; the model is only a normalized proxy.", modelValue: (_inputs, out) => out.aconitaseActivity, modelLabel: "Model Fe-S proxy, not an assay" },
@@ -179,7 +181,7 @@ export function referenceFor(p: DemoPatient, metric: PatientMetric): RangeResult
   if (labMetricKeys.includes(metric.key)) return labRange(p, metric.key);
   if (!metric.reference) return { range: null, reason: "No lab reference range" };
   if (p.age < 18) return { range: null, reason: "Adult research band; no pediatric interval" };
-  return { range: { ...metric.reference, kind: "Research", source: metric.sourceCitation, url: metric.sourceUrl, verified: true } };
+  return { range: { ...metric.reference, kind: "Research", source: metric.referenceSource ?? metric.sourceCitation, url: metric.referenceUrl ?? metric.sourceUrl, verified: true } };
 }
 
 /** Signed percent beyond the nearest limit (positive above, negative below); 0 when inside. */
@@ -245,6 +247,7 @@ export function inputsFromPatient(p: DemoPatient): { patch: Partial<Inputs>; not
 export const readoutBands = [
   { key: "po", label: "NADH-linked P/O (model, derived)", lo: 2.3, hi: 2.7, unit: "ATP/O", source: "Hinkle, Biochim Biophys Acta (2005)", url: "https://doi.org/10.1016/j.bbabio.2004.09.004", basis: "Model readout from the profile's slider run", note: "Isolated-mitochondria stoichiometry; varies with substrate and leak." },
   { key: "h2o2", label: "Steady-state H₂O₂ (model)", lo: 1, hi: 100, unit: "nM", source: "Sies, Redox Biol (2017)", url: "https://doi.org/10.1016/j.redox.2016.12.035", basis: "Model readout from the profile's slider run", note: "1-10 nM is physiological signaling; above about 100 nM is oxidative distress. The 10-100 nM span is adaptive stress, so only values above 100 nM are flagged. Fold-control probe signals cannot be placed on this scale." },
+  { key: "mitosox", label: "MitoSOX superoxide signal (measured)", lo: 0.59, hi: 1.5, unit: "fold control", source: "Gonzalo et al., Front Neurosci (2019)", url: "https://doi.org/10.3389/fnins.2019.00938", basis: "Profile measurement, scaled to the healthy-control median", note: "Healthy-control CD3+ T-cell MitoSOX IQR (192 MFI, 114-287.5, n=24), divided by the control median. Study-specific: valid only for the same probe loading, cell type and cytometer." },
   { key: "atpLinkedOcr", label: "ATP-linked respiration (measured)", lo: 3.9, hi: 9.6, unit: "pmol/min/µg protein", source: "Lee et al., PLOS One (2026), Table 2", url: "https://doi.org/10.1371/journal.pone.0336939.t002", basis: "Profile measurement; no model conversion from ATP flux is justified", note: "Healthy adult PBMC IQR span, not a clinical interval." },
 ] as const;
 
@@ -254,7 +257,7 @@ export const h2o2NmBand = { hi: 100, label: "Sies 2017: 1-10 nM signaling, 10-10
 export function readoutChecks(p: DemoPatient) {
   const inputs = { ...defaultInputs, ...inputsFromPatient(p).patch };
   const out = simulate(inputs);
-  const value = { po: poRatio(inputs.deltaPsi, inputs.uncoupling, "nadh"), h2o2: out.hydrogenPeroxide, atpLinkedOcr: p.values.atpLinkedOcr };
+  const value = { po: poRatio(inputs.deltaPsi, inputs.uncoupling, "nadh"), h2o2: out.hydrogenPeroxide, mitosox: p.values.mitosox, atpLinkedOcr: p.values.atpLinkedOcr };
   const measuredH2o2 = p.h2o2Nm !== undefined;
   if (measuredH2o2) value.h2o2 = p.h2o2Nm!;
   return readoutBands.map((b) => {
