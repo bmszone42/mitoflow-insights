@@ -21,3 +21,5 @@
 - Membrane geometry feeds `simulate(inputs, geo)` only through `geometryEffects` in `model.ts` (all multipliers 1 at `defaultGeometry`), and the 3D viewer `src/components/mito/Cristae3D.tsx` is lazy-loaded after mount so three.js never runs during SSR.
 - 3D viewer shares `layout(geo)`; bloom affects particles, not membranes.
 - Reuse `atpComparisonRows` and `IronLightMap` across views.
+
+- Simulator UI is split: `SliderPanel.tsx` owns controls and presets, `PatientRunBanner.tsx` wraps the patient-run notice and readouts, `TherapyEffectTable.tsx` owns before/after therapy rows; keep new Simulator sections in their own files to stop Simulator.tsx regrowing.
