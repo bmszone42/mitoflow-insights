@@ -193,7 +193,14 @@ function Dashboard() {
           <input type="checkbox" checked={readoutOnly} onChange={(e) => setReadoutOnly(e.target.checked)} data-testid="dash-readout-only" className="size-3.5 accent-primary" />
           Only therapies that change ATP, superoxide or peroxide
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <label className="flex items-center gap-2 text-xs" data-testid="dash-batch-therapy-label">
+            Batch therapy
+            <select value={batchTherapy} onChange={(e) => setBatchTherapy(e.target.value)} data-testid="dash-batch-therapy" className="max-w-[220px] rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+              <option value="all">All therapies</option>
+              {therapies.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </label>
           <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
           <Button variant="outline" size="sm" onClick={downloadBatchCsv} data-testid="dash-batch-csv"><Download className="size-4" aria-hidden />Batch therapy CSV</Button>
         </div>
