@@ -87,6 +87,6 @@ export function PatientComparison() {
         </div>)}
       </div>
     </div>)}
-    <p className="text-[11px] leading-relaxed text-muted-foreground">These profiles are invented and contain no patient measurements. Adult bands are not applied to children, and fasting glucose is not flagged for acute nonfasting profiles. Assay-specific ROS signals, iron pools, and model controls without comparable ranges remain unflagged, not normal.</p>
+    <p className="text-[11px] leading-relaxed text-muted-foreground">These profiles are invented and contain no patient measurements. Adult research bands are applied to children with a caution label, since no pediatric intervals exist, and fasting glucose is not flagged for acute nonfasting profiles. Assay-specific ROS signals, iron pools, and model controls without comparable ranges remain unflagged, not normal.</p>
   </section>;
 }
