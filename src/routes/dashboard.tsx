@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
@@ -7,7 +7,8 @@ import { demoPatients, lpMapping, patientSex, h2o2BandCheck, readoutChecks } fro
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies } from "@/lib/mito/treatment";
-import { TherapyProfileChart } from "@/components/mito/TherapyProfileChart";
+// Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
+const TherapyProfileChart = lazy(() => import("@/components/mito/TherapyProfileChart").then((m) => ({ default: m.TherapyProfileChart })));
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [
