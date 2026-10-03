@@ -950,3 +950,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Verified at 1280: Leigh baseline vs mitoAntiox 1x vs complex2 1.5x (ATP 61/61/64, superoxide -15%/+10%, H2O2 -35%/+8%); no page errors; typecheck clean.
 
 - Timeline therapy doses + simulated ATP/superoxide/H2O2 per visit (2026-10-03) ✅
+- Dashboard "Responds to" therapy column + CSV (2026-10-03) ✅
