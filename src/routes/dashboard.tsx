@@ -6,7 +6,7 @@ import { defaultGeometry, simulate } from "@/lib/mito/model";
 import { demoPatients, lpMapping, patientSex, h2o2BandCheck, readoutChecks } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
-import { profileInputs, simulateTherapy, therapies } from "@/lib/mito/treatment";
+import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies } from "@/lib/mito/treatment";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [
