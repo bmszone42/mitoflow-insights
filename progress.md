@@ -1005,3 +1005,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Simulator charts lazy-loaded: all recharts charts moved to SimulatorCharts.tsx behind React.lazy + Suspense, so the charting library downloads after first paint, not on page load
 - ✅ Dashboard baseline chart: lazy-loaded "Show baseline chart" button renders each profile's model ATP, superoxide and H2O2 as percent of the healthy adult (demo-01 = 100%), matching the table values
 - ✅ Peroxide band flag in Diagnosis assay flags: the Sies 2017 H2O2 band (flagged only above 100 nM, measured nM when entered, else the model value) now lives in diagnosis rosAssayFlags, like the MitoSOX band, so the Diagnosis page, dashboard counts and batch CSV all agree; the dashboard no longer adds a separate peroxide count. Demo profiles show no peroxide flag (model 18-37 nM, no measured nM); a profile with 150 nM measured flags correctly. Typecheck clean, build OK.
+
+## Lazy-loaded Timeline chart (2026-10-03) ✅
+- Timeline chart extracted to src/components/mito/TimelineChart.tsx and loaded via React.lazy + Suspense with a "Loading chart…" fallback, so recharts no longer ships in the Timeline route's initial bundle (same pattern as the dashboard charts and SimulatorCharts).
+- Verified live: chart renders with all visits and band lines, no page errors; typecheck clean.
