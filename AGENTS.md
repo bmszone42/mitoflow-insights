@@ -22,4 +22,4 @@
 - 3D viewer shares `layout(geo)`; bloom affects particles, not membranes.
 - Reuse `atpComparisonRows` and `IronLightMap` across views.
 
-- Simulator UI is split: `SliderPanel.tsx` owns controls and presets, `PatientRunBanner.tsx` wraps the patient-run notice and readouts, `TherapyEffectTable.tsx` owns before/after therapy rows; keep new Simulator sections in their own files to stop Simulator.tsx regrowing.
+- Simulator UI is split: `SliderPanel.tsx` owns controls and presets, `PatientRunBanner.tsx` wraps the patient-run notice and readouts, `TherapyEffectTable.tsx` owns before/after therapy rows, and `SimulatorCharts.tsx` holds every recharts chart (lazy-loaded behind Suspense so recharts stays out of the initial bundle); keep new Simulator sections in their own files to stop Simulator.tsx regrowing.
