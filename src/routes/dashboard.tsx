@@ -139,7 +139,12 @@ function Dashboard() {
           <td className="px-3 py-2 font-mono">{r.labFlags} / {r.assayFlags} / {r.modelFlags}</td>
           <td className="px-3 py-2">{r.top ? <>{r.top.name} <span className="font-mono text-muted-foreground">{r.top.score.toFixed(2)}</span></> : <span className="text-muted-foreground">No strong cause</span>}</td>
           <td className="px-3 py-2">{r.overlap.length ? r.overlap.map((o) => <div key={o.phenotype}>{o.phenotype} <span className="font-mono text-muted-foreground">{o.shared}/{o.total}</span></div>) : <span className="text-muted-foreground">None</span>}</td>
-          <td className="px-3 py-2" data-testid="dash-resp">{r.resp === null ? <span className="text-muted-foreground">Not flagged</span> : r.resp.length ? r.resp.map((x) => <div key={x.t.id}><Link className="text-primary underline-offset-2 hover:underline" to="/therapy-calculator" search={{ profile: r.p.id, therapy: x.t.id }}>{x.t.name}</Link> <span className="text-muted-foreground">{x.parts.join(", ")}</span></div>) : <span className="text-muted-foreground">No model response</span>}</td>
+          <td className="px-3 py-2" data-testid="dash-resp">{(() => {
+            if (r.resp === null) return <span className="text-muted-foreground">Not flagged</span>;
+            const hidden = (r.respAll?.length ?? 0) - r.resp.length;
+            if (!r.resp.length) return <span className="text-muted-foreground">{readoutOnly ? `No readout response${hidden ? ` (${hidden} clear flags only)` : ""}` : "No model response"}</span>;
+            return <>{r.resp.map((x) => <div key={x.t.id}><Link className="text-primary underline-offset-2 hover:underline" to="/therapy-calculator" search={{ profile: r.p.id, therapy: x.t.id }}>{x.t.name}</Link> <span className="text-muted-foreground">{x.parts.join(", ")}</span></div>)}{readoutOnly && hidden > 0 && <div className="text-[10px] text-muted-foreground">+{hidden} more clear flags only</div>}</>;
+          })()}</td>
           <td className="space-y-1 px-3 py-2">
             <Link className="block text-primary underline-offset-2 hover:underline" to="/diagnosis" search={{ profile: r.p.id }}>Diagnosis</Link>
             <Link className="block text-primary underline-offset-2 hover:underline" to="/" search={{ patient: r.p.id }}>Simulator</Link>
