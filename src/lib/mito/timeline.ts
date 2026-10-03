@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { demoPatients, patientMetrics, type DemoPatient, type PatientMetricKey } from "./patientReference";
+import { demoPatients, patientMetrics, projectedMitoSox, projectedH2o2, mitoSoxBand, h2o2NmBand, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
 
@@ -61,4 +61,21 @@ export function diagnoseVisit(p: DemoPatient, v: Visit) {
   const origin = v.origin === "user" ? "user" as const : "synthetic" as const;
   const origins = Object.fromEntries(patientMetrics.map((m) => [m.key, { origin }]));
   return diagnoseProfile({ ...p, values: v.values, origins });
+}
+
+/**
+ * Projected MitoSOX and peroxide at a visit: the visit's measured value scaled by
+ * the model's change from that visit's labs alone to labs plus its therapies at
+ * their model doses. Same scaling as the Simulator and Diagnosis; model estimate,
+ * not a measurement. Null when the visit has no therapies.
+ */
+export function visitProjection(p: DemoPatient, v: Visit) {
+  if (!v.therapies.length) return null;
+  const before = metrics(profileInputs(visitProfile(p, v)));
+  const after = visitReadouts(p, v);
+  const ms = projectedMitoSox(v.values.mitosox, before.superoxide, after.superoxide);
+  const h2 = v.h2o2Nm === undefined ? null : projectedH2o2(v.h2o2Nm, before.h2o2, after.h2o2);
+  const msMeasuredOut = v.values.mitosox < mitoSoxBand.lo || v.values.mitosox > mitoSoxBand.hi;
+  const h2MeasuredOut = v.h2o2Nm !== undefined && v.h2o2Nm > h2o2NmBand.hi;
+  return { ms, h2, msMeasuredOut, h2MeasuredOut };
 }
