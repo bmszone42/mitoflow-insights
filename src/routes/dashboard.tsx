@@ -47,6 +47,8 @@ function Dashboard() {
   const [readoutOnly, setReadoutOnly] = useState(true);
   // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
   const [dose, setDose] = useState(1);
+  // Chart stays unmounted (and its code unloaded) until the user opens it.
+  const [showChart, setShowChart] = useState(false);
   const rows = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
@@ -177,7 +179,11 @@ function Dashboard() {
         </div>
       </div>
     </header>
-    <TherapyProfileChart profiles={rows.map((r) => r.p)} dose={dose} flaggedIds={rows.filter((r) => r.respAll !== null).map((r) => r.p.id)} />
+    {showChart ? <Suspense fallback={<p className="border-y border-border py-4 text-xs text-muted-foreground">Loading chart...</p>}>
+      <TherapyProfileChart profiles={rows.map((r) => r.p)} dose={dose} flaggedIds={rows.filter((r) => r.respAll !== null).map((r) => r.p.id)} />
+    </Suspense> : <div className="border-y border-border py-4">
+      <Button variant="outline" size="sm" onClick={() => setShowChart(true)} data-testid="dash-show-chart">Show therapy chart</Button>
+    </div>}
     <section className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
