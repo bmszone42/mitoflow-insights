@@ -18,3 +18,4 @@
 - Timeline visits live in `timeline.ts` module memory only; invented demo follow-ups are labeled synthetic and each visit is scored with `diagnoseProfile`.
 - Therapy calculator dose = fraction of a therapy's slider move via applyTherapyDose; never a drug dose.
 - L:P maps to nadhRatio via LDH equilibrium in `lpMapping` (healthy L:P 10 = default); skipped if synthetic or lactate < 2.5 mmol/L.
+- Adult research bands (MitoSOX, ATP-linked OCR) are applied to child profiles with an explicit caution label; never silently, never treated as pediatric intervals.

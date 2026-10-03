@@ -936,3 +936,9 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Timeline metric selector gains "Hydrogen peroxide (measured, nM)": chart plots it with a 100 nM Sies 2017 reference line, gaps for visits without a measurement, and a note that the band is research, not a lab range.
 - Add-visit form gains a peroxide field (blank carries over from the latest visit); table shows the value in red above 100 nM or "Not measured".
 - Verified: added a 2026-09-01 visit with 150 nM; row shows 150 in date order among synthetic visits, no page errors, typecheck clean.
+
+## MitoSOX band on dashboard + children (2026-10-03) ✅
+- referenceFor now applies adult research bands to children with a caution label ("adult band applied to a child; no pediatric interval exists") instead of returning no range; PatientComparison wording updated to match.
+- Dashboard assay flag count includes the MitoSOX band check (Gonzalo 2019, 0.59-1.5x control); new "MitoSOX band" column shows Flagged/Within with "(adult band, child)" for minors.
+- CSV gains "MitoSOX (fold control)" and "MitoSOX vs Gonzalo 2019" columns.
+- Verified: 6 of 18 profiles flag (Leigh age 3, Friedreich 17, MELAS, TBI, sepsis AKI, iron overload); children labeled; no page errors; typecheck clean.

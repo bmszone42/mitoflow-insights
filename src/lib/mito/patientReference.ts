@@ -180,7 +180,7 @@ function labRange(p: DemoPatient, key: PatientMetricKey): RangeResult {
 export function referenceFor(p: DemoPatient, metric: PatientMetric): RangeResult {
   if (labMetricKeys.includes(metric.key)) return labRange(p, metric.key);
   if (!metric.reference) return { range: null, reason: "No lab reference range" };
-  if (p.age < 18) return { range: null, reason: "Adult research band; no pediatric interval" };
+  if (p.age < 18) return { range: { ...metric.reference, kind: "Research", label: `${metric.reference.label} (adult band applied to a child; no pediatric interval exists)`, source: metric.referenceSource ?? metric.sourceCitation, url: metric.referenceUrl ?? metric.sourceUrl, verified: true } };
   return { range: { ...metric.reference, kind: "Research", source: metric.referenceSource ?? metric.sourceCitation, url: metric.referenceUrl ?? metric.sourceUrl, verified: true } };
 }
 
