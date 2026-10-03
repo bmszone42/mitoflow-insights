@@ -80,20 +80,21 @@ function TimelinePage() {
         <YAxis yAxisId="v" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} width={40} />
         <YAxis yAxisId="s" orientation="right" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} width={30} />
         <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", fontSize: 11 }} />
-        <Line yAxisId="v" dataKey="value" name={m.label} stroke="var(--primary)" strokeWidth={2} dot />
+        {isH2o2 && <ReferenceLine yAxisId="v" y={100} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "100 nM", fontSize: 9, fill: "var(--destructive)" }} />}
+        <Line yAxisId="v" dataKey="value" name={mLabel} stroke="var(--primary)" strokeWidth={2} dot connectNulls={false} />
         <Line yAxisId="s" dataKey="top" name="Top mechanism score" stroke="var(--muted-foreground)" strokeDasharray="4 3" dot={false} />
       </LineChart></ResponsiveContainer></div>
     </section>
 
     <section className="mt-4 overflow-x-auto">
       <table className="w-full min-w-[640px] text-xs" data-testid="timeline-table">
-        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{m.label}</th><th>Flags</th><th>Top mechanism</th><th>Therapies</th><th /></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>Therapies</th><th /></tr></thead>
         <tbody>{timeline.map(({ v, d }) => {
           const flags = d.patientFlags.length + d.rosAssayFlags.length + d.atpAssayFlags.length + d.modelFlags.length;
           return <tr key={v.id} className="border-t border-border align-top" data-testid="timeline-row">
             <td className="py-1.5 font-mono">{v.date}</td>
             <td>{originText[v.origin]}</td>
-            <td className="tabular-nums">{v.values[metric].toFixed(m.decimals)}</td>
+            <td className="tabular-nums">{isH2o2 ? (v.h2o2Nm !== undefined ? <span className={v.h2o2Nm > 100 ? "text-destructive" : ""}>{v.h2o2Nm.toFixed(0)}</span> : <span className="text-muted-foreground">Not measured</span>) : v.values[metric as PatientMetricKey].toFixed(m!.decimals)}</td>
             <td title={d.patientFlags.map((f) => f.label).join(", ")}>{flags}</td>
             <td>{d.top ? `${d.top.name} (${d.top.score.toFixed(2)})` : "None strong"}</td>
             <td>{v.therapies.length ? v.therapies.map(tName).join(", ") : "None"}</td>
