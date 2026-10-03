@@ -991,3 +991,4 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Simulator result panels split into own files (Ferroptosis, ROS budget, Photoreceptor, Warburg summary)
 
 - ✅ MitoSOX band flag on the Diagnosis page: moved out of Patient Data flags into the ROS assay flag list (Gonzalo 2019 band, adult-band caution for children), so the Diagnosis page, dashboard counts and batch CSV all agree; dashboard no longer adds it separately. Verified: Leigh and Friedreich flag with the child caution, healthy adult stays clear. Typecheck clean, build OK.
+- ✅ Simulator charts lazy-loaded: all recharts charts moved to SimulatorCharts.tsx behind React.lazy + Suspense, so the charting library downloads after first paint, not on page load
