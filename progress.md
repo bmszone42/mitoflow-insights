@@ -977,7 +977,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Dashboard batch therapy export (2026-10-03) ✅
 - New "Batch therapy CSV" button next to Download CSV on the dashboard.
 - One row per profile x responding therapy at the chosen model dose (272 rows for the 18 demo profiles at 1x), including flags-only therapies ("Readout effect only" column marks them).
-- Columns: profile, ID, phenotype, total flags, therapy, dose, ATP/superoxide/H2O2 change, flags cleared.
+- Columns: profile, ID, phenotype, total flags, baseline ATP/superoxide/H2O2 (absolute model values, added 2026-10-03), therapy, dose, ATP/superoxide/H2O2 change, flags cleared.
 - Profiles with no responders still get a "(none)" row so all 18 profiles always appear.
 - Footer note: research model, not a diagnosis; model dose is a slider move, never a drug dose.
 - Verified: typecheck clean, build OK, all 18 profiles covered.
