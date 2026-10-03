@@ -39,6 +39,8 @@ function responders(p: Parameters<typeof simulateTherapy>[0]) {
 
 function Dashboard() {
   const users = useUserPatients();
+  // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
+  const [readoutOnly, setReadoutOnly] = useState(true);
   const rows = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
@@ -49,20 +51,25 @@ function Dashboard() {
       const h2o2Flag = (hb.model.outside || hb.measured?.outside) ? 1 : 0;
       const ms = readoutChecks(p).find((b) => b.key === "mitosox")!;
       const mitosoxFlag = ms.outside ? 1 : 0;
+      const all = r.labFlags + r.assayFlags + r.modelFlags;
       return {
         hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
         labFlags: d.patientFlags.length, assayFlags: d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags: d.modelFlags.length,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
+        respAll: all > 0 ? responders(p).slice(0, 3) : null,
       };
-    }).map((r) => ({ ...r, resp: r.labFlags + r.assayFlags + r.modelFlags > 0 ? responders(r.p) : null }));
+    }).map((r) => ({
+      ...r,
+      resp: r.respAll === null ? null : readoutOnly ? r.respAll.filter((x) => x.hasReadout) : r.respAll,
+    }));
     return built.sort((a, b) => {
       const fa = a.labFlags + a.assayFlags + a.modelFlags;
       const fb = b.labFlags + b.assayFlags + b.modelFlags;
       if (fb !== fa) return fb - fa;
       return a.p.label.localeCompare(b.p.label);
     });
-  }, [users]);
+  }, [users, readoutOnly]);
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
