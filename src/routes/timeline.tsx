@@ -68,11 +68,12 @@ function TimelinePage() {
       <Select value={p.id} onValueChange={setId}><SelectTrigger className="w-72" aria-label="Profile"><SelectValue /></SelectTrigger>
         <SelectContent>{all.map((x) => <SelectItem key={x.id} value={x.id}>{x.label} · {x.phenotype}</SelectItem>)}</SelectContent></Select>
       <Select value={metric} onValueChange={(v) => setMetric(v as PatientMetricKey)}><SelectTrigger className="w-64" aria-label="Lab value"><SelectValue /></SelectTrigger>
-        <SelectContent>{patientMetrics.map((x) => <SelectItem key={x.key} value={x.key}>{x.label}</SelectItem>)}</SelectContent></Select>
+        <SelectContent>{patientMetrics.map((x) => <SelectItem key={x.key} value={x.key}>{x.label}</SelectItem>)}<SelectItem value="h2o2Nm">Hydrogen peroxide (measured, nM)</SelectItem></SelectContent></Select>
     </div>
 
     <section className="mt-4 rounded-md border border-border p-3" data-testid="timeline-chart">
-      <h2 className="text-sm font-semibold">{m.label} <span className="font-normal text-muted-foreground">({m.unit})</span> and top mechanism score</h2>
+      <h2 className="text-sm font-semibold">{mLabel} <span className="font-normal text-muted-foreground">({mUnit})</span> and top mechanism score</h2>
+      {isH2o2 && <p className="text-[11px] text-muted-foreground">Sies 2017: 1-10 nM signaling, 10-100 nM adaptive stress, above 100 nM distress. Research band, not a lab range. Visits without a measured value show a gap.</p>}
       <div className="h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={chart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
         <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
