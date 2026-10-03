@@ -3,7 +3,7 @@ import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOu
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosAssayFlag, rosSourceRows } from "./rosPhysiology";
 import { atpAssayFlag } from "./atpComparison";
-import { therapies, simulateTherapy } from "./treatment";
+import { therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
 
 // Mechanism pattern review. Fixed rules map existing flags to mechanisms.
 // Scores are weighted flag counts, never probabilities or diagnoses.
@@ -74,7 +74,7 @@ export const expectedPattern: Record<string, { mechanisms: Mechanism[]; text: st
   "Iron overload": { mechanisms: ["iron"], text: "High iron indices with lipid oxidation." },
 };
 
-export function diagnoseProfile(p: DemoPatient) {
+export function diagnoseProfile(p: DemoPatient, dose = 1) {
   const dirs = Object.fromEntries(patientMetrics.map((m) => [m.key, metricDirection(p, m.key)])) as Record<PatientMetricKey, { dir: Direction; basis: string }>;
   // MitoSOX is listed under ROS assay flags (Gonzalo 2019 band), not Patient
   // Data flags, so the band is not counted twice.
@@ -139,20 +139,21 @@ export function diagnoseProfile(p: DemoPatient) {
   const strong = causes.filter((c) => c.score >= 1.5);
 
   // Therapy flags: model therapies that target a strong cause (score >= 1.5)
-  // and move ATP, superoxide or peroxide by at least 1% at the standard 1x
-  // model dose on this profile's baseline. Model levers only, never drug doses.
+  // and move ATP, superoxide or peroxide by at least 1% at the chosen model
+  // dose on this profile's baseline. Model levers only, never drug doses.
   const strongMechs = new Set(strong.map((c) => c.mechanism));
   const therapyFlags: Evidence[] = strongMechs.size === 0 ? [] : therapies
     .filter((t) => t.mechanisms.some((m) => strongMechs.has(m)))
     .map((t): Evidence | null => {
-      const s = simulateTherapy(p, t);
+      const before = profileInputs(p);
+      const s = { before: metrics(before), after: metrics(applyTherapyDose(before, t, dose)) };
       const parts: string[] = [];
       const pct = (a: number, b: number) => (a ? (b / a - 1) * 100 : 0);
       const atpPct = pct(s.before.atp, s.after.atp), o2Pct = pct(s.before.superoxide, s.after.superoxide), h2o2Pct = pct(s.before.h2o2, s.after.h2o2);
       if (Math.abs(atpPct) >= 1) parts.push(`ATP ${atpPct >= 0 ? "+" : ""}${atpPct.toFixed(0)}%`);
       if (Math.abs(o2Pct) >= 1) parts.push(`superoxide ${o2Pct >= 0 ? "+" : ""}${o2Pct.toFixed(0)}%`);
       if (Math.abs(h2o2Pct) >= 1) parts.push(`H2O2 ${h2o2Pct >= 0 ? "+" : ""}${h2o2Pct.toFixed(0)}%`);
-      return parts.length ? { label: t.name, type: "Model simulation" as const, source: "Model" as const, detail: `${parts.join(", ")} at 1x model dose; targets ${t.mechanisms.filter((m) => strongMechs.has(m)).map((m) => mechanismNames[m]).join(", ")}` } : null;
+      return parts.length ? { label: t.name, type: "Model simulation" as const, source: "Model" as const, detail: `${parts.join(", ")} at ${dose}x model dose; targets ${t.mechanisms.filter((m) => strongMechs.has(m)).map((m) => mechanismNames[m]).join(", ")}` } : null;
     })
     .filter((e): e is Evidence => e !== null);
   const expected = expectedPattern[p.phenotype] ?? { mechanisms: [], text: "No expected pattern defined." };
@@ -164,7 +165,7 @@ export function diagnoseProfile(p: DemoPatient) {
   return { patient: p, causes, top: strong[0] ?? null, patientFlags, rosAssayFlags, atpAssayFlags, modelFlags, therapyFlags, expected, fit, realShare: realShare(p) };
 }
 
-export const diagnoseAll = (extra: DemoPatient[] = []) => [...extra, ...demoPatients].map(diagnoseProfile);
+export const diagnoseAll = (extra: DemoPatient[] = [], dose = 1) => [...extra, ...demoPatients].map((p) => diagnoseProfile(p, dose));
 
 const HEALTHY = new Set(["Healthy adult", "Healthy child", "Healthy older adult"]);
 
