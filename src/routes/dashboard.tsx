@@ -68,14 +68,14 @@ function Dashboard() {
       const ms = readoutChecks(p).find((b) => b.key === "mitosox")!;
       // The peroxide band flag lives in diagnosis rosAssayFlags, so it is
       // counted there, not added again here.
-      const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length, modelFlags = d.modelFlags.length;
+      const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length, modelFlags = d.modelFlags.length, therapyFlags = d.therapyFlags.length;
       const all = labFlags + assayFlags + modelFlags;
       const matrix = responders(p, dose);
       const allResp = all > 0 ? matrix : null;
       return {
         hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
-        labFlags, assayFlags, modelFlags,
+        labFlags, assayFlags, modelFlags, therapyFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
         respAll: allResp ? allResp.slice(0, 3) : null,
         respMatrix: matrix,
