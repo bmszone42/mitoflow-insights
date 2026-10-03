@@ -3,7 +3,7 @@ import { lazy, Suspense, useMemo, useState } from "react";
 import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
-import { demoPatients, lpMapping, patientSex, h2o2BandCheck, projectedH2o2, readoutChecks } from "@/lib/mito/patientReference";
+import { demoPatients, lpMapping, patientSex, h2o2BandCheck, projectedH2o2, projectedMitoSox, readoutChecks } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
@@ -117,7 +117,7 @@ function Dashboard() {
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
-    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", `Projected H2O2 (nM, ${dose}x)`, "Projected H2O2 therapy", "Projected peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", "Lab flags", "Assay flags", "Model flags", `Therapy flags (${dose}x)`, "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders", `Responds to (model, ${dose}x)`];
+    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", `Projected H2O2 (nM, ${dose}x)`, "Projected H2O2 therapy", "Projected peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", `Projected MitoSOX (fold, ${dose}x)`, "Projected MitoSOX therapy", "Projected MitoSOX flag", "Lab flags", "Assay flags", "Model flags", `Therapy flags (${dose}x)`, "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders", `Responds to (model, ${dose}x)`];
     const lines = [header.join(",")];
     for (const r of rows) {
       const src = r.p.source ?? "synthetic";
@@ -134,6 +134,8 @@ function Dashboard() {
         r.proj ? (r.proj.outside ? "Flagged >100 nM (projected)" : r.proj.base > 100 ? "Clears (projected)" : "Within") : "",
         r.p.values.mitosox.toFixed(2),
         r.ms.outside ? `Flagged: ${r.ms.text}${r.p.age < 18 ? " (adult band applied to a child)" : ""}` : "Within",
+        r.projMs ? r.projMs.value.toFixed(2) : "", esc(r.projMs ? r.projMs.therapy : ""),
+        r.projMs ? (r.projMs.outside ? "Outside band (projected)" : r.ms.outside ? "Clears (projected)" : "Within") : "",
         String(r.labFlags), String(r.assayFlags), String(r.modelFlags), String(r.therapyFlags), String(r.labFlags + r.assayFlags + r.modelFlags),
         esc(r.top ? r.top.name : "No strong cause"), r.top ? r.top.score.toFixed(2) : "",
         esc(r.overlap.map((o) => `${o.phenotype} ${o.shared}/${o.total}`).join("; ")),
