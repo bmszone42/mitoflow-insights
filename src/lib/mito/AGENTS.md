@@ -20,3 +20,4 @@
 - Therapy calculator dose = fraction of a therapy's slider move via applyTherapyDose; never a drug dose.
 - L:P maps to nadhRatio via LDH equilibrium in `lpMapping` (healthy L:P 10 = default); skipped if synthetic or lactate < 2.5 mmol/L.
 - Adult research bands (MitoSOX, ATP-linked OCR) are applied to child profiles with an explicit caution label; never silently, never treated as pediatric intervals.
+- Simulator result panels (FerroptosisPanel, RosBudgetPanel, PhotoreceptorPanel, WarburgSummaryCard) live in their own files; shared Metric/BudgetBar/chart helpers in SimulatorShared.tsx.
