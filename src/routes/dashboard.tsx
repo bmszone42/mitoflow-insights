@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
@@ -30,9 +30,11 @@ function responders(p: Parameters<typeof simulateTherapy>[0]) {
     const ch = (x: number, y: number) => (x ? y / x - 1 : 0);
     const atp = ch(b.atp, a.atp), so = ch(b.superoxide, a.superoxide), h2 = ch(b.h2o2, a.h2o2);
     const cleared = (b.atpFlags - a.atpFlags) + (b.rosFlags - a.rosFlags);
-    const parts = [atp >= 0.01 && `ATP +${Math.round(atp * 100)}%`, so <= -0.01 && `superoxide ${Math.round(so * 100)}%`, h2 <= -0.01 && `H2O2 ${Math.round(h2 * 100)}%`, cleared > 0 && `${cleared} flag${cleared > 1 ? "s" : ""} cleared`].filter(Boolean) as string[];
-    return { t, parts, score: Math.max(atp, 0) - Math.min(so, 0) - Math.min(h2, 0) + 0.1 * Math.max(cleared, 0) };
-  }).filter((r) => r.parts.length).sort((a, b) => b.score - a.score).slice(0, 3);
+    const readoutParts = [atp >= 0.01 && `ATP +${Math.round(atp * 100)}%`, so <= -0.01 && `superoxide ${Math.round(so * 100)}%`, h2 <= -0.01 && `H2O2 ${Math.round(h2 * 100)}%`].filter(Boolean) as string[];
+    const parts = [...readoutParts, cleared > 0 && `${cleared} flag${cleared > 1 ? "s" : ""} cleared`].filter(Boolean) as string[];
+    const score = Math.max(atp, 0) - Math.min(so, 0) - Math.min(h2, 0) + 0.1 * Math.max(cleared, 0);
+    return { t, parts, readoutParts, hasReadout: readoutParts.length > 0, score };
+  }).filter((r) => r.parts.length).sort((a, b) => b.score - a.score);
 }
 
 function Dashboard() {
