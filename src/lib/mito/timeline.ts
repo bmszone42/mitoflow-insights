@@ -4,13 +4,15 @@ import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
 
 // Timeline visits live in module memory only (tab-only, never persisted or sent anywhere).
-export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; h2o2Nm?: number | undefined; therapies: string[]; doses?: Record<string, number> | undefined; origin: "baseline" | "synthetic" | "user" };
+export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; h2o2Nm?: number | undefined; therapies: string[]; doses?: Record<string, number> | undefined; origin: "baseline" | "synthetic" | "user" | "plan" };
 
 let visits: Visit[] = [];
 const listeners = new Set<() => void>();
 const emit = () => { visits = [...visits]; listeners.forEach((l) => l()); };
 export const useVisits = () => useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => visits, () => visits);
 export const addVisit = (v: Omit<Visit, "id" | "origin">) => { visits.push({ ...v, id: `v-${Date.now()}-${Math.round(Math.random() * 1e6)}`, origin: "user" }); emit(); };
+/** Plan row: therapies and doses only, no new labs. Labs are filled from the latest earlier non-plan visit in patientTimeline. */
+export const addPlan = (v: Pick<Visit, "patientId" | "date" | "therapies" | "doses">) => { visits.push({ ...v, id: `p-${Date.now()}-${Math.round(Math.random() * 1e6)}`, values: {} as Record<PatientMetricKey, number>, origin: "plan" }); emit(); };
 export const removeVisit = (id: string) => { visits = visits.filter((v) => v.id !== id); emit(); };
 
 /** L:P is derived: lactate (mmol/L) x 1000 / pyruvate (µmol/L). */
@@ -39,12 +41,18 @@ export function syntheticVisits(p: DemoPatient): Visit[] {
 
 export function patientTimeline(p: DemoPatient, user: Visit[]): Visit[] {
   const baseline: Visit = { id: `${p.id}-b`, patientId: p.id, date: BASE_DATE, values: p.values, h2o2Nm: p.h2o2Nm, therapies: [], origin: "baseline" };
-  return [baseline, ...syntheticVisits(p), ...user.filter((v) => v.patientId === p.id)].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [baseline, ...syntheticVisits(p), ...user.filter((v) => v.patientId === p.id)].sort((a, b) => a.date.localeCompare(b.date));
+  // Plan rows carry no labs: fill from the latest earlier non-plan visit so readouts and projections still compute.
+  let lastReal: Visit = baseline;
+  return sorted.map((v) => {
+    if (v.origin !== "plan") { lastReal = v; return v; }
+    return { ...v, values: lastReal.values, h2o2Nm: lastReal.h2o2Nm };
+  });
 }
 
 const visitProfile = (p: DemoPatient, v: Visit): DemoPatient => {
   if (v.origin === "baseline") return p;
-  const origin = v.origin === "user" ? "user" as const : "synthetic" as const;
+  const origin = v.origin === "synthetic" ? "synthetic" as const : "user" as const;
   return { ...p, values: v.values, origins: Object.fromEntries(patientMetrics.map((m) => [m.key, { origin }])) } as DemoPatient;
 };
 
@@ -58,7 +66,7 @@ export function visitReadouts(p: DemoPatient, v: Visit) {
 /** Diagnosis at a visit: same rules as the Diagnosis page, run on that visit's values. */
 export function diagnoseVisit(p: DemoPatient, v: Visit) {
   if (v.origin === "baseline") return diagnoseProfile(p);
-  const origin = v.origin === "user" ? "user" as const : "synthetic" as const;
+  const origin = v.origin === "synthetic" ? "synthetic" as const : "user" as const;
   const origins = Object.fromEntries(patientMetrics.map((m) => [m.key, { origin }]));
   return diagnoseProfile({ ...p, values: v.values, origins });
 }

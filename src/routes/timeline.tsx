@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
-import { addVisit, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { addVisit, addPlan, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
 
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/timeline")({
 type SimKey = "simAtp" | "simSuperoxide" | "simH2o2";
 const simKeys = [{ key: "simAtp", r: "atp", label: "ATP flux (simulated)", unit: "µM/s" }, { key: "simSuperoxide", r: "superoxide", label: "Superoxide (simulated)", unit: "nM" }, { key: "simH2o2", r: "h2o2", label: "Hydrogen peroxide (simulated)", unit: "nM" }] as const;
 const fmt = (x: number) => (Math.abs(x) >= 10 ? x.toFixed(1) : Number(x.toPrecision(3)).toString());
-const originText = { baseline: "Profile values", synthetic: "Invented follow-up", user: "Your visit" } as const;
+const originText = { baseline: "Profile values", synthetic: "Invented follow-up", user: "Your visit", plan: "Plan (no new labs)" } as const;
 
 function TimelinePage() {
   const users = useUserPatients();
@@ -60,6 +60,13 @@ function TimelinePage() {
     const h2o2Nm = draft["h2o2Nm"] !== undefined && draft["h2o2Nm"] !== "" && Number.isFinite(h2n) ? h2n : last.h2o2Nm;
     addVisit({ patientId: p.id, date, values: withDerived(values), h2o2Nm, therapies: picked, doses: Object.fromEntries(picked.map((t) => [t, doses[t] ?? 1])) });
     setDraft({}); setPicked([]); setDoses({});
+  };
+  const [planDate, setPlanDate] = useState(new Date().toISOString().slice(0, 10));
+  const [planPicked, setPlanPicked] = useState<string[]>([]);
+  const [planDoses, setPlanDoses] = useState<Record<string, number>>({});
+  const savePlan = () => {
+    addPlan({ patientId: p.id, date: planDate, therapies: planPicked, doses: Object.fromEntries(planPicked.map((t) => [t, planDoses[t] ?? 1])) });
+    setPlanPicked([]); setPlanDoses({});
   };
   const tName = (tid: string) => therapies.find((t) => t.id === tid)?.name ?? tid;
 
@@ -106,7 +113,7 @@ function TimelinePage() {
               <div>MitoSOX {v.values.mitosox.toFixed(2)}x to {pj.ms.value.toFixed(2)}x {pj.msMeasuredOut && !pj.ms.outside ? <span className="font-medium text-primary">flag clears</span> : pj.ms.outside ? <span className="text-destructive">{pj.msMeasuredOut ? "still outside" : "outside band"}</span> : <span className="text-muted-foreground">within</span>}</div>
               {pj.h2 && v.h2o2Nm !== undefined && <div>H2O2 {v.h2o2Nm.toFixed(0)} to {pj.h2.value.toFixed(0)} nM {pj.h2MeasuredOut && !pj.h2.outside ? <span className="font-medium text-primary">flag clears</span> : pj.h2.outside ? <span className="text-destructive">{pj.h2MeasuredOut ? "still flagged" : "flagged"}</span> : <span className="text-muted-foreground">within</span>}</div>}
             </div>}</td>
-            <td>{v.origin === "user" && <button type="button" aria-label="Remove visit" onClick={() => removeVisit(v.id)}><Trash2 className="size-3.5 text-muted-foreground" /></button>}</td>
+            <td>{(v.origin === "user" || v.origin === "plan") && <button type="button" aria-label="Remove visit" onClick={() => removeVisit(v.id)}><Trash2 className="size-3.5 text-muted-foreground" /></button>}</td>
           </tr>;
         })}</tbody>
       </table>
@@ -127,6 +134,16 @@ function TimelinePage() {
         <div key={t.id} className="flex items-center gap-2 text-[11px]"><label className="flex flex-1 items-center gap-2"><Checkbox checked={picked.includes(t.id)} onCheckedChange={(c) => setPicked(c ? [...picked, t.id] : picked.filter((x) => x !== t.id))} />{t.name}</label>
           {picked.includes(t.id) && <select aria-label={`${t.name} model dose`} className="rounded border border-input bg-background px-1 py-0.5" value={doses[t.id] ?? 1} onChange={(e) => setDoses({ ...doses, [t.id]: Number(e.target.value) })}>{[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((d) => <option key={d} value={d}>{d}x</option>)}</select>}</div>)}</div>
       <Button size="sm" className="mt-3" onClick={save} disabled={!date}>Add visit</Button>
+    </section>
+
+    <section className="mt-6 rounded-md border border-border p-3" data-testid="timeline-plan">
+      <h2 className="text-sm font-semibold">Add a plan row</h2>
+      <p className="text-[11px] text-muted-foreground">A plan row saves therapies and model doses without new lab results. It reuses the latest earlier visit's labs, so the table and the Projected flag column show how the plan's clearance would look over time. A model dose is a slider value, never a drug dose; projections are model estimates, not lab results.</p>
+      <div className="mt-2 flex items-center gap-2"><label className="text-xs" htmlFor="tl-plan-date">Date</label><Input id="tl-plan-date" type="date" className="w-44" value={planDate} onChange={(e) => setPlanDate(e.target.value)} /></div>
+      <div className="mt-2 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">{therapies.map((t) =>
+        <div key={t.id} className="flex items-center gap-2 text-[11px]"><label className="flex flex-1 items-center gap-2"><Checkbox checked={planPicked.includes(t.id)} onCheckedChange={(c) => setPlanPicked(c ? [...planPicked, t.id] : planPicked.filter((x) => x !== t.id))} />{t.name}</label>
+          {planPicked.includes(t.id) && <select aria-label={`${t.name} plan model dose`} className="rounded border border-input bg-background px-1 py-0.5" value={planDoses[t.id] ?? 1} onChange={(e) => setPlanDoses({ ...planDoses, [t.id]: Number(e.target.value) })}>{[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((d) => <option key={d} value={d}>{d}x</option>)}</select>}</div>)}</div>
+      <Button size="sm" className="mt-3" onClick={savePlan} disabled={!planDate || !planPicked.length}>Add plan row</Button>
     </section>
   </main>;
 }
