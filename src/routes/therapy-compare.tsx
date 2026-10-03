@@ -143,7 +143,13 @@ function TherapyCompare() {
     <header className="space-y-1">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">Therapy comparison</h1>
-        <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="cmp-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
+        <div className="flex items-center gap-2">
+          <select aria-label="CSV scope" className="rounded-md border border-input bg-background px-2 py-1.5 text-xs" value={csvScope} onChange={(e) => setCsvScope(e.target.value as "one" | "all")} data-testid="cmp-csv-scope">
+            <option value="one">CSV: this profile</option>
+            <option value="all">CSV: all profiles</option>
+          </select>
+          <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="cmp-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
+        </div>
       </div>
       <p className="text-sm text-muted-foreground">Pick two therapies and a model dose for each; both are stacked on the patient's measured baseline and simulated side by side. Model dose is a slider value only, never a drug dose. Not medical advice.</p>
     </header>
