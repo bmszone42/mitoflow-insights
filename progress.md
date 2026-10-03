@@ -967,3 +967,7 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 ## Dashboard "Responds to" ranked by flags cleared first (2026-10-03) ✅
 - responders() score now 100 x flags cleared + readout score (ATP up minus superoxide/H2O2 down), so therapies that clear flags rank first; readout change is the tiebreak. Header note updated ("ranked by flags cleared first, then by readout change").
 - Verified at 1280 on six profiles, both filter states, no page errors: filter off, iron chelations (1 flag) top Leigh and the antioxidant drops below the succinate bypass on sepsis AKI; filter on keeps the readout-only list (iron chelations hidden, "4 clear flags only" notes intact) and CSV keeps the full ranked list.
+
+## Dashboard dose picker for "Responds to" (2026-10-03) ✅
+- New "Model dose" select (0.25x to 2x, default 1x) next to the readout-only checkbox; responders() now takes a dose and applies it via applyTherapyDose on the patient baseline, so the column, ranking and CSV all use the chosen dose. Table header and CSV column show the dose (for example "Responds to (model, 2x)").
+- Verified live: switching 1x to 2x re-ranks the column (sepsis AKI switches to Mild uncoupling first; Leigh drops the antioxidant for uncoupling, cardiolipin and ferroptosis protection). No page errors, typecheck clean.

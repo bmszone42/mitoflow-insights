@@ -6,7 +6,7 @@ import { defaultGeometry, simulate } from "@/lib/mito/model";
 import { demoPatients, lpMapping, patientSex, h2o2BandCheck, readoutChecks } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
-import { profileInputs, simulateTherapy, therapies } from "@/lib/mito/treatment";
+import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies } from "@/lib/mito/treatment";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [
@@ -23,10 +23,12 @@ export const Route = createFileRoute("/dashboard")({
 const fmt = (v: number) => (Math.abs(v) >= 10 ? v.toFixed(0) : Number(v.toPrecision(3)).toString());
 const pct = (v: number, b: number) => { const d = b ? v / b - 1 : 0; return `${d >= 0 ? "+" : ""}${Math.round(d * 100)}%`; };
 
-/** Therapies that improve this profile at 1x model dose: ATP up, superoxide or H2O2 down (>=1%), or fewer ATP/ROS flags. Ranked by summed improvement; not efficacy. */
-function responders(p: Parameters<typeof simulateTherapy>[0]) {
+/** Therapies that improve this profile at the given model dose: ATP up, superoxide or H2O2 down (>=1%), or fewer ATP/ROS flags. Ranked by flags cleared first, then readout change; not efficacy. */
+function responders(p: Parameters<typeof profileInputs>[0], dose = 1) {
+  const base = profileInputs(p);
+  const b = metrics(base);
   return therapies.map((t) => {
-    const { before: b, after: a } = simulateTherapy(p, t);
+    const a = metrics(applyTherapyDose(base, t, dose));
     const ch = (x: number, y: number) => (x ? y / x - 1 : 0);
     const atp = ch(b.atp, a.atp), so = ch(b.superoxide, a.superoxide), h2 = ch(b.h2o2, a.h2o2);
     const cleared = (b.atpFlags - a.atpFlags) + (b.rosFlags - a.rosFlags);
@@ -41,6 +43,8 @@ function Dashboard() {
   const users = useUserPatients();
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
+  // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
+  const [dose, setDose] = useState(1);
   const rows = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
@@ -53,7 +57,7 @@ function Dashboard() {
       const mitosoxFlag = ms.outside ? 1 : 0;
       const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags = d.modelFlags.length;
       const all = labFlags + assayFlags + modelFlags;
-      const allResp = all > 0 ? responders(p) : null;
+      const allResp = all > 0 ? responders(p, dose) : null;
       return {
         hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
@@ -65,7 +69,7 @@ function Dashboard() {
     }).map((r) => ({
       ...r,
       resp: r.respAll === null ? null : readoutOnly
-        ? responders(r.p).filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
+        ? responders(r.p, dose).filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
         : r.respAll,
     }));
     return built.sort((a, b) => {
@@ -74,11 +78,11 @@ function Dashboard() {
       if (fb !== fa) return fb - fa;
       return a.p.label.localeCompare(b.p.label);
     });
-  }, [users, readoutOnly]);
+  }, [users, readoutOnly, dose]);
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
-    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", "Lab flags", "Assay flags", "Model flags", "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders", "Responds to (model, 1x)"];
+    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", "Lab flags", "Assay flags", "Model flags", "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders", `Responds to (model, ${dose}x)`];
     const lines = [header.join(",")];
     for (const r of rows) {
       const src = r.p.source ?? "synthetic";
@@ -115,9 +119,15 @@ function Dashboard() {
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Patient dashboard</h1>
-        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at 1x model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
+        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at the chosen model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
       </div>
       <div className="flex flex-col items-end gap-2">
+        <label className="flex items-center gap-2 text-xs" data-testid="dash-dose-label">
+          Model dose
+          <select value={dose} onChange={(e) => setDose(Number(e.target.value))} data-testid="dash-dose" className="rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+            {calculatorDoses.filter((d) => d > 0).map((d) => <option key={d} value={d}>{d}x</option>)}
+          </select>
+        </label>
         <label className="flex items-center gap-2 text-xs" data-testid="dash-readout-only-label">
           <input type="checkbox" checked={readoutOnly} onChange={(e) => setReadoutOnly(e.target.checked)} data-testid="dash-readout-only" className="size-3.5 accent-primary" />
           Only therapies that change ATP, superoxide or peroxide
@@ -129,7 +139,7 @@ function Dashboard() {
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
           <th className="px-3 py-2">Profile</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2">Superoxide</th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
-          <th className="px-3 py-2">Peroxide flag</th><th className="px-3 py-2">MitoSOX band (Gonzalo 2019)</th><th className="px-3 py-2">Flags: lab / assay / model</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Responds to (model, 1x)</th><th className="px-3 py-2">Open</th>
+          <th className="px-3 py-2">Peroxide flag</th><th className="px-3 py-2">MitoSOX band (Gonzalo 2019)</th><th className="px-3 py-2">Flags: lab / assay / model</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Responds to (model, {dose}x)</th><th className="px-3 py-2">Open</th>
         </tr></thead>
         <tbody>{rows.map((r) => <tr key={r.p.id} data-testid="dash-row" className="border-t border-border/60 align-top">
           <th scope="row" className="px-3 py-2 font-medium">{r.p.label}<div className="font-normal text-muted-foreground">{r.p.phenotype} · {r.p.age}y {patientSex(r.p)}</div></th>
