@@ -25,7 +25,8 @@ export function TherapyEffectTable({ patient, inputs, geo, therapy }: { patient:
       return { ...r, before: b, after: a, change: b === 0 ? 0 : (a - b) / b };
     });
     const proj = patient.h2o2Nm === undefined ? null : projectedH2o2(patient.h2o2Nm, before.hydrogenPeroxide, cur.hydrogenPeroxide);
-    return { rs, proj };
+    const projMs = projectedMitoSox(patient.values.mitosox, before.superoxide, cur.superoxide);
+    return { rs, proj, projMs };
   }, [patient, inputs, geo]);
   const m = patient.h2o2Nm;
   return (
