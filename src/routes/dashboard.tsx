@@ -86,8 +86,14 @@ function Dashboard() {
         : therapies.map((t) => ({ t, h2: therapyEffect(p, dose, t).h2 })).sort((a, b) => a.h2 - b.h2)[0];
       const projBase = hb.measured ? hb.measured.value : hb.model.value;
       const proj = pick ? { therapy: pick.t.name, base: projBase, measured: !!hb.measured, ...projectedH2o2(projBase, 1, 1 + pick.h2) } : null;
+      // Projected MitoSOX: measured fold scaled by the model's superoxide change
+      // under the batch-picker therapy, or the strongest superoxide-lowering therapy at this dose.
+      const msPick = batchTherapy !== "all"
+        ? therapies.filter((t) => t.id === batchTherapy).map((t) => ({ t, so: therapyEffect(p, dose, t).so }))[0]
+        : therapies.map((t) => ({ t, so: therapyEffect(p, dose, t).so })).sort((a, b) => a.so - b.so)[0];
+      const projMs = msPick ? { therapy: msPick.t.name, ...projectedMitoSox(p.values.mitosox, 1, 1 + msPick.so) } : null;
       return {
-        hb, ms, proj,
+        hb, ms, proj, projMs,
         p, out, healthy, top: d.top, lp: lpMapping(p),
         labFlags, assayFlags, modelFlags, therapyFlags,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
