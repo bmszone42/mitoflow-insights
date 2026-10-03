@@ -12,3 +12,8 @@
 - ✅ Best-therapy choice for projected flags unified (Diagnosis and dashboard agree)
 - ✅ Timeline projected flag column (MitoSOX and peroxide per visit, follows each visit's therapies and model doses)
 - ✅ Therapy plan page (/therapy-plan): flagged therapies per profile and model dose with projected flag clearance, CSV
+
+## Timeline plan rows (2026-10-03) ✅
+- New "Add a plan row" section: saves therapies and model doses for a date without new labs; the row reuses the latest earlier visit's labs and shows in the table as "Plan (no new labs)".
+- Plan rows get the same simulated readouts and Projected flag column (MitoSOX and peroxide clearance) as real visits, removable via the trash icon; tab-only, never saved.
+- Verified live: Leigh plan row with the antioxidant at 1x shows MitoSOX 1.32x to 1.12x, no page errors; typecheck and build clean.
