@@ -986,6 +986,13 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Footer note: research model, not a diagnosis; model dose is a slider move, never a drug dose.
 - Verified: typecheck clean, build OK, all 18 profiles covered.
 
+## Batch therapy CSV therapy filter (2026-10-03) ✅
+- New "Batch therapy" picker above the batch export (All therapies, default, or one of the 21 therapies).
+- With a therapy picked, the export has one row per profile for that therapy only (18 rows), including profiles where the therapy does not change ATP/superoxide/peroxide; changes are shown even below the 1% responder threshold (for example "+0%").
+- File name carries the therapy id (cristae-lab-therapy-batch-<id>.csv) and the footer adds a "Filtered to ..." note with the therapy and dose.
+- Follows the model dose picker. The shared therapyEffect() helper now backs both responders() and the batch export, so the two can never disagree.
+- Verified live: filtered download has exactly 18 rows, one per profile, no duplicates; the all-therapies export is unchanged at 272 rows. Typecheck clean.
+
 ## Lazy-loaded dashboard therapy chart (2026-10-03) ✅
 - TherapyProfileChart (and recharts with it) is now a React.lazy chunk on /dashboard, matching the Cristae3D pattern.
 - The chart stays unmounted behind a "Show therapy chart" button, so its code only downloads and runs after the user opens it, not on page load.

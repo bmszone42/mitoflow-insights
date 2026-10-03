@@ -6,7 +6,7 @@ import { defaultGeometry, simulate } from "@/lib/mito/model";
 import { demoPatients, lpMapping, patientSex, h2o2BandCheck, readoutChecks } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
-import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies } from "@/lib/mito/treatment";
+import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
 // Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
 const TherapyProfileChart = lazy(() => import("@/components/mito/TherapyProfileChart").then((m) => ({ default: m.TherapyProfileChart })));
 const BaselineProfileChart = lazy(() => import("@/components/mito/BaselineProfileChart").then((m) => ({ default: m.BaselineProfileChart })));
@@ -26,20 +26,25 @@ export const Route = createFileRoute("/dashboard")({
 const fmt = (v: number) => (Math.abs(v) >= 10 ? v.toFixed(0) : Number(v.toPrecision(3)).toString());
 const pct = (v: number, b: number) => { const d = b ? v / b - 1 : 0; return `${d >= 0 ? "+" : ""}${Math.round(d * 100)}%`; };
 
-/** Therapies that improve this profile at the given model dose: ATP up, superoxide or H2O2 down (>=1%), or fewer ATP/ROS flags. Ranked by flags cleared first, then readout change; not efficacy. */
-function responders(p: Parameters<typeof profileInputs>[0], dose = 1) {
+/** Full effect of one therapy on one profile at the given model dose, including sub-1% changes. */
+function therapyEffect(p: Parameters<typeof profileInputs>[0], dose: number, t: Therapy) {
   const base = profileInputs(p);
   const b = metrics(base);
-  return therapies.map((t) => {
-    const a = metrics(applyTherapyDose(base, t, dose));
-    const ch = (x: number, y: number) => (x ? y / x - 1 : 0);
-    const atp = ch(b.atp, a.atp), so = ch(b.superoxide, a.superoxide), h2 = ch(b.h2o2, a.h2o2);
-    const cleared = (b.atpFlags - a.atpFlags) + (b.rosFlags - a.rosFlags);
-    const readoutParts = [atp >= 0.01 && `ATP +${Math.round(atp * 100)}%`, so <= -0.01 && `superoxide ${Math.round(so * 100)}%`, h2 <= -0.01 && `H2O2 ${Math.round(h2 * 100)}%`].filter(Boolean) as string[];
-    const parts = [...readoutParts, cleared > 0 && `${cleared} flag${cleared > 1 ? "s" : ""} cleared`].filter(Boolean) as string[];
-    const score = 100 * Math.max(cleared, 0) + Math.max(atp, 0) - Math.min(so, 0) - Math.min(h2, 0);
-    return { t, parts, readoutParts, hasReadout: readoutParts.length > 0, score };
-  }).filter((r) => r.parts.length).sort((a, b) => b.score - a.score);
+  const a = metrics(applyTherapyDose(base, t, dose));
+  const ch = (x: number, y: number) => (x ? y / x - 1 : 0);
+  const atp = ch(b.atp, a.atp), so = ch(b.superoxide, a.superoxide), h2 = ch(b.h2o2, a.h2o2);
+  const cleared = (b.atpFlags - a.atpFlags) + (b.rosFlags - a.rosFlags);
+  const readoutParts = [atp >= 0.01 && `ATP +${Math.round(atp * 100)}%`, so <= -0.01 && `superoxide ${Math.round(so * 100)}%`, h2 <= -0.01 && `H2O2 ${Math.round(h2 * 100)}%`].filter(Boolean) as string[];
+  const parts = [...readoutParts, cleared > 0 && `${cleared} flag${cleared > 1 ? "s" : ""} cleared`].filter(Boolean) as string[];
+  return { atp, so, h2, cleared, readoutParts, parts, hasReadout: readoutParts.length > 0 };
+}
+
+/** Therapies that improve this profile at the given model dose: ATP up, superoxide or H2O2 down (>=1%), or fewer ATP/ROS flags. Ranked by flags cleared first, then readout change; not efficacy. */
+function responders(p: Parameters<typeof profileInputs>[0], dose = 1) {
+  return therapies.map((t) => ({ t, ...therapyEffect(p, dose, t) }))
+    .filter((r) => r.parts.length)
+    .sort((a, b) => (100 * Math.max(b.cleared, 0) + Math.max(b.atp, 0) - Math.min(b.so, 0) - Math.min(b.h2, 0))
+      - (100 * Math.max(a.cleared, 0) + Math.max(a.atp, 0) - Math.min(a.so, 0) - Math.min(a.h2, 0)));
 }
 
 function Dashboard() {
@@ -51,6 +56,8 @@ function Dashboard() {
   // Charts stay unmounted (and their code unloaded) until the user opens them.
   const [showChart, setShowChart] = useState(false);
   const [showBaselineChart, setShowBaselineChart] = useState(false);
+  // Batch CSV therapy filter: "all" exports every responding therapy; a therapy id exports just that one across every profile.
+  const [batchTherapy, setBatchTherapy] = useState("all");
   const rows = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
@@ -123,38 +130,47 @@ function Dashboard() {
   };
 
   // Batch export: one row per profile x therapy that responds at the current model dose, including flags-only therapies.
+  // With a therapy picked, one row per profile for that therapy only, including profiles it does not change.
   const downloadBatchCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
+    const only = therapies.find((t) => t.id === batchTherapy) ?? null;
     const header = ["Profile", "ID", "Phenotype", "Total flags", "Baseline ATP (µM/s)", "Baseline superoxide (nM)", "Baseline H2O2 (nM)", "Therapy", `Model dose`, "ATP change", "Superoxide change", "H2O2 change", "Flags cleared", "Readout effect only"];
     const lines = [header.join(",")];
     for (const r of rows) {
-      const all = r.respMatrix;
+      const totalFlags = r.labFlags + r.assayFlags + r.modelFlags;
       const base = [r.out.atpFlux.toFixed(2), r.out.superoxide.toPrecision(3), r.out.hydrogenPeroxide.toFixed(2)];
+      const push = (therapyName: string, atp: string, so: string, h2: string, cleared: string, readOnly: string) => {
+        lines.push([esc(r.p.label), esc(r.p.id), esc(r.p.phenotype), String(totalFlags), ...base, esc(therapyName), String(dose), atp, so, h2, cleared, readOnly].join(","));
+      };
+      if (only) {
+        const x = therapyEffect(r.p, dose, only);
+        const d = (v: number) => `${v >= 0 ? "+" : ""}${Math.round(v * 100)}%`;
+        push(only.name, d(x.atp), d(x.so), d(x.h2), x.cleared > 0 ? `${x.cleared} flags cleared` : "0", x.hasReadout ? "no" : "yes");
+        continue;
+      }
+      const all = r.respMatrix;
       if (!all.length) {
-        lines.push([esc(r.p.label), esc(r.p.id), esc(r.p.phenotype), String(r.labFlags + r.assayFlags + r.modelFlags), ...base, "(none)", String(dose), "", "", "", "", ""].join(","));
+        push("(none)", "", "", "", "", "");
         continue;
       }
       for (const x of all) {
         const flagsPart = x.parts.find((p) => p.includes("flag"));
-        lines.push([
-          esc(r.p.label), esc(r.p.id), esc(r.p.phenotype), String(r.labFlags + r.assayFlags + r.modelFlags),
-          ...base,
-          esc(x.t.name), String(dose),
+        push(x.t.name,
           x.readoutParts.find((p) => p.startsWith("ATP")) ?? "",
           x.readoutParts.find((p) => p.startsWith("superoxide")) ?? "",
           x.readoutParts.find((p) => p.startsWith("H2O2")) ?? "",
           flagsPart ?? "0",
-          x.hasReadout ? "no" : "yes",
-        ].join(","));
+          x.hasReadout ? "no" : "yes");
       }
     }
     lines.push("");
     lines.push(esc("Generated by Cristae Lab. Research model, not a diagnosis. Every therapy a profile responds to at the chosen model dose, including therapies whose only effect is clearing flags. A model dose is a slider move, never a drug dose."));
+    if (only) lines.push(esc(`Filtered to ${only.name} at the ${dose}x model dose; every profile is included, even where the therapy does not change the readouts.`));
     const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "cristae-lab-therapy-batch.csv";
+    a.download = only ? `cristae-lab-therapy-batch-${only.id}.csv` : "cristae-lab-therapy-batch.csv";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -177,7 +193,14 @@ function Dashboard() {
           <input type="checkbox" checked={readoutOnly} onChange={(e) => setReadoutOnly(e.target.checked)} data-testid="dash-readout-only" className="size-3.5 accent-primary" />
           Only therapies that change ATP, superoxide or peroxide
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <label className="flex items-center gap-2 text-xs" data-testid="dash-batch-therapy-label">
+            Batch therapy
+            <select value={batchTherapy} onChange={(e) => setBatchTherapy(e.target.value)} data-testid="dash-batch-therapy" className="max-w-[220px] rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+              <option value="all">All therapies</option>
+              {therapies.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </label>
           <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
           <Button variant="outline" size="sm" onClick={downloadBatchCsv} data-testid="dash-batch-csv"><Download className="size-4" aria-hidden />Batch therapy CSV</Button>
         </div>
