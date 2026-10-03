@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
-import { h2o2NmBand, inputsFromPatient, projectedH2o2, type DemoPatient } from "@/lib/mito/patientReference";
+import { h2o2NmBand, inputsFromPatient, mitoSoxBand, projectedH2o2, projectedMitoSox, type DemoPatient } from "@/lib/mito/patientReference";
 import type { Therapy } from "@/lib/mito/treatment";
 
 type Out = ReturnType<typeof simulate>;
