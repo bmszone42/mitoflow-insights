@@ -11,6 +11,8 @@ import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
 import { addVisit, diagnoseVisit, visitReadouts, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 
+const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
+
 export const Route = createFileRoute("/timeline")({
   validateSearch: (s) => z.object({ profile: z.string().optional() }).parse(s),
   head: () => ({ meta: [
