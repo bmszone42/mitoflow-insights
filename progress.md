@@ -981,3 +981,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - Profiles with no responders still get a "(none)" row so all 18 profiles always appear.
 - Footer note: research model, not a diagnosis; model dose is a slider move, never a drug dose.
 - Verified: typecheck clean, build OK, all 18 profiles covered.
+
+## Lazy-loaded dashboard therapy chart (2026-10-03) ✅
+- TherapyProfileChart (and recharts with it) is now a React.lazy chunk on /dashboard, matching the Cristae3D pattern.
+- The chart stays unmounted behind a "Show therapy chart" button, so its code only downloads and runs after the user opens it, not on page load.
+- Verified in the browser: no chart chunk requested on load, chunk loads on click, chart renders (4 svg surfaces), no console errors. Typecheck clean.
