@@ -3,7 +3,7 @@ import { demoPatients, isNonfasting, originOf, realShare, outsideText, percentOu
 import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosAssayFlag, rosSourceRows } from "./rosPhysiology";
 import { atpAssayFlag } from "./atpComparison";
-import { therapies, applyTherapyDose, profileInputs } from "./treatment";
+import { therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
 
 // Mechanism pattern review. Fixed rules map existing flags to mechanisms.
 // Scores are weighted flag counts, never probabilities or diagnoses.
