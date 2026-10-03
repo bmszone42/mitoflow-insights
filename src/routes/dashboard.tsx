@@ -68,9 +68,13 @@ function Dashboard() {
       const ms = readoutChecks(p).find((b) => b.key === "mitosox")!;
       // The peroxide band flag lives in diagnosis rosAssayFlags, so it is
       // counted there, not added again here.
-      const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length, modelFlags = d.modelFlags.length, therapyFlags = d.therapyFlags.length;
+      const labFlags = d.patientFlags.length, assayFlags = d.rosAssayFlags.length + d.atpAssayFlags.length, modelFlags = d.modelFlags.length;
       const all = labFlags + assayFlags + modelFlags;
       const matrix = responders(p, dose);
+      // Therapy flags at the chosen dose: therapies targeting a strong cause
+      // (score >= 1.5) that move ATP, superoxide or H2O2 by 1% or more.
+      const strongMechs = new Set(d.causes.filter((c) => c.score >= 1.5).map((c) => c.mechanism));
+      const therapyFlags = matrix.filter((x) => x.t.mechanisms.some((m) => strongMechs.has(m)) && (Math.abs(x.atp) >= 0.01 || Math.abs(x.so) >= 0.01 || Math.abs(x.h2) >= 0.01)).length;
       const allResp = all > 0 ? matrix : null;
       return {
         hb, ms,
