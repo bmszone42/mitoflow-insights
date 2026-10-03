@@ -925,3 +925,8 @@ Compare's "Driver share, %" chart now colors each bar by direction, not just the
 - ✅ Simulator patient banner: model and measured H2O2 vs Sies 2017 (flagged above 100 nM); measured value moves no slider
 - ✅ Dashboard: H2O2 band column, +1 assay flag when above 100 nM, CSV columns Measured H2O2 (nM) and H2O2 vs Sies 2017
 - ✅ Verified: 150 nM profile flagged 50% above in both places (0/1/1 flags); demo profiles show Not measured; model H2O2 18-37 nM never flags
+
+## Dashboard peroxide flag column (2026-10-03) ✅
+- New "Peroxide flag" column on /dashboard, between the H2O2 band detail and the lab/assay/model flag counts: "Flagged >100 nM (measured|model)" in red when the Sies 2017 check trips, otherwise "Within" or "Within (model only)".
+- CSV download gained a matching "Peroxide flag" column.
+- All 18 demo profiles read "Within (model only)" (model peroxide stays 18-37 nM; no demo has a measured nM value). Verified at 1280, no page errors, typecheck clean.
