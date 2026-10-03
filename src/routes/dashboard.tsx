@@ -7,6 +7,7 @@ import { demoPatients, lpMapping, patientSex, h2o2BandCheck, readoutChecks } fro
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, calculatorDoses, metrics, profileInputs, therapies } from "@/lib/mito/treatment";
+import { TherapyProfileChart } from "@/components/mito/TherapyProfileChart";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [
@@ -135,6 +136,7 @@ function Dashboard() {
         <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
       </div>
     </header>
+    <TherapyProfileChart profiles={rows.map((r) => r.p)} dose={dose} flaggedIds={rows.filter((r) => r.respAll !== null).map((r) => r.p.id)} />
     <section className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
