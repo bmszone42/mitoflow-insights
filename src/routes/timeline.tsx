@@ -34,9 +34,12 @@ function TimelinePage() {
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const p = all.find((x) => x.id === id) ?? all[0]!;
   const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v) })), [p, visits]);
-  const [metric, setMetric] = useState<PatientMetricKey>("lactate");
-  const m = patientMetrics.find((x) => x.key === metric)!;
-  const chart = timeline.map(({ v, d }) => ({ date: v.date, value: v.values[metric], top: d.causes[0]!.score }));
+  const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm">("lactate");
+  const isH2o2 = metric === "h2o2Nm";
+  const m = patientMetrics.find((x) => x.key === metric);
+  const mLabel = isH2o2 ? "Hydrogen peroxide (measured)" : m!.label;
+  const mUnit = isH2o2 ? "nM" : m!.unit;
+  const chart = timeline.map(({ v, d }) => ({ date: v.date, value: isH2o2 ? (v.h2o2Nm ?? null) : v.values[metric as PatientMetricKey], top: d.causes[0]!.score }));
 
   const last = timeline[timeline.length - 1]!.v;
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -45,7 +48,9 @@ function TimelinePage() {
   const save = () => {
     const values = { ...last.values };
     for (const x of patientMetrics) { const n = Number(draft[x.key]); if (draft[x.key] !== undefined && draft[x.key] !== "" && Number.isFinite(n)) values[x.key] = n; }
-    addVisit({ patientId: p.id, date, values: withDerived(values), therapies: picked });
+    const h2n = Number(draft.h2o2Nm);
+    const h2o2Nm = draft.h2o2Nm !== undefined && draft.h2o2Nm !== "" && Number.isFinite(h2n) ? h2n : last.h2o2Nm;
+    addVisit({ patientId: p.id, date, values: withDerived(values), h2o2Nm, therapies: picked });
     setDraft({}); setPicked([]);
   };
   const tName = (tid: string) => therapies.find((t) => t.id === tid)?.name ?? tid;
