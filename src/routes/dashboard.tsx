@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
-import { demoPatients, lpMapping, patientSex, h2o2BandCheck } from "@/lib/mito/patientReference";
+import { demoPatients, lpMapping, patientSex, h2o2BandCheck, readoutChecks } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { profileInputs } from "@/lib/mito/treatment";
@@ -33,10 +33,12 @@ function Dashboard() {
       const d = diagnoseProfile(p);
       const hb = h2o2BandCheck(p, out.hydrogenPeroxide);
       const h2o2Flag = (hb.model.outside || hb.measured?.outside) ? 1 : 0;
+      const ms = readoutChecks(p).find((b) => b.key === "mitosox")!;
+      const mitosoxFlag = ms.outside ? 1 : 0;
       return {
-        hb,
+        hb, ms,
         p, out, healthy, top: d.top, lp: lpMapping(p),
-        labFlags: d.patientFlags.length, assayFlags: d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag, modelFlags: d.modelFlags.length,
+        labFlags: d.patientFlags.length, assayFlags: d.rosAssayFlags.length + d.atpAssayFlags.length + h2o2Flag + mitosoxFlag, modelFlags: d.modelFlags.length,
         overlap: flagOverlaps(p, pool).ranked.slice(0, 3),
       };
     });
