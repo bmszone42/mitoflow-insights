@@ -8,6 +8,7 @@ import { PhotoreceptorPanel } from "./PhotoreceptorPanel";
 import { RosBudgetPanel } from "./RosBudgetPanel";
 import { WarburgSummaryCard } from "./WarburgSummaryCard";
 import { Metric } from "./SimulatorShared";
+import { MitophagyExplorer } from "./MitophagyExplorer";
 
 // Charts (and the recharts library) load only after the page is up.
 const SimulatorCharts = lazy(() =>
@@ -100,6 +101,8 @@ export function Simulator({
         <RosBudgetPanel out={out} />
 
         <PhotoreceptorPanel out={out} />
+
+        <MitophagyExplorer inputs={inputs} geo={geo} />
 
         <Suspense fallback={<ChartsFallback />}>
           <SimulatorCharts inputs={inputs} out={out} />
