@@ -126,3 +126,4 @@
 - ✅ Oxaloacetate and mitophagy sliders replaced by trial-dose sliders (oxaloacetate 0-2 g/day; urolithin A 0-1000 mg/day), assumed effect size, 3 sources scored
 - ✅ Superoxide rewrite: clearance follows defenses 1:1, weak defenses raise leak (ROS-induced ROS release, Zorov 2014); six disease profiles now above healthy
 - ✅ Mitophagy as model setting: turnover half-life (2-60 d, default 17.2 d heart; Kim 2012, Stauch 2023) changes potential, leak, iron and ATP; urolithin A card shortens it
+- ✅ Dashboard superoxide vs healthy at the same membrane potential (healthy adult re-run at each profile's potential), on screen and in CSV
