@@ -84,7 +84,7 @@ export function diagnoseProfile(p: DemoPatient, dose = 1, onlyId?: string) {
   const rosAssays = (["O2•-", "H2O2", "•OH"] as const).map((s) => rosAssayFlag(s, p.values, adultControl.values)).filter((a): a is NonNullable<typeof a> => !!a);
   const msBand = readoutChecks(p).find((b) => b.key === "mitosox")!;
   // Model flags from the profile's membrane potential only, other inputs default.
-  const inputs = { ...defaultInputs, deltaPsi: p.values.membranePotential, antioxidantCapacity: profileInputs(p).antioxidantCapacity };
+  const inputs = { ...defaultInputs, deltaPsi: p.values.membranePotential };
   const simOut = simulate(inputs, defaultGeometry);
   // Peroxide band (Sies 2017): measured nM when entered, else the model value.
   const hb = h2o2BandCheck(p, simOut.hydrogenPeroxide);
@@ -106,7 +106,7 @@ export function diagnoseProfile(p: DemoPatient, dose = 1, onlyId?: string) {
   // the profile's antioxidant capacity, so only defences (and the ROS-induced
   // ROS release they drive) show in the gap.
   const matchedHealthySo = simulate({ ...defaultInputs, deltaPsi: inputs.deltaPsi }, defaultGeometry).superoxide;
-  const matchedProfileSo = simulate({ ...defaultInputs, deltaPsi: inputs.deltaPsi, antioxidantCapacity: inputs.antioxidantCapacity }, defaultGeometry).superoxide;
+  const matchedProfileSo = simulate({ ...defaultInputs, deltaPsi: inputs.deltaPsi, antioxidantCapacity: profileInputs(p).antioxidantCapacity }, defaultGeometry).superoxide;
   const defGap = (matchedProfileSo / matchedHealthySo - 1) * 100;
   const modelFlags: Evidence[] = [
     ...(atpModel ? [{ label: `${atpModel} ATP steps flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV, cost ${cost.toFixed(2)} eV/ATP` }] : []),
