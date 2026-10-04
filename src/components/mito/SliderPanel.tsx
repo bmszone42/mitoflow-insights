@@ -354,6 +354,19 @@ export function SliderPanel({
           </p>
           {comboSaveStatus && <p role="status" className="text-[11px] text-primary">{comboSaveStatus}</p>}
         </div>
+        <div className="space-y-1.5 rounded-md border border-dashed border-border p-3" data-testid="sim-oaa">
+          <div className="flex items-center justify-between gap-2">
+            <div className="mono-label">Oxaloacetate supply (fuel presets)</div>
+            <span className="rounded bg-muted px-2 py-0.5 font-mono text-[11px] text-muted-foreground">MADE-UP, unvalidated</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="w-32 text-xs">OAA supply: <span className="font-mono">{oaa.toFixed(2)}x</span></span>
+            <Slider aria-label="Oxaloacetate supply (made-up)" min={0} max={2} step={0.05} value={[oaa]} onValueChange={(v) => applyOaa(v[0] ?? 1)} className="max-w-xs" />
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Invented lever inspired by the SLC25A34 oxaloacetate carrier (Karavaeva 2026, adipocytes). Moving it scales the NADH / NAD+ pool slider above by a made-up saturating curve; 1x leaves it unchanged. No published flux backs the curve.
+          </p>
+        </div>
         {groups.map((g) => (
           <div key={g.id} className="space-y-4">
             <div>
