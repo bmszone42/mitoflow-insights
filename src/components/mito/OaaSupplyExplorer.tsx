@@ -17,6 +17,17 @@ export function OaaSupplyExplorer({ inputs, geo, out }: { inputs: Inputs; geo: G
   const [oaa, setOaa] = useState(1);
   const nadh = Math.min(1, Math.max(0, inputs.nadhRatio * oaaFactor(oaa)));
   const x = useMemo(() => simulate({ ...inputs, nadhRatio: nadh }, geo), [inputs, geo, nadh]);
+  // ATP and superoxide across the full 0-2x lever range, for the chart.
+  const curve = useMemo(
+    () =>
+      Array.from({ length: 21 }, (_, i) => {
+        const o = i / 10;
+        const n = Math.min(1, Math.max(0, inputs.nadhRatio * oaaFactor(o)));
+        const m = simulate({ ...inputs, nadhRatio: n }, geo);
+        return { oaa: o, atp: m.atpFlux, so: m.superoxide };
+      }),
+    [inputs, geo],
+  );
   const rows = [
     { k: "NADH / NAD+ pool", a: inputs.nadhRatio, b: nadh, d: 2 },
     { k: "ATP flux (µM/s)", a: out.atpFlux, b: x.atpFlux, d: 1 },
