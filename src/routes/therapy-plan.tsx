@@ -6,6 +6,7 @@ import { demoPatients } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseAll, diagnoseProfile, therapyPlanRows } from "@/lib/mito/diagnosis";
 import { buildPlan, modelDoses, profileInputs } from "@/lib/mito/treatment";
+import { recordRun } from "@/lib/mito/runs";
 
 type Diagnosed = ReturnType<typeof diagnoseProfile>;
 

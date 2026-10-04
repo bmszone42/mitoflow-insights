@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { demoPatients, type DemoPatient } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { applyTherapyDose, calculatorDoses, doseResponse, moveLabel, profileInputs, therapies } from "@/lib/mito/treatment";
+import { recordRun } from "@/lib/mito/runs";
 import { defaultGeometry, inputRanges, simulate } from "@/lib/mito/model";
 
 type Search = {
