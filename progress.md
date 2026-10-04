@@ -114,3 +114,7 @@
 - ✅ Readout table (NADH, ATP, superoxide, peroxide, free Fe2+) and lazy chart across 0-2x
 - ✅ Carrier reference table; five new sources logged in the reference library with scores
 - ❌ Run carriers on Timeline visits (demo profiles only for now)
+
+## Mitophagy lever (behaviors level)
+- ✅ MADE-UP mitophagy rate slider (0-2x) on the Simulator with readout table and ATP/superoxide chart
+- ❌ Published mitophagy rate to replace the invented curve
