@@ -35,7 +35,7 @@ export async function recordRun(patientId: string, source: RunSource, dose: numb
     const id = keyOf(patientId, source, dose, therapyIds);
     const store = (await db()).transaction("runs", "readwrite").objectStore("runs");
     const prev = (await store.get(id)) as RunRecord | undefined;
-    await store.put({ id, patientId, source, dose, therapyIds: [...therapyIds].sort(), at: Date.now(), count: (prev?.count ?? 0) + 1, rirrStrength } satisfies RunRecord);
+    await store.put({ id, patientId, source, dose, therapyIds: [...therapyIds].sort(), at: Date.now(), count: (prev?.count ?? 0) + 1, ...(rirrStrength != null ? { rirrStrength } : {}) } satisfies RunRecord);
   } catch {
     // storage unavailable; ignore
   }
