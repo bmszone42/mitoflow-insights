@@ -1,20 +1,24 @@
 import { lazy, Suspense, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Slider } from "@/components/ui/slider";
-import type { Geometry, Inputs } from "@/lib/mito/model";
+import { defaultGeometry, defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 import { mitophagyReadout } from "@/lib/mito/mitophagy";
+import { doseAnchors, doseToFactor } from "@/lib/mito/doseAnchors";
+import { DoseAnchorNote, DoseBadge } from "./DoseAnchorNote";
 
 const MitophagyChart = lazy(() => import("./MitophagyChart"));
+const A = doseAnchors.urolithinA;
 const pct = (a: number, b: number) => (b ? ((a - b) / b) * 100 : 0);
 
 export function MitophagyExplorer({ inputs, geo }: { inputs: Inputs; geo: Geometry }) {
-  const [rate, setRate] = useState(1);
+  const [dose, setDose] = useState(0);
   const before = useMemo(() => mitophagyReadout(inputs, geo, 1), [inputs, geo]);
-  const after = useMemo(() => mitophagyReadout(inputs, geo, rate), [inputs, geo, rate]);
+  const after = useMemo(() => mitophagyReadout(inputs, geo, doseToFactor(A, dose)), [inputs, geo, dose]);
   const curve = useMemo(
-    () => Array.from({ length: 21 }, (_, k) => { const r = k / 10; const x = mitophagyReadout(inputs, geo, r); return { r, atp: x.atp, so: x.so }; }),
+    () => Array.from({ length: 21 }, (_, k) => { const d = (k / 20) * A.maxDose; const x = mitophagyReadout(inputs, geo, doseToFactor(A, d)); return { r: d, atp: x.atp, so: x.so }; }),
     [inputs, geo],
   );
+  const healthySo = useMemo(() => simulate(defaultInputs, defaultGeometry).superoxide, []);
   const rows = [
     { k: "Membrane potential (mV)", a: before.psi, b: after.psi, d: 0 },
     { k: "Labile iron (µM)", a: before.iron, b: after.iron, d: 2 },
@@ -26,21 +30,19 @@ export function MitophagyExplorer({ inputs, geo }: { inputs: Inputs; geo: Geomet
   return (
     <div className="panel space-y-3 rounded-lg border border-dashed border-border p-4" data-testid="mitophagy-explorer">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-sm font-semibold">Mitophagy (exploratory)</h3>
+        <h3 className="text-sm font-semibold">{A.label}</h3>
         <div className="flex gap-2 text-[11px]">
           <Link to="/references" className="rounded bg-muted px-2 py-0.5 text-muted-foreground underline">Behaviors level (Monzel 2023)</Link>
-          <span className="rounded bg-muted px-2 py-0.5 font-mono text-muted-foreground">MADE-UP, unvalidated</span>
+          <DoseBadge />
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Rate of clearing damaged mitochondria (1x = current run). Higher rates pull membrane potential toward 160 mV, lower labile iron and trim ATP capacity slightly; lower rates do the reverse. Invented curve: it never changes your sliders, flags, scenarios or Diagnosis.
-      </p>
       <div className="flex items-center gap-3">
-        <Slider aria-label="Mitophagy rate" min={0} max={2} step={0.05} value={[rate]} onValueChange={(v) => setRate(v[0] ?? 1)} className="flex-1" />
-        <span className="w-12 text-right font-mono text-xs" data-testid="mitophagy-rate">{rate.toFixed(2)}x</span>
+        <Slider aria-label="Urolithin A dose" min={0} max={A.maxDose} step={A.step} value={[dose]} onValueChange={(v) => setDose(v[0] ?? 0)} className="flex-1" />
+        <span className="w-24 text-right font-mono text-xs" data-testid="mitophagy-rate">{dose} {A.unit}</span>
       </div>
+      <DoseAnchorNote a={A} />
       <table className="w-full text-xs" data-testid="mitophagy-readout">
-        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Readout</th><th>Current</th><th>With lever</th><th>Change</th></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Readout</th><th>Current</th><th>With dose</th><th>Change</th></tr></thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.k} className="border-t border-border">
@@ -51,7 +53,7 @@ export function MitophagyExplorer({ inputs, geo }: { inputs: Inputs; geo: Geomet
         </tbody>
       </table>
       <Suspense fallback={<div className="h-56 text-xs text-muted-foreground">Loading chart…</div>}>
-        <MitophagyChart data={curve} at={{ r: rate, atp: after.atp }} />
+        <MitophagyChart data={curve} at={{ r: Math.round(dose / 50) * 50, atp: after.atp }} healthySo={healthySo} />
       </Suspense>
     </div>
   );
