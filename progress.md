@@ -108,3 +108,9 @@
 - [x] OaaSupplyExplorer moved inside the Warburg dashboard control card, next to the fuel presets (was a separate card above).
 - [x] Ran the lever on the Leigh syndrome baseline visit (2026-01-15): ATP 60.8 -> 48.8 uM/s at 0.5x (-19.8%), 70.5 at 2x (+15.8%); superoxide changes are percent noise on a 0.01 nM baseline.
 - [x] OAA explorer chart: ATP flux and superoxide lines across the full 0-2x range with a dot at the current lever setting, under the percent-change table. Verified live on the Warburg tab, no page errors.
+
+## Carrier efficiency module
+- ✅ /carriers page: 0-2x rate sliders for Mitoferrin, SLC25A34, ANT, PiC, MPC, UCP1 (all MADE-UP mappings)
+- ✅ Readout table (NADH, ATP, superoxide, peroxide, free Fe2+) and lazy chart across 0-2x
+- ✅ Carrier reference table; five new sources logged in the reference library with scores
+- ❌ Run carriers on Timeline visits (demo profiles only for now)
