@@ -29,7 +29,7 @@ export const Route = createFileRoute("/timeline")({
 type SimKey = "simAtp" | "simSuperoxide" | "simH2o2";
 const simKeys = [{ key: "simAtp", r: "atp", label: "ATP flux (simulated)", unit: "µM/s" }, { key: "simSuperoxide", r: "superoxide", label: "Superoxide (simulated)", unit: "nM" }, { key: "simH2o2", r: "h2o2", label: "Hydrogen peroxide (simulated)", unit: "nM" }] as const;
 const fmt = (x: number) => (Math.abs(x) >= 10 ? x.toFixed(1) : Number(x.toPrecision(3)).toString());
-const originText = { baseline: "Profile values", synthetic: "Invented follow-up", user: "Your visit", plan: "Plan (no new labs)" } as const;
+const originText = { baseline: "Profile values", synthetic: "Invented follow-up", user: "Your visit", plan: "Plan (no new labs)", real: "Real-world visit" } as const;
 
 function TimelinePage() {
   const users = useUserPatients();
@@ -46,20 +46,23 @@ function TimelinePage() {
   const mLabel = sim ? sim.label : isH2o2 ? "Hydrogen peroxide (measured)" : m!.label;
   const mUnit = sim ? sim.unit : isH2o2 ? "nM" : m!.unit;
   const cell = (v: (typeof timeline)[number]["v"], r: (typeof timeline)[number]["r"]): number | null => sim ? r[sim.r] : isH2o2 ? (v.h2o2Nm ?? null) : v.values[metric as PatientMetricKey];
-  const chart = timeline.map(({ v, d, r }) => ({ date: v.date, value: cell(v, r), top: d.causes[0]!.score }));
+  const chart = timeline.map(({ v, d, r }) => { const value = cell(v, r); return { date: v.date, value, top: d.causes[0]!.score, real: v.origin === "real" ? value : null, plan: v.origin === "plan" ? value : null }; });
 
   const last = timeline[timeline.length - 1]!.v;
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [picked, setPicked] = useState<string[]>([]);
   const [doses, setDoses] = useState<Record<string, number>>({});
+  const [kind, setKind] = useState<"user" | "real">("user");
+  const [actual, setActual] = useState<Record<string, string>>({});
   const save = () => {
     const values = { ...last.values };
     for (const x of patientMetrics) { const n = Number(draft[x.key]); if (draft[x.key] !== undefined && draft[x.key] !== "" && Number.isFinite(n)) values[x.key] = n; }
     const h2n = Number(draft["h2o2Nm"]);
     const h2o2Nm = draft["h2o2Nm"] !== undefined && draft["h2o2Nm"] !== "" && Number.isFinite(h2n) ? h2n : last.h2o2Nm;
-    addVisit({ patientId: p.id, date, values: withDerived(values), h2o2Nm, therapies: picked, doses: Object.fromEntries(picked.map((t) => [t, doses[t] ?? 1])) });
-    setDraft({}); setPicked([]); setDoses({});
+    const actualDoses = kind === "real" ? Object.fromEntries(picked.filter((t) => actual[t]?.trim()).map((t) => [t, actual[t]!.trim()])) : undefined;
+    addVisit({ patientId: p.id, date, values: withDerived(values), h2o2Nm, therapies: picked, doses: Object.fromEntries(picked.map((t) => [t, doses[t] ?? 1])), actualDoses }, kind);
+    setDraft({}); setPicked([]); setDoses({}); setActual({});
   };
   const [planDate, setPlanDate] = useState(new Date().toISOString().slice(0, 10));
   const [planPicked, setPlanPicked] = useState<string[]>([]);
@@ -114,14 +117,14 @@ function TimelinePage() {
             <td title={d.patientFlags.map((f) => f.label).join(", ")}>{flags}</td>
             <td>{d.top ? `${d.top.name} (${d.top.score.toFixed(2)})` : "None strong"}</td>
             <td className="tabular-nums" data-testid="tl-atp">{fmt(r.atp)}</td><td className="tabular-nums">{fmt(r.superoxide)}</td><td className="tabular-nums">{fmt(r.h2o2)}</td>
-            <td>{v.therapies.length ? v.therapies.map((t) => `${tName(t)} ${v.doses?.[t] ?? 1}x`).join(", ") : "None"}</td>
+            <td>{v.therapies.length ? v.therapies.map((t) => `${tName(t)} ${v.doses?.[t] ?? 1}x${v.actualDoses?.[t] ? ` (taken: ${v.actualDoses[t]})` : ""}`).join(", ") : "None"}</td>
             <td data-testid="tl-projected">{!pj ? <span className="text-muted-foreground">No therapy</span> : <div className="space-y-0.5">
               <div>MitoSOX {v.values.mitosox.toFixed(2)}x to {pj.ms.value.toFixed(2)}x {pj.msMeasuredOut && !pj.ms.outside ? <span className="font-medium text-primary">flag clears</span> : pj.ms.outside ? <span className="text-destructive">{pj.msMeasuredOut ? "still outside" : "outside band"}</span> : <span className="text-muted-foreground">within</span>}</div>
               {pj.h2 && v.h2o2Nm !== undefined && <div>H2O2 {v.h2o2Nm.toFixed(0)} to {pj.h2.value.toFixed(0)} nM {pj.h2MeasuredOut && !pj.h2.outside ? <span className="font-medium text-primary">flag clears</span> : pj.h2.outside ? <span className="text-destructive">{pj.h2MeasuredOut ? "still flagged" : "flagged"}</span> : <span className="text-muted-foreground">within</span>}</div>}
             </div>}</td>
             <td><div className="flex items-center gap-1.5">
               {v.origin === "plan" && <Button variant="outline" size="sm" className="h-6 px-2 text-[10px]" data-testid="tl-convert-plan" onClick={() => convertPlan(v)}>Convert to visit</Button>}
-              {(v.origin === "user" || v.origin === "plan") && <button type="button" aria-label="Remove visit" onClick={() => removeVisit(v.id)}><Trash2 className="size-3.5 text-muted-foreground" /></button>}
+              {(v.origin === "user" || v.origin === "plan" || v.origin === "real") && <button type="button" aria-label="Remove visit" onClick={() => removeVisit(v.id)}><Trash2 className="size-3.5 text-muted-foreground" /></button>}
             </div></td>
           </tr>;
         })}</tbody>
@@ -132,7 +135,10 @@ function TimelinePage() {
     <section id="timeline-add" className="mt-6 rounded-md border border-border p-3" data-testid="timeline-add">
       <h2 className="text-sm font-semibold">Add a visit</h2>
       <p className="text-[11px] text-muted-foreground">Blank fields carry over from the latest visit. Lactate:pyruvate is recalculated.</p>
-      <div className="mt-2 flex items-center gap-2"><label className="text-xs" htmlFor="tl-date">Date</label><Input id="tl-date" type="date" className="w-44" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+      <div className="mt-2 flex flex-wrap items-center gap-2"><label className="text-xs" htmlFor="tl-date">Date</label><Input id="tl-date" type="date" className="w-44" value={date} onChange={(e) => setDate(e.target.value)} />
+        <label className="ml-3 text-xs" htmlFor="tl-kind">Visit type</label>
+        <select id="tl-kind" data-testid="tl-kind" className="h-8 rounded border border-input bg-background px-2 text-xs" value={kind} onChange={(e) => setKind(e.target.value as "user" | "real")}><option value="user">Model visit</option><option value="real">Real-world visit (actual labs and doses)</option></select></div>
+      {kind === "real" && <p className="mt-1 text-[11px] text-muted-foreground">Enter the labs actually measured and the dose actually taken for each therapy. The actual dose is recorded only; the model still uses the model dose you pick. Kept in this tab only, never saved or sent anywhere.</p>}
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{patientMetrics.filter((x) => x.key !== "lactatePyruvate").map((x) =>
         <label key={x.key} className="text-[11px]">{x.label} <span className="text-muted-foreground">({x.unit})</span>
           <Input inputMode="decimal" placeholder={String(last.values[x.key])} value={draft[x.key] ?? ""} onChange={(e) => setDraft({ ...draft, [x.key]: e.target.value })} className="mt-0.5 h-8" /></label>)}
@@ -140,8 +146,9 @@ function TimelinePage() {
           <Input inputMode="decimal" placeholder={last.h2o2Nm !== undefined ? String(last.h2o2Nm) : "Not measured"} value={draft["h2o2Nm"] ?? ""} onChange={(e) => setDraft({ ...draft, h2o2Nm: e.target.value })} className="mt-0.5 h-8" /></label></div>
       <h3 className="mt-3 text-xs font-semibold">Selected therapies and model doses (slider moves only, never drug doses)</h3>
       <div className="mt-1 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">{therapies.map((t) =>
-        <div key={t.id} className="flex items-center gap-2 text-[11px]"><label className="flex flex-1 items-center gap-2"><Checkbox checked={picked.includes(t.id)} onCheckedChange={(c) => setPicked(c ? [...picked, t.id] : picked.filter((x) => x !== t.id))} />{t.name}</label>
-          {picked.includes(t.id) && <select aria-label={`${t.name} model dose`} className="rounded border border-input bg-background px-1 py-0.5" value={doses[t.id] ?? 1} onChange={(e) => setDoses({ ...doses, [t.id]: Number(e.target.value) })}>{[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((d) => <option key={d} value={d}>{d}x</option>)}</select>}</div>)}</div>
+        <div key={t.id} className="flex flex-wrap items-center gap-2 text-[11px]"><label className="flex flex-1 items-center gap-2"><Checkbox checked={picked.includes(t.id)} onCheckedChange={(c) => setPicked(c ? [...picked, t.id] : picked.filter((x) => x !== t.id))} />{t.name}</label>
+          {picked.includes(t.id) && <select aria-label={`${t.name} model dose`} className="rounded border border-input bg-background px-1 py-0.5" value={doses[t.id] ?? 1} onChange={(e) => setDoses({ ...doses, [t.id]: Number(e.target.value) })}>{[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((d) => <option key={d} value={d}>{d}x</option>)}</select>}
+          {kind === "real" && picked.includes(t.id) && <Input aria-label={`${t.name} actual dose`} data-testid={`tl-actual-${t.id}`} className="h-7 w-full" placeholder={`Actual dose, e.g. ${t.clinicalDose}`} value={actual[t.id] ?? ""} onChange={(e) => setActual({ ...actual, [t.id]: e.target.value })} />}</div>)}</div>
       <Button size="sm" className="mt-3" onClick={save} disabled={!date}>Add visit</Button>
     </section>
 

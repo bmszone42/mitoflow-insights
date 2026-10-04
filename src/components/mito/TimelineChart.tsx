@@ -1,6 +1,6 @@
-import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-export type TimelineChartPoint = { date: string; value: number | null; top: number };
+export type TimelineChartPoint = { date: string; value: number | null; top: number; real: number | null; plan: number | null };
 
 export default function TimelineChart({ chart, mLabel, isH2o2, isMitosox }: { chart: TimelineChartPoint[]; mLabel: string; isH2o2: boolean; isMitosox: boolean }) {
   return <div className="h-56"><ResponsiveContainer width="100%" height="100%"><LineChart data={chart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -9,10 +9,13 @@ export default function TimelineChart({ chart, mLabel, isH2o2, isMitosox }: { ch
     <YAxis yAxisId="v" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} width={40} />
     <YAxis yAxisId="s" orientation="right" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} width={30} />
     <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", fontSize: 11 }} />
+    <Legend wrapperStyle={{ fontSize: 10 }} />
     {isH2o2 && <ReferenceLine yAxisId="v" y={100} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "100 nM", fontSize: 9, fill: "var(--destructive)" }} />}
     {isMitosox && <ReferenceLine yAxisId="v" y={1.5} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "1.5x", fontSize: 9, fill: "var(--destructive)" }} />}
     {isMitosox && <ReferenceLine yAxisId="v" y={0.59} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "0.59x", fontSize: 9, fill: "var(--destructive)" }} />}
     <Line yAxisId="v" dataKey="value" name={mLabel} stroke="var(--primary)" strokeWidth={2} dot connectNulls={false} />
+    <Line yAxisId="v" dataKey="real" name="Real-world visit" stroke="none" dot={{ r: 5, fill: "var(--primary)", stroke: "var(--background)", strokeWidth: 2 }} isAnimationActive={false} legendType="circle" />
+    <Line yAxisId="v" dataKey="plan" name="Plan row" stroke="none" dot={{ r: 5, fill: "var(--background)", stroke: "var(--muted-foreground)", strokeWidth: 2, strokeDasharray: "2 2" }} isAnimationActive={false} legendType="circle" />
     <Line yAxisId="s" dataKey="top" name="Top mechanism score" stroke="var(--muted-foreground)" strokeDasharray="4 3" dot={false} />
   </LineChart></ResponsiveContainer></div>;
 }
