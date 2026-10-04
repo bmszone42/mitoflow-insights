@@ -53,6 +53,24 @@ export function OaaSupplyExplorer({ inputs, geo, out }: { inputs: Inputs; geo: G
           {rows.map((r) => <tr key={r.k}><td className="py-1">{r.k}</td><td className="font-mono">{r.a.toFixed(r.d)}</td><td className="font-mono">{r.b.toFixed(r.d)}</td><td className="font-mono">{pct(r.b, r.a) >= 0 ? "+" : ""}{pct(r.b, r.a).toFixed(1)}%</td></tr>)}
         </tbody>
       </table>
+      <div className="mt-3 h-44" data-testid="oaa-chart">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={curve} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+            <XAxis dataKey="oaa" tickFormatter={(v: number) => `${v.toFixed(1)}x`} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+            <YAxis yAxisId="atp" tick={{ fontSize: 10 }} className="fill-muted-foreground" width={44} />
+            <YAxis yAxisId="so" orientation="right" tick={{ fontSize: 10 }} className="fill-muted-foreground" width={44} />
+            <Tooltip
+              formatter={(value: number, name: string) => [name === "atp" ? `${value.toFixed(1)} µM/s` : value.toFixed(3), name === "atp" ? "ATP flux" : "Superoxide"]}
+              labelFormatter={(v: number) => `OAA supply ${Number(v).toFixed(1)}x`}
+            />
+            <Line yAxisId="atp" type="monotone" dataKey="atp" stroke="var(--primary)" dot={false} strokeWidth={2} name="atp" />
+            <Line yAxisId="so" type="monotone" dataKey="so" stroke="var(--destructive)" dot={false} strokeWidth={2} name="so" />
+            <ReferenceDot yAxisId="atp" x={Math.round(oaa * 10) / 10} y={x.atpFlux} r={4} fill="var(--primary)" stroke="none" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <p className="mt-1 text-[11px] text-muted-foreground">ATP flux (left axis) and superoxide (right axis) across the full 0 to 2x range; the dot marks the current lever setting.</p>
     </div>
   );
 }
