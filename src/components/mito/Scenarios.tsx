@@ -81,6 +81,16 @@ export function Scenarios({
     onChanged?.();
   };
 
+  // Each scenario carries its own ROS-induced ROS release strength (assumed setting),
+  // so loading it never falls back to whatever the Simulator currently shows.
+  const setStrength = async (s: Scenario, value: number) => {
+    const updated: Scenario = { ...s, inputs: { ...s.inputs, rirrStrength: value }, updatedAt: Date.now() };
+    await putScenario(updated);
+    if (s.id === activeId) onLoad(updated);
+    refresh();
+    onChanged?.();
+  };
+
   const remove = async (s: Scenario) => {
     if (!window.confirm(`Delete ${s.name}?`)) return;
     await deleteScenario(s.id);
