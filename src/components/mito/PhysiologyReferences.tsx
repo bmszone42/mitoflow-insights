@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { ExternalLink, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { studyReferences, studySections, unresolvedModelCitations } from "@/lib/mito/studyReferences";
-import { etcSteps } from "@/lib/mito/reference";
+import { etcSteps, mitoCarriers } from "@/lib/mito/reference";
 import { modelSettingRows } from "@/lib/mito/settingsReference";
 import { patientMetrics } from "@/lib/mito/patientReference";
 import { defaultGeometry, defaultInputs } from "@/lib/mito/model";
@@ -24,6 +24,7 @@ modelSettingRows(defaultInputs, defaultGeometry).forEach((row) => addUse(row.url
 patientMetrics.forEach((row) => addUse(row.sourceUrl, row.label));
 addUse("https://doi.org/10.3390/jcm12103560", "Platelet aconitase and Fe-S assay proxy");
 addUse("https://doi.org/10.1016/j.bbabio.2004.09.004", "Published P/O check");
+addUse("https://doi.org/10.1126/science.adz4797", "SLC25A34 oxaloacetate carrier");
 
 export function PhysiologyReferences() {
   const [query, setQuery] = useState("");
@@ -63,6 +64,12 @@ export function PhysiologyReferences() {
         </div>
       </div>;
     })}
+    <div className="space-y-2" data-testid="mito-carriers">
+      <h3 className="border-b border-border pb-2 text-sm font-semibold">Mitochondrial carriers (SLC25)</h3>
+      <div className="overflow-x-auto"><table className="w-full text-xs"><thead><tr className="text-left text-muted-foreground"><th className="py-1 pr-4">Gene</th><th className="pr-4">Carrier</th><th className="pr-4">Cargo</th><th className="pr-4">Model link</th><th>Source</th></tr></thead>
+      <tbody className="divide-y divide-border">{mitoCarriers.map((c) => <tr key={c.gene}><td className="py-2 pr-4 font-mono">{c.gene}</td><td className="pr-4">{c.name}</td><td className="pr-4">{c.cargo}</td><td className="pr-4 text-muted-foreground">{c.modelLink}</td><td>{c.sourceUrl ? <a href={c.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline">DOI</a> : <span className="text-muted-foreground">Textbook</span>}</td></tr>)}</tbody></table></div>
+      <p className="text-xs text-muted-foreground">Qualitative: neither carrier is a slider, and the SLC25A34 adipocyte findings are not transferred as a rate.</p>
+    </div>
     {filtered.length === 0 && <p className="py-6 text-sm text-muted-foreground">No studies match your search.</p>}
     <div className="border-t border-border pt-4">
       <h3 className="text-sm font-semibold">Additional source notes needing verification</h3>
