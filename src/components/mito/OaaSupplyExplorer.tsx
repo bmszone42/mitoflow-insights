@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
+import { CartesianGrid, Line, LineChart, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 
 /*
