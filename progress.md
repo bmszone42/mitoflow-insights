@@ -22,3 +22,8 @@
 - Each therapy in treatment.ts gains a clinicalDose field: the published clinical or trial dose the 1x model dose is anchored to (e.g. MitoQ 20-40 mg/day, deferiprone 75-100 mg/kg/day, NAC 600-1800 mg/day; research-only levers say so).
 - Therapy plan table gains a "Real-world dose (1x anchor)" column; at doses other than 1x a note says the model dose scales the slider move only, not this dose. CSV gains the same column and footer wording.
 - Page note: the link between model lever and literature is illustrative, never a dosing guide. Verified live (1x and 2x), no page errors; typecheck clean.
+
+## Therapy plan dose-source links (2026-10-04) ✅
+- Each therapy in treatment.ts gains an optional doseSource { text, url }: the label, fact sheet or trial listing behind its real-world dose anchor (Ferriprox/Exjade EMA labels, DailyMed for deferoxamine and methylene blue, ClinicalTrials.gov searches for trial-dose compounds, NIH ODS fact sheets for CoQ10/riboflavin/selenium/vitamin E, MedlinePlus for oxygen therapy, Hamblin 2017 for PBM). Therapies with no clinical dose (mild uncoupling, nitric oxide reduction, mitochondria-targeted chelator) get none.
+- Therapy plan table: each real-world dose anchor shows its source as a link (data-testid plan-dose-source-<id>); CSV gains a "Dose source" column with the source name and URL. Footer note says links are informational only.
+- Every URL checked live before adding (one 404 found and replaced). Verified in the browser: 85 source links render across the 18 profiles, CSV header and rows carry the new column, no page errors; typecheck and build clean.
