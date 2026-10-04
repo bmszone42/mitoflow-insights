@@ -172,7 +172,7 @@ export const ironLightReferenceBands = {
 // SLC25 inner-membrane carriers the model names. Qualitative only: no carrier is a slider and no rate is transferred.
 export const mitoCarriers = [
   { gene: "SLC25A37 / SLC25A28", name: "Mitoferrin-1 / -2", cargo: "Fe2+ into the matrix", modelLink: "Labile iron and Fe-S assembly supply", sourceUrl: "" },
-  { gene: "SLC25A34", name: "Oxaloacetate carrier", cargo: "Oxaloacetate into the matrix (anaplerosis)", modelLink: "Not modeled; TCA carbon supply is folded into the NADH ratio and fuel supply", sourceUrl: "https://doi.org/10.1126/science.adz4797" },
+  { gene: "SLC25A34", name: "Oxaloacetate carrier", cargo: "Oxaloacetate into the matrix (anaplerosis)", modelLink: "Not modeled; TCA carbon supply is folded into the NADH ratio and fuel supply", sourceUrl: "https://doi.org/10.1126/science.adz4797", sourceLabel: "Karavaeva et al., Science 394(6819), eadz4797 (2026)" },
 ] as const;
 
 export const ironSteps = [
