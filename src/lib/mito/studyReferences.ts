@@ -394,7 +394,7 @@ export const studyReferences: StudyReference[] = [
     section: "ATP and respiratory controls",
     locator: "Perspective; five-level terminology (cell-dependent properties, molecular features, activities, functions, behaviors)",
   },
-] satisfies StudyReference[  {
+  {
     doi: "10.1038/nature04512",
     authors: "Shaw GC, Cope JJ, Li L, et al.",
     title: "Mitoferrin is essential for erythroid iron assimilation",
@@ -449,7 +449,7 @@ export const studyReferences: StudyReference[] = [
     section: "ATP and respiratory controls",
     locator: "UCP1 proton leak in brown fat; no transferable rate",
   },
-];
+] satisfies StudyReference[];
 
 export const studySections = ["ETC energetics", "ATP and respiratory controls", "ROS, iron and assays", "Light and ferroptosis", "Cristae and membrane geometry"] as const;
 
