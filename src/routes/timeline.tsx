@@ -37,7 +37,10 @@ function TimelinePage() {
   const all = useMemo(() => [...users, ...demoPatients], [users]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const p = all.find((x) => x.id === id) ?? all[0]!;
-  const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v), r: visitReadouts(p, v), pj: visitProjection(p, v) })), [p, visits]);
+  // Projected-flag therapy pick: "visit" uses each visit's own therapies; a therapy id pins the Diagnosis projection, matching the dashboard's Batch therapy choice.
+  const [projTherapy, setProjTherapy] = useState("visit");
+  const onlyId = projTherapy === "visit" ? undefined : projTherapy;
+  const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v) })), [p, visits, onlyId]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
   const isH2o2 = metric === "h2o2Nm";
   const isMitosox = metric === "mitosox";
