@@ -301,13 +301,17 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // 2-oxoglutarate dehydrogenase (DLD flavin), NADH driven; ~40% leaves as O2•-, 60% as H2O2.
   const vOGDHtotal = 0.0012 * fluxCI * i.nadhRatio ** 2 * o2Term * pr.flavinLeak;
   const vOGDH = 0.4 * vOGDHtotal;
-  const vMatrixO2 = vIF + vIQ + 0.5 * vIIIQo + vIIF + vOGDH;
-  const vImsO2 = 0.5 * vIIIQo;
+  // ROS-induced ROS release (Zorov 2014): weak thiol defenses let oxidized
+  // Complex I/III leak more. Model tuning exponent; 1x capacity = no change.
+  const REDOX_FEEDBACK_EXP = 0.5;
+  const redoxFb = i.antioxidantCapacity ** -REDOX_FEEDBACK_EXP;
+  const vMatrixO2 = redoxFb * (vIF + vIQ + 0.5 * vIIIQo + vIIF + vOGDH);
+  const vImsO2 = redoxFb * 0.5 * vIIIQo;
 
   // Matrix sinks: SOD2 (2.3e9 M-1 s-1 x 10 µM), NO (1e10 M-1 s-1), aconitase [4Fe-4S] (1e7 M-1 s-1 x ~6 µM).
   // SOD_AC_EXP: how strongly antioxidant capacity scales SOD clearance. Model tuning
   // choice (no tissue-general published value); 1x capacity is unaffected by it.
-  const SOD_AC_EXP = 0.8;
+  const SOD_AC_EXP = 1.0;
   const kSod = 1e4 * i.antioxidantCapacity ** SOD_AC_EXP; // s-1
   const kNoO2 = 1e4 * (noEff / 1000); // s-1
   const kAconSink = 10 * 6; // s-1
