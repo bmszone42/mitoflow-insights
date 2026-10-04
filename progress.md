@@ -82,3 +82,7 @@
 - [x] Logging wired into the Dashboard sweep, Therapy tools (calculator = full dose sweep, comparison = the picked pair) and Therapy plan.
 - [x] Exact repeats are deduped and marked "repeated" with a run count; Clear log button wipes the log.
 - [x] Verified live: 21 combinations across 18 profiles logged, repeat of the calculator run flagged, no page errors.
+
+## Run locally guide (2026-10-04) ✅
+- [x] README gained a "Run locally (fully offline)" section: bun install, bun run dev, no .env needed; production build steps; data-stays-local notes.
+- [x] `.env.example` documents the two optional values (LOVABLE_API_KEY for AI buttons, cloud keys only if cloud features are re-enabled); neither is required offline.
