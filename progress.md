@@ -34,3 +34,4 @@
 - Therapy calculator: info section shows "Real-world dose anchor (1x)" with the clinical dose and its doseSource link (data-testid calc-dose-anchor, calc-dose-source-<id>), plus the "model dose scales the slider move only, not this dose" note.
 - Therapy comparison: each therapy card shows the same anchor and source link (cmp-dose-anchor-<id>, cmp-dose-source-<id>); both CSV scopes (this profile / all profiles) gained the dose anchor text, the dose source name and URL, and an illustrative-not-dosing-guide footer line; the this-profile CSV keeps note and evidence.
 - Verified live: anchors render for MitoQ and NR with working links, uncoupling shows no source link, CSV rows carry anchor and source, no page errors. AGENTS.md rule updated to cover all three pages.
+- [x] ✅ Real-world visit type on Timeline (actual labs and doses, shown as filled points beside plan rows on the chart)
