@@ -305,12 +305,15 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const vImsO2 = 0.5 * vIIIQo;
 
   // Matrix sinks: SOD2 (2.3e9 M-1 s-1 x 10 µM), NO (1e10 M-1 s-1), aconitase [4Fe-4S] (1e7 M-1 s-1 x ~6 µM).
-  const kSod = 1e4 * i.antioxidantCapacity ** 0.3; // s-1
+  // SOD_AC_EXP: how strongly antioxidant capacity scales SOD clearance. Model tuning
+  // choice (no tissue-general published value); 1x capacity is unaffected by it.
+  const SOD_AC_EXP = 0.8;
+  const kSod = 1e4 * i.antioxidantCapacity ** SOD_AC_EXP; // s-1
   const kNoO2 = 1e4 * (noEff / 1000); // s-1
   const kAconSink = 10 * 6; // s-1
   const superoxideM = vMatrixO2 / (kSod + kNoO2 + kAconSink); // µM
   // IMS sinks: SOD1 and cytochrome c reoxidation.
-  const kSod1 = 5e3 * i.antioxidantCapacity ** 0.3;
+  const kSod1 = 5e3 * i.antioxidantCapacity ** SOD_AC_EXP;
   const superoxideIMS = vImsO2 / (kSod1 + 2e3 + kNoO2);
 
   // --- H2O2: sources and reduced-Prx3-dependent clearance ---
