@@ -120,3 +120,5 @@
 - ❌ Published mitophagy rate to replace the invented curve
 - [x] OAA explorer chart: dashed 'healthy' reference line at the healthy-adult superoxide level (defaultInputs/defaultGeometry), so ROS high vs low is visible at a glance; caption updated.
 - ✅ Progress page: Not yet run grid (therapy x model dose per profile, missing count, hide fully run)
+
+- ✅ Progress page "Run missing" button: simulates the next unrun therapy and dose for the chosen profile, shows ATP/superoxide/peroxide change, logs it
