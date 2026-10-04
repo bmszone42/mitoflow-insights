@@ -58,10 +58,13 @@ function Dashboard() {
   const [showBaselineChart, setShowBaselineChart] = useState(false);
   // Batch CSV therapy filter: "all" exports every responding therapy; a therapy id exports just that one across every profile.
   const [batchTherapy, setBatchTherapy] = useState("all");
-  const rows = useMemo(() => {
+  // Heavy memo: every per-profile simulation and the 20-therapy sweep. Keyed only on
+  // users, dose and batchTherapy, so toggling readoutOnly never re-runs it.
+  const simulated = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
     const built = pool.map((p) => {
+
       const out = simulate(profileInputs(p), defaultGeometry);
       const d = diagnoseProfile(p);
       const hb = h2o2BandCheck(p, out.hydrogenPeroxide);
