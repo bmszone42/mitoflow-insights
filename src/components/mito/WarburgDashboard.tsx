@@ -93,7 +93,6 @@ export function WarburgDashboard({
 
   return (
     <div className="space-y-4" data-testid="warburg-dashboard">
-      <OaaSupplyExplorer inputs={inputs} geo={geo} out={out} />
       <div className="rounded-lg border border-border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -116,6 +115,9 @@ export function WarburgDashboard({
           <Stat label="Glycolysis ATP" value={`${live.glycolysis.toFixed(1)} µM/s`} />
           <Stat label="Glycolysis share" value={`${live.glycolysisPct.toFixed(0)}%`} />
           <Stat label="NADH / succinate" value={`${inputs.nadhRatio.toFixed(2)} / ${inputs.succinate.toFixed(2)}`} />
+        </div>
+        <div className="mt-4">
+          <OaaSupplyExplorer inputs={inputs} geo={geo} out={out} />
         </div>
       </div>
 

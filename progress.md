@@ -103,3 +103,7 @@
 ## Oxaloacetate slider on the Simulator (2026-10-04)
 - [x] MADE-UP OAA supply slider added to the Simulator's fuel presets area (SliderPanel, data-testid sim-oaa); moving it scales the NADH / NAD+ pool slider by the invented saturating curve from OaaSupplyExplorer.
 - [x] Verified live: slider renders at 1x and moves to 1.5x; build and typecheck clean.
+
+## OAA slider as a visible Warburg control (2026-10-04)
+- [x] OaaSupplyExplorer moved inside the Warburg dashboard control card, next to the fuel presets (was a separate card above).
+- [x] Ran the lever on the Leigh syndrome baseline visit (2026-01-15): ATP 60.8 -> 48.8 uM/s at 0.5x (-19.8%), 70.5 at 2x (+15.8%); superoxide changes are percent noise on a 0.01 nM baseline.
