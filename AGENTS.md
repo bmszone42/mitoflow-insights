@@ -28,7 +28,7 @@
 - Local-only build: no auth UI, no cloud sync; scenarios persist in IndexedDB via src/lib/mito/scenarios.ts and AI replies in localStorage. Why: single user running the app on their own machine.
 - Therapy UI is consolidated: /therapy-tools holds the dose calculator and comparison as tabs, /therapy-plan holds flagged therapies plus the per-cause plan; old routes only redirect. Why: five overlapping therapy routes confused navigation.
 - Run logging for the Scenario progress page goes through recordRun in src/lib/mito/runs.ts (IndexedDB "cristae-lab-runs", dedupe key patient|source|dose|therapies); any new page that runs therapy simulations must call it. Why: the progress page only stays truthful if every simulation site logs.
-- Exploratory made-up levers (e.g. OaaSupplyExplorer) stay local component state, are labeled MADE-UP, and never enter Inputs, flags or scenarios; why: keeps cited model outputs clean.
+- Exploratory levers (made-up, or dose-anchored via src/lib/mito/doseAnchors.ts with trial doses and an assumed effect size) stay local component state, are labeled as such, and never enter Inputs, flags or scenarios; why: keeps cited model outputs clean.
 - Every study reference gets a synopsis and 0-100 score in src/lib/mito/referenceLibrary.ts keyed by DOI; the /references page reads it. Why: one scored library for all sources.
 - Carrier efficiency levers live in src/lib/mito/carriers.ts (applyCarriers maps 0-2x rates onto existing Inputs, clamped by inputRanges) and stay local to /carriers; why: made-up rates must never reach flags, scenarios or Diagnosis.
 - The made-up mitophagy lever lives in src/lib/mito/mitophagy.ts and MitophagyExplorer on the Simulator, local state only; why: behaviors-level exploration must not alter cited outputs.
