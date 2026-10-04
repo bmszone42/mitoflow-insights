@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 import { putScenario, type Scenario } from "@/lib/mito/scenarios";
 import { snapshotOf } from "./Scenarios";
-import { oaaFactor } from "./OaaSupplyExplorer";
+import { doseAnchors, doseToFactor } from "@/lib/mito/doseAnchors";
+import { DoseAnchorNote, DoseBadge } from "./DoseAnchorNote";
 
 // Left column of the Simulator: therapy levers, drug and combo presets, and every model slider.
 type ControlDef = {
@@ -233,13 +234,11 @@ export function SliderPanel({
   // Apply a preset and save the result as a named scenario so presets can be
   // compared side by side in the Compare tab.
   const [activeTherapy, setActiveTherapy] = useState<string | null>(null);
-  // MADE-UP exploratory lever: oxaloacetate supply scales the NADH pool by the
-  // invented curve in OaaSupplyExplorer. Moving it patches the real NADH slider
-  // by the ratio of the new to the previous factor, so it stays in sync with
-  // the fuel presets. It is labeled made-up and never stored separately.
-  const [oaa, setOaa] = useState(1);
+  // Dose-anchored oxaloacetate lever (trial doses, assumed effect size): moving it
+  // patches the real NADH slider by the ratio of the new to the previous factor.
+  const [oaa, setOaa] = useState(0);
   const applyOaa = (next: number) => {
-    const ratio = oaaFactor(next) / oaaFactor(oaa);
+    const ratio = doseToFactor(doseAnchors.oaa, next) / doseToFactor(doseAnchors.oaa, oaa);
     setOaa(next);
     set("nadhRatio", Math.min(1, Math.max(0, inputs.nadhRatio * ratio)));
   };
@@ -356,16 +355,14 @@ export function SliderPanel({
         </div>
         <div className="space-y-1.5 rounded-md border border-dashed border-border p-3" data-testid="sim-oaa">
           <div className="flex items-center justify-between gap-2">
-            <div className="mono-label">Oxaloacetate supply (fuel presets)</div>
-            <span className="rounded bg-muted px-2 py-0.5 font-mono text-[11px] text-muted-foreground">MADE-UP, unvalidated</span>
+            <div className="mono-label">{doseAnchors.oaa.label} (fuel presets)</div>
+            <DoseBadge />
           </div>
           <div className="flex items-center gap-3">
-            <span className="w-32 text-xs">OAA supply: <span className="font-mono">{oaa.toFixed(2)}x</span></span>
-            <Slider aria-label="Oxaloacetate supply (made-up)" min={0} max={2} step={0.05} value={[oaa]} onValueChange={(v) => applyOaa(v[0] ?? 1)} className="max-w-xs" />
+            <span className="w-28 text-xs">Dose: <span className="font-mono">{oaa.toFixed(1)} {doseAnchors.oaa.unit}</span></span>
+            <Slider aria-label="Oxaloacetate dose" min={0} max={doseAnchors.oaa.maxDose} step={doseAnchors.oaa.step} value={[oaa]} onValueChange={(v) => applyOaa(v[0] ?? 0)} className="max-w-xs" />
           </div>
-          <p className="text-[11px] text-muted-foreground">
-            Invented lever inspired by the SLC25A34 oxaloacetate carrier (Karavaeva 2026, adipocytes). Moving it scales the NADH / NAD+ pool slider above by a made-up saturating curve; 1x leaves it unchanged. No published flux backs the curve.
-          </p>
+          <DoseAnchorNote a={doseAnchors.oaa} />
         </div>
         {groups.map((g) => (
           <div key={g.id} className="space-y-4">
