@@ -131,3 +131,4 @@
 
 - ✅ Profile sensitivity card: ROS-induced ROS release, half-life and antioxidant capacity effects on superoxide, ATP and free iron for all 18 profiles, sweep chart, CSV
 - ✅ Dashboard superoxide "Defences only" gap: same potential, labile iron and L:P held at healthy
+- ✅ Diagnosis model flags now include "Superoxide high, defences only": the same matched comparison as the Dashboard's Defences-only line (healthy demo-01 baseline re-run at the profile's membrane potential, with and without the profile's antioxidant capacity). 16 of 18 profiles flag; demo-01 and demo-02 do not. The flag also supports the Oxidant load mechanism score.
