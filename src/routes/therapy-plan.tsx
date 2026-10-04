@@ -40,7 +40,7 @@ function TherapyPlan() {
   const groups = useMemo(() => pool.filter((p) => id === "all" || p.id === id).map((p) => ({ p, rows: therapyPlanRows(p, dose) })), [pool, id, dose]);
   // Log each profile's flagged-therapy plan to the local run log (Scenario progress page).
   useEffect(() => {
-    for (const g of groups) if (g.rows.length) recordRun(g.p.id, "plan", dose, g.rows.map((r) => r.t.id));
+    for (const g of groups) if (g.rows.length) recordRun(g.p.id, "plan", dose, g.rows.map((r) => r.t.id), profileInputs(g.p).rirrStrength);
   }, [groups, dose]);
 
   const csv = () => {

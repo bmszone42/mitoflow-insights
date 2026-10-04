@@ -119,7 +119,7 @@ function Dashboard() {
   // Light memo: display filtering only (readoutOnly checkbox), no simulations.
   // Log each profile's therapy sweep to the local run log (Scenario progress page).
   useEffect(() => {
-    for (const r of simulated) recordRun(r.p.id, "dashboard", dose, therapies.map((t) => t.id));
+    for (const r of simulated) recordRun(r.p.id, "dashboard", dose, therapies.map((t) => t.id), profileInputs(r.p).rirrStrength);
   }, [simulated, dose]);
 
   const rows = useMemo(() => simulated.map((r) => ({

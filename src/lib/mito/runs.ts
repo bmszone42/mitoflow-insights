@@ -12,6 +12,7 @@ export type RunRecord = {
   therapyIds: string[];
   at: number;
   count: number; // how many times this exact combination ran
+  rirrStrength?: number; // ROS-induced ROS release strength in effect for the run (assumed setting)
 };
 
 let dbp: Promise<IDBPDatabase> | null = null;
@@ -29,12 +30,12 @@ const keyOf = (patientId: string, source: RunSource, dose: number, therapyIds: s
   `${patientId}|${source}|${dose}|${[...therapyIds].sort().join("+")}`;
 
 // Fire-and-forget; never throws into the UI.
-export async function recordRun(patientId: string, source: RunSource, dose: number, therapyIds: string[]) {
+export async function recordRun(patientId: string, source: RunSource, dose: number, therapyIds: string[], rirrStrength?: number) {
   try {
     const id = keyOf(patientId, source, dose, therapyIds);
     const store = (await db()).transaction("runs", "readwrite").objectStore("runs");
     const prev = (await store.get(id)) as RunRecord | undefined;
-    await store.put({ id, patientId, source, dose, therapyIds: [...therapyIds].sort(), at: Date.now(), count: (prev?.count ?? 0) + 1 } satisfies RunRecord);
+    await store.put({ id, patientId, source, dose, therapyIds: [...therapyIds].sort(), at: Date.now(), count: (prev?.count ?? 0) + 1, ...(rirrStrength != null ? { rirrStrength } : {}) } satisfies RunRecord);
   } catch {
     // storage unavailable; ignore
   }
