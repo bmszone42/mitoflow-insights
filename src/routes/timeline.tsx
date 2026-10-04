@@ -62,7 +62,7 @@ function TimelinePage() {
   const mLabel = sim ? sim.label : isH2o2 ? "Hydrogen peroxide (measured)" : m!.label;
   const mUnit = sim ? sim.unit : isH2o2 ? "nM" : m!.unit;
   const cell = (v: (typeof timeline)[number]["v"], r: (typeof timeline)[number]["r"]): number | null => sim ? r[sim.r] : isH2o2 ? (v.h2o2Nm ?? null) : v.values[metric as PatientMetricKey];
-  const chart = timeline.map(({ v, d, r }) => { const value = cell(v, r); return { date: v.date, value, top: d.causes[0]!.score, real: v.origin === "real" ? value : null, plan: v.origin === "plan" ? value : null }; });
+  const chart = useMemo(() => timeline.map(({ v, d, r }) => { const value = cell(v, r); return { date: v.date, value, top: d.causes[0]!.score, real: v.origin === "real" ? value : null, plan: v.origin === "plan" ? value : null }; }), [timeline, metric]);
 
   const last = timeline[timeline.length - 1]!.v;
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
