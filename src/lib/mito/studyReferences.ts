@@ -395,6 +395,17 @@ export const studyReferences: StudyReference[] = [
     locator: "Perspective; five-level terminology (cell-dependent properties, molecular features, activities, functions, behaviors)",
   },
   {
+    doi: "10.1152/physrev.00026.2013",
+    authors: "Zorov DB, Juhaszova M, Sollott SJ",
+    title: "Mitochondrial Reactive Oxygen Species (ROS) and ROS-Induced ROS Release",
+    journal: "Physiological Reviews 94(3)",
+    year: 2014,
+    location: "pp. 909-950",
+    url: "https://doi.org/10.1152/physrev.00026.2013",
+    section: "ROS sources and sinks",
+    locator: "ROS-induced ROS release; redox feedback amplifying ETC superoxide when defenses fail",
+  },
+  {
     doi: "10.1002/alz.12156",
     authors: "Vidoni ED, Choi IY, Lee P, Reed G, et al. (senior: Swerdlow RH)",
     title: "Safety and target engagement profile of two oxaloacetate doses in Alzheimer's patients",
