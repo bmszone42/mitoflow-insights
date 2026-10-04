@@ -69,10 +69,20 @@ export function OaaSupplyExplorer({ inputs, geo, out }: { inputs: Inputs; geo: G
             <Line yAxisId="atp" type="monotone" dataKey="atp" stroke="var(--primary)" dot={false} strokeWidth={2} name="atp" />
             <Line yAxisId="so" type="monotone" dataKey="so" stroke="var(--destructive)" dot={false} strokeWidth={2} name="so" />
             <ReferenceDot yAxisId="atp" x={Math.round(oaa * 10) / 10} y={x.atpFlux} r={4} fill="var(--primary)" stroke="none" />
+            <ReferenceLine
+              yAxisId="so"
+              y={healthySo}
+              stroke="var(--muted-foreground)"
+              strokeDasharray="4 4"
+              label={{ value: `healthy ${healthySo.toFixed(3)} nM`, position: "insideTopRight", fontSize: 9, fill: "var(--muted-foreground)" }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <p className="mt-1 text-[11px] text-muted-foreground">ATP flux (left axis) and superoxide (right axis) across the full 0 to 2x range; the dot marks the current lever setting.</p>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        ATP flux (left axis) and superoxide (right axis) across the full 0 to 2x range; the dot marks the current lever setting.
+        The dashed line is the healthy-adult superoxide level: if the red curve sits above it, ROS is high for this profile.
+      </p>
     </div>
   );
 }
