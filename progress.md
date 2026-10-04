@@ -29,3 +29,8 @@
 - Every URL checked live before adding (one 404 found and replaced). Verified in the browser: 85 source links render across the 18 profiles, CSV header and rows carry the new column, no page errors; typecheck and build clean.
 
 - [x] Timeline: Convert to visit button on plan rows copies date, therapies and model doses into the Add a visit form; the saved visit shows projected flag clearance on the table and chart (verified live on Leigh syndrome: antioxidant 1x, MitoSOX 1.32x to 1.12x, within band).
+
+## Dose anchor on calculator and comparison (2026-10-04) ✅
+- Therapy calculator: info section shows "Real-world dose anchor (1x)" with the clinical dose and its doseSource link (data-testid calc-dose-anchor, calc-dose-source-<id>), plus the "model dose scales the slider move only, not this dose" note.
+- Therapy comparison: each therapy card shows the same anchor and source link (cmp-dose-anchor-<id>, cmp-dose-source-<id>); both CSV scopes (this profile / all profiles) gained the dose anchor text, the dose source name and URL, and an illustrative-not-dosing-guide footer line; the this-profile CSV keeps note and evidence.
+- Verified live: anchors render for MitoQ and NR with working links, uncoupling shows no source link, CSV rows carry anchor and source, no page errors. AGENTS.md rule updated to cover all three pages.
