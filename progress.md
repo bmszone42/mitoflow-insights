@@ -35,3 +35,9 @@
 - Therapy comparison: each therapy card shows the same anchor and source link (cmp-dose-anchor-<id>, cmp-dose-source-<id>); both CSV scopes (this profile / all profiles) gained the dose anchor text, the dose source name and URL, and an illustrative-not-dosing-guide footer line; the this-profile CSV keeps note and evidence.
 - Verified live: anchors render for MitoQ and NR with working links, uncoupling shows no source link, CSV rows carry anchor and source, no page errors. AGENTS.md rule updated to cover all three pages.
 - [x] ✅ Real-world visit type on Timeline (actual labs and doses, shown as filled points beside plan rows on the chart)
+
+## Single-therapy override on Diagnosis and Timeline (2026-10-04) ✅
+- diagnoseProfile and diagnoseAll take an optional onlyId, passed to bestProjectionTherapy, so the Projected flags pick can be pinned to one therapy.
+- Diagnosis page: Therapy picker beside Projected flags ("Strongest therapy" default, or any therapy), matching the dashboard's Batch therapy choice.
+- Timeline: "Projected flag therapy" picker; "Each visit's own therapies" keeps the per-visit projection, a picked therapy shows the Diagnosis projection for that therapy at 1x in every row.
+- Verified live: Leigh syndrome with the mitochondria-targeted antioxidant pinned shows MitoSOX 1.58x to 1.34x, flag clears, identically on Diagnosis, the dashboard (Batch therapy) and the Timeline. Build and typecheck clean.
