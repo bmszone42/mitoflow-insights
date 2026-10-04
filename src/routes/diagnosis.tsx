@@ -35,7 +35,9 @@ function DiagnosisPage() {
   const users = useUserPatients();
   // Model dose for the Therapy flags (fraction of each therapy's slider move; never a drug dose).
   const [dose, setDose] = useState(1);
-  const all = useMemo(() => diagnoseAll(users, dose), [users, dose]);
+  // Projected-flag therapy pick: "best" uses the strongest therapy; a therapy id pins it, matching the dashboard's Batch therapy choice.
+  const [projTherapy, setProjTherapy] = useState("best");
+  const all = useMemo(() => diagnoseAll(users, dose, projTherapy === "best" ? undefined : projTherapy), [users, dose, projTherapy]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
