@@ -33,7 +33,7 @@ export function OaaSupplyExplorer({ inputs, geo, out }: { inputs: Inputs; geo: G
       </p>
       <div className="mt-3 flex items-center gap-3">
         <span className="w-32 text-xs">OAA supply: <span className="font-mono">{oaa.toFixed(2)}x</span></span>
-        <Slider aria-label="Oxaloacetate supply (made-up)" min={0} max={2} step={0.05} value={[oaa]} onValueChange={(v) => setOaa(v[0])} className="max-w-xs" />
+        <Slider aria-label="Oxaloacetate supply (made-up)" min={0} max={2} step={0.05} value={[oaa]} onValueChange={(v) => setOaa(v[0] ?? 1)} className="max-w-xs" />
       </div>
       <table className="mt-3 w-full text-xs">
         <thead><tr className="text-left text-muted-foreground"><th className="py-1">Readout</th><th>Current</th><th>With OAA lever</th><th>Change</th></tr></thead>
