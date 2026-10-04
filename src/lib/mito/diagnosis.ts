@@ -134,7 +134,8 @@ export function diagnoseProfile(p: DemoPatient, dose = 1, onlyId?: string) {
     if (mech === "pyruvate" && supporting.length) { if (lp.dir === "high") conflicting.push(lpEv); else supporting.push({ ...lpEv, label: "Lactate:pyruvate ratio normal" }); }
     if (mech === "respiratory" && dirs.lactate.dir === "high" && lp.dir !== "high") conflicting.push({ ...lpEv, label: "Lactate:pyruvate ratio normal" });
     if (mech === "coupling" && atpModel) supporting.push(modelFlags[0]!);
-    if (mech === "oxidant" && rosModel) supporting.push(modelFlags[modelFlags.length - 1]!);
+    if (mech === "oxidant" && rosModel) supporting.push(modelFlags.find((f) => f.label.endsWith("ROS sources flagged"))!);
+    if (mech === "oxidant" && defGap > 0) supporting.push(modelFlags.find((f) => f.label.startsWith("Superoxide high, defences only"))!);
     const score = supporting.reduce((s, e) => s + evWeight(e), 0) - conflicting.reduce((s, e) => s + evWeight(e), 0);
     // ROS probe signals are nonspecific: any primary defect can raise them, so
     // oxidant load counts at half weight as a downstream signal.
