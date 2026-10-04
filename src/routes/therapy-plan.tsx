@@ -4,8 +4,10 @@ import { ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { demoPatients } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
-import { diagnoseAll, therapyPlanRows, type Diagnosed } from "@/lib/mito/diagnosis";
+import { diagnoseAll, diagnoseProfile, therapyPlanRows } from "@/lib/mito/diagnosis";
 import { buildPlan, modelDoses, profileInputs } from "@/lib/mito/treatment";
+
+type Diagnosed = ReturnType<typeof diagnoseProfile>;
 
 export const Route = createFileRoute("/therapy-plan")({
   head: () => ({ meta: [
