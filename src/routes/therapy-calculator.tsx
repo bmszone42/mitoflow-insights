@@ -60,6 +60,8 @@ function TherapyCalculator() {
 
     <section className="rounded-md border border-border p-3 text-sm">
       <p><span className="font-medium">Slider targets at 1x:</span> {therapy.moves.map(moveLabel).join("; ")}</p>
+      <p data-testid="calc-dose-anchor"><span className="font-medium">Real-world dose anchor (1x):</span> {therapy.clinicalDose}{therapy.doseSource && <a className="text-primary underline underline-offset-2" href={therapy.doseSource.url} target="_blank" rel="noopener noreferrer" data-testid={`calc-dose-source-${therapy.id}`}> {therapy.doseSource.text}</a>}</p>
+      <p className="text-xs text-muted-foreground">Model dose scales the slider move only, not this dose. The anchor is illustrative, never a dosing guide.</p>
       <p className="text-muted-foreground">{therapy.note} Evidence: {therapy.status}.</p>
     </section>
 
