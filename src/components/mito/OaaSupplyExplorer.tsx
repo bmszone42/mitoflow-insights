@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
-import { CartesianGrid, Line, LineChart, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
+import { CartesianGrid, Line, LineChart, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { defaultGeometry, defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 
 /*
  * MADE-UP exploratory lever. Oxaloacetate (OAA) supply, e.g. SLC25A34 import or
@@ -28,6 +28,8 @@ export function OaaSupplyExplorer({ inputs, geo, out }: { inputs: Inputs; geo: G
       }),
     [inputs, geo],
   );
+  // Healthy-adult superoxide baseline, for the "vs healthy" marker line.
+  const healthySo = useMemo(() => simulate(defaultInputs, defaultGeometry).superoxide, []);
   const rows = [
     { k: "NADH / NAD+ pool", a: inputs.nadhRatio, b: nadh, d: 2 },
     { k: "ATP flux (µM/s)", a: out.atpFlux, b: x.atpFlux, d: 1 },
