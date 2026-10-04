@@ -122,3 +122,4 @@
 - ✅ Progress page: Not yet run grid (therapy x model dose per profile, missing count, hide fully run)
 
 - ✅ Progress page "Run missing" button: simulates the next unrun therapy and dose for the chosen profile, shows ATP/superoxide/peroxide change, logs it
+- ✅ Antioxidant capacity weighs more in superoxide clearance (exponent 0.3 to 0.8); still no disease profile above healthy
