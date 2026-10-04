@@ -2,7 +2,7 @@ import { demoPatients, type DemoPatient } from "@/lib/mito/patientReference";
 import { profileInputs } from "@/lib/mito/treatment";
 import { inputRanges, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 
-export const profileSensKeys = ["rirrStrength", "mitoHalfLife", "antioxidantCapacity"] as const;
+export const profileSensKeys = ["rirrStrength", "mitoHalfLife", "antioxidantCapacity", "labileIron", "deltaPsi"] as const;
 export type ProfileSensKey = (typeof profileSensKeys)[number];
 export const profileSensOutputs = [
   { key: "superoxide", label: "Superoxide" },
@@ -14,6 +14,8 @@ export const shortLabel: Record<ProfileSensKey, string> = {
   rirrStrength: "ROS-induced ROS release (assumed)",
   mitoHalfLife: "Turnover half-life",
   antioxidantCapacity: "Antioxidant capacity",
+  labileIron: "Labile iron",
+  deltaPsi: "Membrane potential",
 };
 
 type Pct = Record<ProfileSensOut, number>;
