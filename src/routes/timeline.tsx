@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
-import { addVisit, addPlan, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { addVisit, addPlan, defencesOnlyGap, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
 
@@ -43,14 +43,14 @@ function TimelinePage() {
   // Per-visit simulation cache: a visit's diagnosis, readouts and projection
   // recompute only when that visit's content (labs, therapies, doses) or the
   // pinned projection therapy changes, not when other visits or form state do.
-  const simCache = useRef(new Map<string, { d: ReturnType<typeof diagnoseVisit>; r: ReturnType<typeof visitReadouts>; pj: ReturnType<typeof visitProjection> }>());
-  const timeline = useMemo(() => {
+  const simCache = useRef(new Map<string, { d: ReturnType<typeof diagnoseVisit>; r: ReturnType<typeof visitReadouts>; pj: ReturnType<typeof visitProjection>; gap: ReturnType<typeof defencesOnlyGap> }>());
+    const timeline = useMemo(() => {
     const cache = simCache.current;
     if (cache.size > 200) cache.clear();
     return patientTimeline(p, visits).map((v) => {
       const key = `${p.id}|${v.id}|${onlyId ?? ""}|${JSON.stringify([v.values, v.h2o2Nm, v.therapies, v.doses])}`;
       let e = cache.get(key);
-      if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v) }; cache.set(key, e); }
+      if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v), gap: defencesOnlyGap(p, v) }; cache.set(key, e); }
       return { v, ...e };
     });
   }, [p, visits, onlyId]);
@@ -129,8 +129,8 @@ function TimelinePage() {
 
     <section className="mt-4 overflow-x-auto">
       <table className="w-full min-w-[640px] text-xs" data-testid="timeline-table">
-        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>ATP (µM/s)</th><th>Superoxide (nM)</th><th>H2O2 sim (nM)</th><th>Therapies (model dose)</th><th>Projected flag</th><th /></tr></thead>
-        <tbody>{timeline.map(({ v, d, r, pj }) => {
+        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>ATP (µM/s)</th><th>Superoxide (nM)</th><th>Defences only</th><th>H2O2 sim (nM)</th><th>Therapies (model dose)</th><th>Projected flag</th><th /></tr></thead>
+        <tbody>{timeline.map(({ v, d, r, pj, gap }) => {
           const flags = d.patientFlags.length + d.rosAssayFlags.length + d.atpAssayFlags.length + d.modelFlags.length;
           return <tr key={v.id} className="border-t border-border align-top" data-testid="timeline-row">
             <td className="py-1.5 font-mono">{v.date}</td>
@@ -138,7 +138,12 @@ function TimelinePage() {
             <td className="tabular-nums">{sim ? fmt(r[sim.r]) : isH2o2 ? (v.h2o2Nm !== undefined ? <span className={v.h2o2Nm > 100 ? "text-destructive" : ""}>{v.h2o2Nm.toFixed(0)}</span> : <span className="text-muted-foreground">Not measured</span>) : v.values[metric as PatientMetricKey].toFixed(m!.decimals)}</td>
             <td title={d.patientFlags.map((f) => f.label).join(", ")}>{flags}</td>
             <td>{d.top ? `${d.top.name} (${d.top.score.toFixed(2)})` : "None strong"}</td>
-            <td className="tabular-nums" data-testid="tl-atp">{fmt(r.atp)}</td><td className="tabular-nums">{fmt(r.superoxide)}</td><td className="tabular-nums">{fmt(r.h2o2)}</td>
+            <td className="tabular-nums" data-testid="tl-atp">{fmt(r.atp)}</td><td className="tabular-nums">{fmt(r.superoxide)}</td>
+            <td className="tabular-nums" data-testid="tl-defences" title="Superoxide vs the healthy adult at the same membrane potential, with labile iron and L:P held at healthy: only antioxidant capacity and ROS-induced ROS release differ. After the arrow: with this visit's therapies at their model doses.">
+              <span className={gap.before > 0 ? "text-destructive" : ""}>{gap.before > 0 ? "+" : ""}{gap.before.toFixed(0)}%</span>
+              {gap.after !== null && <span> → <span className={gap.after > 0 ? "text-destructive" : "text-primary"}>{gap.after > 0 ? "+" : ""}{gap.after.toFixed(0)}%</span></span>}
+            </td>
+            <td className="tabular-nums">{fmt(r.h2o2)}</td>
             <td>{v.therapies.length ? v.therapies.map((t) => `${tName(t)} ${v.doses?.[t] ?? 1}x${v.actualDoses?.[t] ? ` (taken: ${v.actualDoses[t]})` : ""}`).join(", ") : "None"}</td>
             <td data-testid="tl-projected">{onlyId ? (d.projectedFlags.length ? <div className="space-y-0.5">{d.projectedFlags.map((f) => <div key={f.label}>{f.label.replace(" (projected)", "")}: {f.detail}</div>)}</div> : <span className="text-muted-foreground">No measured band flag</span>) : !pj ? <span className="text-muted-foreground">No therapy</span> : <div className="space-y-0.5">
               <div>MitoSOX {v.values.mitosox.toFixed(2)}x to {pj.ms.value.toFixed(2)}x {pj.msMeasuredOut && !pj.ms.outside ? <span className="font-medium text-primary">flag clears</span> : pj.ms.outside ? <span className="text-destructive">{pj.msMeasuredOut ? "still outside" : "outside band"}</span> : <span className="text-muted-foreground">within</span>}</div>
