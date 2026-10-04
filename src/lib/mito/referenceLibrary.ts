@@ -42,6 +42,11 @@ export const referenceLibrary: Record<string, LibraryEntry> = {
   "10.1074/jbc.M114.619072": { synopsis: "Quantifies superoxide/H2O2 by site in muscle mitochondria at rest vs exercise.", relevance: 38, evidence: 26, usability: 27, usedFor: "ROS site shares" },
   "10.1126/science.adz4797": { synopsis: "SLC25A34 imports oxaloacetate into adipocyte mitochondria under clock, diet and cold control.", relevance: 20, evidence: 28, usability: 6, usedFor: "Carriers table (qualitative)" },
   "10.1038/s42255-023-00783-1": { synopsis: "Perspective arguing 'mitochondrial dysfunction' is too vague; proposes five levels: cell-dependent properties, molecular features, activities, functions, behaviors.", relevance: 34, evidence: 14, usability: 8, usedFor: "Terminology framing for flags" },
+  "10.1038/nature04512": { synopsis: "Mitoferrin-1 knockout blocks erythroid iron import; defines the matrix Fe2+ carrier.", relevance: 30, evidence: 28, usability: 8, usedFor: "Carriers page: Mitoferrin slider (qualitative)" },
+  "10.1016/j.bbamcr.2016.03.015": { synopsis: "Structural and kinetic review of the ADP/ATP carrier exchange mechanism.", relevance: 32, evidence: 24, usability: 10, usedFor: "Carriers page: ANT slider (qualitative)" },
+  "10.1016/j.mam.2012.05.005": { synopsis: "Broad review of all SLC25 carriers, substrates and disease links, incl. phosphate carrier.", relevance: 30, evidence: 20, usability: 8, usedFor: "Carriers page: PiC slider (qualitative)" },
+  "10.1126/science.1218099": { synopsis: "Identifies MPC1/MPC2 as the mitochondrial pyruvate carrier across yeast, fly and human.", relevance: 30, evidence: 28, usability: 8, usedFor: "Carriers page: MPC slider (qualitative)" },
+  "10.1042/bst0290751": { synopsis: "Historical review of UCP1 as a regulated proton leak in brown adipose tissue.", relevance: 26, evidence: 16, usability: 8, usedFor: "Carriers page: UCP1 slider (qualitative)" },
 };
 
 export const libraryScore = (e: LibraryEntry) => e.relevance + e.evidence + e.usability;

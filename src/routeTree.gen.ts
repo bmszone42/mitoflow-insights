@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CarriersRouteImport } from './routes/carriers'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DiagnosisRouteImport } from './routes/diagnosis'
 import { Route as LabRangesRouteImport } from './routes/lab-ranges'
@@ -32,6 +33,11 @@ import { Route as ApiSuggestRouteImport } from './routes/api/suggest'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarriersRoute = CarriersRouteImport.update({
+  id: '/carriers',
+  path: '/carriers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -127,6 +133,7 @@ const ApiSuggestRoute = ApiSuggestRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/carriers': typeof CarriersRoute
   '/dashboard': typeof DashboardRoute
   '/diagnosis': typeof DiagnosisRoute
   '/lab-ranges': typeof LabRangesRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/carriers': typeof CarriersRoute
   '/dashboard': typeof DashboardRoute
   '/diagnosis': typeof DiagnosisRoute
   '/lab-ranges': typeof LabRangesRoute
@@ -170,6 +178,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/carriers': typeof CarriersRoute
   '/dashboard': typeof DashboardRoute
   '/diagnosis': typeof DiagnosisRoute
   '/lab-ranges': typeof LabRangesRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/carriers'
     | '/dashboard'
     | '/diagnosis'
     | '/lab-ranges'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/carriers'
     | '/dashboard'
     | '/diagnosis'
     | '/lab-ranges'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/carriers'
     | '/dashboard'
     | '/diagnosis'
     | '/lab-ranges'
@@ -257,6 +269,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CarriersRoute: typeof CarriersRoute
   DashboardRoute: typeof DashboardRoute
   DiagnosisRoute: typeof DiagnosisRoute
   LabRangesRoute: typeof LabRangesRoute
@@ -284,6 +297,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carriers': {
+      id: '/carriers'
+      path: '/carriers'
+      fullPath: '/carriers'
+      preLoaderRoute: typeof CarriersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -417,6 +437,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CarriersRoute: CarriersRoute,
   DashboardRoute: DashboardRoute,
   DiagnosisRoute: DiagnosisRoute,
   LabRangesRoute: LabRangesRoute,
