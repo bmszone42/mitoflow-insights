@@ -12,9 +12,60 @@ import {
   shortLabel,
   type ProfileSensOut,
 } from "@/lib/mito/profileSensitivity";
-import type { Geometry } from "@/lib/mito/model";
+import { inputRanges, simulate, type Geometry } from "@/lib/mito/model";
+import { profileInputs } from "@/lib/mito/treatment";
+import { putScenario } from "@/lib/mito/scenarios";
+import type { DemoPatient } from "@/lib/mito/patientReference";
 
 const Chart = lazy(() => import("./ProfileSensitivityChart"));
+
+const tuneKeys = ["rirrStrength", "mitoHalfLife", "antioxidantCapacity"] as const;
+
+function TuneAndSave({ patient, geo, healthy }: { patient: DemoPatient; geo: Geometry; healthy: number }) {
+  const base = useMemo(() => profileInputs(patient), [patient]);
+  const [vals, setVals] = useState(() => Object.fromEntries(tuneKeys.map((k) => [k, base[k]])) as Record<(typeof tuneKeys)[number], number>);
+  const [name, setName] = useState(`${patient.label} tuned`);
+  const [saved, setSaved] = useState("");
+  const inputs = { ...base, ...vals };
+  const o = useMemo(() => simulate(inputs, geo), [JSON.stringify(vals), geo, base]); // eslint-disable-line react-hooks/exhaustive-deps
+  const b = useMemo(() => simulate(base, geo), [base, geo]);
+  const pct = (a: number, c: number) => (c ? `${(((a - c) / c) * 100).toFixed(1)}%` : "n/a");
+
+  async function save() {
+    const now = Date.now();
+    const n = name.trim() || `${patient.label} tuned`;
+    await putScenario({
+      id: crypto.randomUUID(), name: n,
+      notes: `Tuned from ${patient.label} on the Profile sensitivity card. ROS-induced ROS release strength is an assumed setting.`,
+      inputs, geometry: geo,
+      snapshot: { atpFlux: o.atpFlux, superoxide: o.superoxide, hydrogenPeroxide: o.hydrogenPeroxide, fesIntact: o.fesIntact, freeIron: o.freeIron },
+      createdAt: now, updatedAt: now,
+    });
+    setSaved(n);
+  }
+
+  return (
+    <div className="mt-6 space-y-3 rounded border border-border p-3" data-testid="profile-tune">
+      <div className="mono-label">Tune {patient.label} and save as a scenario</div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {tuneKeys.map((k) => (
+          <div key={k}>
+            <div className="text-xs">{inputRanges[k].label}: {vals[k].toFixed(2)} {inputRanges[k].unit}{k === "rirrStrength" ? " (assumed)" : ""}</div>
+            <Slider aria-label={inputRanges[k].label} className="mt-2" min={inputRanges[k].min} max={inputRanges[k].max} step={(inputRanges[k].max - inputRanges[k].min) / 100} value={[vals[k]]} onValueChange={(v) => setVals((s) => ({ ...s, [k]: v[0] ?? s[k] }))} />
+          </div>
+        ))}
+      </div>
+      <p className="text-xs" data-testid="profile-tune-readout">
+        Superoxide {o.superoxide.toFixed(4)} nM ({pct(o.superoxide, b.superoxide)} vs profile, <span className={o.superoxide > healthy ? "text-destructive" : ""}>{o.superoxide > healthy ? "above" : "at or below"} healthy</span>), ATP {o.atpFlux.toFixed(1)} µM/s ({pct(o.atpFlux, b.atpFlux)}), free iron {o.freeIron.toFixed(2)} µM ({pct(o.freeIron, b.freeIron)}).
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <input aria-label="Scenario name" className="w-64 rounded border border-input bg-background px-2 py-1 text-sm" value={name} onChange={(e) => setName(e.target.value)} />
+        <Button size="sm" data-testid="profile-tune-save" onClick={save}>Save as scenario</Button>
+        {saved && <span className="text-xs text-muted-foreground" data-testid="profile-tune-saved">Saved "{saved}". Open it from the Simulator's scenario list.</span>}
+      </div>
+    </div>
+  );
+}
 
 const cell = (v: number) => {
   const a = Math.min(1, Math.abs(v) / 30) * 0.45;
@@ -117,6 +168,7 @@ export function ProfileSensitivity({ geo }: { geo: Geometry }) {
         </Select>
       </div>
       <Suspense fallback={<div className="h-72" />}><Chart data={sweep} healthy={healthy} /></Suspense>
+      <TuneAndSave key={patient.id} patient={patient} geo={geo} healthy={healthy} />
       <p className="text-[11px] text-muted-foreground">
         Ranges: ROS-induced ROS release 0 to 1.5, half-life 2 to 60 days, antioxidant capacity 0.2 to 2x. Dashed line is the healthy adult at default settings.
       </p>
