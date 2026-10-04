@@ -19,7 +19,7 @@ import type { DemoPatient } from "@/lib/mito/patientReference";
 
 const Chart = lazy(() => import("./ProfileSensitivityChart"));
 
-const tuneKeys = ["rirrStrength", "mitoHalfLife", "antioxidantCapacity"] as const;
+const tuneKeys = ["rirrStrength", "mitoHalfLife", "antioxidantCapacity", "labileIron", "deltaPsi"] as const;
 
 function TuneAndSave({ patient, geo, healthy }: { patient: DemoPatient; geo: Geometry; healthy: number }) {
   const base = useMemo(() => profileInputs(patient), [patient]);
@@ -47,7 +47,7 @@ function TuneAndSave({ patient, geo, healthy }: { patient: DemoPatient; geo: Geo
   return (
     <div className="mt-6 space-y-3 rounded border border-border p-3" data-testid="profile-tune">
       <div className="mono-label">Tune {patient.label} and save as a scenario</div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {tuneKeys.map((k) => (
           <div key={k}>
             <div className="text-xs">{inputRanges[k].label}: {vals[k].toFixed(2)} {inputRanges[k].unit}{k === "rirrStrength" ? " (assumed)" : ""}</div>
@@ -104,7 +104,7 @@ export function ProfileSensitivity({ geo }: { geo: Geometry }) {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="mono-label">Profile sensitivity</div>
-          <h3 className="mt-1 text-lg font-semibold">ROS-induced ROS release vs half-life vs antioxidant capacity</h3>
+          <h3 className="mt-1 text-lg font-semibold">ROS-induced ROS release vs half-life vs antioxidant capacity vs iron vs potential</h3>
           <p className="mt-1 max-w-3xl text-xs text-muted-foreground">
             Each of the 18 profiles runs on its own baseline. One setting moves down and up by the step while the others stay put,
             so effects do not add. ROS-induced ROS release strength is an assumed value, not published. Model estimates only.
@@ -170,7 +170,7 @@ export function ProfileSensitivity({ geo }: { geo: Geometry }) {
       <Suspense fallback={<div className="h-72" />}><Chart data={sweep} healthy={healthy} /></Suspense>
       <TuneAndSave key={patient.id} patient={patient} geo={geo} healthy={healthy} />
       <p className="text-[11px] text-muted-foreground">
-        Ranges: ROS-induced ROS release 0 to 1.5, half-life 2 to 60 days, antioxidant capacity 0.2 to 2x. Dashed line is the healthy adult at default settings.
+        Ranges: ROS-induced ROS release 0 to 1.5, half-life 2 to 60 days, antioxidant capacity 0.2 to 2x, labile iron 0 to 20 µM, membrane potential 90 to 210 mV. Dashed line is the healthy adult at default settings.
       </p>
     </section>
   );
