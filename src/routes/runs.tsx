@@ -84,6 +84,7 @@ function RunsPage() {
                   <th className="py-1 font-normal">Where</th>
                   <th className="font-normal">Model dose</th>
                   <th className="font-normal">Therapies</th>
+                  <th className="font-normal">ROS-induced strength</th>
                   <th className="font-normal">Times run</th>
                   <th className="font-normal">Last run</th>
                 </tr></thead>
@@ -92,6 +93,7 @@ function RunsPage() {
                     <td className="py-1">{sourceLabels[r.source]}</td>
                     <td>{doseLabel(r.dose)}</td>
                     <td className="max-w-md"><span className="text-muted-foreground">{r.therapyIds.map(therapyName).join(", ")}</span></td>
+                    <td data-testid="runs-rirr">{r.rirrStrength != null ? `${r.rirrStrength}x` : "not noted"}</td>
                     <td>{r.count}{r.count > 1 && <span className="ml-1 text-xs text-amber-600 dark:text-amber-400">repeated</span>}</td>
                     <td className="text-muted-foreground">{new Date(r.at).toLocaleString()}</td>
                   </tr>
