@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,20 @@ function TimelinePage() {
   // Projected-flag therapy pick: "visit" uses each visit's own therapies; a therapy id pins the Diagnosis projection, matching the dashboard's Batch therapy choice.
   const [projTherapy, setProjTherapy] = useState("visit");
   const onlyId = projTherapy === "visit" ? undefined : projTherapy;
-  const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v) })), [p, visits, onlyId]);
+  // Per-visit simulation cache: a visit's diagnosis, readouts and projection
+  // recompute only when that visit's content (labs, therapies, doses) or the
+  // pinned projection therapy changes, not when other visits or form state do.
+  const simCache = useRef(new Map<string, { d: ReturnType<typeof diagnoseVisit>; r: ReturnType<typeof visitReadouts>; pj: ReturnType<typeof visitProjection> }>());
+  const timeline = useMemo(() => {
+    const cache = simCache.current;
+    if (cache.size > 200) cache.clear();
+    return patientTimeline(p, visits).map((v) => {
+      const key = `${p.id}|${v.id}|${onlyId ?? ""}|${JSON.stringify([v.values, v.h2o2Nm, v.therapies, v.doses])}`;
+      let e = cache.get(key);
+      if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v) }; cache.set(key, e); }
+      return { v, ...e };
+    });
+  }, [p, visits, onlyId]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
   const isH2o2 = metric === "h2o2Nm";
   const isMitosox = metric === "mitosox";
