@@ -22,4 +22,4 @@
 - Adult research bands (MitoSOX, ATP-linked OCR) are applied to child profiles with an explicit caution label; never silently, never treated as pediatric intervals.
 - Simulator result panels (FerroptosisPanel, RosBudgetPanel, PhotoreceptorPanel, WarburgSummaryCard) live in their own files; shared Metric/BudgetBar/chart helpers in SimulatorShared.tsx.
 - Diagnosis therapyFlags list model therapies targeting a strong cause (score >= 1.5) that move ATP, superoxide or peroxide by >=1% at 1x model dose; model levers only, never drug doses, and never counted in assay flag totals.
-- SOD superoxide clearance scales with antioxidantCapacity ** SOD_AC_EXP (one constant in simulate); why: a single tuning knob keeps matrix and IMS sinks consistent and 1x unchanged.
+- Superoxide: SOD clearance scales with antioxidantCapacity ** SOD_AC_EXP and production by antioxidantCapacity ** -REDOX_FEEDBACK_EXP (ROS-induced ROS release); why: weak defenses must raise ROS while 1x stays unchanged.
