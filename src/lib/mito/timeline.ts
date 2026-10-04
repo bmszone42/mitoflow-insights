@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { demoPatients, patientMetrics, projectedMitoSox, projectedH2o2, mitoSoxBand, h2o2NmBand, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
+import { defaultGeometry, simulate } from "./model";
 
 // Timeline visits live in module memory only (tab-only, never persisted or sent anywhere).
 /** origin "real": a real-world visit with measured labs and the actual doses taken (free text, e.g. "20 mg/day"); actualDoses are recorded only, the model still uses `doses`. */
@@ -87,4 +88,26 @@ export function visitProjection(p: DemoPatient, v: Visit) {
   const msMeasuredOut = v.values.mitosox < mitoSoxBand.lo || v.values.mitosox > mitoSoxBand.hi;
   const h2MeasuredOut = v.h2o2Nm !== undefined && v.h2o2Nm > h2o2NmBand.hi;
   return { ms, h2, msMeasuredOut, h2MeasuredOut };
+}
+
+/**
+ * Defences-only superoxide gap at a visit, same comparison as the Dashboard:
+ * the healthy adult re-run at the visit's membrane potential, with labile iron
+ * and L:P (nadhRatio) held at healthy, so only antioxidant capacity (and through
+ * it ROS-induced ROS release) differs. "before" uses the visit's labs alone,
+ * "after" applies the visit's therapies at their model doses. Percent vs the
+ * matched healthy run; positive means more superoxide than healthy.
+ */
+export function defencesOnlyGap(p: DemoPatient, v: Visit) {
+  const healthyInputs = profileInputs(demoPatients[0]);
+  const vi = profileInputs(visitProfile(p, v));
+  const matched = (deltaPsi: number, ac: number) =>
+    simulate({ ...healthyInputs, deltaPsi, antioxidantCapacity: ac }, defaultGeometry).superoxide;
+  const base = matched(vi.deltaPsi, healthyInputs.antioxidantCapacity);
+  const before = matched(vi.deltaPsi, vi.antioxidantCapacity);
+  let ti = vi;
+  for (const id of v.therapies) { const t = therapies.find((x) => x.id === id); if (t) ti = applyTherapyDose(ti, t, v.doses?.[id] ?? 1); }
+  const after = v.therapies.length ? matched(ti.deltaPsi, ti.antioxidantCapacity) : null;
+  const pct = (a: number) => (base === 0 ? 0 : ((a - base) / base) * 100);
+  return { before: pct(before), after: after === null ? null : pct(after) };
 }
