@@ -402,7 +402,7 @@ export const studyReferences: StudyReference[] = [
     year: 2014,
     location: "pp. 909-950",
     url: "https://doi.org/10.1152/physrev.00026.2013",
-    section: "ROS sources and sinks",
+    section: "ROS, iron and assays",
     locator: "ROS-induced ROS release; redox feedback amplifying ETC superoxide when defenses fail",
   },
   {
