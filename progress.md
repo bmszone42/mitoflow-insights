@@ -107,3 +107,4 @@
 ## OAA slider as a visible Warburg control (2026-10-04)
 - [x] OaaSupplyExplorer moved inside the Warburg dashboard control card, next to the fuel presets (was a separate card above).
 - [x] Ran the lever on the Leigh syndrome baseline visit (2026-01-15): ATP 60.8 -> 48.8 uM/s at 0.5x (-19.8%), 70.5 at 2x (+15.8%); superoxide changes are percent noise on a 0.01 nM baseline.
+- [x] OAA explorer chart: ATP flux and superoxide lines across the full 0-2x range with a dot at the current lever setting, under the percent-change table. Verified live on the Warburg tab, no page errors.
