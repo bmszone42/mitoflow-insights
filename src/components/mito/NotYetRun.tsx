@@ -30,6 +30,13 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
     return s;
   }, [runs, pid]);
 
+  // ROS-induced ROS release strengths logged for this profile's runs (assumed setting).
+  const strengths = useMemo(() => {
+    const s = new Set<number>();
+    for (const r of runs) if (r.patientId === pid && r.rirrStrength != null) s.add(r.rirrStrength);
+    return [...s].sort((a, b) => a - b);
+  }, [runs, pid]);
+
   const total = therapies.length * doses.length;
   const missing = total - [...done].filter((k) => doses.includes(Number(k.split("|")[1])) && therapies.some((t) => k.startsWith(`${t.id}|`))).length;
   const rows = therapies.filter((t) => !missingOnly || doses.some((d) => !done.has(`${t.id}|${d}`)));
@@ -46,7 +53,7 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
     const base = profileInputs(p);
     const b = simulate(base, defaultGeometry);
     const o = simulate(applyTherapyDose(base, nextMissing.t, nextMissing.d), defaultGeometry);
-    await recordRun(p.id, "progress", nextMissing.d, [nextMissing.t.id]);
+    await recordRun(p.id, "progress", nextMissing.d, [nextMissing.t.id], base.rirrStrength);
     setLast({ therapy: nextMissing.t.name, dose: nextMissing.d, atp: o.atpFlux, so: o.superoxide, h2: o.hydrogenPeroxide, baseAtp: b.atpFlux, baseSo: b.superoxide, baseH2: b.hydrogenPeroxide });
     setBusy(false);
     onRan?.();
@@ -63,6 +70,11 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
         </select>
         <label className="flex items-center gap-1 text-sm"><input type="checkbox" checked={missingOnly} onChange={(e) => setMissingOnly(e.target.checked)} /> Hide fully run therapies</label>
         <span className="text-sm text-muted-foreground" data-testid="not-yet-run-count">{missing} of {total} therapy and dose combinations missing</span>
+        {strengths.length > 0 && (
+          <span className="text-sm text-muted-foreground" data-testid="not-yet-run-rirr">
+            ROS-induced strength logged: {strengths.map((s) => `${s}x`).join(", ")} (assumed)
+          </span>
+        )}
         <Button size="sm" data-testid="run-missing" disabled={!nextMissing || busy} onClick={runMissing}>
           <Play className="size-4" aria-hidden /> {nextMissing ? `Run missing: ${nextMissing.t.name} at ${nextMissing.d}x` : "All run"}
         </Button>
