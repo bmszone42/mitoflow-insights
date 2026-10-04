@@ -37,6 +37,10 @@ function TherapyPlan() {
   const [id, setId] = useState(search.profile ?? "all");
   const [dose, setDose] = useState(1);
   const groups = useMemo(() => pool.filter((p) => id === "all" || p.id === id).map((p) => ({ p, rows: therapyPlanRows(p, dose) })), [pool, id, dose]);
+  // Log each profile's flagged-therapy plan to the local run log (Scenario progress page).
+  useEffect(() => {
+    for (const g of groups) if (g.rows.length) recordRun(g.p.id, "plan", dose, g.rows.map((r) => r.t.id));
+  }, [groups, dose]);
 
   const csv = () => {
     const head = ["Profile", "ID", "Therapy", "Model dose", "Real-world dose (1x anchor)", "Dose source", "Targets", "ATP change", "Superoxide change", "H2O2 change", "Measured MitoSOX", "Projected MitoSOX", "MitoSOX status", "Measured H2O2 (nM)", "Projected H2O2 (nM)", "H2O2 status"];

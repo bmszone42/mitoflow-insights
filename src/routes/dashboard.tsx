@@ -7,6 +7,7 @@ import { demoPatients, lpMapping, patientSex, h2o2BandCheck, projectedH2o2, proj
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, bestProjectionTherapy, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
+import { recordRun } from "@/lib/mito/runs";
 // Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
 const TherapyProfileChart = lazy(() => import("@/components/mito/TherapyProfileChart").then((m) => ({ default: m.TherapyProfileChart })));
 const BaselineProfileChart = lazy(() => import("@/components/mito/BaselineProfileChart").then((m) => ({ default: m.BaselineProfileChart })));
@@ -110,6 +111,11 @@ function Dashboard() {
   }, [users, dose, batchTherapy]);
 
   // Light memo: display filtering only (readoutOnly checkbox), no simulations.
+  // Log each profile's therapy sweep to the local run log (Scenario progress page).
+  useEffect(() => {
+    for (const r of simulated) recordRun(r.p.id, "dashboard", dose, therapies.map((t) => t.id));
+  }, [simulated, dose]);
+
   const rows = useMemo(() => simulated.map((r) => ({
     ...r,
     resp: r.respAll === null ? null : readoutOnly
