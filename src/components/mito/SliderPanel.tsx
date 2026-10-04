@@ -233,6 +233,16 @@ export function SliderPanel({
   // Apply a preset and save the result as a named scenario so presets can be
   // compared side by side in the Compare tab.
   const [activeTherapy, setActiveTherapy] = useState<string | null>(null);
+  // MADE-UP exploratory lever: oxaloacetate supply scales the NADH pool by the
+  // invented curve in OaaSupplyExplorer. Moving it patches the real NADH slider
+  // by the ratio of the new to the previous factor, so it stays in sync with
+  // the fuel presets. It is labeled made-up and never stored separately.
+  const [oaa, setOaa] = useState(1);
+  const applyOaa = (next: number) => {
+    const ratio = oaaFactor(next) / oaaFactor(oaa);
+    setOaa(next);
+    set("nadhRatio", Math.min(1, Math.max(0, inputs.nadhRatio * ratio)));
+  };
   const [savedPreset, setSavedPreset] = useState<string | null>(null);
   const [savingCombos, setSavingCombos] = useState(false);
   const [comboSaveStatus, setComboSaveStatus] = useState<string | null>(null);
