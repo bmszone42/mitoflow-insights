@@ -81,6 +81,16 @@ export function Scenarios({
     onChanged?.();
   };
 
+  // Each scenario carries its own ROS-induced ROS release strength (assumed setting),
+  // so loading it never falls back to whatever the Simulator currently shows.
+  const setStrength = async (s: Scenario, value: number) => {
+    const updated: Scenario = { ...s, inputs: { ...s.inputs, rirrStrength: value }, updatedAt: Date.now() };
+    await putScenario(updated);
+    if (s.id === activeId) onLoad(updated);
+    refresh();
+    onChanged?.();
+  };
+
   const remove = async (s: Scenario) => {
     if (!window.confirm(`Delete ${s.name}?`)) return;
     await deleteScenario(s.id);
@@ -176,6 +186,21 @@ export function Scenarios({
               {s.snapshot.superoxide?.toFixed(2)} nM | Fe-S {((s.snapshot.fesIntact ?? 0) * 100).toFixed(0)}%
               {s.interpretation ? " | AI note" : ""}
             </div>
+            <label className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
+              ROS-induced strength (assumed):
+              <select
+                className="rounded border border-border bg-background px-1 py-0.5 font-mono text-[10px]"
+                value={s.inputs.rirrStrength ?? 0.5}
+                onChange={(e) => setStrength(s, Number(e.target.value))}
+              >
+                {[0, 0.25, 0.5, 0.75, 1, 1.25, 1.5].map((v) => (
+                  <option key={v} value={v}>
+                    {v}x
+                  </option>
+                ))}
+              </select>
+              {s.inputs.rirrStrength == null && <span>(was Simulator default)</span>}
+            </label>
           </li>
         ))}
       </ul>
