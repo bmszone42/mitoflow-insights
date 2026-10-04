@@ -36,7 +36,7 @@ function TreatmentPage() {
     <div className="flex flex-wrap gap-2">
       <Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 size-4" aria-hidden />Back to lab</Link></Button>
       <Button variant="ghost" size="sm" asChild><Link to="/diagnosis">Diagnosis</Link></Button>
-      <Button variant="ghost" size="sm" asChild><Link to="/therapy-calculator">Therapy calculator</Link></Button>
+      <Button variant="ghost" size="sm" asChild><Link to="/therapy-tools">Therapy tools</Link></Button>
       <Button variant="ghost" size="sm" asChild><Link to="/dashboard">Dashboard</Link></Button>
     </div>
     <header className="border-b border-border pb-4">

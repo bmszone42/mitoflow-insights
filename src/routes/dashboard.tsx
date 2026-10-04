@@ -266,7 +266,7 @@ function Dashboard() {
           <td className="px-3 py-2" data-testid="dash-resp">{(() => {
             if (r.resp === null) return <span className="text-muted-foreground">Not flagged</span>;
             if (!r.resp.length) return <span className="text-muted-foreground">{readoutOnly ? `No readout response${r.flagsOnlyCount ? ` (${r.flagsOnlyCount} clear flags only)` : ""}` : "No model response"}</span>;
-            return <>{r.resp.map((x) => <div key={x.t.id}><Link className="text-primary underline-offset-2 hover:underline" to="/therapy-calculator" search={{ profile: r.p.id, therapy: x.t.id }}>{x.t.name}</Link> <span className="text-muted-foreground">{x.parts.join(", ")}</span></div>)}{readoutOnly && r.flagsOnlyCount > 0 && <div className="text-[10px] text-muted-foreground" data-testid="dash-resp-hidden">{r.flagsOnlyCount} clear flags only</div>}</>;
+            return <>{r.resp.map((x) => <div key={x.t.id}><Link className="text-primary underline-offset-2 hover:underline" to="/therapy-tools" search={{ profile: r.p.id, therapy: x.t.id }}>{x.t.name}</Link> <span className="text-muted-foreground">{x.parts.join(", ")}</span></div>)}{readoutOnly && r.flagsOnlyCount > 0 && <div className="text-[10px] text-muted-foreground" data-testid="dash-resp-hidden">{r.flagsOnlyCount} clear flags only</div>}</>;
           })()}</td>
           <td className="space-y-1 px-3 py-2">
             <Link className="block text-primary underline-offset-2 hover:underline" to="/diagnosis" search={{ profile: r.p.id }}>Diagnosis</Link>

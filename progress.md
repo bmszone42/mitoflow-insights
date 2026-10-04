@@ -70,3 +70,9 @@
 - [x] Dropped unused `drizzle-orm`, `drizzle-kit` and `postgres` packages.
 - [x] Verified live: home page renders with top nav, zero sign-in mentions, no page errors.
 - Note: AI interpretation still calls the built-in AI gateway, so it needs an internet connection; everything else runs fully offline.
+
+## Therapy pages merged (2026-10-04) ✅
+- [x] `/therapy-tools` replaces `/therapy-calculator` and `/therapy-compare`: two tabs (Dose calculator, Compare two therapies) sharing one profile picker; old URLs redirect with their search params.
+- [x] `/treatment-plan` folded into `/therapy-plan`: picking a single profile shows the "Plan by cause" section with the combined plan; old URL redirects.
+- [x] Top nav gained Therapy tools; links on Treatment, Diagnosis, dashboard and Therapy plan updated.
+- [x] Verified live: both tabs render, redirects land correctly, Plan by cause and Combined plan show for Leigh syndrome, no page errors.
