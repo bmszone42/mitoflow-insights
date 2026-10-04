@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInputs, geometryRanges, inputRanges, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
-import { listScenarios, scenarioGeometry, loadDriverReply, saveDriverReply, type Scenario } from "@/lib/mito/scenarios";
+import { listScenarios, scenarioGeometry, type Scenario } from "@/lib/mito/scenarios";
 import { ShapeSketch, ShapeOverlay } from "@/components/mito/ShapeSketch";
 import { ATP_COST_TEXTBOOK, atpFlagContext, atpNetworkRangeFlags, effectiveAtpCost, liveAtpPerPair, stdAtpPerPair, etcSteps, atpSplit, phenotype } from "@/lib/mito/reference";
 
@@ -115,14 +115,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
     let local = "";
     try { local = aiKey ? localStorage.getItem(aiKey) ?? "" : ""; } catch { /* blocked */ }
     setAiText(local);
-    if (!pairKey) return;
-    let live = true;
-    // Signed in: the account copy wins so replies follow the user across devices.
-    loadDriverReply(pairKey)
-      .then((r) => { if (live && r) { setAiText(r.reply); setAiSavedAt(r.updatedAt); } })
-      .catch(() => {});
-    return () => { live = false; };
-  }, [aiKey, pairKey]);
+  }, [aiKey]);
 
   async function interpretDrivers() {
     if (!a || !b || !ia || !ib || !oa || !ob || !etcRows) return;
@@ -159,10 +152,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
       const reader = res.body.getReader(); const dec = new TextDecoder(); let acc = "";
       while (true) { const { done, value } = await reader.read(); if (done) break; acc += dec.decode(value, { stream: true }); setAiText(acc); }
       if (acc && aiKey) {
-        try { localStorage.setItem(aiKey, acc); } catch { /* storage full or blocked */ }
-        saveDriverReply(pairKey, acc)
-          .then(() => setAiSavedAt(Date.now()))
-          .catch(() => {});
+        try { localStorage.setItem(aiKey, acc); setAiSavedAt(Date.now()); } catch { /* storage full or blocked */ }
       }
     } catch (e) { setAiErr(e instanceof Error ? e.message : "AI request failed"); }
     finally { setAiBusy(false); }
