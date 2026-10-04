@@ -76,3 +76,9 @@
 - [x] `/treatment-plan` folded into `/therapy-plan`: picking a single profile shows the "Plan by cause" section with the combined plan; old URL redirects.
 - [x] Top nav gained Therapy tools; links on Treatment, Diagnosis, dashboard and Therapy plan updated.
 - [x] Verified live: both tabs render, redirects land correctly, Plan by cause and Combined plan show for Leigh syndrome, no page errors.
+
+## Scenario progress page (2026-10-04) ✅
+- [x] `/runs` page (nav: Progress) logs every simulated profile / therapy / model-dose combination to a local IndexedDB store (`cristae-lab-runs`); nothing leaves the browser.
+- [x] Logging wired into the Dashboard sweep, Therapy tools (calculator = full dose sweep, comparison = the picked pair) and Therapy plan.
+- [x] Exact repeats are deduped and marked "repeated" with a run count; Clear log button wipes the log.
+- [x] Verified live: 21 combinations across 18 profiles logged, repeat of the calculator run flagged, no page errors.
