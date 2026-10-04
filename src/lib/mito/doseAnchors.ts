@@ -39,7 +39,7 @@ export const doseAnchors: Record<DoseAnchor["id"], DoseAnchor> = {
     maxDose: 1000,
     step: 50,
     maxFactor: 1.3,
-    lever: "mitophagy rate",
+    lever: "mitochondrial turnover speed (half-life divided by this factor)",
     finding: "500 and 1000 mg/day raised mitochondrial and mitophagy-related markers in muscle.",
     sources: [
       { label: "Andreux 2019, Nature Metabolism 1(6):595-603", url: "https://doi.org/10.1038/s42255-019-0073-4" },

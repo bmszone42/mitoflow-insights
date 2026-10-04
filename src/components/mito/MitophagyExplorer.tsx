@@ -20,8 +20,10 @@ export function MitophagyExplorer({ inputs, geo }: { inputs: Inputs; geo: Geomet
   );
   const healthySo = useMemo(() => simulate(defaultInputs, defaultGeometry).superoxide, []);
   const rows = [
-    { k: "Membrane potential (mV)", a: before.psi, b: after.psi, d: 0 },
-    { k: "Labile iron (µM)", a: before.iron, b: after.iron, d: 2 },
+    { k: "Turnover half-life (days)", a: before.halfLife, b: after.halfLife, d: 1 },
+    { k: "Damaged mitochondria (%)", a: before.damaged * 100, b: after.damaged * 100, d: 1 },
+    { k: "Effective potential (mV)", a: before.psi, b: after.psi, d: 1 },
+    { k: "Effective labile iron (µM)", a: before.iron, b: after.iron, d: 2 },
     { k: "ATP flux (µM/s)", a: before.atp, b: after.atp, d: 1 },
     { k: "Superoxide (nM)", a: before.so, b: after.so, d: 4 },
     { k: "Peroxide (nM)", a: before.h2, b: after.h2, d: 1 },
@@ -41,6 +43,7 @@ export function MitophagyExplorer({ inputs, geo }: { inputs: Inputs; geo: Geomet
         <span className="w-24 text-right font-mono text-xs" data-testid="mitophagy-rate">{dose} {A.unit}</span>
       </div>
       <DoseAnchorNote a={A} />
+      <p className="text-[11px] text-muted-foreground">The dose shortens the turnover half-life set on the Simulator (published mouse anchors: liver 4.3 d, heart 17.2 d); the model then recomputes damaged mitochondria, potential, leak, iron and ATP. This card never changes your saved settings.</p>
       <table className="w-full text-xs" data-testid="mitophagy-readout">
         <thead><tr className="text-left text-muted-foreground"><th className="py-1">Readout</th><th>Current</th><th>With dose</th><th>Change</th></tr></thead>
         <tbody>
