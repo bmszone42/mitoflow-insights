@@ -136,3 +136,4 @@
 
 - ✅ Timeline defences-only superoxide gap per visit: new "Defences only" column (defencesOnlyGap in timeline.ts, same matched-healthy comparison as the Dashboard) shows the gap from the visit's labs, and after an arrow the gap with the visit's therapies at their model doses; therapies that do not move antioxidant capacity or membrane potential show no change. Verified: Leigh baseline +88%, mitochondria-targeted antioxidant 1x takes it to -20%.
 - ✅ Progress grid real-dose sliders per therapy with live superoxide change, Run button, log columns Real dose and Superoxide change (mapping assumed)
+- ✅ Profile sensitivity card: tune ROS-induced strength, half-life and antioxidant capacity per profile and save as a named scenario
