@@ -119,3 +119,4 @@
 - ✅ MADE-UP mitophagy rate slider (0-2x) on the Simulator with readout table and ATP/superoxide chart
 - ❌ Published mitophagy rate to replace the invented curve
 - [x] OAA explorer chart: dashed 'healthy' reference line at the healthy-adult superoxide level (defaultInputs/defaultGeometry), so ROS high vs low is visible at a glance; caption updated.
+- ✅ Progress page: Not yet run grid (therapy x model dose per profile, missing count, hide fully run)
