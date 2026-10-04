@@ -2,7 +2,7 @@ import { openDB, type IDBPDatabase } from "idb";
 
 // Local-only log of which profile / therapy / dose combinations have been
 // simulated, so repeats are visible on the Scenario progress page.
-export type RunSource = "dashboard" | "calculator" | "compare" | "plan" | "timeline";
+export type RunSource = "dashboard" | "calculator" | "compare" | "plan" | "timeline" | "progress";
 
 export type RunRecord = {
   id: string; // dedupe key: patientId|source|dose|sorted therapy ids

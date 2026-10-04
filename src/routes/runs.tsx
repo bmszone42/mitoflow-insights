@@ -28,6 +28,7 @@ const sourceLabels: Record<RunSource, string> = {
   compare: "Therapy comparison",
   plan: "Therapy plan",
   timeline: "Timeline",
+  progress: "Run missing (Progress)",
 };
 
 const therapyName = (id: string) => therapies.find((t) => t.id === id)?.name ?? id;
@@ -59,7 +60,7 @@ function RunsPage() {
     </header>
 
     {runs === null && <p className="text-sm text-muted-foreground">Loading…</p>}
-    {runs !== null && <NotYetRun pool={pool} runs={runs} />}
+    {runs !== null && <NotYetRun pool={pool} runs={runs} onRan={() => listRuns().then(setRuns)} />}
     {runs !== null && runs.length === 0 && (
       <p className="text-sm text-muted-foreground" data-testid="runs-empty">Nothing logged yet. Open the <Link className="text-primary underline underline-offset-2" to="/dashboard">Dashboard</Link>, <Link className="text-primary underline underline-offset-2" to="/therapy-tools">Therapy tools</Link> or <Link className="text-primary underline underline-offset-2" to="/therapy-plan">Therapy plan</Link> and each combination you run appears here.</p>
     )}
