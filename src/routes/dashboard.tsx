@@ -101,9 +101,11 @@ function Dashboard() {
         respAll: allResp ? allResp.slice(0, 3) : null,
         respMatrix: matrix,
         flagsOnlyCount: allResp ? allResp.filter((x) => !x.hasReadout).length : 0,
-        // Healthy adult re-run at this profile's membrane potential, so the
-        // superoxide ratio isolates every other input (mainly antioxidant capacity).
+        // Healthy adult vs the profile, both at this profile's membrane potential,
+        // with labile iron and the L:P (nadhRatio) held at healthy: only antioxidant
+        // capacity (and through it ROS-induced ROS release) differs.
         matchedHealthySo: simulate({ ...healthyInputs, deltaPsi: profileInputs(p).deltaPsi }, defaultGeometry).superoxide,
+        matchedProfileSo: simulate({ ...healthyInputs, deltaPsi: profileInputs(p).deltaPsi, antioxidantCapacity: profileInputs(p).antioxidantCapacity }, defaultGeometry).superoxide,
       };
     });
     return built.sort((a, b) => {
@@ -129,7 +131,7 @@ function Dashboard() {
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
-    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "Superoxide vs healthy at same potential", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", `Projected H2O2 (nM, ${dose}x)`, "Projected H2O2 therapy", "Projected peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", `Projected MitoSOX (fold, ${dose}x)`, "Projected MitoSOX therapy", "Projected MitoSOX flag", "Lab flags", "Assay flags", "Model flags", `Therapy flags (${dose}x)`, "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders", `Responds to (model, ${dose}x)`];
+    const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "Superoxide vs healthy, defences only (same potential, iron, L:P)", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", `Projected H2O2 (nM, ${dose}x)`, "Projected H2O2 therapy", "Projected peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", `Projected MitoSOX (fold, ${dose}x)`, "Projected MitoSOX therapy", "Projected MitoSOX flag", "Lab flags", "Assay flags", "Model flags", `Therapy flags (${dose}x)`, "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders", `Responds to (model, ${dose}x)`];
     const lines = [header.join(",")];
     for (const r of rows) {
       const src = r.p.source ?? "synthetic";
@@ -137,7 +139,7 @@ function Dashboard() {
         esc(r.p.label), esc(r.p.id), esc(r.p.phenotype), String(r.p.age), patientSex(r.p), src,
         r.p.values.lactatePyruvate.toFixed(1),
         r.out.atpFlux.toFixed(2), pct(r.out.atpFlux, r.healthy.atpFlux),
-        r.out.superoxide.toPrecision(3), pct(r.out.superoxide, r.healthy.superoxide), pct(r.out.superoxide, r.matchedHealthySo),
+        r.out.superoxide.toPrecision(3), pct(r.out.superoxide, r.healthy.superoxide), pct(r.matchedProfileSo, r.matchedHealthySo),
         r.out.hydrogenPeroxide.toFixed(2), pct(r.out.hydrogenPeroxide, r.healthy.hydrogenPeroxide),
         r.hb.measured ? String(r.hb.measured.value) : "Not measured",
         esc(`model ${r.hb.model.text ?? "within"}; measured ${r.hb.measured ? r.hb.measured.text ?? "within" : "not measured"}`),
@@ -263,7 +265,7 @@ function Dashboard() {
           <th scope="row" className="px-3 py-2 font-medium">{r.p.label}<div className="font-normal text-muted-foreground">{r.p.phenotype} · {r.p.age}y {patientSex(r.p)}</div></th>
           <td className="px-3 py-2 font-mono" data-testid="dash-lp"><span className={r.p.values.lactatePyruvate > 25 ? "text-destructive" : ""}>{r.p.values.lactatePyruvate.toFixed(1)}</span><div className="font-sans text-[10px] text-muted-foreground" title={r.lp.note}>{r.lp.nadhRatio !== undefined ? `Mapped: NADH ${r.lp.nadhRatio.toFixed(2)}` : "Not mapped"}</div></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.atpFlux)} <span className="text-muted-foreground">{pct(r.out.atpFlux, r.healthy.atpFlux)}</span></td>
-          <td className="px-3 py-2 font-mono">{fmt(r.out.superoxide)} <span className="text-muted-foreground">{pct(r.out.superoxide, r.healthy.superoxide)}</span><div className={`font-sans text-[10px] ${r.out.superoxide > r.matchedHealthySo ? "text-destructive" : "text-muted-foreground"}`} data-testid="dash-so-matched" title="Healthy adult re-run at this profile's membrane potential; the gap reflects antioxidant capacity and other inputs, not potential.">Same potential: {pct(r.out.superoxide, r.matchedHealthySo)}</div></td>
+          <td className="px-3 py-2 font-mono">{fmt(r.out.superoxide)} <span className="text-muted-foreground">{pct(r.out.superoxide, r.healthy.superoxide)}</span><div className={`font-sans text-[10px] ${r.matchedProfileSo > r.matchedHealthySo ? "text-destructive" : "text-muted-foreground"}`} data-testid="dash-so-matched" title="Profile vs healthy adult at the same membrane potential, labile iron and L:P (held at healthy); the gap reflects only antioxidant capacity and ROS-induced ROS release.">Defences only: {pct(r.matchedProfileSo, r.matchedHealthySo)}</div></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.hydrogenPeroxide)} <span className="text-muted-foreground">{pct(r.out.hydrogenPeroxide, r.healthy.hydrogenPeroxide)}</span></td>
           <td className="px-3 py-2" data-testid="dash-h2o2-band"><div className={r.hb.measured?.outside ? "text-destructive" : ""}>Measured: {r.hb.measured ? `${r.hb.measured.value} nM, ${r.hb.measured.text ?? "within"}` : <span className="text-muted-foreground">Not measured</span>}</div><div className={`text-[10px] ${r.hb.model.outside ? "text-destructive" : "text-muted-foreground"}`}>Model: {fmt(r.hb.model.value)} nM, {r.hb.model.text ?? "within"}</div></td>
           <td className="px-3 py-2" data-testid="dash-h2o2-flag">{(r.hb.measured?.outside || r.hb.model.outside) ? <span className="font-medium text-destructive">Flagged &gt;100 nM{r.hb.measured?.outside ? " (measured)" : " (model)"}</span> : <span className="text-muted-foreground">Within{r.hb.measured ? "" : " (model only)"}</span>}</td>
