@@ -197,6 +197,8 @@ function TherapyCompare() {
       {[{ t: ta, d: da, tag: "A" }, { t: tb, d: db, tag: "B" }].map(({ t, d, tag }) => <div key={tag} className="rounded-md border border-border p-3">
         <p className="font-medium">{tag}: {t.name} <span className="font-normal text-muted-foreground">at {d}x</span></p>
         <p className="text-muted-foreground">Slider targets at 1x: {t.moves.map(moveLabel).join("; ")}</p>
+        <p data-testid={`cmp-dose-anchor-${t.id}`}><span className="font-medium">Real-world dose anchor (1x):</span> {t.clinicalDose}{t.doseSource && <a className="text-primary underline underline-offset-2" href={t.doseSource.url} target="_blank" rel="noopener noreferrer" data-testid={`cmp-dose-source-${t.id}`}> {t.doseSource.text}</a>}</p>
+        <p className="text-xs text-muted-foreground">Model dose scales the slider move only, not this dose. The anchor is illustrative, never a dosing guide.</p>
         <p className="text-muted-foreground">{t.note} Evidence: {t.status}.</p>
       </div>)}
     </section>
