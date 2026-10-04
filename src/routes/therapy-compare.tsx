@@ -118,8 +118,8 @@ function TherapyCompare() {
     }
     lines.push("");
     lines.push([esc("Patient profile"), esc(patient.id), esc(patient.label)].join(","));
-    lines.push([esc("Therapy A"), esc(`${ta.name} at ${da}x (model dose)`), esc(`Slider targets at 1x: ${ta.moves.map(moveLabel).join("; ")}`), esc(`Real-world dose anchor (1x): ${ta.clinicalDose}`), esc(ta.doseSource ? `${ta.doseSource.text} (${ta.doseSource.url})` : "")].join(","));
-    lines.push([esc("Therapy B"), esc(`${tb.name} at ${db}x (model dose)`), esc(`Slider targets at 1x: ${tb.moves.map(moveLabel).join("; ")}`), esc(`Real-world dose anchor (1x): ${tb.clinicalDose}`), esc(tb.doseSource ? `${tb.doseSource.text} (${tb.doseSource.url})` : "")].join(","));
+    lines.push([esc("Therapy A"), esc(`${ta.name} at ${da}x (model dose)`), esc(`Slider targets at 1x: ${ta.moves.map(moveLabel).join("; ")}`), esc(`Real-world dose anchor (1x): ${ta.clinicalDose}`), esc(ta.doseSource ? `${ta.doseSource.text} (${ta.doseSource.url})` : ""), esc(`${ta.note} Evidence: ${ta.status}.`)].join(","));
+    lines.push([esc("Therapy B"), esc(`${tb.name} at ${db}x (model dose)`), esc(`Slider targets at 1x: ${tb.moves.map(moveLabel).join("; ")}`), esc(`Real-world dose anchor (1x): ${tb.clinicalDose}`), esc(tb.doseSource ? `${tb.doseSource.text} (${tb.doseSource.url})` : ""), esc(`${tb.note} Evidence: ${tb.status}.`)].join(","));
     lines.push([esc("Shared sliders"), esc(shared.length > 0 ? shared.map((k) => inputRanges[k].label).join(" and ") : "None")].join(","));
     lines.push(esc("Real-world dose anchors are illustrative, never a dosing guide; model dose scales the slider move only."));
     lines.push("");
