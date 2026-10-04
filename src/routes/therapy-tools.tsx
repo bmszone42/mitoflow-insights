@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, Download } from "lucide-react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
-import { demoPatients } from "@/lib/mito/patientReference";
+import { demoPatients, type DemoPatient } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { applyTherapyDose, calculatorDoses, doseResponse, moveLabel, profileInputs, therapies } from "@/lib/mito/treatment";
 import { defaultGeometry, inputRanges, simulate } from "@/lib/mito/model";
@@ -81,7 +81,7 @@ function TherapyTools() {
   </main>;
 }
 
-function Calculator({ patient, search, set }: { patient: (typeof demoPatients)[number]; search: Search; set: (p: Partial<Search>) => void }) {
+function Calculator({ patient, search, set }: { patient: DemoPatient; search: Search; set: (p: Partial<Search>) => void }) {
   const therapy = therapies.find((t) => t.id === search.therapy) ?? therapies[0]!;
   const rows = useMemo(() => doseResponse(patient, therapy), [patient, therapy]);
   const base = profileInputs(patient);
@@ -139,7 +139,7 @@ function Calculator({ patient, search, set }: { patient: (typeof demoPatients)[n
   </div>;
 }
 
-function Compare({ patient, all, search, set }: { patient: (typeof demoPatients)[number]; all: typeof demoPatients; search: Search; set: (p: Partial<Search>) => void }) {
+function Compare({ patient, all, search, set }: { patient: DemoPatient; all: DemoPatient[]; search: Search; set: (p: Partial<Search>) => void }) {
   const ta = therapies.find((t) => t.id === search.a) ?? therapies[0]!;
   const tb = therapies.find((t) => t.id === search.b) ?? therapies.find((t) => t.id !== ta.id)!;
   const da = search.da !== undefined && calculatorDoses.includes(search.da) ? search.da : 1;
