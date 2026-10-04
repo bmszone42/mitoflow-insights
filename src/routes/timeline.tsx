@@ -37,7 +37,10 @@ function TimelinePage() {
   const all = useMemo(() => [...users, ...demoPatients], [users]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const p = all.find((x) => x.id === id) ?? all[0]!;
-  const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v), r: visitReadouts(p, v), pj: visitProjection(p, v) })), [p, visits]);
+  // Projected-flag therapy pick: "visit" uses each visit's own therapies; a therapy id pins the Diagnosis projection, matching the dashboard's Batch therapy choice.
+  const [projTherapy, setProjTherapy] = useState("visit");
+  const onlyId = projTherapy === "visit" ? undefined : projTherapy;
+  const timeline = useMemo(() => patientTimeline(p, visits).map((v) => ({ v, d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v) })), [p, visits, onlyId]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
   const isH2o2 = metric === "h2o2Nm";
   const isMitosox = metric === "mitosox";
@@ -93,6 +96,12 @@ function TimelinePage() {
         <SelectContent>{all.map((x) => <SelectItem key={x.id} value={x.id}>{x.label} · {x.phenotype}</SelectItem>)}</SelectContent></Select>
       <Select value={metric} onValueChange={(v) => setMetric(v as PatientMetricKey | SimKey)}><SelectTrigger className="w-64" aria-label="Lab value"><SelectValue /></SelectTrigger>
         <SelectContent>{patientMetrics.map((x) => <SelectItem key={x.key} value={x.key}>{x.label}</SelectItem>)}<SelectItem value="h2o2Nm">Hydrogen peroxide (measured, nM)</SelectItem>{simKeys.map((x) => <SelectItem key={x.key} value={x.key}>{x.label}</SelectItem>)}</SelectContent></Select>
+      <label className="flex items-center gap-2 text-xs" data-testid="tl-proj-therapy-label">Projected flag therapy
+        <select value={projTherapy} onChange={(e) => setProjTherapy(e.target.value)} data-testid="tl-proj-therapy" className="max-w-[220px] rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+          <option value="visit">Each visit's own therapies</option>
+          {therapies.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+      </label>
     </div>
 
     <section className="mt-4 rounded-md border border-border p-3" data-testid="timeline-chart">
@@ -118,7 +127,7 @@ function TimelinePage() {
             <td>{d.top ? `${d.top.name} (${d.top.score.toFixed(2)})` : "None strong"}</td>
             <td className="tabular-nums" data-testid="tl-atp">{fmt(r.atp)}</td><td className="tabular-nums">{fmt(r.superoxide)}</td><td className="tabular-nums">{fmt(r.h2o2)}</td>
             <td>{v.therapies.length ? v.therapies.map((t) => `${tName(t)} ${v.doses?.[t] ?? 1}x${v.actualDoses?.[t] ? ` (taken: ${v.actualDoses[t]})` : ""}`).join(", ") : "None"}</td>
-            <td data-testid="tl-projected">{!pj ? <span className="text-muted-foreground">No therapy</span> : <div className="space-y-0.5">
+            <td data-testid="tl-projected">{onlyId ? (d.projectedFlags.length ? <div className="space-y-0.5">{d.projectedFlags.map((f) => <div key={f.label}>{f.label.replace(" (projected)", "")}: {f.detail}</div>)}</div> : <span className="text-muted-foreground">No measured band flag</span>) : !pj ? <span className="text-muted-foreground">No therapy</span> : <div className="space-y-0.5">
               <div>MitoSOX {v.values.mitosox.toFixed(2)}x to {pj.ms.value.toFixed(2)}x {pj.msMeasuredOut && !pj.ms.outside ? <span className="font-medium text-primary">flag clears</span> : pj.ms.outside ? <span className="text-destructive">{pj.msMeasuredOut ? "still outside" : "outside band"}</span> : <span className="text-muted-foreground">within</span>}</div>
               {pj.h2 && v.h2o2Nm !== undefined && <div>H2O2 {v.h2o2Nm.toFixed(0)} to {pj.h2.value.toFixed(0)} nM {pj.h2MeasuredOut && !pj.h2.outside ? <span className="font-medium text-primary">flag clears</span> : pj.h2.outside ? <span className="text-destructive">{pj.h2MeasuredOut ? "still flagged" : "flagged"}</span> : <span className="text-muted-foreground">within</span>}</div>}
             </div>}</td>
@@ -129,7 +138,7 @@ function TimelinePage() {
           </tr>;
         })}</tbody>
       </table>
-      <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags.</p>
+      <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags. With a therapy picked in the Projected flag therapy menu, the column instead shows the Diagnosis projection for that therapy at the 1x model dose, the same pick as the dashboard's Batch therapy, so the pages agree.</p>
     </section>
 
     <section id="timeline-add" className="mt-6 rounded-md border border-border p-3" data-testid="timeline-add">

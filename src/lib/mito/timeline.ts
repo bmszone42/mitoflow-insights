@@ -64,12 +64,12 @@ export function visitReadouts(p: DemoPatient, v: Visit) {
   return metrics(inputs);
 }
 
-/** Diagnosis at a visit: same rules as the Diagnosis page, run on that visit's values. */
-export function diagnoseVisit(p: DemoPatient, v: Visit) {
-  if (v.origin === "baseline") return diagnoseProfile(p);
+/** Diagnosis at a visit: same rules as the Diagnosis page, run on that visit's values. onlyId pins the projected-flag therapy pick to one therapy, matching the dashboard's Batch therapy choice. */
+export function diagnoseVisit(p: DemoPatient, v: Visit, onlyId?: string) {
+  if (v.origin === "baseline") return diagnoseProfile(p, 1, onlyId);
   const origin = v.origin === "synthetic" ? "synthetic" as const : "user" as const;
   const origins = Object.fromEntries(patientMetrics.map((m) => [m.key, { origin }]));
-  return diagnoseProfile({ ...p, values: v.values, origins });
+  return diagnoseProfile({ ...p, values: v.values, origins }, 1, onlyId);
 }
 
 /**
