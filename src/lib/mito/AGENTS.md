@@ -26,3 +26,4 @@
 - Profile sensitivity (Sensitivity tab) nudges rirrStrength, mitoHalfLife and antioxidantCapacity one at a time on each profile's own baseline via profileSensitivity.ts; effects do not add.
 
 - The Timeline defences-only column uses defencesOnlyGap in timeline.ts, the same matched-healthy comparison as the Dashboard (same potential, iron and L:P held at healthy); the after-arrow value applies the visit therapies at their model doses, so therapies that do not move antioxidantCapacity or deltaPsi show no change.
+- Progress real-dose sliders use realDoses.ts (top of published range = 1x model dose, linear, capped 2x); the run log stores realDose text and superoxide change; why: real units without implying a validated dose-response.

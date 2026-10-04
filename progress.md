@@ -135,3 +135,4 @@
 ✅ Progress run log notes ROS-induced ROS release strength: recordRun stores rirrStrength (assumed setting) from each run site (dashboard, calculator, compare, plan, progress); the log table has a ROS-induced strength column and the Not yet run grid lists the strengths logged per profile.
 
 - ✅ Timeline defences-only superoxide gap per visit: new "Defences only" column (defencesOnlyGap in timeline.ts, same matched-healthy comparison as the Dashboard) shows the gap from the visit's labs, and after an arrow the gap with the visit's therapies at their model doses; therapies that do not move antioxidant capacity or membrane potential show no change. Verified: Leigh baseline +88%, mitochondria-targeted antioxidant 1x takes it to -20%.
+- ✅ Progress grid real-dose sliders per therapy with live superoxide change, Run button, log columns Real dose and Superoxide change (mapping assumed)
