@@ -31,6 +31,7 @@ import {
 } from "@/lib/mito/model";
 import { sensitivityCsv } from "@/lib/mito/csv";
 import { IronLightMap, type IronLightPayload } from "./IronLightMap";
+import { ProfileSensitivity } from "./ProfileSensitivity";
 
 const tip = {
   contentStyle: {
@@ -444,6 +445,7 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
           </div>
         )}
       </section>
+      <ProfileSensitivity geo={geo} />
     </div>
   );
 }

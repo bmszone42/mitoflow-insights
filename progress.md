@@ -128,3 +128,5 @@
 - ✅ Mitophagy as model setting: turnover half-life (2-60 d, default 17.2 d heart; Kim 2012, Stauch 2023) changes potential, leak, iron and ATP; urolithin A card shortens it
 - ✅ Dashboard superoxide vs healthy at the same membrane potential (healthy adult re-run at each profile's potential), on screen and in CSV
 - ✅ Simulator slider for ROS-induced ROS release strength (rirrStrength, 0-1.5, default 0.5 assumed)
+
+- ✅ Profile sensitivity card: ROS-induced ROS release, half-life and antioxidant capacity effects on superoxide, ATP and free iron for all 18 profiles, sweep chart, CSV

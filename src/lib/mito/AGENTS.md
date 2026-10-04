@@ -23,3 +23,4 @@
 - Simulator result panels (FerroptosisPanel, RosBudgetPanel, PhotoreceptorPanel, WarburgSummaryCard) live in their own files; shared Metric/BudgetBar/chart helpers in SimulatorShared.tsx.
 - Diagnosis therapyFlags list model therapies targeting a strong cause (score >= 1.5) that move ATP, superoxide or peroxide by >=1% at 1x model dose; model levers only, never drug doses, and never counted in assay flag totals.
 - Superoxide: SOD clearance scales with antioxidantCapacity ** SOD_AC_EXP and production by antioxidantCapacity ** -rirrStrength (Input, default 0.5, ROS-induced ROS release); why: weak defenses must raise ROS while 1x stays unchanged, and the unpublished strength stays user-tunable.
+- Profile sensitivity (Sensitivity tab) nudges rirrStrength, mitoHalfLife and antioxidantCapacity one at a time on each profile's own baseline via profileSensitivity.ts; effects do not add.
