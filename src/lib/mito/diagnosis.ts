@@ -74,7 +74,7 @@ export const expectedPattern: Record<string, { mechanisms: Mechanism[]; text: st
   "Iron overload": { mechanisms: ["iron"], text: "High iron indices with lipid oxidation." },
 };
 
-export function diagnoseProfile(p: DemoPatient, dose = 1) {
+export function diagnoseProfile(p: DemoPatient, dose = 1, onlyId?: string) {
   const dirs = Object.fromEntries(patientMetrics.map((m) => [m.key, metricDirection(p, m.key)])) as Record<PatientMetricKey, { dir: Direction; basis: string }>;
   // MitoSOX is listed under ROS assay flags (Gonzalo 2019 band), not Patient
   // Data flags, so the band is not counted twice.
@@ -162,8 +162,8 @@ export function diagnoseProfile(p: DemoPatient, dose = 1) {
   // at this dose. Model estimates, not measurements; kept out of the flag
   // counts so the measured flags are never double-counted.
   // Shared with the dashboard: best therapy across all therapies at this dose.
-  const bestSo = bestProjectionTherapy(p, dose, "so");
-  const bestH2 = bestProjectionTherapy(p, dose, "h2");
+  const bestSo = bestProjectionTherapy(p, dose, "so", onlyId);
+  const bestH2 = bestProjectionTherapy(p, dose, "h2", onlyId);
   const projectedFlags: Evidence[] = [
     ...(msBand.outside && bestSo ? [(() => { const pr = projectedMitoSox(p.values.mitosox, 1, bestSo.fold); return { label: `MitoSOX signal ${msBand.value > msBand.hi ? "high" : "low"} (projected)`, type: "Model simulation" as const, source: "Model" as const, detail: `${p.values.mitosox.toFixed(2)}x to ${pr.value.toFixed(2)}x with ${bestSo.t.name} at ${dose}x model dose; ${pr.outside ? "still outside band" : "flag clears"}` }; })()] : []),
     ...(hb.measured?.outside && bestH2 ? [(() => { const pr = projectedH2o2(hb.measured!.value, 1, bestH2.fold); return { label: "Hydrogen peroxide high (projected)", type: "Model simulation" as const, source: "Model" as const, detail: `${hb.measured!.value.toFixed(0)} nM to ${pr.value.toFixed(0)} nM with ${bestH2.t.name} at ${dose}x model dose; ${pr.outside ? "still outside band" : "flag clears"}` }; })()] : []),
@@ -177,7 +177,7 @@ export function diagnoseProfile(p: DemoPatient, dose = 1) {
   return { patient: p, causes, top: strong[0] ?? null, patientFlags, rosAssayFlags, atpAssayFlags, modelFlags, therapyFlags, projectedFlags, expected, fit, realShare: realShare(p) };
 }
 
-export const diagnoseAll = (extra: DemoPatient[] = [], dose = 1) => [...extra, ...demoPatients].map((p) => diagnoseProfile(p, dose));
+export const diagnoseAll = (extra: DemoPatient[] = [], dose = 1, onlyId?: string) => [...extra, ...demoPatients].map((p) => diagnoseProfile(p, dose, onlyId));
 
 const HEALTHY = new Set(["Healthy adult", "Healthy child", "Healthy older adult"]);
 
