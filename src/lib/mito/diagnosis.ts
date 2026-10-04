@@ -105,8 +105,8 @@ export function diagnoseProfile(p: DemoPatient, dose = 1, onlyId?: string) {
   // Healthy inputs re-run at the profile's membrane potential, with and without
   // the profile's antioxidant capacity, so only defences (and the ROS-induced
   // ROS release they drive) show in the gap.
-  const matchedHealthySo = simulate({ ...defaultInputs, deltaPsi: inputs.deltaPsi }, defaultGeometry).superoxide;
-  const matchedProfileSo = simulate({ ...defaultInputs, deltaPsi: inputs.deltaPsi, antioxidantCapacity: profileInputs(p).antioxidantCapacity }, defaultGeometry).superoxide;
+  const matchedHealthySo = simulate({ ...defaultInputs, deltaPsi: profileInputs(p).deltaPsi }, defaultGeometry).superoxide;
+  const matchedProfileSo = simulate({ ...defaultInputs, deltaPsi: profileInputs(p).deltaPsi, antioxidantCapacity: profileInputs(p).antioxidantCapacity }, defaultGeometry).superoxide;
   const defGap = (matchedProfileSo / matchedHealthySo - 1) * 100;
   const modelFlags: Evidence[] = [
     ...(atpModel ? [{ label: `${atpModel} ATP steps flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV, cost ${cost.toFixed(2)} eV/ATP` }] : []),
