@@ -31,3 +31,4 @@
 - Exploratory made-up levers (e.g. OaaSupplyExplorer) stay local component state, are labeled MADE-UP, and never enter Inputs, flags or scenarios; why: keeps cited model outputs clean.
 - Every study reference gets a synopsis and 0-100 score in src/lib/mito/referenceLibrary.ts keyed by DOI; the /references page reads it. Why: one scored library for all sources.
 - Carrier efficiency levers live in src/lib/mito/carriers.ts (applyCarriers maps 0-2x rates onto existing Inputs, clamped by inputRanges) and stay local to /carriers; why: made-up rates must never reach flags, scenarios or Diagnosis.
+- The made-up mitophagy lever lives in src/lib/mito/mitophagy.ts and MitophagyExplorer on the Simulator, local state only; why: behaviors-level exploration must not alter cited outputs.
