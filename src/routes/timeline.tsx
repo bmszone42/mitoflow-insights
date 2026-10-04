@@ -129,7 +129,7 @@ function TimelinePage() {
       <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags.</p>
     </section>
 
-    <section className="mt-6 rounded-md border border-border p-3" data-testid="timeline-add">
+    <section id="timeline-add" className="mt-6 rounded-md border border-border p-3" data-testid="timeline-add">
       <h2 className="text-sm font-semibold">Add a visit</h2>
       <p className="text-[11px] text-muted-foreground">Blank fields carry over from the latest visit. Lactate:pyruvate is recalculated.</p>
       <div className="mt-2 flex items-center gap-2"><label className="text-xs" htmlFor="tl-date">Date</label><Input id="tl-date" type="date" className="w-44" value={date} onChange={(e) => setDate(e.target.value)} /></div>
