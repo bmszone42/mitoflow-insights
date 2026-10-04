@@ -100,19 +100,22 @@ function Dashboard() {
         respMatrix: matrix,
         flagsOnlyCount: allResp ? allResp.filter((x) => !x.hasReadout).length : 0,
       };
-    }).map((r) => ({
-      ...r,
-      resp: r.respAll === null ? null : readoutOnly
-        ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
-        : r.respAll,
-    }));
+    });
     return built.sort((a, b) => {
       const fa = a.labFlags + a.assayFlags + a.modelFlags;
       const fb = b.labFlags + b.assayFlags + b.modelFlags;
       if (fb !== fa) return fb - fa;
       return a.p.label.localeCompare(b.p.label);
     });
-  }, [users, readoutOnly, dose, batchTherapy]);
+  }, [users, dose, batchTherapy]);
+
+  // Light memo: display filtering only (readoutOnly checkbox), no simulations.
+  const rows = useMemo(() => simulated.map((r) => ({
+    ...r,
+    resp: r.respAll === null ? null : readoutOnly
+      ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
+      : r.respAll,
+  })), [simulated, readoutOnly]);
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
