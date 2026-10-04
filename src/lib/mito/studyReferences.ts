@@ -372,6 +372,17 @@ export const studyReferences: StudyReference[] = [
     section: "ROS, iron and assays",
     locator: "Figure 3; protein-normalized rates, not a transferable range",
   },
+  {
+    doi: "10.1126/science.adz4797",
+    authors: "Karavaeva A, Basse AL, Trammell SAJ, et al.",
+    title: "Mitochondrial carrier SLC25A34 links clock, diet, and temperature control of adipocyte lipid cycling",
+    journal: "Science",
+    year: 2026,
+    location: "Article eadz4797",
+    url: "https://doi.org/10.1126/science.adz4797",
+    section: "ATP and respiratory controls",
+    locator: "SLC25A34 as an inner-membrane oxaloacetate carrier in adipocytes; no transferable rate",
+  },
 ] satisfies StudyReference[];
 
 export const studySections = ["ETC energetics", "ATP and respiratory controls", "ROS, iron and assays", "Light and ferroptosis", "Cristae and membrane geometry"] as const;

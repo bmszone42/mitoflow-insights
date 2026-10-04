@@ -86,3 +86,9 @@
 ## Run locally guide (2026-10-04) ✅
 - [x] README gained a "Run locally (fully offline)" section: bun install, bun run dev, no .env needed; production build steps; data-stays-local notes.
 - [x] `.env.example` documents the two optional values (LOVABLE_API_KEY for AI buttons, cloud keys only if cloud features are re-enabled); neither is required offline.
+
+## Literature log: SLC25A34 (2026-10-04) ✅
+- [x] Karavaeva et al., Science 2026, DOI 10.1126/science.adz4797 added to study references (ATP and respiratory controls).
+- [x] Physiology references gained a Mitochondrial carriers table: Mitoferrin-1/2 (SLC25A37/28) beside SLC25A34 (oxaloacetate importer), qualitative only.
+- [x] Evaluated an OAA/anaplerosis slider for Warburg routing: not added. The paper gives adipocyte-specific, qualitative data, no transferable flux; the model already folds TCA carbon supply into the NADH ratio and fuel supply.
+- ❌ Revisit an anaplerosis lever if a source gives a tissue-general OAA import or pyruvate carboxylase flux.
