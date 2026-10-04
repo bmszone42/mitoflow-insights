@@ -68,6 +68,12 @@ function TimelinePage() {
     addPlan({ patientId: p.id, date: planDate, therapies: planPicked, doses: Object.fromEntries(planPicked.map((t) => [t, planDoses[t] ?? 1])) });
     setPlanPicked([]); setPlanDoses({});
   };
+  const convertPlan = (v: (typeof timeline)[number]["v"]) => {
+    setDate(v.date);
+    setPicked([...v.therapies]);
+    setDoses({ ...(v.doses ?? {}) });
+    document.getElementById("timeline-add")?.scrollIntoView({ behavior: "smooth" });
+  };
   const tName = (tid: string) => therapies.find((t) => t.id === tid)?.name ?? tid;
 
   return <main className="mx-auto max-w-6xl px-4 py-6">
@@ -113,14 +119,17 @@ function TimelinePage() {
               <div>MitoSOX {v.values.mitosox.toFixed(2)}x to {pj.ms.value.toFixed(2)}x {pj.msMeasuredOut && !pj.ms.outside ? <span className="font-medium text-primary">flag clears</span> : pj.ms.outside ? <span className="text-destructive">{pj.msMeasuredOut ? "still outside" : "outside band"}</span> : <span className="text-muted-foreground">within</span>}</div>
               {pj.h2 && v.h2o2Nm !== undefined && <div>H2O2 {v.h2o2Nm.toFixed(0)} to {pj.h2.value.toFixed(0)} nM {pj.h2MeasuredOut && !pj.h2.outside ? <span className="font-medium text-primary">flag clears</span> : pj.h2.outside ? <span className="text-destructive">{pj.h2MeasuredOut ? "still flagged" : "flagged"}</span> : <span className="text-muted-foreground">within</span>}</div>}
             </div>}</td>
-            <td>{(v.origin === "user" || v.origin === "plan") && <button type="button" aria-label="Remove visit" onClick={() => removeVisit(v.id)}><Trash2 className="size-3.5 text-muted-foreground" /></button>}</td>
+            <td><div className="flex items-center gap-1.5">
+              {v.origin === "plan" && <Button variant="outline" size="sm" className="h-6 px-2 text-[10px]" data-testid="tl-convert-plan" onClick={() => convertPlan(v)}>Convert to visit</Button>}
+              {(v.origin === "user" || v.origin === "plan") && <button type="button" aria-label="Remove visit" onClick={() => removeVisit(v.id)}><Trash2 className="size-3.5 text-muted-foreground" /></button>}
+            </div></td>
           </tr>;
         })}</tbody>
       </table>
       <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags.</p>
     </section>
 
-    <section className="mt-6 rounded-md border border-border p-3" data-testid="timeline-add">
+    <section id="timeline-add" className="mt-6 rounded-md border border-border p-3" data-testid="timeline-add">
       <h2 className="text-sm font-semibold">Add a visit</h2>
       <p className="text-[11px] text-muted-foreground">Blank fields carry over from the latest visit. Lactate:pyruvate is recalculated.</p>
       <div className="mt-2 flex items-center gap-2"><label className="text-xs" htmlFor="tl-date">Date</label><Input id="tl-date" type="date" className="w-44" value={date} onChange={(e) => setDate(e.target.value)} /></div>
