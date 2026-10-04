@@ -130,3 +130,4 @@
 - ✅ Simulator slider for ROS-induced ROS release strength (rirrStrength, 0-1.5, default 0.5 assumed)
 
 - ✅ Profile sensitivity card: ROS-induced ROS release, half-life and antioxidant capacity effects on superoxide, ATP and free iron for all 18 profiles, sweep chart, CSV
+- ✅ Dashboard superoxide "Defences only" gap: same potential, labile iron and L:P held at healthy
