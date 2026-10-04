@@ -101,9 +101,18 @@ export function diagnoseProfile(p: DemoPatient, dose = 1, onlyId?: string) {
   const stdCost = effectiveAtpCost(defaultInputs.deltaPsi, defaultInputs.uncoupling);
   const atpModel = etcSteps.filter((s) => { const f = atpNetworkRangeFlags(s, stdCost, cost); return f.evOutside || f.costBOutside; }).length;
   const rosModel = rosSourceRows(simOut, simulate(defaultInputs, defaultGeometry), inputs, defaultInputs).filter((r) => r.flagged).length;
+  // Defences-only gap: same comparison as the dashboard's "Defences only" line.
+  // Healthy inputs re-run at the profile's membrane potential, with and without
+  // the profile's antioxidant capacity, so only defences (and the ROS-induced
+  // ROS release they drive) show in the gap.
+  const healthyBase = profileInputs(adultControl);
+  const matchedHealthySo = simulate({ ...healthyBase, deltaPsi: profileInputs(p).deltaPsi }, defaultGeometry).superoxide;
+  const matchedProfileSo = simulate({ ...healthyBase, deltaPsi: profileInputs(p).deltaPsi, antioxidantCapacity: profileInputs(p).antioxidantCapacity }, defaultGeometry).superoxide;
+  const defGap = (matchedProfileSo / matchedHealthySo - 1) * 100;
   const modelFlags: Evidence[] = [
     ...(atpModel ? [{ label: `${atpModel} ATP steps flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV, cost ${cost.toFixed(2)} eV/ATP` }] : []),
     ...(rosModel ? [{ label: `${rosModel} ROS sources flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV vs default` }] : []),
+    ...(defGap > 0 ? [{ label: "Superoxide high, defences only", type: "Model simulation" as const, source: "Model" as const, detail: `${defGap >= 0 ? "+" : ""}${defGap.toFixed(0)}% vs healthy at the same membrane potential, labile iron and L:P; only antioxidant capacity and ROS-induced ROS release differ` }] : []),
   ];
 
   const causes = order.map((mech) => {
@@ -126,7 +135,8 @@ export function diagnoseProfile(p: DemoPatient, dose = 1, onlyId?: string) {
     if (mech === "pyruvate" && supporting.length) { if (lp.dir === "high") conflicting.push(lpEv); else supporting.push({ ...lpEv, label: "Lactate:pyruvate ratio normal" }); }
     if (mech === "respiratory" && dirs.lactate.dir === "high" && lp.dir !== "high") conflicting.push({ ...lpEv, label: "Lactate:pyruvate ratio normal" });
     if (mech === "coupling" && atpModel) supporting.push(modelFlags[0]!);
-    if (mech === "oxidant" && rosModel) supporting.push(modelFlags[modelFlags.length - 1]!);
+    if (mech === "oxidant" && rosModel) supporting.push(modelFlags.find((f) => f.label.endsWith("ROS sources flagged"))!);
+    if (mech === "oxidant" && defGap > 0) supporting.push(modelFlags.find((f) => f.label.startsWith("Superoxide high, defences only"))!);
     const score = supporting.reduce((s, e) => s + evWeight(e), 0) - conflicting.reduce((s, e) => s + evWeight(e), 0);
     // ROS probe signals are nonspecific: any primary defect can raise them, so
     // oxidant load counts at half weight as a downstream signal.
