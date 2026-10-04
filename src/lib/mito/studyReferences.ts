@@ -383,6 +383,17 @@ export const studyReferences: StudyReference[] = [
     section: "ATP and respiratory controls",
     locator: "SLC25A34 as an inner-membrane oxaloacetate carrier in adipocytes; no transferable rate",
   },
+  {
+    doi: "10.1038/s42255-023-00783-1",
+    authors: "Anna S. Monzel, José Antonio Enríquez, Martin Picard",
+    title: "Multifaceted mitochondria: moving mitochondrial science beyond function and dysfunction",
+    journal: "Nature Metabolism 5(4)",
+    year: 2023,
+    location: "pp. 546–562",
+    url: "https://doi.org/10.1038/s42255-023-00783-1",
+    section: "ATP and respiratory controls",
+    locator: "Perspective; five-level terminology (cell-dependent properties, molecular features, activities, functions, behaviors)",
+  },
 ] satisfies StudyReference[];
 
 export const studySections = ["ETC energetics", "ATP and respiratory controls", "ROS, iron and assays", "Light and ferroptosis", "Cristae and membrane geometry"] as const;

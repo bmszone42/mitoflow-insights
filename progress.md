@@ -94,3 +94,8 @@
 - ❌ Revisit an anaplerosis lever if a source gives a tissue-general OAA import or pyruvate carboxylase flux.
  - [x] Oxaloacetate supply explorer (made-up, unvalidated) on the Warburg dashboard: 0-2x lever scales the NADH pool by an invented saturating curve and shows ATP and superoxide change; never alters sliders, flags, scenarios or diagnosis.
  - [x] Citation verified against the journal page and Crossref: Science 394(6819), Article eadz4797, 1 Oct 2026, 64 authors (first: Iuliia Karavaeva; seniors: Zachary Gerhart-Hines, Mitchell A. Lazar). Study references and the carriers table now carry the full volume, issue and article number.
+
+## Literature log: Multifaceted mitochondria (2026-10-04) ✅
+- [x] Monzel, Enríquez, Picard. Nature Metabolism 5(4):546-562 (2023), DOI 10.1038/s42255-023-00783-1 (via @dantawfik post), verified on Crossref and added to study references.
+- [x] Reference library page `/references` (nav: References): every study with synopsis and score /100 (relevance 40 + evidence 30 + usability 30), search and section filter.
+- ❌ Rename "dysfunction"-style wording toward the paper's levels (activity vs function vs behavior) in flags.

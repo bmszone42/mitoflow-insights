@@ -129,6 +129,7 @@ const navLinks = [
   { to: "/therapy-tools", label: "Therapy tools" },
   { to: "/runs", label: "Progress" },
   { to: "/lab-ranges", label: "Lab ranges" },
+  { to: "/references", label: "References" },
 ] as const;
 
 function TopNav() {
