@@ -120,11 +120,51 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const navLinks = [
+  { to: "/", label: "Simulator", exact: true },
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/diagnosis", label: "Diagnosis" },
+  { to: "/timeline", label: "Timeline" },
+  { to: "/therapy-plan", label: "Therapy plan" },
+  { to: "/lab-ranges", label: "Lab ranges" },
+] as const;
+
+function TopNav() {
+  return (
+    <nav
+      data-testid="top-nav"
+      className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur"
+    >
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-1 gap-y-1 px-4 py-2">
+        <Link
+          to="/"
+          className="mr-3 text-sm font-semibold tracking-tight text-foreground"
+        >
+          Cristae Lab
+        </Link>
+        {navLinks.map((l) => (
+          <Link
+            key={l.to}
+            to={l.to}
+            activeOptions={{ exact: l.to === "/" }}
+            activeProps={{ className: "bg-accent text-foreground" }}
+            inactiveProps={{ className: "text-muted-foreground hover:text-foreground" }}
+            className="rounded-md px-2.5 py-1.5 text-sm transition-colors"
+          >
+            {l.label}
+          </Link>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
+      <TopNav />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster />
