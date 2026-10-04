@@ -46,3 +46,8 @@
 - Split the dashboard's single useMemo in two: a heavy memo keyed on [users, dose, batchTherapy] runs every per-profile simulation and the 20-therapy sweep, and a light memo keyed on [simulated, readoutOnly] only re-filters the display list.
 - Toggling "Only therapies that change ATP, superoxide or peroxide" no longer re-runs the ~360 simulations; dose and batch-picker changes still do, as they must.
 - Build OK.
+
+## Timeline per-visit memoization (2026-10-04) ✅
+- Per-visit simulation cache (useRef Map) keyed on profile, visit id, pinned projection therapy and visit content (labs, peroxide, therapies, doses): a visit's diagnosis, readouts and projection recompute only when that visit changes, not when form state or other visits do. Cache cleared past 200 entries.
+- Chart derivation wrapped in useMemo keyed on [timeline, metric].
+- Build OK.
