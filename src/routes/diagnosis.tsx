@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowLeft, CheckCircle2, CircleHelp } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
+import { therapies } from "@/lib/mito/treatment";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
 
@@ -91,7 +92,15 @@ function DiagnosisPage() {
         <EvidenceList title="Patient Data flags" items={d.patientFlags} empty="No measurement outside its cited band or ±25% of the age-matched healthy profile." />
         <EvidenceList title="ROS assay flags" items={d.rosAssayFlags} empty="MitoSOX, H₂O₂ and lipid oxidation within ±25% of healthy." />
         <div className="min-w-0 border-t border-border pt-3" data-testid="dx-projected-flags">
-          <h4 className="text-xs font-semibold">Projected flags <span className="font-mono text-muted-foreground">{d.projectedFlags.length}</span></h4>
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="text-xs font-semibold">Projected flags <span className="font-mono text-muted-foreground">{d.projectedFlags.length}</span></h4>
+            <label className="flex items-center gap-1 text-[11px] text-muted-foreground">Therapy
+              <select value={projTherapy} onChange={(e) => setProjTherapy(e.target.value)} className="max-w-[200px] rounded border border-border bg-background px-1 py-0.5 font-mono text-[11px]" data-testid="dx-proj-therapy">
+                <option value="best">Strongest therapy</option>
+                {therapies.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </label>
+          </div>
           {d.projectedFlags.length === 0 ? <p className="mt-1 text-[11px] text-muted-foreground">No measured MitoSOX or peroxide band flag to project, or no therapy moves the model readout at this dose.</p> :
             <ul className="mt-1 space-y-1 text-[11px]">{d.projectedFlags.map((e) => <li key={e.label + e.detail}><span className="font-medium">{e.label}</span> <span className="text-muted-foreground">· {e.detail} · {e.type}</span></li>)}</ul>}
           <p className="mt-1 text-[10px] text-muted-foreground">Projections scale the measured value by the model's change under the strongest therapy at the chosen model dose. A projected clearance is a model estimate, not a lab result; it does not change the measured flags above, and it should be confirmed by a new measurement. Some therapies never lower peroxide in the model: iron chelation and lipid radical-trapping antioxidants act on Fe-S damage and lipid oxidation, which do not feed the peroxide readout, so the projected value stays at the measured number. Others can raise it, such as NAD+ precursors, by pushing more electrons through the chain.</p>
