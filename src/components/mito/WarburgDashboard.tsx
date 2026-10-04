@@ -1,4 +1,5 @@
 import { AtpDriverNetwork } from "./AtpDriverNetwork";
+import { OaaSupplyExplorer } from "./OaaSupplyExplorer";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
@@ -92,6 +93,7 @@ export function WarburgDashboard({
 
   return (
     <div className="space-y-4" data-testid="warburg-dashboard">
+      <OaaSupplyExplorer inputs={inputs} geo={geo} out={out} />
       <div className="rounded-lg border border-border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
