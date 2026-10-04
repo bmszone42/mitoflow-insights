@@ -121,11 +121,12 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 const navLinks = [
-  { to: "/", label: "Simulator", exact: true },
+  { to: "/", label: "Simulator" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/diagnosis", label: "Diagnosis" },
   { to: "/timeline", label: "Timeline" },
   { to: "/therapy-plan", label: "Therapy plan" },
+  { to: "/therapy-tools", label: "Therapy tools" },
   { to: "/lab-ranges", label: "Lab ranges" },
 ] as const;
 

@@ -10,6 +10,9 @@ import { buildPlan, modelDoses, profileInputs } from "@/lib/mito/treatment";
 type Diagnosed = ReturnType<typeof diagnoseProfile>;
 
 export const Route = createFileRoute("/therapy-plan")({
+  validateSearch: (s: Record<string, unknown>): { profile?: string | undefined } => ({
+    profile: typeof s["profile"] === "string" ? s["profile"] : undefined,
+  }),
   head: () => ({ meta: [
     { title: "Therapy plan: flagged therapies and projected clearance | Cristae Lab" },
     { name: "description", content: "Flagged model therapies for each profile at a chosen model dose, with ATP and ROS changes and projected MitoSOX and peroxide flag clearance. Research only." },
@@ -28,9 +31,10 @@ const f = (v: number, d = 2) => (Math.abs(v) < 0.01 && v !== 0 ? v.toExponential
 const pctOf = (a: number, b: number) => (a === 0 ? "" : ` (${b >= a ? "+" : ""}${(((b - a) / a) * 100).toFixed(0)}%)`);
 
 function TherapyPlan() {
+  const search = Route.useSearch();
   const users = useUserPatients();
   const pool = useMemo(() => [...users, ...demoPatients], [users]);
-  const [id, setId] = useState("all");
+  const [id, setId] = useState(search.profile ?? "all");
   const [dose, setDose] = useState(1);
   const groups = useMemo(() => pool.filter((p) => id === "all" || p.id === id).map((p) => ({ p, rows: therapyPlanRows(p, dose) })), [pool, id, dose]);
 
