@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Download } from "lucide-react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { demoPatients, type DemoPatient } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { applyTherapyDose, calculatorDoses, doseResponse, moveLabel, profileInputs, therapies } from "@/lib/mito/treatment";
+import { recordRun } from "@/lib/mito/runs";
 import { defaultGeometry, inputRanges, simulate } from "@/lib/mito/model";
 
 type Search = {
@@ -84,6 +85,8 @@ function TherapyTools() {
 function Calculator({ patient, search, set }: { patient: DemoPatient; search: Search; set: (p: Partial<Search>) => void }) {
   const therapy = therapies.find((t) => t.id === search.therapy) ?? therapies[0]!;
   const rows = useMemo(() => doseResponse(patient, therapy), [patient, therapy]);
+  // Log to the local run log; dose 0 marks a full dose sweep (Scenario progress page).
+  useEffect(() => { recordRun(patient.id, "calculator", 0, [therapy.id]); }, [patient.id, therapy.id]);
   const base = profileInputs(patient);
   const chart = rows.map((r) => ({ dose: `${r.dose}x`, ATP: Math.round(r.atpChange * 100), Superoxide: Math.round(r.superoxideChange * 100), "H2O2": Math.round(r.h2o2Change * 100) }));
 
@@ -151,6 +154,8 @@ function Compare({ patient, all, search, set }: { patient: DemoPatient; all: Dem
   const outB = useMemo(() => simulate(applyTherapyDose(base, tb, db), defaultGeometry), [base, tb, db]);
   const shared = ta.moves.map((m) => m.key).filter((k) => tb.moves.some((m) => m.key === k));
   const combined = useMemo(() => simulate(applyTherapyDose(applyTherapyDose(base, ta, da), tb, db), defaultGeometry), [base, ta, da, tb, db]);
+  // Log the pair to the local run log (Scenario progress page); dose shown is therapy A's.
+  useEffect(() => { recordRun(patient.id, "compare", da, [ta.id, tb.id]); }, [patient.id, ta.id, tb.id, da, db]);
 
   const readouts = [
     { key: "atpFlux" as const, label: "ATP flux", unit: "µM/s" },
