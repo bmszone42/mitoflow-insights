@@ -85,6 +85,8 @@ function RunsPage() {
                   <th className="font-normal">Model dose</th>
                   <th className="font-normal">Therapies</th>
                   <th className="font-normal">ROS-induced strength</th>
+                  <th className="font-normal">Real dose</th>
+                  <th className="font-normal">Superoxide change</th>
                   <th className="font-normal">Times run</th>
                   <th className="font-normal">Last run</th>
                 </tr></thead>
@@ -94,6 +96,8 @@ function RunsPage() {
                     <td>{doseLabel(r.dose)}</td>
                     <td className="max-w-md"><span className="text-muted-foreground">{r.therapyIds.map(therapyName).join(", ")}</span></td>
                     <td data-testid="runs-rirr">{r.rirrStrength != null ? `${r.rirrStrength}x` : "not noted"}</td>
+                    <td data-testid="runs-real-dose">{r.realDose ?? "-"}</td>
+                    <td data-testid="runs-so-change">{r.soChangePct != null ? `${r.soChangePct.toFixed(1)}%` : "-"}</td>
                     <td>{r.count}{r.count > 1 && <span className="ml-1 text-xs text-amber-600 dark:text-amber-400">repeated</span>}</td>
                     <td className="text-muted-foreground">{new Date(r.at).toLocaleString()}</td>
                   </tr>
