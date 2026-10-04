@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { defaultInputs, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
 import { putScenario, type Scenario } from "@/lib/mito/scenarios";
 import { snapshotOf } from "./Scenarios";
+import { oaaFactor } from "./OaaSupplyExplorer";
 
 // Left column of the Simulator: therapy levers, drug and combo presets, and every model slider.
 type ControlDef = {
