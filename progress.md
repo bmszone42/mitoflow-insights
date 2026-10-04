@@ -92,4 +92,5 @@
 - [x] Physiology references gained a Mitochondrial carriers table: Mitoferrin-1/2 (SLC25A37/28) beside SLC25A34 (oxaloacetate importer), qualitative only.
 - [x] Evaluated an OAA/anaplerosis slider for Warburg routing: not added. The paper gives adipocyte-specific, qualitative data, no transferable flux; the model already folds TCA carbon supply into the NADH ratio and fuel supply.
 - ❌ Revisit an anaplerosis lever if a source gives a tissue-general OAA import or pyruvate carboxylase flux.
-- [x] Oxaloacetate supply explorer (made-up, unvalidated) on the Warburg dashboard: 0-2x lever scales the NADH pool by an invented saturating curve and shows ATP and superoxide change; never alters sliders, flags, scenarios or diagnosis.
+ - [x] Oxaloacetate supply explorer (made-up, unvalidated) on the Warburg dashboard: 0-2x lever scales the NADH pool by an invented saturating curve and shows ATP and superoxide change; never alters sliders, flags, scenarios or diagnosis.
+ - [x] Citation verified against the journal page and Crossref: Science 394(6819), Article eadz4797, 1 Oct 2026, 64 authors (first: Iuliia Karavaeva; seniors: Zachary Gerhart-Hines, Mitchell A. Lazar). Study references and the carriers table now carry the full volume, issue and article number.
