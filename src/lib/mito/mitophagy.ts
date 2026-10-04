@@ -18,7 +18,7 @@ export function mitophagyReadout(i: Inputs, geo: Geometry, speedup: number) {
   return {
     halfLife: inputs.mitoHalfLife,
     damaged: qc.damaged,
-    psi: inputs.deltaPsi - 40 * qc.dD,
+    psi: inputs.deltaPsi - 15 * qc.dD,
     iron: inputs.labileIron * qc.iron,
     atp: o.atpFlux,
     so: o.superoxide,

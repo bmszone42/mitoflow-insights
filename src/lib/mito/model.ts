@@ -278,7 +278,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // kt = ln2 / t1/2 is published; the damage rate is calibrated (assumption) so
   // 10% of mitochondria are damaged at the default 17.2 d, making dD = 0 there.
   const qc = qualityControl(i.mitoHalfLife);
-  const psi = i.deltaPsi + ge.psiShift + pr.psiShift - 40 * qc.dD; // damaged mitochondria are depolarized
+  const psi = i.deltaPsi + ge.psiShift + pr.psiShift - 15 * qc.dD; // damaged mitochondria are depolarized
   const photonGain = 1 + pr.civGain;
   const noEff = i.nitricOxide * (1 - pr.noReleased);
 
