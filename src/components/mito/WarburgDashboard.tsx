@@ -116,6 +116,9 @@ export function WarburgDashboard({
           <Stat label="Glycolysis share" value={`${live.glycolysisPct.toFixed(0)}%`} />
           <Stat label="NADH / succinate" value={`${inputs.nadhRatio.toFixed(2)} / ${inputs.succinate.toFixed(2)}`} />
         </div>
+        <div className="mt-4">
+          <OaaSupplyExplorer inputs={inputs} geo={geo} out={out} />
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
