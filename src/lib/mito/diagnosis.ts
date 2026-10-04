@@ -84,7 +84,7 @@ export function diagnoseProfile(p: DemoPatient, dose = 1, onlyId?: string) {
   const rosAssays = (["O2•-", "H2O2", "•OH"] as const).map((s) => rosAssayFlag(s, p.values, adultControl.values)).filter((a): a is NonNullable<typeof a> => !!a);
   const msBand = readoutChecks(p).find((b) => b.key === "mitosox")!;
   // Model flags from the profile's membrane potential only, other inputs default.
-  const inputs = { ...defaultInputs, deltaPsi: p.values.membranePotential };
+  const inputs = { ...defaultInputs, deltaPsi: p.values.membranePotential, antioxidantCapacity: profileInputs(p).antioxidantCapacity };
   const simOut = simulate(inputs, defaultGeometry);
   // Peroxide band (Sies 2017): measured nM when entered, else the model value.
   const hb = h2o2BandCheck(p, simOut.hydrogenPeroxide);
