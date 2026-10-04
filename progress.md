@@ -99,3 +99,7 @@
 - [x] Monzel, Enríquez, Picard. Nature Metabolism 5(4):546-562 (2023), DOI 10.1038/s42255-023-00783-1 (via @dantawfik post), verified on Crossref and added to study references.
 - [x] Reference library page `/references` (nav: References): every study with synopsis and score /100 (relevance 40 + evidence 30 + usability 30), search and section filter.
 - ❌ Rename "dysfunction"-style wording toward the paper's levels (activity vs function vs behavior) in flags.
+
+## Oxaloacetate slider on the Simulator (2026-10-04)
+- [x] MADE-UP OAA supply slider added to the Simulator's fuel presets area (SliderPanel, data-testid sim-oaa); moving it scales the NADH / NAD+ pool slider by the invented saturating curve from OaaSupplyExplorer.
+- [x] Verified live: slider renders at 1x and moves to 1.5x; build and typecheck clean.
