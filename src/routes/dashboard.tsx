@@ -58,10 +58,13 @@ function Dashboard() {
   const [showBaselineChart, setShowBaselineChart] = useState(false);
   // Batch CSV therapy filter: "all" exports every responding therapy; a therapy id exports just that one across every profile.
   const [batchTherapy, setBatchTherapy] = useState("all");
-  const rows = useMemo(() => {
+  // Heavy memo: every per-profile simulation and the 20-therapy sweep. Keyed only on
+  // users, dose and batchTherapy, so toggling readoutOnly never re-runs it.
+  const simulated = useMemo(() => {
     const pool = [...users, ...demoPatients];
     const healthy = simulate(profileInputs(demoPatients.find((p) => p.id === "demo-01")!), defaultGeometry);
     const built = pool.map((p) => {
+
       const out = simulate(profileInputs(p), defaultGeometry);
       const d = diagnoseProfile(p);
       const hb = h2o2BandCheck(p, out.hydrogenPeroxide);
@@ -97,19 +100,22 @@ function Dashboard() {
         respMatrix: matrix,
         flagsOnlyCount: allResp ? allResp.filter((x) => !x.hasReadout).length : 0,
       };
-    }).map((r) => ({
-      ...r,
-      resp: r.respAll === null ? null : readoutOnly
-        ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
-        : r.respAll,
-    }));
+    });
     return built.sort((a, b) => {
       const fa = a.labFlags + a.assayFlags + a.modelFlags;
       const fb = b.labFlags + b.assayFlags + b.modelFlags;
       if (fb !== fa) return fb - fa;
       return a.p.label.localeCompare(b.p.label);
     });
-  }, [users, readoutOnly, dose, batchTherapy]);
+  }, [users, dose, batchTherapy]);
+
+  // Light memo: display filtering only (readoutOnly checkbox), no simulations.
+  const rows = useMemo(() => simulated.map((r) => ({
+    ...r,
+    resp: r.respAll === null ? null : readoutOnly
+      ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
+      : r.respAll,
+  })), [simulated, readoutOnly]);
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;

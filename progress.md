@@ -41,3 +41,8 @@
 - Diagnosis page: Therapy picker beside Projected flags ("Strongest therapy" default, or any therapy), matching the dashboard's Batch therapy choice.
 - Timeline: "Projected flag therapy" picker; "Each visit's own therapies" keeps the per-visit projection, a picked therapy shows the Diagnosis projection for that therapy at 1x in every row.
 - Verified live: Leigh syndrome with the mitochondria-targeted antioxidant pinned shows MitoSOX 1.58x to 1.34x, flag clears, identically on Diagnosis, the dashboard (Batch therapy) and the Timeline. Build and typecheck clean.
+
+## Dashboard sweep memoization (2026-10-04) ✅
+- Split the dashboard's single useMemo in two: a heavy memo keyed on [users, dose, batchTherapy] runs every per-profile simulation and the 20-therapy sweep, and a light memo keyed on [simulated, readoutOnly] only re-filters the display list.
+- Toggling "Only therapies that change ATP, superoxide or peroxide" no longer re-runs the ~360 simulations; dose and batch-picker changes still do, as they must.
+- Build OK.
