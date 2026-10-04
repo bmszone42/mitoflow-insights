@@ -112,6 +112,16 @@ const controls: ControlDef[] = [
     hint: "Competes with O2 at Complex IV",
   },
   {
+    key: "rirrStrength",
+    label: "ROS-induced ROS release strength (assumed)",
+    unit: "exp",
+    min: 0,
+    max: 1.5,
+    step: 0.05,
+    group: "iron",
+    hint: "Vicious cycle (Zorov 2014); no published strength, 0.5 default is assumed, 0 = off. Only acts when antioxidant capacity is not 1x",
+  },
+  {
     key: "antioxidantCapacity",
     label: "Antioxidant capacity",
     unit: "rel",

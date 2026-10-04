@@ -87,6 +87,7 @@ export type Inputs = {
   gpx4: number; // 0-2 relative GPx4 activity (0 = RSL3/ML162 inhibited)
   fsp1: number; // 0-2 relative FSP1/CoQ10H2 capacity
   cardiolipinPufa: number; // 0.2-1 fraction of PUFA acyl chains (ACSL4-driven)
+  rirrStrength: number; // 0-1.5 ROS-induced ROS release exponent (Zorov 2014 mechanism; strength assumed)
   mitoHalfLife: number; // days, mitochondrial turnover half-life (Kim 2012: heart 17.2, liver 4.3)
 };
 
@@ -108,6 +109,7 @@ export const defaultInputs: Inputs = {
   fsp1: 1,
   cardiolipinPufa: 0.6,
   mitoHalfLife: 17.2,
+  rirrStrength: 0.5,
 };
 
 export type Coherence = {
@@ -320,8 +322,8 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const vOGDH = 0.4 * vOGDHtotal;
   // ROS-induced ROS release (Zorov 2014): weak thiol defenses let oxidized
   // Complex I/III leak more. Model tuning exponent; 1x capacity = no change.
-  const REDOX_FEEDBACK_EXP = 0.5;
-  const redoxFb = i.antioxidantCapacity ** -REDOX_FEEDBACK_EXP;
+  // Strength is user-tunable (rirrStrength, default 0.5); legacy states lack it.
+  const redoxFb = i.antioxidantCapacity ** -(i.rirrStrength ?? 0.5);
   const vMatrixO2 = redoxFb * (vIF + vIQ + 0.5 * vIIIQo + vIIF + vOGDH);
   const vImsO2 = redoxFb * 0.5 * vIIIQo;
 
@@ -626,6 +628,7 @@ export const sensitivityDrivers: DriverDef[] = [
   { key: "fsp1", label: "FSP1 / CoQ10H2", min: 0, max: 2, group: "Ferroptosis" },
   { key: "cardiolipinPufa", label: "Cardiolipin PUFA", min: 0.2, max: 1, group: "Ferroptosis" },
   { key: "mitoHalfLife", label: "Turnover half-life", min: 2, max: 60, group: "Iron" },
+  { key: "rirrStrength", label: "ROS-induced ROS release", min: 0, max: 1.5, group: "ROS / RNS" },
 ];
 export type SensOutputKey =
   | "superoxide" | "hydrogenPeroxide" | "hydroxylRadical" | "peroxynitrite"
@@ -717,6 +720,7 @@ export const inputRanges: Record<keyof Inputs, { min: number; max: number; label
   fsp1: { min: 0, max: 2, label: "FSP1 / CoQ10H2 capacity", unit: "rel" },
   cardiolipinPufa: { min: 0.2, max: 1, label: "Cardiolipin PUFA fraction", unit: "fraction" },
   mitoHalfLife: { min: 2, max: 60, label: "Mitochondrial turnover half-life", unit: "days" },
+  rirrStrength: { min: 0, max: 1.5, label: "ROS-induced ROS release strength", unit: "exponent" },
 };
 
 // Structure view geometry (SVG units, roughly nm-scaled). Source of ranges for the Structure
