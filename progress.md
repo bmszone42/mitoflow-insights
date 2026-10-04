@@ -51,3 +51,6 @@
 - Per-visit simulation cache (useRef Map) keyed on profile, visit id, pinned projection therapy and visit content (labs, peroxide, therapies, doses): a visit's diagnosis, readouts and projection recompute only when that visit changes, not when form state or other visits do. Cache cleared past 200 entries.
 - Chart derivation wrapped in useMemo keyed on [timeline, metric].
 - Build OK.
+
+## Persistent top nav (2026-10-04) ✅
+- [x] Sticky top nav in `src/routes/__root.tsx` (data-testid="top-nav"): Simulator, Dashboard, Diagnosis, Timeline, Therapy plan, Lab ranges; active link highlighted; every page one click away.
