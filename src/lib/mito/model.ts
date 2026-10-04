@@ -87,6 +87,7 @@ export type Inputs = {
   gpx4: number; // 0-2 relative GPx4 activity (0 = RSL3/ML162 inhibited)
   fsp1: number; // 0-2 relative FSP1/CoQ10H2 capacity
   cardiolipinPufa: number; // 0.2-1 fraction of PUFA acyl chains (ACSL4-driven)
+  mitoHalfLife: number; // days, mitochondrial turnover half-life (Kim 2012: heart 17.2, liver 4.3)
 };
 
 export const defaultInputs: Inputs = {
@@ -106,6 +107,7 @@ export const defaultInputs: Inputs = {
   gpx4: 1,
   fsp1: 1,
   cardiolipinPufa: 0.6,
+  mitoHalfLife: 17.2,
 };
 
 export type Coherence = {
@@ -258,10 +260,25 @@ export function photoreceptor(i: Inputs): Photoreceptor {
   };
 }
 
+export const MITO_DAMAGED_AT_DEFAULT = 0.1;
+export function qualityControl(halfLife: number) {
+  const t = Number.isFinite(halfLife) && halfLife > 0 ? halfLife : 17.2; // old scenarios lack the field
+  const kt0 = Math.LN2 / 17.2;
+  const kd = (kt0 * MITO_DAMAGED_AT_DEFAULT) / (1 - MITO_DAMAGED_AT_DEFAULT);
+  const kt = Math.LN2 / t;
+  const damaged = kd / (kd + kt);
+  const dD = Math.max(-0.1, Math.min(0.6, damaged - MITO_DAMAGED_AT_DEFAULT));
+  return { damaged, dD, leak: 1 + 2 * dD, iron: 1 + 1.5 * dD, atp: (1 - damaged) / (1 - MITO_DAMAGED_AT_DEFAULT) };
+}
+
 export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const ge = geometryEffects(geo ?? defaultGeometry);
   const pr = photoreceptor(i);
-  const psi = i.deltaPsi + ge.psiShift + pr.psiShift; // cristae junctions trap protons locally
+  // Mitochondrial quality control (turnover half-life, Kim 2012 / Stauch 2023).
+  // kt = ln2 / t1/2 is published; the damage rate is calibrated (assumption) so
+  // 10% of mitochondria are damaged at the default 17.2 d, making dD = 0 there.
+  const qc = qualityControl(i.mitoHalfLife);
+  const psi = i.deltaPsi + ge.psiShift + pr.psiShift - 15 * qc.dD; // damaged mitochondria are depolarized
   const photonGain = 1 + pr.civGain;
   const noEff = i.nitricOxide * (1 - pr.noReleased);
 
@@ -283,11 +300,11 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const chainSupply = fluxCI + fluxCII;
   const mixedPo = chainSupply > 0 ? (fluxCI * 2.5 + fluxCII * 1.5) / chainSupply : 0;
   // ADP / geometry multipliers remain unfitted: this is not a measured rate.
-  const atpFlux = fluxCIV * mixedPo * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive) * ge.atpEfficiency;
+  const atpFlux = fluxCIV * mixedPo * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive) * ge.atpEfficiency * qc.atp;
 
   // --- Superoxide: site-resolved production (Brand 2016; Quinlan et al. 2013) ---
   // Leak rises steeply with deltaPsi (reduced CoQ pool), damped by uncoupling.
-  const leakPsi = Math.exp((psi - 150) / 22) * (1 - 0.6 * i.uncoupling) * pr.heatLeak;
+  const leakPsi = Math.exp((psi - 150) / 22) * (1 - 0.6 * i.uncoupling) * pr.heatLeak * qc.leak;
   const o2Term = i.oxygen / (i.oxygen + 10);
   // Complex I site IF: reduced FMN, set by NADH/NAD+ ratio (squared, two-electron flavin).
   const vIF = 0.0055 * fluxCI * i.nadhRatio ** 2 * leakPsi * o2Term * pr.flavinLeak * ge.leak;
@@ -379,7 +396,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // ISC assembly (ISCU/NFS1/frataxin)
   const fesIntact = kRepair / (kRepair + clusterAttack);
   const ironFromClusters = 4 * 6 * (1 - fesIntact); // ~6 µM cluster protein x 4 Fe
-  const freeIron = i.labileIron + ironFromClusters;
+  const freeIron = i.labileIron * qc.iron + ironFromClusters;
 
 
   // --- Hydroxyl radical: Fenton, Haber-Weiss recycling, ONOOH homolysis ---
@@ -608,6 +625,7 @@ export const sensitivityDrivers: DriverDef[] = [
   { key: "gpx4", label: "GPx4 activity", min: 0, max: 2, group: "Ferroptosis" },
   { key: "fsp1", label: "FSP1 / CoQ10H2", min: 0, max: 2, group: "Ferroptosis" },
   { key: "cardiolipinPufa", label: "Cardiolipin PUFA", min: 0.2, max: 1, group: "Ferroptosis" },
+  { key: "mitoHalfLife", label: "Turnover half-life", min: 2, max: 60, group: "Iron" },
 ];
 export type SensOutputKey =
   | "superoxide" | "hydrogenPeroxide" | "hydroxylRadical" | "peroxynitrite"
@@ -698,6 +716,7 @@ export const inputRanges: Record<keyof Inputs, { min: number; max: number; label
   gpx4: { min: 0, max: 2, label: "GPx4 activity", unit: "rel" },
   fsp1: { min: 0, max: 2, label: "FSP1 / CoQ10H2 capacity", unit: "rel" },
   cardiolipinPufa: { min: 0.2, max: 1, label: "Cardiolipin PUFA fraction", unit: "fraction" },
+  mitoHalfLife: { min: 2, max: 60, label: "Mitochondrial turnover half-life", unit: "days" },
 };
 
 // Structure view geometry (SVG units, roughly nm-scaled). Source of ranges for the Structure

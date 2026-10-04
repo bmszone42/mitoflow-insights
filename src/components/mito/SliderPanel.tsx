@@ -92,6 +92,16 @@ const controls: ControlDef[] = [
     hint: "Fenton substrate",
   },
   {
+    key: "mitoHalfLife",
+    label: "Mitochondrial turnover half-life",
+    unit: "days",
+    min: 2,
+    max: 60,
+    step: 0.1,
+    group: "iron",
+    hint: "Mitophagy; mouse liver 4.3, heart 17.2, brain 25.7 d (Kim 2012, Stauch 2023)",
+  },
+  {
     key: "nitricOxide",
     label: "Nitric oxide",
     unit: "nM",

@@ -21,7 +21,7 @@ export const rosInputNames: Record<keyof Inputs, string> = {
   adp: "ADP", labileIron: "Labile iron", nitricOxide: "Nitric oxide", redDose: "Red-light dose",
   nirDose: "Near-infrared dose", irradiance: "Irradiance", tissueDepth: "Tissue depth",
   antioxidantCapacity: "Antioxidant capacity", uncoupling: "Uncoupling", gpx4: "GPx4",
-  fsp1: "FSP1", cardiolipinPufa: "Cardiolipin PUFA",
+  fsp1: "FSP1", cardiolipinPufa: "Cardiolipin PUFA", mitoHalfLife: "Turnover half-life",
 };
 
 // Published quantities below describe mechanisms or reaction constants, not
