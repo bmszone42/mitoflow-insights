@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DiagnosisRouteImport } from './routes/diagnosis'
 import { Route as LabRangesRouteImport } from './routes/lab-ranges'
 import { Route as PatientBaselineRouteImport } from './routes/patient-baseline'
+import { Route as ReferencesRouteImport } from './routes/references'
 import { Route as RunsRouteImport } from './routes/runs'
 import { Route as TherapyCalculatorRouteImport } from './routes/therapy-calculator'
 import { Route as TherapyCompareRouteImport } from './routes/therapy-compare'
@@ -51,6 +52,11 @@ const LabRangesRoute = LabRangesRouteImport.update({
 const PatientBaselineRoute = PatientBaselineRouteImport.update({
   id: '/patient-baseline',
   path: '/patient-baseline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferencesRoute = ReferencesRouteImport.update({
+  id: '/references',
+  path: '/references',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RunsRoute = RunsRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/diagnosis': typeof DiagnosisRoute
   '/lab-ranges': typeof LabRangesRoute
   '/patient-baseline': typeof PatientBaselineRoute
+  '/references': typeof ReferencesRoute
   '/runs': typeof RunsRoute
   '/therapy-calculator': typeof TherapyCalculatorRoute
   '/therapy-compare': typeof TherapyCompareRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/diagnosis': typeof DiagnosisRoute
   '/lab-ranges': typeof LabRangesRoute
   '/patient-baseline': typeof PatientBaselineRoute
+  '/references': typeof ReferencesRoute
   '/runs': typeof RunsRoute
   '/therapy-calculator': typeof TherapyCalculatorRoute
   '/therapy-compare': typeof TherapyCompareRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/diagnosis': typeof DiagnosisRoute
   '/lab-ranges': typeof LabRangesRoute
   '/patient-baseline': typeof PatientBaselineRoute
+  '/references': typeof ReferencesRoute
   '/runs': typeof RunsRoute
   '/therapy-calculator': typeof TherapyCalculatorRoute
   '/therapy-compare': typeof TherapyCompareRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/diagnosis'
     | '/lab-ranges'
     | '/patient-baseline'
+    | '/references'
     | '/runs'
     | '/therapy-calculator'
     | '/therapy-compare'
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/diagnosis'
     | '/lab-ranges'
     | '/patient-baseline'
+    | '/references'
     | '/runs'
     | '/therapy-calculator'
     | '/therapy-compare'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/diagnosis'
     | '/lab-ranges'
     | '/patient-baseline'
+    | '/references'
     | '/runs'
     | '/therapy-calculator'
     | '/therapy-compare'
@@ -249,6 +261,7 @@ export interface RootRouteChildren {
   DiagnosisRoute: typeof DiagnosisRoute
   LabRangesRoute: typeof LabRangesRoute
   PatientBaselineRoute: typeof PatientBaselineRoute
+  ReferencesRoute: typeof ReferencesRoute
   RunsRoute: typeof RunsRoute
   TherapyCalculatorRoute: typeof TherapyCalculatorRoute
   TherapyCompareRoute: typeof TherapyCompareRoute
@@ -299,6 +312,13 @@ declare module '@tanstack/react-router' {
       path: '/patient-baseline'
       fullPath: '/patient-baseline'
       preLoaderRoute: typeof PatientBaselineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/references': {
+      id: '/references'
+      path: '/references'
+      fullPath: '/references'
+      preLoaderRoute: typeof ReferencesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/runs': {
@@ -401,6 +421,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiagnosisRoute: DiagnosisRoute,
   LabRangesRoute: LabRangesRoute,
   PatientBaselineRoute: PatientBaselineRoute,
+  ReferencesRoute: ReferencesRoute,
   RunsRoute: RunsRoute,
   TherapyCalculatorRoute: TherapyCalculatorRoute,
   TherapyCompareRoute: TherapyCompareRoute,
