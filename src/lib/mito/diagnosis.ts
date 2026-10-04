@@ -101,9 +101,17 @@ export function diagnoseProfile(p: DemoPatient, dose = 1, onlyId?: string) {
   const stdCost = effectiveAtpCost(defaultInputs.deltaPsi, defaultInputs.uncoupling);
   const atpModel = etcSteps.filter((s) => { const f = atpNetworkRangeFlags(s, stdCost, cost); return f.evOutside || f.costBOutside; }).length;
   const rosModel = rosSourceRows(simOut, simulate(defaultInputs, defaultGeometry), inputs, defaultInputs).filter((r) => r.flagged).length;
+  // Defences-only gap: same comparison as the dashboard's "Defences only" line.
+  // Healthy inputs re-run at the profile's membrane potential, with and without
+  // the profile's antioxidant capacity, so only defences (and the ROS-induced
+  // ROS release they drive) show in the gap.
+  const matchedHealthySo = simulate({ ...defaultInputs, deltaPsi: inputs.deltaPsi }, defaultGeometry).superoxide;
+  const matchedProfileSo = simulate({ ...defaultInputs, deltaPsi: inputs.deltaPsi, antioxidantCapacity: inputs.antioxidantCapacity }, defaultGeometry).superoxide;
+  const defGap = (matchedProfileSo / matchedHealthySo - 1) * 100;
   const modelFlags: Evidence[] = [
     ...(atpModel ? [{ label: `${atpModel} ATP steps flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV, cost ${cost.toFixed(2)} eV/ATP` }] : []),
     ...(rosModel ? [{ label: `${rosModel} ROS sources flagged`, type: "Model simulation" as const, source: "Model" as const, detail: `at ${inputs.deltaPsi} mV vs default` }] : []),
+    ...(defGap > 0 ? [{ label: "Superoxide high, defences only", type: "Model simulation" as const, source: "Model" as const, detail: `${defGap >= 0 ? "+" : ""}${defGap.toFixed(0)}% vs healthy at the same membrane potential, labile iron and L:P; only antioxidant capacity and ROS-induced ROS release differ` }] : []),
   ];
 
   const causes = order.map((mech) => {
