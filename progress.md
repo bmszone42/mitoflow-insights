@@ -62,3 +62,11 @@
 - [x] Dropped unused `drizzle-orm`, `drizzle-kit` and `postgres` packages.
 - [x] Verified live: home page renders with top nav, zero sign-in mentions, no page errors.
 - Note: AI interpretation still calls the built-in AI gateway, so it needs an internet connection; everything else runs fully offline.
+
+## Offline-only local build (2026-10-04) ✅
+- [x] Removed the sign-in button (`AccountButton.tsx`) and the `/auth` page; no auth UI remains.
+- [x] Scenarios are browser-only: `scenarios.ts` now uses IndexedDB exclusively (cloud sync, copy-to-account and driver-reply cloud saves removed; Compare AI replies stay in localStorage).
+- [x] `start.ts` no longer attaches a cloud auth token to server functions.
+- [x] Dropped unused `drizzle-orm`, `drizzle-kit` and `postgres` packages.
+- [x] Verified live: home page renders with top nav, zero sign-in mentions, no page errors.
+- Note: AI interpretation still calls the built-in AI gateway, so it needs an internet connection; everything else runs fully offline.
