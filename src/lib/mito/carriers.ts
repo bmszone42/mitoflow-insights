@@ -42,5 +42,5 @@ export function applyCarriers(i: Inputs, r: CarrierRates): Inputs {
 
 export type CarrierReadout = { nadh: number; atp: number; so: number; h2Nm: number; iron: number };
 export const readout = (i: Inputs, o: Outputs = simulate(i, defaultGeometry)): CarrierReadout => ({
-  nadh: i.nadhRatio, atp: o.atpFlux, so: o.superoxide, h2Nm: o.hydrogenPeroxide * 1e3, iron: o.freeIron,
+  nadh: i.nadhRatio, atp: o.atpFlux, so: o.superoxide, h2Nm: o.hydrogenPeroxide, iron: o.freeIron,
 });
