@@ -170,3 +170,6 @@
 - ✅ "Clear log and re-run" button on the Progress grid
 - ✅ Re-checked 18 profiles: above healthy superoxide 6 → 11; strong causes 32 and therapy flags 102 unchanged
 - ❌ Williams 1998 (halved SOD) aconitase figure still unavailable (paywalled)
+
+## Scenario full run (2026-10-05) ✅
+- Compare view button runs each selected scenario and logs it on Progress as "Scenario full run" (profile shown as scenario:name).

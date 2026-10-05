@@ -29,6 +29,7 @@ const sourceLabels: Record<RunSource, string> = {
   plan: "Therapy plan",
   timeline: "Timeline",
   progress: "Run missing (Progress)",
+  scenario: "Scenario full run",
 };
 
 const therapyName = (id: string) => therapies.find((t) => t.id === id)?.name ?? id;
