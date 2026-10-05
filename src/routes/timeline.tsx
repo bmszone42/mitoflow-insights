@@ -130,7 +130,7 @@ function TimelinePage() {
 
     <section className="mt-4 overflow-x-auto">
       <table className="w-full min-w-[640px] text-xs" data-testid="timeline-table">
-        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>ATP (µM/s)</th><th>Superoxide (nM)</th><th>Defences only</th><th>H2O2 sim (nM)</th><th>Therapies (model dose)</th><th>Projected flag</th><th /></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>ATP (µM/s)</th><th>Superoxide (nM)</th><th>Defences only</th><th>Heart check</th><th>H2O2 sim (nM)</th><th>Therapies (model dose)</th><th>Projected flag</th><th /></tr></thead>
         <tbody>{timeline.map(({ v, d, r, pj, gap }) => {
           const flags = d.patientFlags.length + d.rosAssayFlags.length + d.atpAssayFlags.length + d.modelFlags.length;
           return <tr key={v.id} className="border-t border-border align-top" data-testid="timeline-row">
@@ -143,6 +143,10 @@ function TimelinePage() {
             <td className="tabular-nums" data-testid="tl-defences" title="Superoxide vs the healthy adult at the same membrane potential, with labile iron and L:P held at healthy: only antioxidant capacity and ROS-induced ROS release differ. After the arrow: with this visit's therapies at their model doses.">
               <span className={gap.before > 0 ? "text-destructive" : ""}>{gap.before > 0 ? "+" : ""}{gap.before.toFixed(0)}%</span>
               {gap.after !== null && <span> → <span className={gap.after > 0 ? "text-destructive" : "text-primary"}>{gap.after > 0 ? "+" : ""}{gap.after.toFixed(0)}%</span></span>}
+            </td>
+            <td className="tabular-nums" data-testid="tl-heart" title="Model Fe-S intact % at this visit's own settings vs the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal). Red: inside that band, as damaged as the knockout heart. After the arrow: with this visit's therapies at their model doses.">
+              <span className={hc.before.inBand ? "text-destructive" : ""}>{hc.before.pct.toFixed(0)}%</span>
+              {hc.after !== null && <span> → <span className={hc.after.inBand ? "text-destructive" : "text-primary"}>{hc.after.pct.toFixed(0)}%</span></span>}
             </td>
             <td className="tabular-nums">{fmt(r.h2o2)}</td>
             <td>{v.therapies.length ? v.therapies.map((t) => `${tName(t)} ${v.doses?.[t] ?? 1}x${v.actualDoses?.[t] ? ` (taken: ${v.actualDoses[t]})` : ""}`).join(", ") : "None"}</td>
@@ -157,7 +161,7 @@ function TimelinePage() {
           </tr>;
         })}</tbody>
       </table>
-      <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Defences only is the superoxide gap vs the healthy adult at the same membrane potential, with labile iron and L:P held at healthy (same comparison as the Dashboard); after the arrow it applies the visit's therapies at their model doses, a model estimate, not a lab result. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags. With a therapy picked in the Projected flag therapy menu, the column instead shows the Diagnosis projection for that therapy at the 1x model dose, the same pick as the dashboard's Batch therapy, so the pages agree.</p>
+      <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Defences only is the superoxide gap vs the healthy adult at the same membrane potential, with labile iron and L:P held at healthy (same comparison as the Dashboard); after the arrow it applies the visit's therapies at their model doses, a model estimate, not a lab result. Heart check is the model's Fe-S intact % at the visit's own settings against the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal); red means inside that band. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags. With a therapy picked in the Projected flag therapy menu, the column instead shows the Diagnosis projection for that therapy at the 1x model dose, the same pick as the dashboard's Batch therapy, so the pages agree.</p>
     </section>
 
     <section id="timeline-add" className="mt-6 rounded-md border border-border p-3" data-testid="timeline-add">
