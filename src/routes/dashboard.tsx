@@ -8,6 +8,7 @@ import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, bestProjectionTherapy, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
 import { recordRun } from "@/lib/mito/runs";
+import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 // Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
 const TherapyProfileChart = lazy(() => import("@/components/mito/TherapyProfileChart").then((m) => ({ default: m.TherapyProfileChart })));
 const BaselineProfileChart = lazy(() => import("@/components/mito/BaselineProfileChart").then((m) => ({ default: m.BaselineProfileChart })));
@@ -59,6 +60,8 @@ function Dashboard() {
   const [showBaselineChart, setShowBaselineChart] = useState(false);
   // Batch CSV therapy filter: "all" exports every responding therapy; a therapy id exports just that one across every profile.
   const [batchTherapy, setBatchTherapy] = useState("all");
+  // Reference profile for the scenario compare card at the bottom of the page.
+  const [compareId, setCompareId] = useState("demo-01");
   // Heavy memo: every per-profile simulation and the 20-therapy sweep. Keyed only on
   // users, dose and batchTherapy, so toggling readoutOnly never re-runs it.
   const simulated = useMemo(() => {
