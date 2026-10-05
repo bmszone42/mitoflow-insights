@@ -84,6 +84,7 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
   }
 
   const [batchMsg, setBatchMsg] = useState<string | null>(null);
+  const [allStrength, setAllStrength] = useState(1);
 
   // Runs and logs every missing therapy+dose cell at the effective strength.
   async function runAllMissing() {
