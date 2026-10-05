@@ -58,11 +58,22 @@ const visitProfile = (p: DemoPatient, v: Visit): DemoPatient => {
   return { ...p, values: v.values, origins: Object.fromEntries(patientMetrics.map((m) => [m.key, { origin }])) } as DemoPatient;
 };
 
-/** Simulated readouts at a visit: that visit's labs mapped to sliders, then each selected therapy applied at its model dose (default 1x). Model dose is a slider value, never a drug dose. */
-export function visitReadouts(p: DemoPatient, v: Visit) {
+/** Full simulation at a visit: that visit's labs mapped to sliders, then each selected therapy applied at its model dose (default 1x). Model dose is a slider value, never a drug dose. */
+export function visitSim(p: DemoPatient, v: Visit) {
   let inputs = profileInputs(visitProfile(p, v));
   for (const id of v.therapies) { const t = therapies.find((x) => x.id === id); if (t) inputs = applyTherapyDose(inputs, t, v.doses?.[id] ?? 1); }
-  return metrics(inputs);
+  return simulate(inputs, defaultGeometry);
+}
+
+/** Simulated readouts at a visit: that visit's labs mapped to sliders, then each selected therapy applied at its model dose (default 1x). Model dose is a slider value, never a drug dose. */
+export function visitReadouts(p: DemoPatient, v: Visit) {
+  return metrics(visitSimInputs(p, v));
+}
+
+function visitSimInputs(p: DemoPatient, v: Visit) {
+  let inputs = profileInputs(visitProfile(p, v));
+  for (const id of v.therapies) { const t = therapies.find((x) => x.id === id); if (t) inputs = applyTherapyDose(inputs, t, v.doses?.[id] ?? 1); }
+  return inputs;
 }
 
 /** Diagnosis at a visit: same rules as the Diagnosis page, run on that visit's values. onlyId pins the projected-flag therapy pick to one therapy, matching the dashboard's Batch therapy choice. */
