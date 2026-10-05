@@ -127,6 +127,30 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
     onRan?.();
   }
 
+  // Recalibration reset for the whole library: wipes the whole run log, then
+  // re-runs every therapy+dose cell for every profile at 1x ROS-induced
+  // strength, so the log matches the current calibration in one click.
+  async function clearAndRerunAll() {
+    if (!window.confirm(`Clear the whole run log and re-run all ${pool.length} profiles at 1x ROS-induced strength? This logs ${pool.length * total} runs.`)) return;
+    setBusy(true);
+    setBatchMsg(null);
+    await clearRuns();
+    let n = 0;
+    for (const prof of pool) {
+      const runBase = { ...profileInputs(prof), rirrStrength: 1 };
+      for (const t of therapies) for (const d of doses) {
+        simulate(applyTherapyDose(runBase, t, d), defaultGeometry);
+        await recordRun(prof.id, "progress", d, [t.id], 1);
+        n++;
+      }
+      setBatchMsg(`Re-running: ${prof.label} (${n} of ${pool.length * total})...`);
+    }
+    setStrength("all");
+    setBatchMsg(`Cleared the log and re-ran all ${pool.length} profiles at 1x ROS-induced strength: ${n} combinations logged.`);
+    setBusy(false);
+    onRan?.();
+  }
+
   const baseOut = useMemo(() => (base ? simulate({ ...base, rirrStrength: effStrength }, defaultGeometry) : null), [pid, effStrength]); // eslint-disable-line react-hooks/exhaustive-deps
   const healthySo = useMemo(() => {
     const h = demoPatients.find((x) => x.id === "demo-01");
@@ -172,6 +196,9 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
         </Button>
         <Button size="sm" variant="outline" data-testid="clear-rerun" disabled={busy} onClick={clearAndRerun}>
           Clear log and re-run at {base?.rirrStrength ?? 1}x
+        </Button>
+        <Button size="sm" variant="outline" data-testid="clear-rerun-all" disabled={busy} onClick={clearAndRerunAll}>
+          Clear log and re-run all {pool.length} at 1x
         </Button>
       </div>
       {batchMsg && <p className="text-sm" data-testid="run-all-missing-result">{batchMsg}</p>}

@@ -185,3 +185,7 @@
 - Shows the model's Fe-S intact % at the profile's own settings vs the Melov 1999 Sod2-null mouse heart band (complex I 59%, complex II 24% of normal); red when inside the band.
 - Band and check live in model.ts (MELOV_HEART_BAND, melovHeartCheck); Timeline uses heartCheck in timeline.ts.
 - Verified live: all 18 profiles read 81-89%, none inside the 24-59% band; the band is a severity reference, not a calibration target (model floor ~29% at weakest defences, fitted to the milder brain figure).
+
+## 2026-10-05: Re-run all profiles at 1x in one click
+- ✅ New "Clear log and re-run all 18 at 1x" button on the Progress page (Not yet run view, data-testid `clear-rerun-all`): wipes the whole run log, then logs every therapy+dose cell for every profile at 1x ROS-induced strength (2880 runs), with a live progress line while it runs.
+- ✅ Verified live: "Cleared the log and re-ran all 18 profiles at 1x ROS-induced strength: 2880 combinations logged." Typecheck clean.
