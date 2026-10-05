@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { simulate, defaultInputs, defaultGeometry, type Outputs } from "@/lib/mito/model";
+import { simulate, defaultInputs, defaultGeometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, type Scenario } from "@/lib/mito/scenarios";
 
 
@@ -10,7 +10,7 @@ import { listScenarios, scenarioGeometry, scenarioStrength, scenarioStrengthLabe
  * Percentages are vs the reference; the healthy line shows where each
  * scenario falls short of normal levels.
  */
-export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referenceLabel: string; referenceOut: Outputs }) {
+export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceInputs }: { referenceLabel: string; referenceOut: Outputs; referenceInputs?: Inputs }) {
   const [items, setItems] = useState<Scenario[]>([]);
   useEffect(() => {
     listScenarios().then(setItems).catch(() => setItems([]));
