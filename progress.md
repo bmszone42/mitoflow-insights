@@ -1,3 +1,9 @@
+## Reference profile gap in the JSON export summary (2026-10-05) ✅
+- ✅ scenariosExportPayload takes an optional reference ({ label, inputs }); the summary gains a healthyReference block (model-default superoxide, ATP, peroxide, free iron) and a referenceProfile block (label, live recomputed readouts, defencesOnlyGap) mirroring the CSV's "reference profile" row. Fields now match between cristae-lab-scenarios.json and cristae-lab-scenario-compare.csv. Payload stays version 2 (additive fields).
+- ✅ New shared defencesGapFromInputs in scenarios.ts; scenarioDefencesGap and ScenarioCompareTable's reference gap both call it, so table, CSV and JSON can never disagree.
+- ✅ Scenarios.tsx export passes the healthy adult (demo-01, the Dashboard compare table's default reference) as the reference; summary.referenceNote states which reference was used.
+- ✅ Verified live: clicked Export JSON, downloaded file shows referenceProfile Demo 01 with defencesOnlyGap 0 (healthy default) and the same readouts as the CSV's reference row. Typecheck clean.
+
 ## Sort toggle on the scenario compare table (2026-10-05) ✅
 - ✅ ScenarioCompareTable gains a sort picker above the table: Defences gap (weakest first), Superoxide (highest first) and Last updated (newest first); pill buttons with aria-pressed, data-testids spc-sort-gap, spc-sort-superoxide, spc-sort-updated. Healthy and reference rows stay pinned at the top. CSV follows the currently picked order. Caption updated.
 - ✅ Verified live on /dashboard with three seeded scenarios: gap and superoxide put B weak first, Last updated puts A mid (newest) first; switching changes the order live, no page errors. Typecheck clean.

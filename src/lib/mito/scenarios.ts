@@ -74,16 +74,20 @@ export function scenarioStrengthLabel(s: Scenario): string {
 
 // Defences-only gap, the same matched-healthy comparison the Dashboard,
 // Timeline and scenario compare table use: healthy defaults re-run at the
-// scenario's own membrane potential (iron and L:P held at healthy), healthy
-// antioxidant capacity vs the scenario's, so only defences and ROS-induced
-// release show. Kept here so the JSON export and the table can never disagree.
-export function scenarioDefencesGap(s: Scenario): number {
-  const geo = scenarioGeometry(s);
+// subject's own membrane potential (iron and L:P held at healthy), healthy
+// antioxidant capacity vs the subject's, so only defences and ROS-induced
+// release show. Shared by saved scenarios AND the reference profile row, so
+// the table, CSV and JSON export can never disagree.
+export function defencesGapFromInputs(inputs: Inputs, geometry: Geometry = defaultGeometry): number {
   const matched = (ac: number) =>
-    simulate({ ...defaultInputs, deltaPsi: s.inputs.deltaPsi, antioxidantCapacity: ac }, geo).superoxide;
+    simulate({ ...defaultInputs, deltaPsi: inputs.deltaPsi, antioxidantCapacity: ac }, geometry).superoxide;
   const base = matched(defaultInputs.antioxidantCapacity);
-  const val = matched(s.inputs.antioxidantCapacity);
+  const val = matched(inputs.antioxidantCapacity);
   return base === 0 ? 0 : ((val - base) / base) * 100;
+}
+
+export function scenarioDefencesGap(s: Scenario): number {
+  return defencesGapFromInputs(s.inputs, scenarioGeometry(s));
 }
 
 export type ScenarioSummaryRow = {
@@ -100,6 +104,17 @@ export type ScenarioSummaryRow = {
   updatedAt: number;
 };
 
+// Reference-profile row in the JSON summary, mirroring the CSV's
+// "reference profile" row so both files share the same fields.
+export type ReferenceSummaryRow = {
+  label: string;
+  superoxide: number;
+  atpFlux: number;
+  hydrogenPeroxide: number;
+  freeIron: number;
+  defencesOnlyGap: number;
+};
+
 export type ScenarioExportPayload = {
   format: "cristae-lab-scenarios";
   version: 2;
@@ -108,13 +123,16 @@ export type ScenarioExportPayload = {
     count: number;
     strengthIsAssumed: true;
     strengthNote: string;
+    referenceNote: string;
     byStrength: Record<string, number>;
+    healthyReference: { superoxide: number; atpFlux: number; hydrogenPeroxide: number; freeIron: number };
+    referenceProfile: ReferenceSummaryRow | null;
     scenarios: ScenarioSummaryRow[];
   };
   scenarios: Scenario[];
 };
 
-export function scenariosExportPayload(items: Scenario[]): ScenarioExportPayload {
+export function scenariosExportPayload(items: Scenario[], reference?: { label: string; inputs: Inputs }): ScenarioExportPayload {
   const rows: ScenarioSummaryRow[] = items.map((s) => {
     const strength = scenarioStrength(s);
     return {
@@ -136,6 +154,17 @@ export function scenariosExportPayload(items: Scenario[]): ScenarioExportPayload
     const key = r.rirrStrength == null ? "not noted" : `${r.rirrStrength}x`;
     byStrength[key] = (byStrength[key] ?? 0) + 1;
   }
+  const healthyOut = simulate(defaultInputs, defaultGeometry);
+  const referenceProfile: ReferenceSummaryRow | null = reference
+    ? {
+        label: reference.label,
+        ...(() => {
+          const o = simulate(reference.inputs, defaultGeometry);
+          return { superoxide: o.superoxide, atpFlux: o.atpFlux, hydrogenPeroxide: o.hydrogenPeroxide, freeIron: o.freeIron };
+        })(),
+        defencesOnlyGap: defencesGapFromInputs(reference.inputs),
+      }
+    : null;
   return {
     format: "cristae-lab-scenarios",
     version: 2,
@@ -145,7 +174,17 @@ export function scenariosExportPayload(items: Scenario[]): ScenarioExportPayload
       strengthIsAssumed: true,
       strengthNote:
         "ROS-induced strength is the assumed ROS-induced ROS release setting each scenario was run at (model setting, no published value). 'not noted' means it was saved before the setting existed and used the Simulator default.",
+      referenceNote: referenceProfile
+        ? "healthyReference is the healthy adult at model defaults; referenceProfile is the reference profile the scenario compare table uses, recomputed live from its saved inputs with the same matched-healthy defences-only gap as the table and CSV."
+        : "No reference profile was passed at export time; the CSV export on the Dashboard and Diagnosis carries its own reference row.",
       byStrength,
+      healthyReference: {
+        superoxide: healthyOut.superoxide,
+        atpFlux: healthyOut.atpFlux,
+        hydrogenPeroxide: healthyOut.hydrogenPeroxide,
+        freeIron: healthyOut.freeIron,
+      },
+      referenceProfile,
       scenarios: rows,
     },
     scenarios: items,
