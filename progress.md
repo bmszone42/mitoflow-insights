@@ -32,7 +32,7 @@
 - ✅ Verified live: fitted 0.6x from 45% aconitase, saved, reloaded the Simulator, strength slider reads 0.6; no page errors.
 
 ## Timeline visit-gap bar chart (2026-10-05) ✅
-- ✅ New TimelineGapChart.tsx (lazy-loaded, recharts): per-visit superoxide, ATP and free iron gaps vs the healthy adult (model defaults) as %, sorted by superoxide gap biggest first; red when worse than healthy (superoxide/iron above, ATP below), green at or better; dashed healthy line.
+- ✅ New TimelineGapChart.tsx (lazy-loaded, recharts): per-visit superoxide, ATP and free iron gaps vs the healthy adult (model defaults) as %, sorted by superoxide gap biggest first; red when worse than healthy (superoxide/iron above, ATP below), green at or better; dashed healthy line. Strength lines are per therapy (each therapy's dose multiplier on a 0-2x right axis, line breaks on visits without it), cycling the theme chart palette.
 - ✅ timeline.ts gained visitSim (full simulate output per visit, sharing visitSimInputs with visitReadouts); timeline.tsx caches it in simCache and renders the chart under the table.
 - ✅ Verified live on demo-04: 12 bars (4 visits x 3 metrics), red/green correct, sorted 71% > 64% > 20% > 5%, no page errors.
 
