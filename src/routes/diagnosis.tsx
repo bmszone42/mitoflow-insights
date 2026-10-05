@@ -67,6 +67,9 @@ function DiagnosisPage() {
           <td className={`px-3 py-2 ${x.patient.source === "user" ? "text-muted-foreground" : fitStyle[x.fit]}`}>{x.patient.source === "user" ? "no label to check" : x.fit}</td>
         </tr>)}</tbody>
       </table>
+      <p className="px-3 py-2 text-[11px] leading-relaxed text-muted-foreground" data-testid="dx-heart-note">
+        Heart check source: Melov et al. 1999 (PNAS 96(3):846), Sod2-null mouse heart, found complex I at 59% and complex II at 24% of normal activity; the model's Fe-S intact % is flagged red when it falls inside that 24 to 59% band. It is a severity reference only, never a calibration target, and it is not counted in the flag totals. <Link to="/references" className="underline">Source details</Link>
+      </p>
     </section>
 
     <UserLabsPanel onAdded={setId} />

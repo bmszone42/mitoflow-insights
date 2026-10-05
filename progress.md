@@ -199,3 +199,8 @@
 - ✅ The note explains the 6 → 11 shift: the ROS-induced ROS release mechanism is published (Zorov 2014), the exponent 1.0 is fitted to Melov 1999 Sod2-null mouse brain aconitase (24-33% of control), not a human measurement; raising it from 0.5 to 1.0 moved demo-12, demo-13, demo-14, demo-16 and demo-17 above the healthy adult, while the other six were already over it. Defences only stays 16 of 18 either way. Links to /references.
 - ✅ Counts re-verified in code at both strengths before writing the note (6 at 0.5, 11 at 1.0).
 - ✅ Tag renders on one line under the column header (whitespace-nowrap), so the header row stays readable.
+
+## 2026-10-05: Melov 1999 heart figures with source note on Diagnosis
+- ✅ Added a visible source note under the Diagnosis profiles table (data-testid `dx-heart-note`): Melov et al. 1999 (PNAS 96(3):846), Sod2-null mouse heart, complex I at 59% and complex II at 24% of normal; Fe-S intact % is flagged red inside the 24-59% band; severity reference only, never a calibration target, not counted in flag totals; links to /references.
+- ✅ Previously the figures lived only in the Heart check cell's hover tooltip; they are now visible in the page.
+- ✅ Verified live: note renders on all 18 profile rows, link resolves, no page errors; typecheck clean.
