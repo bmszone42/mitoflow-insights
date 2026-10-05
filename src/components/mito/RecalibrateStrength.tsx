@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+
+const RecalibrateCurve = lazy(() => import("./RecalibrateCurve").then((m) => ({ default: m.RecalibrateCurve })));
 import { defaultGeometry, defaultInputs, simulate } from "@/lib/mito/model";
 import { clearRirrStrength, savedRirrStrength, saveRirrStrength } from "@/lib/mito/rirrDefault";
 import { applyTherapyDose, profileInputs, therapies } from "@/lib/mito/treatment";
@@ -8,11 +10,11 @@ import type { DemoPatient } from "@/lib/mito/patientReference";
 
 const doses = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 const WEAK_AC = 0.2; // weakest defences, the Sod2-null stand-in used for the Melov 1999 fit
-const S_MIN = 0;
-const S_MAX = 1.5;
+export const S_MIN = 0;
+export const S_MAX = 1.5;
 
 // Fe-S intact at weak defences as % of the healthy adult, for a given strength.
-function aconitasePct(s: number) {
+export function aconitasePct(s: number) {
   const h = simulate(defaultInputs, defaultGeometry).aconitaseActivity;
   const w = simulate({ ...defaultInputs, antioxidantCapacity: WEAK_AC, rirrStrength: s }, defaultGeometry).aconitaseActivity;
   return (w / h) * 100;
