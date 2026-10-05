@@ -1,3 +1,9 @@
+## All-18 strength slider widened to 0-1.5 (2026-10-05) ✅
+- ✅ The strength picker beside "Clear log and re-run all 18" on the Progress page is now a slider covering the full range the model supports (0 to 1.5, step 0.05) instead of the three fixed choices 0.5x/1x/2x; data-testid `clear-rerun-all-strength` unchanged, new `clear-rerun-all-strength-value` readout next to it.
+- ✅ The button label, the confirm dialog and every logged cell follow the slider value, so a recalibrated strength such as 0.35x or 0.6x can be batch-run without typing anything into the Recalibrate box.
+- ✅ Caption under the grid now states the slider range and what the ends mean (0 = no ROS-induced ROS release, 1.0x = the current partly published fit).
+- ✅ Verified live: slider props min 0 / max 1.5 / step 0.05; setting 0, 0.35, 0.6 and 1.5 updates the readout and the button label ("... at 0.35x"); the confirm dialog reads "re-run all 18 profiles at 0.6x ROS-induced strength? This logs 2880 runs"; no page errors, build OK.
+
 ## Williams 1998 entry on the References page (2026-10-05) ✅
 - ✅ Added Williams et al. 1998 (JBC 273(43):28510-28515, DOI 10.1074/jbc.273.43.28510, Crossref-verified) to studyReferences.ts next to Melov 1999, section "ROS, iron and assays".
 - ✅ Library entry carries the public drops (MnSOD down ~50%, glutathione down ~30%, aconitase reported only as "decreased", figure paywalled, no public percentage) and the fitted strength label: the Recalibrate helper fits from its aconitase % once supplied, but the current 1.0x default is the Melov 1999 brain fit, not this paper. Scored 74/100 (relevance 36, evidence 24, usability 14).
@@ -20,8 +26,8 @@
 - ✅ Verified live on demo-04: 12 bars (4 visits x 3 metrics), red/green correct, sorted 71% > 64% > 20% > 5%, no page errors.
 
 ## Strength picker on the re-run all 18 button (2026-10-05) ✅
-- ✅ NotYetRun.tsx: "Clear log and re-run all 18" gained a strength picker (0.5x, 1x, 2x, default 1x); the batch logs every cell at the picked strength and the button label follows it.
-- ✅ Verified live: options 0.5x/1x/2x, label updates, 2x batch confirmed logging (2880 cells).
+- ✅ NotYetRun.tsx: "Clear log and re-run all 18" gained a strength control (0.5x, 1x, 2x, default 1x); the batch logs every cell at the picked strength and the button label follows it.
+- ✅ Verified live: options 0.5x/1x/2x, label updates, 2x batch confirmed logging (2880 cells). Superseded: now a 0 to 1.5 slider (see top entry).
 
 ## JSON export summary sorted by defences-only gap (2026-10-05) ✅
 - ✅ scenariosExportPayload sorts summary.scenarios by defencesOnlyGap descending (weakest defences first), matching the compare table's default sort; referenceNote states the rule so JSON and table agree.
