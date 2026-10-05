@@ -143,6 +143,14 @@ function DiagnosisPage() {
       </div>
     </section>
 
+    <section aria-label="Scenario compare" className="space-y-2">
+      <h2 className="text-sm font-semibold">Saved scenarios vs this profile</h2>
+      <ScenarioCompareTable
+        referenceLabel={d.patient.label}
+        referenceOut={simulate(profileInputs(d.patient), defaultGeometry)}
+      />
+    </section>
+
     <section aria-label="Limits" className="text-xs leading-relaxed text-muted-foreground">
       <h2 className="text-sm font-semibold text-foreground">Limits</h2>
       <p className="mt-1">Score = supporting flags weighted by evidence type (measured assay 1, derived ratio 0.75, model simulation 0.5) minus conflicting flags; 1.5 or more counts as a strong cause. Scores are not probabilities. Cited bands apply only to adults, and fasting glucose bands skip acute nonfasting samples; otherwise values are compared with the age-matched healthy synthetic profile at ±25%. Proxies such as PBMC probes are not tissue assays. Ferritin is also an acute-phase marker, so in acute illness (brain injury, stroke, sepsis) its support for iron stress counts at quarter weight. Model flags use only the profile's membrane potential.</p>
