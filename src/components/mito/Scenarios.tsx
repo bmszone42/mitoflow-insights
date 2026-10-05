@@ -238,7 +238,7 @@ export function Scenarios({
                 const sel = items.filter((s) => compareIds.has(s.id));
                 for (const s of sel) {
                   simulate(s.inputs, scenarioGeometry(s));
-                  await recordRun(`scenario:${s.name}`, "scenario", 1, [], scenarioStrength(s));
+                  await recordRun(`scenario:${s.name}`, "scenario", 1, [], scenarioStrength(s) ?? undefined);
                 }
                 toast.success(`Ran ${sel.length} scenarios, logged on the Progress page`);
               }}
