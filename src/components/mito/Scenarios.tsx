@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Geometry, Inputs, Outputs } from "@/lib/mito/model";
+import { simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import {
   deleteScenario,
   isScenario,
   listScenarios,
   putScenario,
+  scenarioGeometry,
   type Scenario,
 } from "@/lib/mito/scenarios";
 
@@ -43,6 +44,15 @@ export function Scenarios({
 }) {
   const [items, setItems] = useState<Scenario[]>([]);
   const [name, setName] = useState("");
+  const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
+
+  const toggleCompare = (id: string) =>
+    setCompareIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   const fileRef = useRef<HTMLInputElement>(null);
 
   const refresh = () => listScenarios().then(setItems).catch(() => setItems([]));
