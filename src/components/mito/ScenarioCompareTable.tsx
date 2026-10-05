@@ -41,16 +41,21 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
     return base === 0 ? 0 : ((val - base) / base) * 100;
   }, [referenceInputs]);
 
-  // Scenario rows sorted by defences-only gap, weakest defences first
-  // (largest positive gap at the top); ties keep the saved order.
+  // Scenario rows sorted by the picked key, worst first: defences gap (weakest
+  // defences at the top), superoxide (highest at the top) or last updated
+  // (newest at the top). Ties keep the saved order; healthy and reference rows
+  // stay pinned above.
+  const [sortKey, setSortKey] = useState<"gap" | "superoxide" | "updated">("gap");
   const sortedItems = useMemo(
     () =>
-      [...items]
-        .map((s) => ({ s, gap: defencesGap(s) }))
-        .sort((a, b) => b.gap - a.gap)
+      items
+        .map((s) => ({ s, gap: defencesGap(s), so: simulate(s.inputs, scenarioGeometry(s)).superoxide }))
+        .sort((a, b) =>
+          sortKey === "gap" ? b.gap - a.gap : sortKey === "superoxide" ? b.so - a.so : b.s.updatedAt - a.s.updatedAt
+        )
         .map((r) => r.s),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [items]
+    [items, sortKey]
   );
 
   // CSV mirrors the table above and carries the same fields as the JSON export
