@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+
+const RecalibrateCurve = lazy(() => import("./RecalibrateCurve").then((m) => ({ default: m.RecalibrateCurve })));
 import { defaultGeometry, defaultInputs, simulate } from "@/lib/mito/model";
 import { clearRirrStrength, savedRirrStrength, saveRirrStrength } from "@/lib/mito/rirrDefault";
 import { applyTherapyDose, profileInputs, therapies } from "@/lib/mito/treatment";
@@ -8,11 +10,11 @@ import type { DemoPatient } from "@/lib/mito/patientReference";
 
 const doses = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 const WEAK_AC = 0.2; // weakest defences, the Sod2-null stand-in used for the Melov 1999 fit
-const S_MIN = 0;
-const S_MAX = 1.5;
+export const S_MIN = 0;
+export const S_MAX = 1.5;
 
 // Fe-S intact at weak defences as % of the healthy adult, for a given strength.
-function aconitasePct(s: number) {
+export function aconitasePct(s: number) {
   const h = simulate(defaultInputs, defaultGeometry).aconitaseActivity;
   const w = simulate({ ...defaultInputs, antioxidantCapacity: WEAK_AC, rirrStrength: s }, defaultGeometry).aconitaseActivity;
   return (w / h) * 100;
@@ -102,6 +104,10 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
           </Button>
         )}
       </p>
+      <Suspense fallback={<div className="h-56 w-full animate-pulse rounded bg-muted" />}>
+        <RecalibrateCurve target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
+      </Suspense>
+      <p className="text-xs text-muted-foreground">The curve shows how the model's aconitase % falls as the strength rises; the dashed line is your pasted number and the dot is the fitted strength.</p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}
       <p className="text-xs text-muted-foreground">The saved default lives in this browser only and changes what the Simulator starts at; it does not re-run or change anything already in the Progress log. The code default stays 1.0x until you send me the number, so I can update the label and the reference score too.</p>
     </section>
