@@ -129,8 +129,9 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
   }
 
   // Recalibration reset for the whole library: wipes the whole run log, then
-  // re-runs every therapy+dose cell for every profile at the picked ROS-induced
-  // strength (0.5x, 1x or 2x), so the log matches the current calibration in one click.
+  // re-runs every therapy+dose cell for every profile at the ROS-induced strength
+  // picked on the slider (0 to 1.5, the full range the model supports), so the log
+  // matches the current calibration in one click.
   async function clearAndRerunAll() {
     if (!window.confirm(`Clear the whole run log and re-run all ${pool.length} profiles at ${allStrength}x ROS-induced strength? This logs ${pool.length * total} runs.`)) return;
     setBusy(true);
@@ -198,9 +199,11 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
         <Button size="sm" variant="outline" data-testid="clear-rerun" disabled={busy} onClick={clearAndRerun}>
           Clear log and re-run at {base?.rirrStrength ?? 1}x
         </Button>
-        <select aria-label="All-profiles strength" data-testid="clear-rerun-all-strength" className="rounded border border-input bg-background px-2 py-1 text-sm" value={String(allStrength)} onChange={(e) => setAllStrength(Number(e.target.value))}>
-          {[0.5, 1, 2].map((s) => <option key={s} value={String(s)}>{s}x</option>)}
-        </select>
+        <label className="flex items-center gap-2 text-sm" title="Full range the model supports: 0 to 1.5">
+          <span className="text-muted-foreground">Strength</span>
+          <input type="range" aria-label="All-profiles strength" data-testid="clear-rerun-all-strength" min={0} max={1.5} step={0.05} value={allStrength} onChange={(e) => setAllStrength(Number(e.target.value))} className="w-40" />
+          <span className="tabular-nums" data-testid="clear-rerun-all-strength-value">{allStrength}x</span>
+        </label>
         <Button size="sm" variant="outline" data-testid="clear-rerun-all" disabled={busy} onClick={clearAndRerunAll}>
           Clear log and re-run all {pool.length} at {allStrength}x
         </Button>
