@@ -69,6 +69,9 @@ function Index() {
     console.log("[rirr-default] saved:", s);
     if (s !== null) setInputs((i) => (i.rirrStrength === s ? i : { ...i, rirrStrength: s }));
   }, []);
+  useEffect(() => {
+    console.log("[rirr-default] inputs.rirrStrength now:", inputs.rirrStrength);
+  }, [inputs]);
   const userPatients = useUserPatients();
   const [patientRun, setPatientRun] = useState<string | null>(null);
   const [runPatient, setRunPatient] = useState<DemoPatient | null>(null);
