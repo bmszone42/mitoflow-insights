@@ -406,6 +406,17 @@ export const studyReferences: StudyReference[] = [
     locator: "ROS-induced ROS release; redox feedback amplifying ETC superoxide when defenses fail",
   },
   {
+    doi: "10.1074/jbc.273.43.28510",
+    authors: "Williams MD, Van Remmen H, Conrad CC, Huang TT, et al. (senior: Richardson A)",
+    title: "Increased oxidative damage is correlated to altered mitochondrial function in heterozygous manganese superoxide dismutase knockout mice",
+    journal: "Journal of Biological Chemistry 273(43)",
+    year: 1998,
+    location: "pp. 28510-28515",
+    url: "https://doi.org/10.1074/jbc.273.43.28510",
+    section: "ROS, iron and assays",
+    locator: "Sod2+/- mice: MnSOD activity down ~50%, glutathione down ~30%, aconitase 'decreased' (no public %; figure paywalled). Pending anchor for the Recalibrate helper",
+  },
+  {
     doi: "10.1073/pnas.96.3.846",
     authors: "Melov S, Coskun P, Patel M, Tuinstra R, Cottrell B, Jun AS, et al. (senior: Wallace DC)",
     title: "Mitochondrial disease in superoxide dismutase 2 mutant mice",
