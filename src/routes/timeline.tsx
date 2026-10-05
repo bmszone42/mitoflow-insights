@@ -66,19 +66,15 @@ function TimelinePage() {
   }, [p, visits, onlyId, rirr]);
 
   // Per-visit gaps vs the healthy adult (model defaults) for the gap bar chart:
-  // superoxide, ATP and free iron, each as % of the healthy level, plus the
-  // visit's therapy strength (mean dose multiplier across its therapies, 0 when
-  // none were given).
-  const gapRows = useMemo(() => timeline.map(({ v, s }) => {
-    const d = v.therapies.map((t) => v.doses?.[t] ?? 1);
-    return {
-      date: v.date,
-      so: healthyOut.superoxide ? ((s.superoxide - healthyOut.superoxide) / healthyOut.superoxide) * 100 : 0,
-      atp: healthyOut.atpFlux ? ((s.atpFlux - healthyOut.atpFlux) / healthyOut.atpFlux) * 100 : 0,
-      fe: healthyOut.freeIron ? ((s.freeIron - healthyOut.freeIron) / healthyOut.freeIron) * 100 : 0,
-      strength: d.length ? d.reduce((a, b) => a + b, 0) / d.length : 0,
-    };
-  }), [timeline]);
+  // superoxide, ATP and free iron, each as % of the healthy level, plus each
+  // therapy's dose multiplier so the chart can draw one strength line per therapy.
+  const gapRows = useMemo(() => timeline.map(({ v, s }) => ({
+    date: v.date,
+    so: healthyOut.superoxide ? ((s.superoxide - healthyOut.superoxide) / healthyOut.superoxide) * 100 : 0,
+    atp: healthyOut.atpFlux ? ((s.atpFlux - healthyOut.atpFlux) / healthyOut.atpFlux) * 100 : 0,
+    fe: healthyOut.freeIron ? ((s.freeIron - healthyOut.freeIron) / healthyOut.freeIron) * 100 : 0,
+    doses: Object.fromEntries(v.therapies.map((t) => [t, v.doses?.[t] ?? 1])),
+  })), [timeline]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
   const isH2o2 = metric === "h2o2Nm";
   const isMitosox = metric === "mitosox";
