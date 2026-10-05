@@ -142,3 +142,5 @@
 - ✅ Profile sensitivity card: labile iron and membrane potential added as tunable columns alongside ROS-induced strength, half-life and antioxidant capacity; table, sweep chart, CSV, tune-and-save sliders and ranges footnote all cover the five settings (verified live: 5 columns, 5 tune sliders, chart renders, no page errors).
 
 - ✅ Progress grid: "Run all missing at this strength" batch button runs and logs every missing therapy+dose cell at the selected ROS-induced strength (verified: 160 runs logged, grid 0 missing, no page errors).
+
+- ✅ Scenario compare view: checkboxes on each saved scenario in the Simulator panel; with 2+ ticked, a side-by-side table shows superoxide, ATP, free iron, peroxide and ROS-induced strength, recomputed live from each scenario’s settings (verified: 2 rows, no page errors).

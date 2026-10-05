@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Geometry, Inputs, Outputs } from "@/lib/mito/model";
+import { simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import {
   deleteScenario,
   isScenario,
   listScenarios,
   putScenario,
+  scenarioGeometry,
   type Scenario,
 } from "@/lib/mito/scenarios";
 
@@ -43,6 +44,15 @@ export function Scenarios({
 }) {
   const [items, setItems] = useState<Scenario[]>([]);
   const [name, setName] = useState("");
+  const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
+
+  const toggleCompare = (id: string) =>
+    setCompareIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   const fileRef = useRef<HTMLInputElement>(null);
 
   const refresh = () => listScenarios().then(setItems).catch(() => setItems([]));
@@ -169,9 +179,17 @@ export function Scenarios({
             className={`rounded-md border p-2 text-xs ${s.id === activeId ? "border-primary" : "border-border"}`}
           >
             <div className="flex items-center justify-between gap-2">
-              <button className="text-left font-medium hover:text-primary" onClick={() => onLoad(s)}>
-                {s.name}
-              </button>
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="checkbox"
+                  data-testid={`compare-${s.id}`}
+                  checked={compareIds.has(s.id)}
+                  onChange={() => toggleCompare(s.id)}
+                />
+                <button className="text-left font-medium hover:text-primary" onClick={() => onLoad(s)}>
+                  {s.name}
+                </button>
+              </label>
               <div className="flex gap-1">
                 <Button size="sm" variant="ghost" className="h-6 px-2" onClick={() => rename(s)}>
                   Rename
@@ -204,6 +222,43 @@ export function Scenarios({
           </li>
         ))}
       </ul>
+      {items.filter((s) => compareIds.has(s.id)).length >= 2 && (
+        <div className="mt-3 overflow-x-auto" data-testid="scenario-compare">
+          <div className="mono-label mb-1">Compare, recomputed live from each scenario's settings</div>
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-left text-muted-foreground">
+                <th className="py-1 font-normal">Scenario</th>
+                <th className="font-normal">Superoxide (nM)</th>
+                <th className="font-normal">ATP (µM/s)</th>
+                <th className="font-normal">Free iron (µM)</th>
+                <th className="font-normal">Peroxide (nM)</th>
+                <th className="font-normal">Strength</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items
+                .filter((s) => compareIds.has(s.id))
+                .map((s) => {
+                  const o = simulate(s.inputs, scenarioGeometry(s));
+                  return (
+                    <tr key={s.id} className="border-t border-border" data-testid="scenario-compare-row">
+                      <td className="py-1 pr-2 font-medium">{s.name}</td>
+                      <td data-testid="compare-so">{o.superoxide.toFixed(4)}</td>
+                      <td data-testid="compare-atp">{o.atpFlux.toFixed(1)}</td>
+                      <td data-testid="compare-iron">{o.freeIron.toFixed(2)}</td>
+                      <td>{o.hydrogenPeroxide.toFixed(1)}</td>
+                      <td className="text-muted-foreground">{(s.inputs.rirrStrength ?? 0.5)}x</td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+          <p className="mt-1 text-[10px] text-muted-foreground">
+            Values are recomputed with the current model, not the saved snapshot, so they follow model updates. Model estimates only.
+          </p>
+        </div>
+      )}
     </section>
   );
 }
