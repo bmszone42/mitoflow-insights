@@ -189,3 +189,7 @@
 ## 2026-10-05: Re-run all profiles at 1x in one click
 - ✅ New "Clear log and re-run all 18 at 1x" button on the Progress page (Not yet run view, data-testid `clear-rerun-all`): wipes the whole run log, then logs every therapy+dose cell for every profile at 1x ROS-induced strength (2880 runs), with a live progress line while it runs.
 - ✅ Verified live: "Cleared the log and re-ran all 18 profiles at 1x ROS-induced strength: 2880 combinations logged." Typecheck clean.
+
+## 2026-10-05: Healthy-adult reference row on the Timeline
+- ✅ Timeline table now leads with a "Healthy adult (model)" reference row (data-testid `tl-healthy`): model-default ATP, superoxide, peroxide, Defences only 0%, Heart check %, so every gap column has its baseline in view. The scenario compare table already had its healthy row.
+- ✅ Verified live on demo-04: reference reads ATP 45.4, superoxide 0.0124 nM, H2O2 32.9 nM; the Leigh visit reads +134% defences-only against it. Typecheck clean.
