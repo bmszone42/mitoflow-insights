@@ -287,5 +287,15 @@ function Dashboard() {
         </tr>)}</tbody>
       </table>
     </section>
+    <section aria-label="Scenario compare" className="space-y-2 border-t border-border pt-4">
+      <h2 className="text-sm font-semibold">Saved scenarios vs a profile</h2>
+      <label className="flex items-center gap-2 text-xs" data-testid="dash-spc-label">
+        Reference profile
+        <select value={compareId} onChange={(e) => setCompareId(e.target.value)} data-testid="dash-spc-profile" className="max-w-[280px] rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+          {rows.map((r) => <option key={r.p.id} value={r.p.id}>{r.p.label} · {r.p.phenotype}</option>)}
+        </select>
+      </label>
+      {compareRow && <ScenarioCompareTable referenceLabel={compareRow.p.label} referenceOut={compareRow.out} />}
+    </section>
   </main>;
 }
