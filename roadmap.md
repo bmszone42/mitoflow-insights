@@ -111,3 +111,7 @@
 - [x] Treatment therapies expand to list the disorder profiles they target, deep-linking into Diagnosis (new profile search param)
 
 - [x] Dashboard flagged-only therapy filter (hide therapies that only clear flags; note counts them)
+
+## Waiting on the Williams 1998 aconitase number
+- [ ] When the aconitase figure from Williams 1998 (SOD1-null mice) arrives: refit rirrStrength in model.ts so the model's Fe-S intact % at the lowest antioxidant capacity matches the measured aconitase loss (currently 1.0, fitted to Melov 1999 brain, "partly published"), update the label and the reference library score, then rebuild the Progress grid fresh with "Clear log and re-run all 18 at 1x" so every logged run uses the new calibration.
+- Blocker: the paper is paywalled; only public text says aconitase "decreased" with SOD activity -50% and glutathione -30%. No guessing.
