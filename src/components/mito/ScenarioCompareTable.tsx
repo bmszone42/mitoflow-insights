@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { simulate, defaultInputs, defaultGeometry, type Outputs } from "@/lib/mito/model";
-import { listScenarios, scenarioGeometry, scenarioStrengthLabel, type Scenario } from "@/lib/mito/scenarios";
+import { listScenarios, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, type Scenario } from "@/lib/mito/scenarios";
+
 
 /**
  * Saved scenarios recomputed live and compared with a reference run
