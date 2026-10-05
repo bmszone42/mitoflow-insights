@@ -96,6 +96,7 @@ export type ScenarioSummaryRow = {
   superoxide?: number | undefined;
   hydrogenPeroxide?: number | undefined;
   freeIron?: number | undefined;
+  defencesOnlyGap?: number;
   updatedAt: number;
 };
 
