@@ -61,6 +61,12 @@ export const Route = createFileRoute("/")({
 function Index() {
   const search = Route.useSearch();
   const [inputs, setInputs] = useState<Inputs>(defaultInputs);
+  // Apply the user's saved ROS-induced strength (from the Progress page's
+  // Recalibrate box) after mount, so SSR never touches localStorage.
+  useEffect(() => {
+    const s = savedRirrStrength();
+    if (s !== null) setInputs((i) => (i.rirrStrength === s ? i : { ...i, rirrStrength: s }));
+  }, []);
   const userPatients = useUserPatients();
   const [patientRun, setPatientRun] = useState<string | null>(null);
   const [runPatient, setRunPatient] = useState<DemoPatient | null>(null);
