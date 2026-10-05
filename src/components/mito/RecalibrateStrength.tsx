@@ -85,9 +85,25 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
         <Button size="sm" variant="outline" data-testid="recal-rerun" disabled={!fit || busy} onClick={rerun}>
           Clear log and re-run all {pool.length} at {fit ? `${fit.s}x` : "fitted strength"}
         </Button>
+        <Button
+          size="sm"
+          data-testid="recal-save"
+          disabled={!fit || fit.clamped}
+          onClick={() => { if (!fit) return; saveRirrStrength(fit.s); setSaved(fit.s); setMsg(`Saved ${fit.s}x as your default strength in this browser. The Simulator uses it from now on.`); }}
+        >
+          Save as my default
+        </Button>
       </div>
+      <p className="text-sm" data-testid="recal-saved">
+        Your saved default: {saved === null ? "none (Simulator uses 1.0x, the Melov 1999 fit)" : `${saved}x, the Simulator uses it automatically`}
+        {saved !== null && (
+          <Button size="sm" variant="ghost" className="ml-2" data-testid="recal-clear" onClick={() => { clearRirrStrength(); setSaved(null); setMsg("Cleared your saved default. The Simulator is back to 1.0x."); }}>
+            Clear
+          </Button>
+        )}
+      </p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}
-      <p className="text-xs text-muted-foreground">The Simulator default stays 1.0x until you send me the number, so I can update the label and the reference score too.</p>
+      <p className="text-xs text-muted-foreground">The saved default lives in this browser only and changes what the Simulator starts at; it does not re-run or change anything already in the Progress log. The code default stays 1.0x until you send me the number, so I can update the label and the reference score too.</p>
     </section>
   );
 }
