@@ -111,3 +111,18 @@ export function defencesOnlyGap(p: DemoPatient, v: Visit) {
   const pct = (a: number) => (base === 0 ? 0 : ((a - base) / base) * 100);
   return { before: pct(before), after: after === null ? null : pct(after) };
 }
+
+/**
+ * Heart check at a visit (Melov 1999 Sod2-null heart: complex I 59%, complex II
+ * 24% of normal): the model's Fe-S intact % at the visit's own settings, flagged
+ * when it falls inside that band. "after" applies the visit's therapies at their
+ * model doses. Profile as-is, not the defences-only matched comparison.
+ */
+export function heartCheck(p: DemoPatient, v: Visit) {
+  const vi = profileInputs(visitProfile(p, v));
+  const before = simulate(vi, defaultGeometry).aconitaseActivity;
+  let ti = vi;
+  for (const id of v.therapies) { const t = therapies.find((x) => x.id === id); if (t) ti = applyTherapyDose(ti, t, v.doses?.[id] ?? 1); }
+  const after = v.therapies.length ? simulate(ti, defaultGeometry).aconitaseActivity : null;
+  return { before: melovHeartCheck(before), after: after === null ? null : melovHeartCheck(after) };
+}
