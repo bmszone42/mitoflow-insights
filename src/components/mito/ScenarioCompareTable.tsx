@@ -84,6 +84,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
             <th className="font-normal">ATP (µM/s)</th>
             <th className="font-normal">Free iron (µM)</th>
             <th className="font-normal">Peroxide (nM)</th>
+            <th className="font-normal">Defences only</th>
             <th className="font-normal">ROS-induced strength (partly published)</th>
           </tr>
         </thead>
@@ -95,6 +96,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
               <td>{healthyOut.atpFlux.toFixed(1)}</td>
               <td>{healthyOut.freeIron.toFixed(2)}</td>
               <td>{healthyOut.hydrogenPeroxide.toFixed(1)}</td>
+              <td className="text-primary">0%</td>
               <td className="text-muted-foreground">model defaults</td>
             </tr>
           )}
@@ -104,6 +106,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
             <td>{referenceOut.atpFlux.toFixed(1)}</td>
             <td>{referenceOut.freeIron.toFixed(2)}</td>
             <td>{referenceOut.hydrogenPeroxide.toFixed(1)}</td>
+            <td className="text-muted-foreground">—</td>
             <td className="text-muted-foreground">profile settings</td>
           </tr>
           {items.map((s) => {
@@ -137,6 +140,9 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
                   {o.hydrogenPeroxide.toFixed(1)}
                   <div className="text-[10px] text-muted-foreground">{pct(o.hydrogenPeroxide, healthyOut.hydrogenPeroxide, "vs healthy")}</div>
                   <div className="text-[10px] text-muted-foreground">{pct(o.hydrogenPeroxide, referenceOut.hydrogenPeroxide, "vs profile")}</div>
+                </td>
+                <td className={defencesGap(s) > 0 ? "text-destructive" : "text-primary"} data-testid="spc-defences-gap">
+                  {gapText(defencesGap(s))}
                 </td>
                 <td className="text-muted-foreground">{scenarioStrengthLabel(s)}</td>
               </tr>
