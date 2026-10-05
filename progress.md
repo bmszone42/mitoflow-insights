@@ -1,3 +1,7 @@
+## JSON export summary sorted by defences-only gap (2026-10-05) ✅
+- ✅ scenariosExportPayload sorts summary.scenarios by defencesOnlyGap descending (weakest defences first), matching the compare table's default sort; referenceNote states the rule so JSON and table agree.
+- ✅ Verified live: seeded Weak/Mid/Strong scenarios, exported JSON from the Simulator, rows read Weak +486%, Mid +55%, Strong -48% in that order. Typecheck clean.
+
 ## Defences-only gap bar chart on the compare table (2026-10-05) ✅
 - ✅ New `src/components/mito/ScenarioGapChart.tsx`: horizontal bars of every saved scenario's defences-only gap, always sorted weakest defences first, red above the healthy level and green at or below, the reference profile in a neutral colour, dashed line at the healthy level (0%), percent printed at each bar end.
 - ✅ `ScenarioCompareTable.tsx` renders it under the table (Dashboard and Diagnosis), lazy-loaded with `lazy()` + `<Suspense>` so recharts stays out of those routes' initial bundles; the chart keeps its own order even when the table is sorted by superoxide or last updated.

@@ -149,6 +149,8 @@ export function scenariosExportPayload(items: Scenario[], reference?: { label: s
       updatedAt: s.updatedAt,
     };
   });
+  // Sort weakest defences first, matching the compare table's default sort.
+  rows.sort((a, b) => (b.defencesOnlyGap ?? 0) - (a.defencesOnlyGap ?? 0));
   const byStrength: Record<string, number> = {};
   for (const r of rows) {
     const key = r.rirrStrength == null ? "not noted" : `${r.rirrStrength}x`;
@@ -175,7 +177,7 @@ export function scenariosExportPayload(items: Scenario[], reference?: { label: s
       strengthNote:
         "ROS-induced strength is the assumed ROS-induced ROS release setting each scenario was run at (model setting, no published value). 'not noted' means it was saved before the setting existed and used the Simulator default.",
       referenceNote: referenceProfile
-        ? "healthyReference is the healthy adult at model defaults; referenceProfile is the reference profile the scenario compare table uses, recomputed live from its saved inputs with the same matched-healthy defences-only gap as the table and CSV."
+        ? "healthyReference is the healthy adult at model defaults; referenceProfile is the reference profile the scenario compare table uses, recomputed live from its saved inputs with the same matched-healthy defences-only gap as the table and CSV. Scenario rows are sorted by defences-only gap, weakest first, matching the compare table's default sort."
         : "No reference profile was passed at export time; the CSV export on the Dashboard and Diagnosis carries its own reference row.",
       byStrength,
       healthyReference: {
