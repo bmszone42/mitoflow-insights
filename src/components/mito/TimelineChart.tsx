@@ -9,7 +9,7 @@ const gapColor = (gap: number) => (gap > 0 ? "var(--destructive)" : "var(--prima
 const gapDot =
   (gapOf: (p: TimelineChartPoint) => number, opts?: { stroke?: string; dashed?: boolean }) =>
   (props: { cx?: number; cy?: number; key?: string | number; payload?: TimelineChartPoint }) => {
-    if (props.cx == null || props.cy == null || !props.payload) return <g key={props.key} data-gapdot="missing" data-has-cx={String(props.cx != null)} data-has-payload={String(!!props.payload)} />;
+    if (props.cx == null || props.cy == null || !props.payload) return <g key={props.key} data-gapdot="missing" data-has-cx={String(props.cx != null)} data-cx-type={typeof props.cx} data-has-cy={String(props.cy != null)} data-cy-type={typeof props.cy} data-has-payload={String(!!props.payload)} />;
     return (
       <circle
         key={props.key}
