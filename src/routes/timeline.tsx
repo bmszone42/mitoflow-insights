@@ -10,6 +10,7 @@ import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
 import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { defaultGeometry, defaultInputs, melovHeartCheck, simulate } from "@/lib/mito/model";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
 
@@ -30,6 +31,11 @@ type SimKey = "simAtp" | "simSuperoxide" | "simH2o2";
 const simKeys = [{ key: "simAtp", r: "atp", label: "ATP flux (simulated)", unit: "µM/s" }, { key: "simSuperoxide", r: "superoxide", label: "Superoxide (simulated)", unit: "nM" }, { key: "simH2o2", r: "h2o2", label: "Hydrogen peroxide (simulated)", unit: "nM" }] as const;
 const fmt = (x: number) => (Math.abs(x) >= 10 ? x.toFixed(1) : Number(x.toPrecision(3)).toString());
 const originText = { baseline: "Profile values", synthetic: "Invented follow-up", user: "Your visit", plan: "Plan (no new labs)", real: "Real-world visit" } as const;
+
+// Healthy-adult baseline for the reference row: model defaults, so every gap
+// column has the normal level it is read against.
+const healthyOut = simulate(defaultInputs, defaultGeometry);
+const healthyHeart = melovHeartCheck(healthyOut.aconitaseActivity);
 
 function TimelinePage() {
   const users = useUserPatients();
@@ -131,7 +137,23 @@ function TimelinePage() {
     <section className="mt-4 overflow-x-auto">
       <table className="w-full min-w-[640px] text-xs" data-testid="timeline-table">
         <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>ATP (µM/s)</th><th>Superoxide (nM)</th><th>Defences only</th><th>Heart check</th><th>H2O2 sim (nM)</th><th>Therapies (model dose)</th><th>Projected flag</th><th /></tr></thead>
-        <tbody>{timeline.map(({ v, d, r, pj, gap, hc }) => {
+        <tbody>
+          <tr className="border-t border-border align-top text-muted-foreground" data-testid="tl-healthy">
+            <td className="py-1.5 font-medium">Healthy adult (model)</td>
+            <td>Reference</td>
+            <td className="tabular-nums">{sim ? fmt(sim.key === "simAtp" ? healthyOut.atpFlux : sim.key === "simSuperoxide" ? healthyOut.superoxide : healthyOut.hydrogenPeroxide) : "—"}</td>
+            <td>0</td>
+            <td>None strong</td>
+            <td className="tabular-nums">{fmt(healthyOut.atpFlux)}</td>
+            <td className="tabular-nums">{fmt(healthyOut.superoxide)}</td>
+            <td className="tabular-nums" title="The Defences only gap is measured against this level.">0%</td>
+            <td className="tabular-nums" title="Fe-S intact % at model defaults; the Melov 1999 knockout-heart band is 24-59%.">{healthyHeart.pct.toFixed(0)}%</td>
+            <td className="tabular-nums">{fmt(healthyOut.hydrogenPeroxide)}</td>
+            <td>None</td>
+            <td>—</td>
+            <td />
+          </tr>
+          {timeline.map(({ v, d, r, pj, gap, hc }) => {
           const flags = d.patientFlags.length + d.rosAssayFlags.length + d.atpAssayFlags.length + d.modelFlags.length;
           return <tr key={v.id} className="border-t border-border align-top" data-testid="timeline-row">
             <td className="py-1.5 font-mono">{v.date}</td>
