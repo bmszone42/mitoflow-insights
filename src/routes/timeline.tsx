@@ -9,10 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
-import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, visitReadouts, visitProjection, visitSim, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 import { defaultGeometry, defaultInputs, melovHeartCheck, simulate } from "@/lib/mito/model";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
+const TimelineGapChart = lazy(() => import("@/components/mito/TimelineGapChart"));
 
 export const Route = createFileRoute("/timeline")({
   validateSearch: (s) => z.object({ profile: z.string().optional() }).parse(s),
