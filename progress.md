@@ -1,3 +1,8 @@
+## Williams 1998 entry on the References page (2026-10-05) ✅
+- ✅ Added Williams et al. 1998 (JBC 273(43):28510-28515, DOI 10.1074/jbc.273.43.28510, Crossref-verified) to studyReferences.ts next to Melov 1999, section "ROS, iron and assays".
+- ✅ Library entry carries the public drops (MnSOD down ~50%, glutathione down ~30%, aconitase reported only as "decreased", figure paywalled, no public percentage) and the fitted strength label: the Recalibrate helper fits from its aconitase % once supplied, but the current 1.0x default is the Melov 1999 brain fit, not this paper. Scored 74/100 (relevance 36, evidence 24, usability 14).
+- ✅ Verified live on /references: entry renders with synopsis, usedFor and score; no page errors.
+
 ## Strength vs aconitase curve in Recalibrate (2026-10-05) ✅
 - ✅ New src/components/mito/RecalibrateCurve.tsx: line chart of the model's Fe-S intact % at the weakest defences (antioxidant capacity 0.2x) against ROS-induced strength from 0 to 1.5x, falling from 72% to 15%; a dashed line marks the pasted aconitase number and a red dot marks the fitted strength.
 - ✅ aconitasePct, S_MIN and S_MAX are exported from RecalibrateStrength.tsx so the curve and the fit share one source of truth; the chart is lazy-loaded so recharts stays out of the Progress page's initial bundle.
