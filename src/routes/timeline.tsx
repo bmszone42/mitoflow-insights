@@ -200,7 +200,7 @@ function TimelinePage() {
       </table>
       <div className="mt-4">
         <h2 className="text-sm font-semibold">Visit gaps vs the healthy adult</h2>
-        <p className="text-[11px] text-muted-foreground">Each visit's simulated superoxide, ATP and free iron as % of the healthy adult (model defaults), sorted by the superoxide gap, biggest first. Red: worse than healthy (superoxide and free iron above, ATP below); green: at or better than healthy. Includes each visit's therapies at their model doses. Model estimates, not lab results.</p>
+        <p className="text-[11px] text-muted-foreground">Each visit's simulated superoxide, ATP and free iron as % of the healthy adult (model defaults), sorted by the superoxide gap, biggest first. Red: worse than healthy (superoxide and free iron above, ATP below); green: at or better than healthy. Lines: each therapy's dose multiplier (right axis, 0-2x); a line breaks on visits where that therapy was not given. Model estimates, not lab results.</p>
         <Suspense fallback={<div className="flex h-64 items-center justify-center text-xs text-muted-foreground">Loading chart…</div>}>
           <TimelineGapChart rows={gapRows} />
         </Suspense>
