@@ -57,3 +57,91 @@ export function scenarioGeometry(s: Scenario): Geometry {
   }
   return geometry;
 }
+
+// ROS-induced ROS release strength is an assumed setting (no published value), so every
+// export and comparison names the value each scenario was run at.
+export const DEFAULT_RIRR_STRENGTH = 0.5;
+
+export function scenarioStrength(s: Scenario): number | null {
+  const v = (s.inputs as { rirrStrength?: unknown } | undefined)?.rirrStrength;
+  return typeof v === "number" && Number.isFinite(v) ? v : null;
+}
+
+export function scenarioStrengthLabel(s: Scenario): string {
+  const v = scenarioStrength(s);
+  return v == null ? `not noted (assumed ${DEFAULT_RIRR_STRENGTH}x)` : `${v}x`;
+}
+
+export type ScenarioSummaryRow = {
+  id: string;
+  name: string;
+  rirrStrength: number | null;
+  strengthNoted: boolean;
+  preset?: string | undefined;
+  atpFlux?: number | undefined;
+  superoxide?: number | undefined;
+  hydrogenPeroxide?: number | undefined;
+  freeIron?: number | undefined;
+  updatedAt: number;
+};
+
+export type ScenarioExportPayload = {
+  format: "cristae-lab-scenarios";
+  version: 2;
+  exportedAt: string;
+  summary: {
+    count: number;
+    strengthIsAssumed: true;
+    strengthNote: string;
+    byStrength: Record<string, number>;
+    scenarios: ScenarioSummaryRow[];
+  };
+  scenarios: Scenario[];
+};
+
+export function scenariosExportPayload(items: Scenario[]): ScenarioExportPayload {
+  const rows: ScenarioSummaryRow[] = items.map((s) => {
+    const strength = scenarioStrength(s);
+    return {
+      id: s.id,
+      name: s.name,
+      rirrStrength: strength,
+      strengthNoted: strength != null,
+      preset: s.preset,
+      atpFlux: s.snapshot.atpFlux,
+      superoxide: s.snapshot.superoxide,
+      hydrogenPeroxide: s.snapshot.hydrogenPeroxide,
+      freeIron: s.snapshot.freeIron,
+      updatedAt: s.updatedAt,
+    };
+  });
+  const byStrength: Record<string, number> = {};
+  for (const r of rows) {
+    const key = r.rirrStrength == null ? "not noted" : `${r.rirrStrength}x`;
+    byStrength[key] = (byStrength[key] ?? 0) + 1;
+  }
+  return {
+    format: "cristae-lab-scenarios",
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    summary: {
+      count: rows.length,
+      strengthIsAssumed: true,
+      strengthNote:
+        "ROS-induced strength is the assumed ROS-induced ROS release setting each scenario was run at (model setting, no published value). 'not noted' means it was saved before the setting existed and used the Simulator default.",
+      byStrength,
+      scenarios: rows,
+    },
+    scenarios: items,
+  };
+}
+
+// Import accepts the older flat array as well as the versioned payload above.
+export function scenariosFromJson(data: unknown): Scenario[] {
+  const list = Array.isArray(data)
+    ? data
+    : Array.isArray((data as { scenarios?: unknown })?.scenarios)
+      ? (data as { scenarios: unknown[] }).scenarios
+      : [data];
+  return list.filter(isScenario);
+}
