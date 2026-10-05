@@ -77,11 +77,11 @@ export type ScenarioSummaryRow = {
   name: string;
   rirrStrength: number | null;
   strengthNoted: boolean;
-  preset?: string;
-  atpFlux?: number;
-  superoxide?: number;
-  hydrogenPeroxide?: number;
-  freeIron?: number;
+  preset?: string | undefined;
+  atpFlux?: number | undefined;
+  superoxide?: number | undefined;
+  hydrogenPeroxide?: number | undefined;
+  freeIron?: number | undefined;
   updatedAt: number;
 };
 
