@@ -279,16 +279,19 @@ export function Scenarios({
                               {o.hydrogenPeroxide.toFixed(1)}
                               <div className="text-[10px] text-muted-foreground">{pct(o.hydrogenPeroxide, healthy.hydrogenPeroxide)}</div>
                             </td>
-                      <td
-                        className="text-muted-foreground"
-                        data-testid="compare-strength"
-                        data-strength={scenarioStrength(s) ?? "not-noted"}
-                      >
-                        {scenarioStrengthLabel(s)}
-                      </td>
-                    </tr>
-                  );
-                })}
+                            <td
+                              className="text-muted-foreground"
+                              data-testid="compare-strength"
+                              data-strength={scenarioStrength(s) ?? "not-noted"}
+                            >
+                              {scenarioStrengthLabel(s)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </>
+                );
+              })()}
             </tbody>
           </table>
           <p className="mt-1 text-[10px] text-muted-foreground">
