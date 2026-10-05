@@ -62,7 +62,7 @@ function TimelinePage() {
   const mLabel = sim ? sim.label : isH2o2 ? "Hydrogen peroxide (measured)" : m!.label;
   const mUnit = sim ? sim.unit : isH2o2 ? "nM" : m!.unit;
   const cell = (v: (typeof timeline)[number]["v"], r: (typeof timeline)[number]["r"]): number | null => sim ? r[sim.r] : isH2o2 ? (v.h2o2Nm ?? null) : v.values[metric as PatientMetricKey];
-  const chart = useMemo(() => timeline.map(({ v, d, r }) => { const value = cell(v, r); return { date: v.date, value, top: d.causes[0]!.score, real: v.origin === "real" ? value : null, plan: v.origin === "plan" ? value : null }; }), [timeline, metric]);
+  const chart = useMemo(() => timeline.map(({ v, d, r, gap }) => { const value = cell(v, r); return { date: v.date, value, top: d.causes[0]!.score, real: v.origin === "real" ? value : null, plan: v.origin === "plan" ? value : null, gapBefore: gap.before, gapAfter: gap.after }; }), [timeline, metric]);
 
   const last = timeline[timeline.length - 1]!.v;
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -119,6 +119,7 @@ function TimelinePage() {
 
     <section className="mt-4 rounded-md border border-border p-3" data-testid="timeline-chart">
       <h2 className="text-sm font-semibold">{mLabel} <span className="font-normal text-muted-foreground">({mUnit})</span> and top mechanism score</h2>
+      <p className="text-[11px] text-muted-foreground">Dots follow the Defences only column: red when the gap is above the healthy level, green at or below. Visit dots use the gap before therapies; plan dots use the gap after the plan's therapies.</p>
       {sim && <p className="text-[11px] text-muted-foreground">Simulated from each visit's labs mapped to sliders, plus that visit's therapies at their model doses. Model dose is a slider value, never a drug dose. Not a clinical prediction.</p>}
       {isH2o2 && <p className="text-[11px] text-muted-foreground">Sies 2017: 1-10 nM signaling, 10-100 nM adaptive stress, above 100 nM distress. Research band, not a lab range. Visits without a measured value show a gap.</p>}
       {isMitosox && <p className="text-[11px] text-muted-foreground">Gonzalo et al., Front Neurosci 2019: 0.59-1.5 fold of the healthy-control median, one study's healthy-control spread. Research band, not a lab range; for children the adult band is applied with caution.</p>}

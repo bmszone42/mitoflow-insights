@@ -1,3 +1,8 @@
+## Timeline chart dot colors from the defences-only gap (2026-10-04) ✅
+- Timeline chart dots are colored by the defences-only gap: red when above the healthy level, green at or below (same tokens as the table column). Visit dots use gap.before; plan dots use gap.after, falling back to before.
+- chart points now carry gapBefore/gapAfter from the simCache gap; TimelineChart renders custom dot shapes per Line (gating on props.value, since recharts calls the renderer for null rows too; dots appear only after the line's entry animation finishes).
+- Caption under the chart explains dot colors. Verified live: Demo 04 all four dots red (+134/+104/+98/+65%); Demo 01 green/green/red/green (0/-4/+6/-6%), matching the Defences only column. Typecheck clean.
+
 - Diagnosis page gains a Model dose picker (0.25x to 2x) beside Therapy flags; diagnoseProfile and diagnoseAll take a dose parameter, so the Therapy flags list, its counts and the all-profiles table Therapies column follow the chosen dose and match the dashboard (verified: Leigh 13 at 1x, 14 at 2x, 11 at 0.25x).
 
 ## Dashboard therapy flag count (2026-10-03) ✅
