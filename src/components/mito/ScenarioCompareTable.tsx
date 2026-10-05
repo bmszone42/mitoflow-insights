@@ -222,7 +222,8 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         </Button>
       )}
       <p className="mt-1 text-[10px] text-muted-foreground">
-        Sorted by the Defences only gap, weakest defences first. Scenarios are recomputed with the current model from their own saved settings,
+        Sorted by the picked key, worst first: defences gap (weakest defences first), superoxide (highest first) or last updated (newest first).
+        Scenarios are recomputed with the current model from their own saved settings,
         not the saved snapshot. "vs healthy" compares with the
         healthy adult's simulated values (model defaults), colored red when the value is worse than normal
         (higher superoxide, free iron or peroxide, lower ATP) and green at or better; "vs profile" compares with {referenceLabel}'s simulated values, not lab measurements.
