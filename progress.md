@@ -295,3 +295,5 @@
 - ✅ Scenario plan on /therapy-plan: pick a saved scenario, therapies and model doses ranked by defences-only gap drop, assumed turnover-based timing (weeks 1-12)
 
 - ✅ Timeline gap chart: added a therapy-strength line (mean dose multiplier per visit, right axis 0-2x) alongside the superoxide, ATP and free iron gap bars.
+
+- ✅ Saved ROS-induced strength now applies on Dashboard, Diagnosis and Timeline too: a shared hook sets it after mount and profile inputs overlay it, so all pages read the same fitted strength after a recalibrate.

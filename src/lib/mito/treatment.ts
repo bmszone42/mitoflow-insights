@@ -3,6 +3,7 @@ import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosSourceRows } from "./rosPhysiology";
 import { inputsFromPatient, type DemoPatient } from "./patientReference";
 import type { Mechanism, diagnoseProfile } from "./diagnosis";
+import { activeRirr } from "./rirrDefault";
 
 // Therapy classes mapped to existing model sliders. Research levers only:
 // slider moves are illustrative, never doses or recommendations.
@@ -73,7 +74,10 @@ export function metrics(inputs: Inputs) {
 }
 
 /** Profile state = measured baseline (membrane potential, labile iron, inverse MitoSOX), same mapping as "Run in Simulator". */
-export const profileInputs = (p: DemoPatient): Inputs => ({ ...defaultInputs, ...inputsFromPatient(p).patch });
+export const profileInputs = (p: DemoPatient): Inputs => {
+  const s = activeRirr();
+  return { ...defaultInputs, ...inputsFromPatient(p).patch, ...(s !== null ? { rirrStrength: s } : {}) };
+};
 
 export function simulateTherapy(p: DemoPatient, t: Therapy) {
   const before = profileInputs(p);

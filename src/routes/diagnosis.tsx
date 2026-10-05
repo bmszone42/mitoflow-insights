@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
 import { profileInputs, therapies } from "@/lib/mito/treatment";
+import { useSavedRirr } from "@/lib/mito/rirrDefault";
 import { defaultGeometry, melovHeartCheck, simulate } from "@/lib/mito/model";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
@@ -36,11 +37,13 @@ function EvidenceList({ title, items, empty }: { title: string; items: Evidence[
 
 function DiagnosisPage() {
   const users = useUserPatients();
+  // Saved recalibrated strength; applied after mount so every page agrees.
+  const rirr = useSavedRirr();
   // Model dose for the Therapy flags (fraction of each therapy's slider move; never a drug dose).
   const [dose, setDose] = useState(1);
   // Projected-flag therapy pick: "best" uses the strongest therapy; a therapy id pins it, matching the dashboard's Batch therapy choice.
   const [projTherapy, setProjTherapy] = useState("best");
-  const all = useMemo(() => diagnoseAll(users, dose, projTherapy === "best" ? undefined : projTherapy), [users, dose, projTherapy]);
+  const all = useMemo(() => diagnoseAll(users, dose, projTherapy === "best" ? undefined : projTherapy), [users, dose, projTherapy, rirr]);
   // Heart check per profile: model Fe-S intact % at the profile's own settings vs the Melov 1999 Sod2-null heart band.
   const hearts = useMemo(() => new Map(all.map((x) => [x.patient.id, melovHeartCheck(simulate(profileInputs(x.patient), defaultGeometry).aconitaseActivity)])), [all]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");

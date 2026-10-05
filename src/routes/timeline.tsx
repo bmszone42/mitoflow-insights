@@ -10,6 +10,7 @@ import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
 import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, visitReadouts, visitProjection, visitSim, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { useSavedRirr } from "@/lib/mito/rirrDefault";
 import { defaultGeometry, defaultInputs, melovHeartCheck, simulate } from "@/lib/mito/model";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
@@ -41,6 +42,8 @@ const healthyHeart = melovHeartCheck(healthyOut.aconitaseActivity);
 function TimelinePage() {
   const users = useUserPatients();
   const visits = useVisits();
+  // Saved recalibrated strength; applied after mount so every page agrees.
+  const rirr = useSavedRirr();
   const all = useMemo(() => [...users, ...demoPatients], [users]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const p = all.find((x) => x.id === id) ?? all[0]!;
@@ -60,7 +63,7 @@ function TimelinePage() {
       if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v), gap: defencesOnlyGap(p, v), hc: heartCheck(p, v), s: visitSim(p, v) }; cache.set(key, e); }
       return { v, ...e };
     });
-  }, [p, visits, onlyId]);
+  }, [p, visits, onlyId, rirr]);
 
   // Per-visit gaps vs the healthy adult (model defaults) for the gap bar chart:
   // superoxide, ATP and free iron, each as % of the healthy level, plus the

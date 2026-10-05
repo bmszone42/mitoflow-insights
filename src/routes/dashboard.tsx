@@ -7,6 +7,7 @@ import { demoPatients, lpMapping, patientSex, h2o2BandCheck, projectedH2o2, proj
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, bestProjectionTherapy, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
+import { useSavedRirr } from "@/lib/mito/rirrDefault";
 import { recordRun } from "@/lib/mito/runs";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 // Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
@@ -51,6 +52,8 @@ function responders(p: Parameters<typeof profileInputs>[0], dose = 1) {
 
 function Dashboard() {
   const users = useUserPatients();
+  // Saved recalibrated strength; applied after mount so every page agrees.
+  const rirr = useSavedRirr();
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
   // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
@@ -117,7 +120,7 @@ function Dashboard() {
       if (fb !== fa) return fb - fa;
       return a.p.label.localeCompare(b.p.label);
     });
-  }, [users, dose, batchTherapy]);
+  }, [users, dose, batchTherapy, rirr]);
 
   // Light memo: display filtering only (readoutOnly checkbox), no simulations.
   // Log each profile's therapy sweep to the local run log (Scenario progress page).
