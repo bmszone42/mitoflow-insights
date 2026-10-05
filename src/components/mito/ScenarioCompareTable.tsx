@@ -39,6 +39,16 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
   };
   const gapText = (g: number) => `${g >= 0 ? "+" : ""}${g.toFixed(0)}%`;
 
+  // Same matched-healthy gap for the reference profile itself, from its inputs.
+  const referenceGap = useMemo(() => {
+    if (!referenceInputs) return null;
+    const matched = (ac: number) =>
+      simulate({ ...defaultInputs, deltaPsi: referenceInputs.deltaPsi, antioxidantCapacity: ac }, defaultGeometry).superoxide;
+    const base = matched(defaultInputs.antioxidantCapacity);
+    const val = matched(referenceInputs.antioxidantCapacity);
+    return base === 0 ? 0 : ((val - base) / base) * 100;
+  }, [referenceInputs]);
+
   // CSV mirrors the table above and carries the same fields as the JSON export
   // summary (id, name, ROS-induced strength + whether it was noted, preset,
   // readouts, updatedAt), so tuned scenarios can be shared as a flat file.
