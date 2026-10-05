@@ -209,3 +209,8 @@
 - ✅ Added a visible source note under the Diagnosis profiles table (data-testid `dx-heart-note`): Melov et al. 1999 (PNAS 96(3):846), Sod2-null mouse heart, complex I at 59% and complex II at 24% of normal; Fe-S intact % is flagged red inside the 24-59% band; severity reference only, never a calibration target, not counted in flag totals; links to /references.
 - ✅ Previously the figures lived only in the Heart check cell's hover tooltip; they are now visible in the page.
 - ✅ Verified live: note renders on all 18 profile rows, link resolves, no page errors; typecheck clean.
+
+## 2026-10-05 (defences-only gap in scenario compare)
+- ✅ Scenario compare table (Dashboard + Diagnosis) gained a "Defences only" column: same matched-healthy comparison as the Dashboard/Timeline (healthy defaults re-run at the scenario's own membrane potential, iron and L:P held at healthy), red above 0%, green at/below; healthy row shows 0%.
+- ✅ Compare CSV gained a "Defences-only gap (%)" column matching the table.
+- Verified live: seeded 0.4x antioxidant scenario reads +486%; typecheck clean.
