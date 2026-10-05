@@ -45,11 +45,11 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
     const lines: string[] = [];
-    lines.push("Row type,Scenario,Superoxide (nM),Superoxide vs healthy (%),Superoxide vs profile (%),ATP (uM/s),ATP vs healthy (%),ATP vs profile (%),Free iron (uM),Free iron vs healthy (%),Free iron vs profile (%),Peroxide (nM),Peroxide vs healthy (%),Peroxide vs profile (%),ROS-induced strength,Strength noted,Preset,Scenario ID,Updated");
+    lines.push("Row type,Scenario,Superoxide (nM),Superoxide vs healthy (%),Superoxide vs profile (%),ATP (uM/s),ATP vs healthy (%),ATP vs profile (%),Free iron (uM),Free iron vs healthy (%),Free iron vs profile (%),Peroxide (nM),Peroxide vs healthy (%),Peroxide vs profile (%),Defences-only gap (%),ROS-induced strength,Strength noted,Preset,Scenario ID,Updated");
     const pctOnly = (v: number, base: number) => (base === 0 ? "" : `${v >= base ? "+" : ""}${(((v - base) / base) * 100).toFixed(0)}%`);
     const row = (cells: (string | number)[]) => lines.push(cells.map((c) => esc(String(c))).join(","));
-    row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "model defaults", "", "", "", ""]);
-    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", "profile settings", "", "", "", ""]);
+    row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "0%", "model defaults", "", "", "", ""]);
+    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", "", "profile settings", "", "", "", ""]);
     for (const s of items) {
       const o = simulate(s.inputs, scenarioGeometry(s));
       const strength = scenarioStrength(s);
@@ -59,6 +59,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
         o.atpFlux.toFixed(1), pctOnly(o.atpFlux, healthyOut.atpFlux), pctOnly(o.atpFlux, referenceOut.atpFlux),
         o.freeIron.toFixed(2), pctOnly(o.freeIron, healthyOut.freeIron), pctOnly(o.freeIron, referenceOut.freeIron),
         o.hydrogenPeroxide.toFixed(1), pctOnly(o.hydrogenPeroxide, healthyOut.hydrogenPeroxide), pctOnly(o.hydrogenPeroxide, referenceOut.hydrogenPeroxide),
+        gapText(defencesGap(s)),
         scenarioStrengthLabel(s), strength == null ? "no" : "yes", s.preset ?? "", s.id, new Date(s.updatedAt).toISOString(),
       ]);
     }
