@@ -131,7 +131,7 @@ function TimelinePage() {
     <section className="mt-4 overflow-x-auto">
       <table className="w-full min-w-[640px] text-xs" data-testid="timeline-table">
         <thead><tr className="text-left text-muted-foreground"><th className="py-1">Date</th><th>Source</th><th>{mLabel}</th><th>Flags</th><th>Top mechanism</th><th>ATP (µM/s)</th><th>Superoxide (nM)</th><th>Defences only</th><th>Heart check</th><th>H2O2 sim (nM)</th><th>Therapies (model dose)</th><th>Projected flag</th><th /></tr></thead>
-        <tbody>{timeline.map(({ v, d, r, pj, gap }) => {
+        <tbody>{timeline.map(({ v, d, r, pj, gap, hc }) => {
           const flags = d.patientFlags.length + d.rosAssayFlags.length + d.atpAssayFlags.length + d.modelFlags.length;
           return <tr key={v.id} className="border-t border-border align-top" data-testid="timeline-row">
             <td className="py-1.5 font-mono">{v.date}</td>
