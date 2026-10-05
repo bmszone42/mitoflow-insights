@@ -198,8 +198,11 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
         <Button size="sm" variant="outline" data-testid="clear-rerun" disabled={busy} onClick={clearAndRerun}>
           Clear log and re-run at {base?.rirrStrength ?? 1}x
         </Button>
+        <select aria-label="All-profiles strength" data-testid="clear-rerun-all-strength" className="rounded border border-input bg-background px-2 py-1 text-sm" value={String(allStrength)} onChange={(e) => setAllStrength(Number(e.target.value))}>
+          {[0.5, 1, 2].map((s) => <option key={s} value={String(s)}>{s}x</option>)}
+        </select>
         <Button size="sm" variant="outline" data-testid="clear-rerun-all" disabled={busy} onClick={clearAndRerunAll}>
-          Clear log and re-run all {pool.length} at 1x
+          Clear log and re-run all {pool.length} at {allStrength}x
         </Button>
       </div>
       {batchMsg && <p className="text-sm" data-testid="run-all-missing-result">{batchMsg}</p>}
