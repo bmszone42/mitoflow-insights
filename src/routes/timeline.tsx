@@ -9,10 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
-import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, visitReadouts, visitProjection, visitSim, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 import { defaultGeometry, defaultInputs, melovHeartCheck, simulate } from "@/lib/mito/model";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
+const TimelineGapChart = lazy(() => import("@/components/mito/TimelineGapChart"));
 
 export const Route = createFileRoute("/timeline")({
   validateSearch: (s) => z.object({ profile: z.string().optional() }).parse(s),
@@ -49,17 +50,26 @@ function TimelinePage() {
   // Per-visit simulation cache: a visit's diagnosis, readouts and projection
   // recompute only when that visit's content (labs, therapies, doses) or the
   // pinned projection therapy changes, not when other visits or form state do.
-  const simCache = useRef(new Map<string, { d: ReturnType<typeof diagnoseVisit>; r: ReturnType<typeof visitReadouts>; pj: ReturnType<typeof visitProjection>; gap: ReturnType<typeof defencesOnlyGap>; hc: ReturnType<typeof heartCheck> }>());
+  const simCache = useRef(new Map<string, { d: ReturnType<typeof diagnoseVisit>; r: ReturnType<typeof visitReadouts>; pj: ReturnType<typeof visitProjection>; gap: ReturnType<typeof defencesOnlyGap>; hc: ReturnType<typeof heartCheck>; s: ReturnType<typeof visitSim> }>());
     const timeline = useMemo(() => {
     const cache = simCache.current;
     if (cache.size > 200) cache.clear();
     return patientTimeline(p, visits).map((v) => {
       const key = `${p.id}|${v.id}|${onlyId ?? ""}|${JSON.stringify([v.values, v.h2o2Nm, v.therapies, v.doses])}`;
       let e = cache.get(key);
-      if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v), gap: defencesOnlyGap(p, v), hc: heartCheck(p, v) }; cache.set(key, e); }
+      if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v), gap: defencesOnlyGap(p, v), hc: heartCheck(p, v), s: visitSim(p, v) }; cache.set(key, e); }
       return { v, ...e };
     });
   }, [p, visits, onlyId]);
+
+  // Per-visit gaps vs the healthy adult (model defaults) for the gap bar chart:
+  // superoxide, ATP and free iron, each as % of the healthy level.
+  const gapRows = useMemo(() => timeline.map(({ v, s }) => ({
+    date: v.date,
+    so: healthyOut.superoxide ? ((s.superoxide - healthyOut.superoxide) / healthyOut.superoxide) * 100 : 0,
+    atp: healthyOut.atpFlux ? ((s.atpFlux - healthyOut.atpFlux) / healthyOut.atpFlux) * 100 : 0,
+    fe: healthyOut.freeIron ? ((s.freeIron - healthyOut.freeIron) / healthyOut.freeIron) * 100 : 0,
+  })), [timeline]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
   const isH2o2 = metric === "h2o2Nm";
   const isMitosox = metric === "mitosox";
@@ -183,6 +193,13 @@ function TimelinePage() {
           </tr>;
         })}</tbody>
       </table>
+      <div className="mt-4">
+        <h2 className="text-sm font-semibold">Visit gaps vs the healthy adult</h2>
+        <p className="text-[11px] text-muted-foreground">Each visit's simulated superoxide, ATP and free iron as % of the healthy adult (model defaults), sorted by the superoxide gap, biggest first. Red: worse than healthy (superoxide and free iron above, ATP below); green: at or better than healthy. Includes each visit's therapies at their model doses. Model estimates, not lab results.</p>
+        <Suspense fallback={<div className="flex h-64 items-center justify-center text-xs text-muted-foreground">Loading chart…</div>}>
+          <TimelineGapChart rows={gapRows} />
+        </Suspense>
+      </div>
       <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Defences only is the superoxide gap vs the healthy adult at the same membrane potential, with labile iron and L:P held at healthy (same comparison as the Dashboard); after the arrow it applies the visit's therapies at their model doses, a model estimate, not a lab result. Heart check is the model's Fe-S intact % at the visit's own settings against the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal); red means inside that band. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags. With a therapy picked in the Projected flag therapy menu, the column instead shows the Diagnosis projection for that therapy at the 1x model dose, the same pick as the dashboard's Batch therapy, so the pages agree.</p>
     </section>
 

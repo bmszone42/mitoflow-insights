@@ -1,3 +1,8 @@
+## Timeline visit-gap bar chart (2026-10-05) ✅
+- ✅ New TimelineGapChart.tsx (lazy-loaded, recharts): per-visit superoxide, ATP and free iron gaps vs the healthy adult (model defaults) as %, sorted by superoxide gap biggest first; red when worse than healthy (superoxide/iron above, ATP below), green at or better; dashed healthy line.
+- ✅ timeline.ts gained visitSim (full simulate output per visit, sharing visitSimInputs with visitReadouts); timeline.tsx caches it in simCache and renders the chart under the table.
+- ✅ Verified live on demo-04: 12 bars (4 visits x 3 metrics), red/green correct, sorted 71% > 64% > 20% > 5%, no page errors.
+
 ## Strength picker on the re-run all 18 button (2026-10-05) ✅
 - ✅ NotYetRun.tsx: "Clear log and re-run all 18" gained a strength picker (0.5x, 1x, 2x, default 1x); the batch logs every cell at the picked strength and the button label follows it.
 - ✅ Verified live: options 0.5x/1x/2x, label updates, 2x batch confirmed logging (2880 cells).
