@@ -144,3 +144,9 @@
 - ✅ Progress grid: "Run all missing at this strength" batch button runs and logs every missing therapy+dose cell at the selected ROS-induced strength (verified: 160 runs logged, grid 0 missing, no page errors).
 
 - ✅ Scenario compare view: checkboxes on each saved scenario in the Simulator panel; with 2+ ticked, a side-by-side table shows superoxide, ATP, free iron, peroxide and ROS-induced strength, recomputed live from each scenario’s settings (verified: 2 rows, no page errors).
+
+## Scenario strength in export and compare (2026-10-05) ✅
+- Scenario JSON export is now a versioned payload (format "cristae-lab-scenarios", version 2) with a summary naming each scenario's ROS-induced strength: name, id, strength (or null when never noted), whether it was noted, its fuel preset and its stored ATP/superoxide/peroxide/iron snapshot, plus a byStrength count per strength and a note that the strength is assumed.
+- Import accepts the new payload, the old flat array, the {scenarios} shape and a single scenario, so older files still load.
+- Scenario compare view shows a "ROS-induced strength (assumed)" column per scenario: the stored value (e.g. "1.25x") or "not noted (assumed 0.5x)" for scenarios saved before strengths were recorded.
+- Verified live: two scenarios, one set to 1.25x, compare cells read 1.25x and 0.5x; export summary listed both strengths with byStrength {1.25x: 1, 0.5x: 1}; re-import reported "Imported 2 scenario(s)". A legacy scenario with no stored strength showed "not noted (assumed 0.5x)" and byStrength {0.5x: 1, 'not noted': 1}. No page errors; typecheck clean.

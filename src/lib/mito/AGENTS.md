@@ -31,3 +31,4 @@
 - Not yet run grid has a batch button that runs and logs every missing cell at the effective strength (selected filter strength, else the profile setting); runs are sequential recordRun calls with source "progress".
 
 - Scenario compare lives in Scenarios.tsx: ticked scenarios are re-simulated with simulate(s.inputs, scenarioGeometry(s)), never the saved snapshot, so the table follows model updates.
+- Scenario export/import goes through scenariosExportPayload and scenariosFromJson in scenarios.ts: the file is a versioned payload whose summary lists each scenario's ROS-induced strength (null = never noted), and import also accepts the older flat-array and single-object shapes; why: the strength is an assumed setting, so a shared file must say which value each scenario carries.
