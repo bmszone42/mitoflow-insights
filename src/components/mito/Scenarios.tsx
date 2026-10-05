@@ -179,9 +179,17 @@ export function Scenarios({
             className={`rounded-md border p-2 text-xs ${s.id === activeId ? "border-primary" : "border-border"}`}
           >
             <div className="flex items-center justify-between gap-2">
-              <button className="text-left font-medium hover:text-primary" onClick={() => onLoad(s)}>
-                {s.name}
-              </button>
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="checkbox"
+                  data-testid={`compare-${s.id}`}
+                  checked={compareIds.has(s.id)}
+                  onChange={() => toggleCompare(s.id)}
+                />
+                <button className="text-left font-medium hover:text-primary" onClick={() => onLoad(s)}>
+                  {s.name}
+                </button>
+              </label>
               <div className="flex gap-1">
                 <Button size="sm" variant="ghost" className="h-6 px-2" onClick={() => rename(s)}>
                   Rename
