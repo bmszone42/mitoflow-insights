@@ -22,7 +22,7 @@
 - Adult research bands (MitoSOX, ATP-linked OCR) are applied to child profiles with an explicit caution label; never silently, never treated as pediatric intervals.
 - Simulator result panels (FerroptosisPanel, RosBudgetPanel, PhotoreceptorPanel, WarburgSummaryCard) live in their own files; shared Metric/BudgetBar/chart helpers in SimulatorShared.tsx.
 - Diagnosis therapyFlags list model therapies targeting a strong cause (score >= 1.5) that move ATP, superoxide or peroxide by >=1% at 1x model dose; model levers only, never drug doses, and never counted in assay flag totals.
-- Superoxide: SOD clearance scales with antioxidantCapacity ** SOD_AC_EXP and production by antioxidantCapacity ** -rirrStrength (Input, default 0.5, ROS-induced ROS release); why: weak defenses must raise ROS while 1x stays unchanged, and the unpublished strength stays user-tunable.
+- Superoxide: SOD clearance scales with antioxidantCapacity ** SOD_AC_EXP and production by antioxidantCapacity ** -rirrStrength (Input, ROS-induced ROS release); the default is fitted so 0.2x capacity reproduces Melov 1999 Sod2-null brain aconitase loss, labeled "partly published", and legacy states without it fall back to 0.5; why: weak defenses must raise ROS while 1x stays unchanged, anchored to a measured Fe-S loss.
 - Profile sensitivity (Sensitivity tab) nudges rirrStrength, mitoHalfLife, antioxidantCapacity, labileIron and deltaPsi one at a time on each profile's own baseline via profileSensitivity.ts; effects do not add.
 
 - The Timeline defences-only column uses defencesOnlyGap in timeline.ts, the same matched-healthy comparison as the Dashboard (same potential, iron and L:P held at healthy); the after-arrow value applies the visit therapies at their model doses, so therapies that do not move antioxidantCapacity or deltaPsi show no change.
@@ -32,3 +32,4 @@
 
 - Scenario compare lives in Scenarios.tsx: ticked scenarios are re-simulated with simulate(s.inputs, scenarioGeometry(s)), never the saved snapshot, so the table follows model updates.
 - Scenario export/import goes through scenariosExportPayload and scenariosFromJson in scenarios.ts: the file is a versioned payload whose summary lists each scenario's ROS-induced strength (null = never noted), and import also accepts the older flat-array and single-object shapes; why: the strength is an assumed setting, so a shared file must say which value each scenario carries.
+- The Progress grid "Clear log and re-run" button wipes the whole run log, then logs every cell for the picked profile at its current strength; why: recalibrating the strength must not mix old and new runs.
