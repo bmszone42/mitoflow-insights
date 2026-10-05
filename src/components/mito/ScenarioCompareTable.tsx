@@ -184,7 +184,8 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         </Button>
       )}
       <p className="mt-1 text-[10px] text-muted-foreground">
-        Scenarios are recomputed with the current model from their own saved settings, not the saved snapshot. "vs healthy" compares with the
+        Sorted by the Defences only gap, weakest defences first. Scenarios are recomputed with the current model from their own saved settings,
+        not the saved snapshot. "vs healthy" compares with the
         healthy adult's simulated values (model defaults); "vs profile" compares with {referenceLabel}'s simulated values, not lab measurements.
         Model estimates only.
       </p>
