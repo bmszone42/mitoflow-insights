@@ -1,3 +1,7 @@
+## Strength picker on the re-run all 18 button (2026-10-05) ✅
+- ✅ NotYetRun.tsx: "Clear log and re-run all 18" gained a strength picker (0.5x, 1x, 2x, default 1x); the batch logs every cell at the picked strength and the button label follows it.
+- ✅ Verified live: options 0.5x/1x/2x, label updates, 2x batch confirmed logging (2880 cells).
+
 ## JSON export summary sorted by defences-only gap (2026-10-05) ✅
 - ✅ scenariosExportPayload sorts summary.scenarios by defencesOnlyGap descending (weakest defences first), matching the compare table's default sort; referenceNote states the rule so JSON and table agree.
 - ✅ Verified live: seeded Weak/Mid/Strong scenarios, exported JSON from the Simulator, rows read Weak +486%, Mid +55%, Strong -48% in that order. Typecheck clean.
