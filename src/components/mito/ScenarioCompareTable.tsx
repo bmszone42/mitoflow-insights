@@ -59,7 +59,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
     const pctOnly = (v: number, base: number) => (base === 0 ? "" : `${v >= base ? "+" : ""}${(((v - base) / base) * 100).toFixed(0)}%`);
     const row = (cells: (string | number)[]) => lines.push(cells.map((c) => esc(String(c))).join(","));
     row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "0%", "model defaults", "", "", "", ""]);
-    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", "", "profile settings", "", "", "", ""]);
+    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", referenceGap === null ? "" : gapText(referenceGap), "profile settings", "", "", "", ""]);
     for (const s of items) {
       const o = simulate(s.inputs, scenarioGeometry(s));
       const strength = scenarioStrength(s);
@@ -117,7 +117,9 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
             <td>{referenceOut.atpFlux.toFixed(1)}</td>
             <td>{referenceOut.freeIron.toFixed(2)}</td>
             <td>{referenceOut.hydrogenPeroxide.toFixed(1)}</td>
-            <td className="text-muted-foreground">—</td>
+            <td className={referenceGap !== null && referenceGap > 0 ? "text-destructive" : "text-primary"} data-testid="spc-reference-gap">
+              {referenceGap === null ? "—" : gapText(referenceGap)}
+            </td>
             <td className="text-muted-foreground">profile settings</td>
           </tr>
           {items.map((s) => {
