@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 import { demoPatients, patientMetrics, projectedMitoSox, projectedH2o2, mitoSoxBand, h2o2NmBand, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
-import { defaultGeometry, simulate } from "./model";
+import { defaultGeometry, melovHeartCheck, simulate } from "./model";
 
 // Timeline visits live in module memory only (tab-only, never persisted or sent anywhere).
 /** origin "real": a real-world visit with measured labs and the actual doses taken (free text, e.g. "20 mg/day"); actualDoses are recorded only, the model still uses `doses`. */
@@ -110,4 +110,19 @@ export function defencesOnlyGap(p: DemoPatient, v: Visit) {
   const after = v.therapies.length ? matched(ti.deltaPsi, ti.antioxidantCapacity) : null;
   const pct = (a: number) => (base === 0 ? 0 : ((a - base) / base) * 100);
   return { before: pct(before), after: after === null ? null : pct(after) };
+}
+
+/**
+ * Heart check at a visit (Melov 1999 Sod2-null heart: complex I 59%, complex II
+ * 24% of normal): the model's Fe-S intact % at the visit's own settings, flagged
+ * when it falls inside that band. "after" applies the visit's therapies at their
+ * model doses. Profile as-is, not the defences-only matched comparison.
+ */
+export function heartCheck(p: DemoPatient, v: Visit) {
+  const vi = profileInputs(visitProfile(p, v));
+  const before = simulate(vi, defaultGeometry).aconitaseActivity;
+  let ti = vi;
+  for (const id of v.therapies) { const t = therapies.find((x) => x.id === id); if (t) ti = applyTherapyDose(ti, t, v.doses?.[id] ?? 1); }
+  const after = v.therapies.length ? simulate(ti, defaultGeometry).aconitaseActivity : null;
+  return { before: melovHeartCheck(before), after: after === null ? null : melovHeartCheck(after) };
 }

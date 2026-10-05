@@ -179,3 +179,9 @@
 - Each scenario cell shows two percent lines: "vs healthy" (superoxide colored red above healthy, green at or below) and "vs profile".
 - When the reference profile already is the healthy adult (Dashboard default), the extra row collapses to avoid duplication.
 - Verified live on Diagnosis with a seeded weak-defences scenario: +248% vs healthy superoxide, red; no page errors; typecheck clean.
+
+## Heart check column (Melov 1999 heart) (2026-10-05) ✅
+- New "Heart check" column on Diagnosis (all-profiles table) and Timeline (per visit, with after-therapies arrow).
+- Shows the model's Fe-S intact % at the profile's own settings vs the Melov 1999 Sod2-null mouse heart band (complex I 59%, complex II 24% of normal); red when inside the band.
+- Band and check live in model.ts (MELOV_HEART_BAND, melovHeartCheck); Timeline uses heartCheck in timeline.ts.
+- Verified live: all 18 profiles read 81-89%, none inside the 24-59% band; the band is a severity reference, not a calibration target (model floor ~29% at weakest defences, fitted to the milder brain figure).

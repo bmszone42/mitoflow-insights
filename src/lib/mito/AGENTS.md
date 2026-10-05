@@ -33,3 +33,5 @@
 - Scenario compare lives in Scenarios.tsx: ticked scenarios are re-simulated with simulate(s.inputs, scenarioGeometry(s)), never the saved snapshot, so the table follows model updates.
 - Scenario export/import goes through scenariosExportPayload and scenariosFromJson in scenarios.ts: the file is a versioned payload whose summary lists each scenario's ROS-induced strength (null = never noted), and import also accepts the older flat-array and single-object shapes; why: the strength is an assumed setting, so a shared file must say which value each scenario carries.
 - The Progress grid "Clear log and re-run" button wipes the whole run log, then logs every cell for the picked profile at its current strength; why: recalibrating the strength must not mix old and new runs.
+
+- The Heart check column (Diagnosis table, Timeline per visit) compares the model's Fe-S intact % at the profile's own settings with the Melov 1999 Sod2-null heart band (complex I 59%, complex II 24% of normal) via MELOV_HEART_BAND and melovHeartCheck in model.ts; it is a severity reference, never a calibration target, and never counted in flag totals.

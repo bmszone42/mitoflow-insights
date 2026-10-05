@@ -557,6 +557,20 @@ export function doseSweep(base: Inputs, wavelength: "red" | "nir") {
   });
 }
 
+/**
+ * Melov 1999 (PNAS 96:846) Sod2-null mouse heart: complex I activity 59% of
+ * normal, complex II 24%. Used as a severity check on the model's Fe-S intact
+ * readout (aconitaseActivity, % of normal): a profile whose Fe-S intact falls
+ * inside this band is as damaged as the knockout heart. The model's weakest
+ * defences leave ~29% intact, fitted to the milder brain aconitase figure
+ * (24-33%), so the heart band is a reference, not a calibration target.
+ */
+export const MELOV_HEART_BAND = { lo: 24, hi: 59 } as const;
+/** Check a model Fe-S intact % against the Melov 1999 Sod2-null heart band. */
+export function melovHeartCheck(aconitasePct: number) {
+  return { pct: aconitasePct, inBand: aconitasePct >= MELOV_HEART_BAND.lo && aconitasePct <= MELOV_HEART_BAND.hi, below: aconitasePct < MELOV_HEART_BAND.lo };
+}
+
 // ---------- Ferroptosis time course after acute GPx4 block ----------
 // Integrates dP/dt = vInit + (kProp - kRemove) * P from the pre-block steady
 // state, with GPx4 forced to 0 at t = 0 (RSL3 / ML162-like acute block).

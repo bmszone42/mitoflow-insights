@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
 import { profileInputs, therapies } from "@/lib/mito/treatment";
-import { defaultGeometry, simulate } from "@/lib/mito/model";
+import { defaultGeometry, melovHeartCheck, simulate } from "@/lib/mito/model";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
@@ -41,6 +41,8 @@ function DiagnosisPage() {
   // Projected-flag therapy pick: "best" uses the strongest therapy; a therapy id pins it, matching the dashboard's Batch therapy choice.
   const [projTherapy, setProjTherapy] = useState("best");
   const all = useMemo(() => diagnoseAll(users, dose, projTherapy === "best" ? undefined : projTherapy), [users, dose, projTherapy]);
+  // Heart check per profile: model Fe-S intact % at the profile's own settings vs the Melov 1999 Sod2-null heart band.
+  const hearts = useMemo(() => new Map(all.map((x) => [x.patient.id, melovHeartCheck(simulate(profileInputs(x.patient), defaultGeometry).aconitaseActivity)])), [all]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
@@ -56,11 +58,11 @@ function DiagnosisPage() {
     <section aria-label="All profiles" className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[760px] text-left text-xs">
         <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground"><tr>
-          <th className="px-3 py-2 font-medium">Profile</th><th className="px-3 py-2 font-medium">Patient Data</th><th className="px-3 py-2 font-medium">ROS assay</th><th className="px-3 py-2 font-medium">ATP assay</th><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Therapies</th><th className="px-3 py-2 font-medium">Top cause</th><th className="px-3 py-2 font-medium">Label fit</th>
+          <th className="px-3 py-2 font-medium">Profile</th><th className="px-3 py-2 font-medium">Patient Data</th><th className="px-3 py-2 font-medium">ROS assay</th><th className="px-3 py-2 font-medium">ATP assay</th><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Therapies</th><th className="px-3 py-2 font-medium">Heart check</th><th className="px-3 py-2 font-medium">Top cause</th><th className="px-3 py-2 font-medium">Label fit</th>
         </tr></thead>
         <tbody>{all.map((x) => <tr key={x.patient.id} data-testid="dx-row" onClick={() => setId(x.patient.id)} className={`cursor-pointer border-t border-border/60 hover:bg-muted/30 ${x.patient.id === id ? "bg-primary/10" : ""}`}>
           <th scope="row" className="px-3 py-2 font-medium">{x.patient.phenotype}<span className="block text-[10px] font-normal text-muted-foreground">{x.patient.label} · {x.patient.age}y · {Math.round(x.realShare * 100)}% real data</span></th>
-          <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-therapy-count">{x.therapyFlags.length}</td>
+          <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-therapy-count">{x.therapyFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-heart" title="Model Fe-S intact % at this profile's own settings vs the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal). Red: inside that band, as damaged as the knockout heart."><span className={hearts.get(x.patient.id)?.inBand ? "text-destructive" : ""}>{hearts.get(x.patient.id)?.pct.toFixed(0)}%</span></td>
           <td className="px-3 py-2" data-testid="dx-top">{x.top ? `${x.top.name} (${x.top.score.toFixed(2)})` : <span className="text-muted-foreground">No strong cause</span>}</td>
           <td className={`px-3 py-2 ${x.patient.source === "user" ? "text-muted-foreground" : fitStyle[x.fit]}`}>{x.patient.source === "user" ? "no label to check" : x.fit}</td>
         </tr>)}</tbody>
