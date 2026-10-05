@@ -6,10 +6,11 @@ export type TimelineChartPoint = { date: string; value: number | null; top: numb
 // Same tokens as the table's Defences only column (text-destructive / text-primary).
 const gapColor = (gap: number) => (gap > 0 ? "var(--destructive)" : "var(--primary)");
 
+// Recharts calls the renderer for every data row; rows without a value have cy === null.
 const gapDot =
   (gapOf: (p: TimelineChartPoint) => number, opts?: { stroke?: string; dashed?: boolean }) =>
-  (props: { cx?: number; cy?: number; key?: string | number; payload?: TimelineChartPoint }) => {
-    if (props.cx == null || props.cy == null || !props.payload) return <g key={props.key} data-gapdot="missing" data-cy-json={JSON.stringify(props.cy)} data-keys={JSON.stringify(Object.keys(props))} />;
+  (props: { cx?: number; cy?: number; key?: string | number; value?: number | null; payload?: TimelineChartPoint }) => {
+    if (props.value == null || props.cx == null || props.cy == null || !props.payload) return <g key={props.key} />;
     return (
       <circle
         key={props.key}
