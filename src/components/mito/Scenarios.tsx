@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { recordRun } from "@/lib/mito/runs";
+import { demoPatients } from "@/lib/mito/patientReference";
+import { profileInputs } from "@/lib/mito/treatment";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { defaultGeometry, defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
@@ -113,8 +115,13 @@ export function Scenarios({
     onChanged?.();
   };
 
+  // The JSON export carries the same fields as the scenario compare CSV,
+  // including the reference profile's defences-only gap. The Simulator has
+  // no profile picker, so the export defaults to the healthy adult (demo-01),
+  // the Dashboard compare table's default reference.
   const exportAll = () => {
-    const payload = scenariosExportPayload(items);
+    const healthy = demoPatients.find((p) => p.id === "demo-01")!;
+    const payload = scenariosExportPayload(items, { label: healthy.label, inputs: profileInputs(healthy) });
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
