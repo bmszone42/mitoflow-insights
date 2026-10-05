@@ -173,3 +173,9 @@
 
 ## Scenario full run (2026-10-05) ✅
 - Compare view button runs each selected scenario and logs it on Progress as "Scenario full run" (profile shown as scenario:name).
+
+## Healthy-adult row in scenario compare tables (2026-10-05) ✅
+- The scenario compare table (Dashboard and Diagnosis) now leads with a "Healthy adult (model)" row from the model defaults, so every scenario can be judged against normal levels as well as the reference profile.
+- Each scenario cell shows two percent lines: "vs healthy" (superoxide colored red above healthy, green at or below) and "vs profile".
+- When the reference profile already is the healthy adult (Dashboard default), the extra row collapses to avoid duplication.
+- Verified live on Diagnosis with a seeded weak-defences scenario: +248% vs healthy superoxide, red; no page errors; typecheck clean.
