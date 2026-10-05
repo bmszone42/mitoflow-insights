@@ -297,3 +297,7 @@
 - ✅ Timeline gap chart: added a therapy-strength line (mean dose multiplier per visit, right axis 0-2x) alongside the superoxide, ATP and free iron gap bars.
 
 - ✅ Saved ROS-induced strength now applies on Dashboard, Diagnosis and Timeline too: a shared hook sets it after mount and profile inputs overlay it, so all pages read the same fitted strength after a recalibrate.
+
+## Strength line on the Dashboard therapy chart (2026-10-05) ✅
+- ✅ TherapyProfileChart.tsx switched to a ComposedChart: per-profile ROS-induced strength line on a right 0-1.5x axis alongside the ATP/superoxide/H2O2 percent-change bars. Strength comes from profileInputs (saved recalibrated default overlay), so the line is flat unless profiles carry their own strength; caption says so.
+- ✅ Verified live: line renders at 1.0x across all flagged profiles, legend shows "ROS-induced strength", no page errors.
