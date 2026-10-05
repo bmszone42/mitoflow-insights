@@ -132,6 +132,8 @@ function Dashboard() {
       : r.respAll,
   })), [simulated, readoutOnly]);
 
+  const compareRow = rows.find((r) => r.p.id === compareId) ?? rows[0];
+
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
     const header = ["Profile", "ID", "Phenotype", "Age (years)", "Sex", "Source", "L:P ratio", "ATP flux (uM/s)", "ATP flux vs healthy", "Superoxide (nM)", "Superoxide vs healthy", "Superoxide vs healthy, defences only (same potential, iron, L:P)", "H2O2 (nM)", "H2O2 vs healthy", "Measured H2O2 (nM)", "H2O2 vs Sies 2017", "Peroxide flag", `Projected H2O2 (nM, ${dose}x)`, "Projected H2O2 therapy", "Projected peroxide flag", "MitoSOX (fold control)", "MitoSOX vs Gonzalo 2019", `Projected MitoSOX (fold, ${dose}x)`, "Projected MitoSOX therapy", "Projected MitoSOX flag", "Lab flags", "Assay flags", "Model flags", `Therapy flags (${dose}x)`, "Total flags", "Top mechanism", "Top mechanism score", "Top overlapping disorders", `Responds to (model, ${dose}x)`];
