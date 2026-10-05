@@ -1,3 +1,9 @@
+## Saved ROS-induced strength default (2026-10-05) ✅
+- ✅ New src/lib/mito/rirrDefault.ts: savedRirrStrength/saveRirrStrength/clearRirrStrength over localStorage key "cristae-lab-rirr-default" (browser-only, 0-1.5 validated).
+- ✅ RecalibrateStrength.tsx gained "Save as my default" (disabled when the fit is clamped), a saved-default line with a Clear button, and a note that it does not touch the Progress log.
+- ✅ src/routes/index.tsx applies the saved strength after mount (useEffect, so SSR never reads localStorage); the Simulator starts at the saved value from then on.
+- ✅ Verified live: fitted 0.6x from 45% aconitase, saved, reloaded the Simulator, strength slider reads 0.6; no page errors.
+
 ## Timeline visit-gap bar chart (2026-10-05) ✅
 - ✅ New TimelineGapChart.tsx (lazy-loaded, recharts): per-visit superoxide, ATP and free iron gaps vs the healthy adult (model defaults) as %, sorted by superoxide gap biggest first; red when worse than healthy (superoxide/iron above, ATP below), green at or better; dashed healthy line.
 - ✅ timeline.ts gained visitSim (full simulate output per visit, sharing visitSimInputs with visitReadouts); timeline.tsx caches it in simCache and renders the chart under the table.
