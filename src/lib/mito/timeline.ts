@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 import { demoPatients, patientMetrics, projectedMitoSox, projectedH2o2, mitoSoxBand, h2o2NmBand, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
-import { defaultGeometry, simulate } from "./model";
+import { defaultGeometry, melovHeartCheck, simulate } from "./model";
 
 // Timeline visits live in module memory only (tab-only, never persisted or sent anywhere).
 /** origin "real": a real-world visit with measured labs and the actual doses taken (free text, e.g. "20 mg/day"); actualDoses are recorded only, the model still uses `doses`. */

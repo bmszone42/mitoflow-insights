@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
-import { addVisit, addPlan, defencesOnlyGap, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, visitReadouts, visitProjection, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
 
@@ -43,14 +43,14 @@ function TimelinePage() {
   // Per-visit simulation cache: a visit's diagnosis, readouts and projection
   // recompute only when that visit's content (labs, therapies, doses) or the
   // pinned projection therapy changes, not when other visits or form state do.
-  const simCache = useRef(new Map<string, { d: ReturnType<typeof diagnoseVisit>; r: ReturnType<typeof visitReadouts>; pj: ReturnType<typeof visitProjection>; gap: ReturnType<typeof defencesOnlyGap> }>());
+  const simCache = useRef(new Map<string, { d: ReturnType<typeof diagnoseVisit>; r: ReturnType<typeof visitReadouts>; pj: ReturnType<typeof visitProjection>; gap: ReturnType<typeof defencesOnlyGap>; hc: ReturnType<typeof heartCheck> }>());
     const timeline = useMemo(() => {
     const cache = simCache.current;
     if (cache.size > 200) cache.clear();
     return patientTimeline(p, visits).map((v) => {
       const key = `${p.id}|${v.id}|${onlyId ?? ""}|${JSON.stringify([v.values, v.h2o2Nm, v.therapies, v.doses])}`;
       let e = cache.get(key);
-      if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v), gap: defencesOnlyGap(p, v) }; cache.set(key, e); }
+      if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v), gap: defencesOnlyGap(p, v), hc: heartCheck(p, v) }; cache.set(key, e); }
       return { v, ...e };
     });
   }, [p, visits, onlyId]);
