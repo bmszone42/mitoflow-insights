@@ -5,7 +5,7 @@ export type GapRow = { date: string; so: number; atp: number; fe: number };
 // Per-visit gaps vs the healthy adult (model defaults), as %. Superoxide and
 // free iron are bad when above healthy; ATP is bad when below healthy.
 const bad = (metric: "so" | "atp" | "fe", v: number) => (metric === "atp" ? v < 0 : v > 0);
-const color = (metric: "so" | "atp" | "fe", v: number) => (bad(metric, v) ? "hsl(var(--destructive))" : "hsl(var(--primary))");
+const color = (metric: "so" | "atp" | "fe", v: number) => (bad(metric, v) ? "var(--destructive)" : "var(--primary)");
 
 export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
   const sorted = [...rows].sort((a, b) => b.so - a.so);
