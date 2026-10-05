@@ -1,3 +1,7 @@
+## Scenario compare vs healthy adult (2026-10-05) ✅
+- The scenario compare table now opens with a "Healthy adult (reference)" row computed from model defaults, and every scenario cell shows a "% vs healthy" line under the value for superoxide, ATP, free iron and peroxide.
+- Superoxide above healthy shows in red, at or below in green; ATP, iron and peroxide percents are neutral. Values still recomputed live from each scenario's settings. Typecheck and build clean.
+
 ## Timeline chart dot colors from the defences-only gap (2026-10-04) ✅
 - Timeline chart dots are colored by the defences-only gap: red when above the healthy level, green at or below (same tokens as the table column). Visit dots use gap.before; plan dots use gap.after, falling back to before.
 - chart points now carry gapBefore/gapAfter from the simCache gap; TimelineChart renders custom dot shapes per Line (gating on props.value, since recharts calls the renderer for null rows too; dots appear only after the line's entry animation finishes).
