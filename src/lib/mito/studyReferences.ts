@@ -406,6 +406,17 @@ export const studyReferences: StudyReference[] = [
     locator: "ROS-induced ROS release; redox feedback amplifying ETC superoxide when defenses fail",
   },
   {
+    doi: "10.1073/pnas.96.3.846",
+    authors: "Melov S, Coskun P, Patel M, Tuinstra R, Cottrell B, Jun AS, et al. (senior: Wallace DC)",
+    title: "Mitochondrial disease in superoxide dismutase 2 mutant mice",
+    journal: "PNAS 96(3)",
+    year: 1999,
+    location: "pp. 846-851",
+    url: "https://doi.org/10.1073/pnas.96.3.846",
+    section: "ROS, iron and assays",
+    locator: "Results: Sod2-/- aconitase down 89% (heart), 67-76% (brain); SDH 24% (heart) and 35% (muscle) of control; complex I 59% (heart)",
+  },
+  {
     doi: "10.1074/mcp.M112.021162",
     authors: "Kim TY, Wang D, Kim AK, Lau E, et al. (senior: Ping P)",
     title: "Metabolic labeling reveals proteome dynamics of mouse mitochondria",

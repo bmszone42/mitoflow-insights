@@ -150,3 +150,10 @@
 - Import accepts the new payload, the old flat array, the {scenarios} shape and a single scenario, so older files still load.
 - Scenario compare view shows a "ROS-induced strength (assumed)" column per scenario: the stored value (e.g. "1.25x") or "not noted (assumed 0.5x)" for scenarios saved before strengths were recorded.
 - Verified live: two scenarios, one set to 1.25x, compare cells read 1.25x and 0.5x; export summary listed both strengths with byStrength {1.25x: 1, 0.5x: 1}; re-import reported "Imported 2 scenario(s)". A legacy scenario with no stored strength showed "not noted (assumed 0.5x)" and byStrength {0.5x: 1, 'not noted': 1}. No page errors; typecheck clean.
+
+## ROS-induced strength calibration (Melov 1999)
+- ✅ Default strength 0.5 → 1.0, fitted so 0.2x antioxidant capacity leaves 29% Fe-S intact (Melov 1999 brain aconitase 24-33% of control in Sod2 null mice); labeled "partly published"
+- ✅ Melov 1999 logged in study references and reference library (score 80/100)
+- ✅ "Clear log and re-run" button on the Progress grid
+- ✅ Re-checked 18 profiles: above healthy superoxide 6 → 11; strong causes 32 and therapy flags 102 unchanged
+- ❌ Williams 1998 (halved SOD) aconitase figure still unavailable (paywalled)

@@ -208,7 +208,7 @@ export function Scenarios({
               {s.interpretation ? " | AI note" : ""}
             </div>
             <label className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
-              ROS-induced strength (assumed):
+              ROS-induced strength (partly published):
               <select
                 className="rounded border border-border bg-background px-1 py-0.5 font-mono text-[10px]"
                 value={s.inputs.rirrStrength ?? 0.5}
@@ -236,7 +236,7 @@ export function Scenarios({
                 <th className="font-normal">ATP (µM/s)</th>
                 <th className="font-normal">Free iron (µM)</th>
                 <th className="font-normal">Peroxide (nM)</th>
-                <th className="font-normal">ROS-induced strength (assumed)</th>
+                <th className="font-normal">ROS-induced strength (partly published)</th>
               </tr>
             </thead>
             <tbody>
