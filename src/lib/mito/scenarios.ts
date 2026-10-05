@@ -149,6 +149,8 @@ export function scenariosExportPayload(items: Scenario[], reference?: { label: s
       updatedAt: s.updatedAt,
     };
   });
+  // Sort weakest defences first, matching the compare table's default sort.
+  rows.sort((a, b) => (b.defencesOnlyGap ?? 0) - (a.defencesOnlyGap ?? 0));
   const byStrength: Record<string, number> = {};
   for (const r of rows) {
     const key = r.rirrStrength == null ? "not noted" : `${r.rirrStrength}x`;
