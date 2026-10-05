@@ -67,7 +67,7 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
 
   // Strength actually used for a new run: the selected strength when the grid
   // is filtered to one, otherwise the profile's own setting.
-  const effStrength = (strength === "all" || strength === "none" ? base?.rirrStrength : strength) ?? 0.5;
+  const effStrength = (strength === "all" || strength === "none" ? base?.rirrStrength : strength) ?? 1;
 
   const strengthLabel = strength === "all" ? "all strengths" : strength === "none" ? "runs with no strength noted" : `${strength}x`;
 
@@ -139,7 +139,7 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
         </span>
         {strengths.length > 0 && (
           <span className="text-sm text-muted-foreground" data-testid="not-yet-run-rirr">
-            ROS-induced strength logged: {strengths.map((s) => `${s}x`).join(", ")} (assumed)
+            ROS-induced strength logged: {strengths.map((s) => `${s}x`).join(", ")} (1.0x default is partly published)
           </span>
         )}
         <Button size="sm" data-testid="run-missing" disabled={!nextMissing || busy} onClick={runMissing}>

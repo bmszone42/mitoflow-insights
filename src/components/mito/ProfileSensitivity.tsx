@@ -36,7 +36,7 @@ function TuneAndSave({ patient, geo, healthy }: { patient: DemoPatient; geo: Geo
     const n = name.trim() || `${patient.label} tuned`;
     await putScenario({
       id: crypto.randomUUID(), name: n,
-      notes: `Tuned from ${patient.label} on the Profile sensitivity card. ROS-induced ROS release strength is an assumed setting.`,
+      notes: `Tuned from ${patient.label} on the Profile sensitivity card. ROS-induced ROS release strength is partly published (fitted to Melov 1999).`,
       inputs, geometry: geo,
       snapshot: { atpFlux: o.atpFlux, superoxide: o.superoxide, hydrogenPeroxide: o.hydrogenPeroxide, fesIntact: o.fesIntact, freeIron: o.freeIron },
       createdAt: now, updatedAt: now,
@@ -50,7 +50,7 @@ function TuneAndSave({ patient, geo, healthy }: { patient: DemoPatient; geo: Geo
       <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {tuneKeys.map((k) => (
           <div key={k}>
-            <div className="text-xs">{inputRanges[k].label}: {vals[k].toFixed(2)} {inputRanges[k].unit}{k === "rirrStrength" ? " (assumed)" : ""}</div>
+            <div className="text-xs">{inputRanges[k].label}: {vals[k].toFixed(2)} {inputRanges[k].unit}{k === "rirrStrength" ? " (partly published)" : ""}</div>
             <Slider aria-label={inputRanges[k].label} className="mt-2" min={inputRanges[k].min} max={inputRanges[k].max} step={(inputRanges[k].max - inputRanges[k].min) / 100} value={[vals[k]]} onValueChange={(v) => setVals((s) => ({ ...s, [k]: v[0] ?? s[k] }))} />
           </div>
         ))}
@@ -107,7 +107,7 @@ export function ProfileSensitivity({ geo }: { geo: Geometry }) {
           <h3 className="mt-1 text-lg font-semibold">ROS-induced ROS release vs half-life vs antioxidant capacity vs iron vs potential</h3>
           <p className="mt-1 max-w-3xl text-xs text-muted-foreground">
             Each of the 18 profiles runs on its own baseline. One setting moves down and up by the step while the others stay put,
-            so effects do not add. ROS-induced ROS release strength is an assumed value, not published. Model estimates only.
+            so effects do not add. ROS-induced ROS release strength is partly published: fitted to brain aconitase loss in Sod2 null mice (Melov 1999). Model estimates only.
           </p>
         </div>
         <Button size="sm" variant="outline" onClick={download}>Download CSV</Button>

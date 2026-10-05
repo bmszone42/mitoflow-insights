@@ -87,7 +87,7 @@ export type Inputs = {
   gpx4: number; // 0-2 relative GPx4 activity (0 = RSL3/ML162 inhibited)
   fsp1: number; // 0-2 relative FSP1/CoQ10H2 capacity
   cardiolipinPufa: number; // 0.2-1 fraction of PUFA acyl chains (ACSL4-driven)
-  rirrStrength: number; // 0-1.5 ROS-induced ROS release exponent (Zorov 2014 mechanism; strength assumed)
+  rirrStrength: number; // 0-1.5 ROS-induced ROS release exponent (Zorov 2014 mechanism; strength fitted to Melov 1999, partly published)
   mitoHalfLife: number; // days, mitochondrial turnover half-life (Kim 2012: heart 17.2, liver 4.3)
 };
 
@@ -109,7 +109,7 @@ export const defaultInputs: Inputs = {
   fsp1: 1,
   cardiolipinPufa: 0.6,
   mitoHalfLife: 17.2,
-  rirrStrength: 0.5,
+  rirrStrength: 1, // fitted to Melov 1999 brain aconitase loss (partly published)
 };
 
 export type Coherence = {
@@ -322,7 +322,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const vOGDH = 0.4 * vOGDHtotal;
   // ROS-induced ROS release (Zorov 2014): weak thiol defenses let oxidized
   // Complex I/III leak more. Model tuning exponent; 1x capacity = no change.
-  // Strength is user-tunable (rirrStrength, default 0.5); legacy states lack it.
+  // Strength is user-tunable (rirrStrength, default 1.0 fitted to Melov 1999 Sod2-null brain aconitase 24-33% of control); legacy states lack it and keep 0.5.
   const redoxFb = i.antioxidantCapacity ** -(i.rirrStrength ?? 0.5);
   const vMatrixO2 = redoxFb * (vIF + vIQ + 0.5 * vIIIQo + vIIF + vOGDH);
   const vImsO2 = redoxFb * 0.5 * vIIIQo;

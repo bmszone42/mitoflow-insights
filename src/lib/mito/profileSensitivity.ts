@@ -11,7 +11,7 @@ export const profileSensOutputs = [
 ] as const;
 export type ProfileSensOut = (typeof profileSensOutputs)[number]["key"];
 export const shortLabel: Record<ProfileSensKey, string> = {
-  rirrStrength: "ROS-induced ROS release (assumed)",
+  rirrStrength: "ROS-induced ROS release (partly published)",
   mitoHalfLife: "Turnover half-life",
   antioxidantCapacity: "Antioxidant capacity",
   labileIron: "Labile iron",

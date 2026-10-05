@@ -113,13 +113,13 @@ const controls: ControlDef[] = [
   },
   {
     key: "rirrStrength",
-    label: "ROS-induced ROS release strength (assumed)",
+    label: "ROS-induced ROS release strength (partly published)",
     unit: "exp",
     min: 0,
     max: 1.5,
     step: 0.05,
     group: "iron",
-    hint: "Vicious cycle (Zorov 2014); no published strength, 0.5 default is assumed, 0 = off. Only acts when antioxidant capacity is not 1x",
+    hint: "Vicious cycle (Zorov 2014); 1.0 default fitted to brain aconitase loss in Sod2 null mice (Melov 1999), a rough knockout anchor; 0 = off. Only acts when antioxidant capacity is not 1x",
   },
   {
     key: "antioxidantCapacity",
