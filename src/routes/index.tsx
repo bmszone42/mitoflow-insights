@@ -30,6 +30,7 @@ import { demoPatients, inputsFromPatient, lpMapping, type DemoPatient } from "@/
 import { PatientRunBanner } from "@/components/mito/PatientRunBanner";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { defaultGeometry, defaultInputs, geometryEffects, simulate, type Geometry, type Inputs } from "@/lib/mito/model";
+import { savedRirrStrength } from "@/lib/mito/rirrDefault";
 
 export const Route = createFileRoute("/")({
   validateSearch: (s: Record<string, unknown>): { apply?: string | undefined; psi?: number | undefined; patient?: string | undefined } => ({
