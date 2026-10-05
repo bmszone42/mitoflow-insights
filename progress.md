@@ -1,3 +1,8 @@
+## Defences-only gap in the JSON export summary (2026-10-05) ✅
+- ✅ New shared `scenarioDefencesGap` in src/lib/mito/scenarios.ts (same matched-healthy comparison as the Dashboard, Timeline and compare table). `ScenarioSummaryRow` gains an optional `defencesOnlyGap` and `scenariosExportPayload` fills it for every scenario.
+- ✅ ScenarioCompareTable now calls the shared helper, so table, CSV and JSON export can never disagree.
+- ✅ Verified live: clicked Export JSON on /, downloaded file carries `defencesOnlyGap: 486.3` for the seeded 0.4x-defences scenario, matching the compare table (+486%). Payload stays version 2 (optional field, backward compatible). Typecheck clean.
+
 ## Compare table sorted by defences-only gap (2026-10-05) ✅
 - ✅ ScenarioCompareTable scenario rows are sorted by the Defences only gap, weakest defences first (largest positive gap at the top); the healthy and reference rows stay pinned at the top. CSV rows follow the same sorted order. Caption under the table notes the sorting. Verified live on /diagnosis with two seeded scenarios: Weak defences (+486%) first, Strong defences (-69%) second. Typecheck clean.
 
