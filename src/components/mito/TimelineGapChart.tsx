@@ -18,7 +18,7 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v: number) => `${v}%`} />
           <Tooltip formatter={(v: number, name: string) => [`${v > 0 ? "+" : ""}${v.toFixed(1)}%`, name]} labelClassName="text-foreground" />
           <Legend wrapperStyle={{ fontSize: 12 }} />
-          <ReferenceLine y={0} stroke="hsl(var(--muted-foreground))" strokeDasharray="4 4" />
+          <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
           <Bar dataKey="so" name="Superoxide gap">
             {sorted.map((r, i) => <Cell key={i} fill={color("so", r.so)} />)}
           </Bar>
