@@ -1,3 +1,7 @@
+## Colored "vs healthy" lines for ATP, free iron and peroxide (2026-10-05) ✅
+- ✅ ScenarioCompareTable (Dashboard and Diagnosis): every "vs healthy" line is now colored like superoxide. Superoxide, free iron and peroxide go red above the healthy adult and green at or below; ATP goes red BELOW healthy (an ATP shortfall is the bad direction) and green at or above. "vs profile" lines stay neutral. Caption under the table explains the coloring. data-testids: spc-vs-healthy-so, spc-vs-healthy-atp, spc-vs-healthy-fe, spc-vs-healthy-h2o2.
+- ✅ Verified live on /dashboard with two seeded scenarios: Weak defences (superoxide +486% red, free iron +162% red, peroxide +318% red, ATP +0% green), Strong defences (all green, superoxide -55%, iron -30%, peroxide -50%). No page errors. Typecheck clean.
+
 ## Defences-only gap in the JSON export summary (2026-10-05) ✅
 - ✅ New shared `scenarioDefencesGap` in src/lib/mito/scenarios.ts (same matched-healthy comparison as the Dashboard, Timeline and compare table). `ScenarioSummaryRow` gains an optional `defencesOnlyGap` and `scenariosExportPayload` fills it for every scenario.
 - ✅ ScenarioCompareTable now calls the shared helper, so table, CSV and JSON export can never disagree.
