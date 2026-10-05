@@ -119,6 +119,7 @@ function TimelinePage() {
 
     <section className="mt-4 rounded-md border border-border p-3" data-testid="timeline-chart">
       <h2 className="text-sm font-semibold">{mLabel} <span className="font-normal text-muted-foreground">({mUnit})</span> and top mechanism score</h2>
+      <p className="text-[11px] text-muted-foreground">Dots follow the Defences only column: red when the gap is above the healthy level, green at or below. Visit dots use the gap before therapies; plan dots use the gap after the plan's therapies.</p>
       {sim && <p className="text-[11px] text-muted-foreground">Simulated from each visit's labs mapped to sliders, plus that visit's therapies at their model doses. Model dose is a slider value, never a drug dose. Not a clinical prediction.</p>}
       {isH2o2 && <p className="text-[11px] text-muted-foreground">Sies 2017: 1-10 nM signaling, 10-100 nM adaptive stress, above 100 nM distress. Research band, not a lab range. Visits without a measured value show a gap.</p>}
       {isMitosox && <p className="text-[11px] text-muted-foreground">Gonzalo et al., Front Neurosci 2019: 0.59-1.5 fold of the healthy-control median, one study's healthy-control spread. Research band, not a lab range; for children the adult band is applied with caution.</p>}
