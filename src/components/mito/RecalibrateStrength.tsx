@@ -104,6 +104,10 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
           </Button>
         )}
       </p>
+      <Suspense fallback={<div className="h-56 w-full animate-pulse rounded bg-muted" />}>
+        <RecalibrateCurve target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
+      </Suspense>
+      <p className="text-xs text-muted-foreground">The curve shows how the model's aconitase % falls as the strength rises; the dashed line is your pasted number and the dot is the fitted strength.</p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}
       <p className="text-xs text-muted-foreground">The saved default lives in this browser only and changes what the Simulator starts at; it does not re-run or change anything already in the Progress log. The code default stays 1.0x until you send me the number, so I can update the label and the reference score too.</p>
     </section>
