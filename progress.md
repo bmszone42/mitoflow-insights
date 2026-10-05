@@ -225,3 +225,4 @@
 - ✅ Scenario compare table (Dashboard + Diagnosis) gained a "Defences only" column: same matched-healthy comparison as the Dashboard/Timeline (healthy defaults re-run at the scenario's own membrane potential, iron and L:P held at healthy), red above 0%, green at/below; healthy row shows 0%.
 - ✅ Compare CSV gained a "Defences-only gap (%)" column matching the table.
 - Verified live: seeded 0.4x antioxidant scenario reads +486%; typecheck clean.
+- ✅ Recalibrate ROS-induced strength helper on Progress (paste aconitase %, bisection fit at 0.2x defences, clear and re-run all 18 at fitted strength)
