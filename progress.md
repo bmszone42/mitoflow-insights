@@ -1,3 +1,8 @@
+## Strength vs aconitase curve in Recalibrate (2026-10-05) ✅
+- ✅ New src/components/mito/RecalibrateCurve.tsx: line chart of the model's Fe-S intact % at the weakest defences (antioxidant capacity 0.2x) against ROS-induced strength from 0 to 1.5x, falling from 72% to 15%; a dashed line marks the pasted aconitase number and a red dot marks the fitted strength.
+- ✅ aconitasePct, S_MIN and S_MAX are exported from RecalibrateStrength.tsx so the curve and the fit share one source of truth; the chart is lazy-loaded so recharts stays out of the Progress page's initial bundle.
+- ✅ Verified live: pasting 45% fits 0.6x (model gives 45.1%) and the curve, dashed line and dot render with no page errors.
+
 ## Saved ROS-induced strength default (2026-10-05) ✅
 - ✅ New src/lib/mito/rirrDefault.ts: savedRirrStrength/saveRirrStrength/clearRirrStrength over localStorage key "cristae-lab-rirr-default" (browser-only, 0-1.5 validated).
 - ✅ RecalibrateStrength.tsx gained "Save as my default" (disabled when the fit is clamped), a saved-default line with a Clear button, and a note that it does not touch the Progress log.
