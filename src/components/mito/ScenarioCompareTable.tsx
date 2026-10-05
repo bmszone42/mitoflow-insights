@@ -145,17 +145,33 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
                 </td>
                 <td>
                   {o.atpFlux.toFixed(1)}
-                  <div className="text-[10px] text-muted-foreground">{pct(o.atpFlux, healthyOut.atpFlux, "vs healthy")}</div>
+                  {/* ATP is good: red when BELOW the healthy level, green at or above */}
+                  <div
+                    className={`text-[10px] ${o.atpFlux < healthyOut.atpFlux ? "text-destructive" : "text-primary"}`}
+                    data-testid="spc-vs-healthy-atp"
+                  >
+                    {pct(o.atpFlux, healthyOut.atpFlux, "vs healthy")}
+                  </div>
                   <div className="text-[10px] text-muted-foreground">{pct(o.atpFlux, referenceOut.atpFlux, "vs profile")}</div>
                 </td>
                 <td>
                   {o.freeIron.toFixed(2)}
-                  <div className="text-[10px] text-muted-foreground">{pct(o.freeIron, healthyOut.freeIron, "vs healthy")}</div>
+                  <div
+                    className={`text-[10px] ${o.freeIron > healthyOut.freeIron ? "text-destructive" : "text-primary"}`}
+                    data-testid="spc-vs-healthy-fe"
+                  >
+                    {pct(o.freeIron, healthyOut.freeIron, "vs healthy")}
+                  </div>
                   <div className="text-[10px] text-muted-foreground">{pct(o.freeIron, referenceOut.freeIron, "vs profile")}</div>
                 </td>
                 <td>
                   {o.hydrogenPeroxide.toFixed(1)}
-                  <div className="text-[10px] text-muted-foreground">{pct(o.hydrogenPeroxide, healthyOut.hydrogenPeroxide, "vs healthy")}</div>
+                  <div
+                    className={`text-[10px] ${o.hydrogenPeroxide > healthyOut.hydrogenPeroxide ? "text-destructive" : "text-primary"}`}
+                    data-testid="spc-vs-healthy-h2o2"
+                  >
+                    {pct(o.hydrogenPeroxide, healthyOut.hydrogenPeroxide, "vs healthy")}
+                  </div>
                   <div className="text-[10px] text-muted-foreground">{pct(o.hydrogenPeroxide, referenceOut.hydrogenPeroxide, "vs profile")}</div>
                 </td>
                 <td className={defencesGap(s) > 0 ? "text-destructive" : "text-primary"} data-testid="spc-defences-gap">
