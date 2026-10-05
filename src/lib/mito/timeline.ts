@@ -60,9 +60,7 @@ const visitProfile = (p: DemoPatient, v: Visit): DemoPatient => {
 
 /** Full simulation at a visit: that visit's labs mapped to sliders, then each selected therapy applied at its model dose (default 1x). Model dose is a slider value, never a drug dose. */
 export function visitSim(p: DemoPatient, v: Visit) {
-  let inputs = profileInputs(visitProfile(p, v));
-  for (const id of v.therapies) { const t = therapies.find((x) => x.id === id); if (t) inputs = applyTherapyDose(inputs, t, v.doses?.[id] ?? 1); }
-  return simulate(inputs, defaultGeometry);
+  return simulate(visitSimInputs(p, v), defaultGeometry);
 }
 
 /** Simulated readouts at a visit: that visit's labs mapped to sliders, then each selected therapy applied at its model dose (default 1x). Model dose is a slider value, never a drug dose. */
