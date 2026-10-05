@@ -5,10 +5,13 @@ import { Input } from "@/components/ui/input";
 import { simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import {
   deleteScenario,
-  isScenario,
   listScenarios,
   putScenario,
   scenarioGeometry,
+  scenarioStrength,
+  scenarioStrengthLabel,
+  scenariosExportPayload,
+  scenariosFromJson,
   type Scenario,
 } from "@/lib/mito/scenarios";
 
@@ -110,7 +113,8 @@ export function Scenarios({
   };
 
   const exportAll = () => {
-    const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
+    const payload = scenariosExportPayload(items);
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "cristae-lab-scenarios.json";
@@ -120,8 +124,7 @@ export function Scenarios({
 
   const importFile = async (f: File) => {
     try {
-      const data = JSON.parse(await f.text());
-      const list = (Array.isArray(data) ? data : [data]).filter(isScenario);
+      const list = scenariosFromJson(JSON.parse(await f.text()));
       for (const s of list) await putScenario(s);
       toast.success(`Imported ${list.length} scenario(s)`);
       refresh();
@@ -233,7 +236,7 @@ export function Scenarios({
                 <th className="font-normal">ATP (µM/s)</th>
                 <th className="font-normal">Free iron (µM)</th>
                 <th className="font-normal">Peroxide (nM)</th>
-                <th className="font-normal">Strength</th>
+                <th className="font-normal">ROS-induced strength (assumed)</th>
               </tr>
             </thead>
             <tbody>
@@ -248,7 +251,13 @@ export function Scenarios({
                       <td data-testid="compare-atp">{o.atpFlux.toFixed(1)}</td>
                       <td data-testid="compare-iron">{o.freeIron.toFixed(2)}</td>
                       <td>{o.hydrogenPeroxide.toFixed(1)}</td>
-                      <td className="text-muted-foreground">{(s.inputs.rirrStrength ?? 0.5)}x</td>
+                      <td
+                        className="text-muted-foreground"
+                        data-testid="compare-strength"
+                        data-strength={scenarioStrength(s) ?? "not-noted"}
+                      >
+                        {scenarioStrengthLabel(s)}
+                      </td>
                     </tr>
                   );
                 })}
