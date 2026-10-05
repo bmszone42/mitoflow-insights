@@ -414,7 +414,7 @@ export const studyReferences: StudyReference[] = [
     location: "pp. 28510-28515",
     url: "https://doi.org/10.1074/jbc.273.43.28510",
     section: "ROS, iron and assays",
-    locator: "Sod2+/- mice: MnSOD activity down ~50%, glutathione down ~30%, aconitase 'decreased' (no public %; figure paywalled). Pending anchor for the Recalibrate helper",
+    locator: "Sod2+/- mice: MnSOD activity down ~50%, glutathione down ~30%, aconitase 'decreased' (no public %; figure paywalled). Williams anchor in the Recalibrate helper: defences 0.6x from the two drops (assumed), fitted strength pending the aconitase %",
   },
   {
     doi: "10.1073/pnas.96.3.846",
