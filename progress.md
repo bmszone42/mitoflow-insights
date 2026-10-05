@@ -3,6 +3,12 @@
 - ✅ Import is unchanged: scenariosFromJson accepts any versioned payload plus the older flat array, so version 2 files still load.
 - ✅ Verified live: seeded a scenario, clicked Export JSON on the Simulator, read the file back (version 3, versionNote present, row gap +486.3%, reference gap +3.9%), and round-tripped it through the importer (1 scenario).
 
+## Recalibrate: Williams SOD and glutathione anchor (2026-10-05) ✅
+- ✅ Anchor picker: weakest 0.2x (Melov method) or Williams-derived defences from SOD and glutathione drops (default 50/30 gives 0.6x, ASSUMED equal weighting)
+- ✅ Strength fitted from aconitase at the chosen defence level; curve follows the anchor
+- ✅ Williams reference entry updated with the anchor and pending strength label (score 76/100)
+- ❌ Williams aconitase % still unread (paywalled)
+
 ## All-18 strength slider widened to 0-1.5 (2026-10-05) ✅
 - ✅ The strength picker beside "Clear log and re-run all 18" on the Progress page is now a slider covering the full range the model supports (0 to 1.5, step 0.05) instead of the three fixed choices 0.5x/1x/2x; data-testid `clear-rerun-all-strength` unchanged, new `clear-rerun-all-strength-value` readout next to it.
 - ✅ The button label, the confirm dialog and every logged cell follow the slider value, so a recalibrated strength such as 0.35x or 0.6x can be batch-run without typing anything into the Recalibrate box.

@@ -14,22 +14,31 @@ export const S_MIN = 0;
 export const S_MAX = 1.5;
 
 // Fe-S intact at weak defences as % of the healthy adult, for a given strength.
-export function aconitasePct(s: number) {
+export function aconitasePct(s: number, ac: number = WEAK_AC) {
   const h = simulate(defaultInputs, defaultGeometry).aconitaseActivity;
-  const w = simulate({ ...defaultInputs, antioxidantCapacity: WEAK_AC, rirrStrength: s }, defaultGeometry).aconitaseActivity;
+  const w = simulate({ ...defaultInputs, antioxidantCapacity: ac, rirrStrength: s }, defaultGeometry).aconitaseActivity;
   return (w / h) * 100;
 }
 
 // Bisection: aconitase % falls monotonically as strength rises.
-function fitStrength(target: number) {
-  const hi = aconitasePct(S_MIN);
-  const lo = aconitasePct(S_MAX);
+// Williams 1998 Sod2+/- drops: MnSOD activity -50%, glutathione -30% (abstract).
+// ASSUMED mapping: antioxidant capacity = healthy x (1 - mean of the two drops),
+// SOD and glutathione weighted equally. 50% and 30% give 0.6x.
+export function williamsCapacity(sodDrop: number, gshDrop: number) {
+  const c = defaultInputs.antioxidantCapacity * (1 - (sodDrop + gshDrop) / 200);
+  return Math.max(0.05, Math.round(c * 100) / 100);
+}
+
+function fitStrength(target: number, ac: number) {
+  const aconitasePctAc = (x: number) => aconitasePct(x, ac);
+  const hi = aconitasePctAc(S_MIN);
+  const lo = aconitasePctAc(S_MAX);
   if (target >= hi) return { s: S_MIN, clamped: true, reach: [lo, hi] as const };
   if (target <= lo) return { s: S_MAX, clamped: true, reach: [lo, hi] as const };
   let a = S_MIN, b = S_MAX;
   for (let k = 0; k < 40; k++) {
     const m = (a + b) / 2;
-    if (aconitasePct(m) > target) a = m; else b = m;
+    if (aconitasePctAc(m) > target) a = m; else b = m;
   }
   return { s: Math.round(((a + b) / 2) * 100) / 100, clamped: false, reach: [lo, hi] as const };
 }
@@ -41,7 +50,13 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
   const [saved, setSaved] = useState<number | null>(() => savedRirrStrength());
   const target = Number(raw);
   const valid = raw.trim() !== "" && Number.isFinite(target) && target > 0 && target < 100;
-  const fit = useMemo(() => (valid ? fitStrength(target) : null), [valid, target]);
+  const [anchor, setAnchor] = useState<"melov" | "williams">("melov");
+  const [sodRaw, setSodRaw] = useState("50");
+  const [gshRaw, setGshRaw] = useState("30");
+  const sod = Math.min(100, Math.max(0, Number(sodRaw) || 0));
+  const gsh = Math.min(100, Math.max(0, Number(gshRaw) || 0));
+  const ac = anchor === "williams" ? williamsCapacity(sod, gsh) : WEAK_AC;
+  const fit = useMemo(() => (valid ? fitStrength(target, ac) : null), [valid, target, ac]);
   const current = useMemo(() => aconitasePct(defaultInputs.rirrStrength), []);
 
   async function rerun() {
@@ -61,7 +76,7 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
       }
       setMsg(`Re-running: ${prof.label} (${n} of ${n0})...`);
     }
-    setMsg(`Cleared the log and re-ran all ${pool.length} profiles at ${s}x (fitted to ${target}% aconitase): ${n} combinations logged.`);
+    setMsg(`Cleared the log and re-ran all ${pool.length} profiles at ${s}x (fitted to ${target}% aconitase at ${ac}x defences): ${n} combinations logged.`);
     setBusy(false);
     onRan?.();
   }
@@ -72,6 +87,25 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
       <p className="text-sm text-muted-foreground">
         Paste the Williams 1998 aconitase activity as % of normal. The helper finds the strength where the model's Fe-S intact % at the weakest defences ({WEAK_AC}x) matches it, the same method as the current Melov 1999 brain fit (1.0x gives {current.toFixed(0)}%). Model estimate, not a clinical value.
       </p>
+      <div className="flex flex-wrap items-center gap-3 rounded border border-border p-2 text-sm" data-testid="recal-anchor">
+        <span className="font-medium">Defence level the aconitase is read at:</span>
+        <label className="flex items-center gap-1">
+          <input type="radio" name="recal-anchor" data-testid="recal-anchor-melov" checked={anchor === "melov"} onChange={() => setAnchor("melov")} />
+          Weakest ({WEAK_AC}x, Sod2-null stand-in, Melov method)
+        </label>
+        <label className="flex items-center gap-1">
+          <input type="radio" name="recal-anchor" data-testid="recal-anchor-williams" checked={anchor === "williams"} onChange={() => setAnchor("williams")} />
+          From Williams 1998 SOD and glutathione drops
+        </label>
+        {anchor === "williams" && (
+          <span className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-1">SOD drop %<input data-testid="recal-sod" inputMode="decimal" className="w-14 rounded border border-input bg-background px-1 py-0.5" value={sodRaw} onChange={(e) => setSodRaw(e.target.value)} /></label>
+            <label className="flex items-center gap-1">Glutathione drop %<input data-testid="recal-gsh" inputMode="decimal" className="w-14 rounded border border-input bg-background px-1 py-0.5" value={gshRaw} onChange={(e) => setGshRaw(e.target.value)} /></label>
+            <span data-testid="recal-ac">Defences: <strong>{ac}x</strong> (ASSUMED: healthy x (1 minus the mean drop))</span>
+          </span>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground">The SOD and glutathione drops set how weak the defences are; they cannot set the strength alone. The strength is still fitted from aconitase, read at that defence level. Williams 1998 used Sod2+/- mice (half the enzyme), so its aconitase should be read at the Williams level, not the 0.2x Sod2-null level.</p>
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm">
           Aconitase (% of normal)
@@ -79,7 +113,7 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
         </label>
         {fit && (
           <span className="text-sm" data-testid="recal-result">
-            Fitted strength: <strong>{fit.s}x</strong> (model gives {aconitasePct(fit.s).toFixed(1)}%)
+            Fitted strength: <strong>{fit.s}x</strong> (model gives {aconitasePct(fit.s, ac).toFixed(1)}% at {ac}x defences)
             {fit.clamped && <span className="text-destructive"> Outside what the model can reach ({fit.reach[0].toFixed(0)} to {fit.reach[1].toFixed(0)}%), clamped.</span>}
           </span>
         )}
@@ -105,7 +139,7 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
         )}
       </p>
       <Suspense fallback={<div className="h-56 w-full animate-pulse rounded bg-muted" />}>
-        <RecalibrateCurve target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
+        <RecalibrateCurve ac={ac} target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
       </Suspense>
       <p className="text-xs text-muted-foreground">The curve shows how the model's aconitase % falls as the strength rises; the dashed line is your pasted number and the dot is the fitted strength.</p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}

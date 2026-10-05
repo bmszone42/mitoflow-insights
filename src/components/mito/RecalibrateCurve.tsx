@@ -3,11 +3,11 @@ import { aconitasePct, S_MAX, S_MIN } from "./RecalibrateStrength";
 
 // Strength vs aconitase curve for the Recalibrate helper: how the model's Fe-S
 // intact % at the weakest defences falls as the ROS-induced strength rises.
-export function RecalibrateCurve({ target, fitted }: { target: number | null; fitted: number | null }) {
+export function RecalibrateCurve({ target, fitted, ac }: { target: number | null; fitted: number | null; ac: number }) {
   const data = [];
   for (let s = S_MIN; s <= S_MAX + 1e-9; s += 0.05) {
     const x = Math.round(s * 100) / 100;
-    data.push({ s: x, aco: Math.round(aconitasePct(x) * 10) / 10 });
+    data.push({ s: x, aco: Math.round(aconitasePct(x, ac) * 10) / 10 });
   }
   return (
     <div className="h-56 w-full" data-testid="recal-curve">
@@ -20,7 +20,7 @@ export function RecalibrateCurve({ target, fitted }: { target: number | null; fi
           <Line type="monotone" dataKey="aco" stroke="var(--primary)" dot={false} strokeWidth={2} isAnimationActive={false} />
           {target !== null && <ReferenceLine y={target} stroke="var(--muted-foreground)" strokeDasharray="4 4" />}
           {fitted !== null && target !== null && (
-            <ReferenceDot x={fitted} y={aconitasePct(fitted)} r={5} fill="var(--destructive)" stroke="none" />
+            <ReferenceDot x={fitted} y={aconitasePct(fitted, ac)} r={5} fill="var(--destructive)" stroke="none" />
           )}
         </LineChart>
       </ResponsiveContainer>
