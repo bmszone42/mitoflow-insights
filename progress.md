@@ -1,3 +1,7 @@
+## Sort toggle on the scenario compare table (2026-10-05) ✅
+- ✅ ScenarioCompareTable gains a sort picker above the table: Defences gap (weakest first), Superoxide (highest first) and Last updated (newest first); pill buttons with aria-pressed, data-testids spc-sort-gap, spc-sort-superoxide, spc-sort-updated. Healthy and reference rows stay pinned at the top. CSV follows the currently picked order. Caption updated.
+- ✅ Verified live on /dashboard with three seeded scenarios: gap and superoxide put B weak first, Last updated puts A mid (newest) first; switching changes the order live, no page errors. Typecheck clean.
+
 ## Colored "vs healthy" lines for ATP, free iron and peroxide (2026-10-05) ✅
 - ✅ ScenarioCompareTable (Dashboard and Diagnosis): every "vs healthy" line is now colored like superoxide. Superoxide, free iron and peroxide go red above the healthy adult and green at or below; ATP goes red BELOW healthy (an ATP shortfall is the bad direction) and green at or above. "vs profile" lines stay neutral. Caption under the table explains the coloring. data-testids: spc-vs-healthy-so, spc-vs-healthy-atp, spc-vs-healthy-fe, spc-vs-healthy-h2o2.
 - ✅ Verified live on /dashboard with two seeded scenarios: Weak defences (superoxide +486% red, free iron +162% red, peroxide +318% red, ATP +0% green), Strong defences (all green, superoxide -55%, iron -30%, peroxide -50%). No page errors. Typecheck clean.

@@ -41,16 +41,21 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
     return base === 0 ? 0 : ((val - base) / base) * 100;
   }, [referenceInputs]);
 
-  // Scenario rows sorted by defences-only gap, weakest defences first
-  // (largest positive gap at the top); ties keep the saved order.
+  // Scenario rows sorted by the picked key, worst first: defences gap (weakest
+  // defences at the top), superoxide (highest at the top) or last updated
+  // (newest at the top). Ties keep the saved order; healthy and reference rows
+  // stay pinned above.
+  const [sortKey, setSortKey] = useState<"gap" | "superoxide" | "updated">("gap");
   const sortedItems = useMemo(
     () =>
-      [...items]
-        .map((s) => ({ s, gap: defencesGap(s) }))
-        .sort((a, b) => b.gap - a.gap)
+      items
+        .map((s) => ({ s, gap: defencesGap(s), so: simulate(s.inputs, scenarioGeometry(s)).superoxide }))
+        .sort((a, b) =>
+          sortKey === "gap" ? b.gap - a.gap : sortKey === "superoxide" ? b.so - a.so : b.s.updatedAt - a.s.updatedAt
+        )
         .map((r) => r.s),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [items]
+    [items, sortKey]
   );
 
   // CSV mirrors the table above and carries the same fields as the JSON export
@@ -91,6 +96,31 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
   return (
 
     <div className="overflow-x-auto" data-testid="scenario-profile-compare">
+      <div className="mb-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+        <span>Sort by</span>
+        {(
+          [
+            { key: "gap", label: "Defences gap", test: "spc-sort-gap" },
+            { key: "superoxide", label: "Superoxide", test: "spc-sort-superoxide" },
+            { key: "updated", label: "Last updated", test: "spc-sort-updated" },
+          ] as const
+        ).map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            data-testid={o.test}
+            aria-pressed={sortKey === o.key}
+            onClick={() => setSortKey(o.key)}
+            className={`rounded-full border px-2 py-0.5 transition-colors ${
+              sortKey === o.key
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
       <table className="w-full text-xs">
         <thead>
           <tr className="text-left text-muted-foreground">
@@ -192,7 +222,8 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         </Button>
       )}
       <p className="mt-1 text-[10px] text-muted-foreground">
-        Sorted by the Defences only gap, weakest defences first. Scenarios are recomputed with the current model from their own saved settings,
+        Sorted by the picked key, worst first: defences gap (weakest defences first), superoxide (highest first) or last updated (newest first).
+        Scenarios are recomputed with the current model from their own saved settings,
         not the saved snapshot. "vs healthy" compares with the
         healthy adult's simulated values (model defaults), colored red when the value is worse than normal
         (higher superoxide, free iron or peroxide, lower ATP) and green at or better; "vs profile" compares with {referenceLabel}'s simulated values, not lab measurements.
