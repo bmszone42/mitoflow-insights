@@ -134,7 +134,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
             </td>
             <td className="text-muted-foreground">profile settings</td>
           </tr>
-          {items.map((s) => {
+          {sortedItems.map((s) => {
             const o = simulate(s.inputs, scenarioGeometry(s));
             const vsHealthy = pct(o.superoxide, healthyOut.superoxide, "vs healthy");
             const vsProfile = pct(o.superoxide, referenceOut.superoxide, "vs profile");
