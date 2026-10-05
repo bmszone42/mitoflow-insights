@@ -8,6 +8,7 @@ import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, bestProjectionTherapy, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
 import { recordRun } from "@/lib/mito/runs";
+import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 // Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
 const TherapyProfileChart = lazy(() => import("@/components/mito/TherapyProfileChart").then((m) => ({ default: m.TherapyProfileChart })));
 const BaselineProfileChart = lazy(() => import("@/components/mito/BaselineProfileChart").then((m) => ({ default: m.BaselineProfileChart })));
@@ -59,6 +60,8 @@ function Dashboard() {
   const [showBaselineChart, setShowBaselineChart] = useState(false);
   // Batch CSV therapy filter: "all" exports every responding therapy; a therapy id exports just that one across every profile.
   const [batchTherapy, setBatchTherapy] = useState("all");
+  // Reference profile for the scenario compare card at the bottom of the page.
+  const [compareId, setCompareId] = useState("demo-01");
   // Heavy memo: every per-profile simulation and the 20-therapy sweep. Keyed only on
   // users, dose and batchTherapy, so toggling readoutOnly never re-runs it.
   const simulated = useMemo(() => {
@@ -128,6 +131,8 @@ function Dashboard() {
       ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
       : r.respAll,
   })), [simulated, readoutOnly]);
+
+  const compareRow = rows.find((r) => r.p.id === compareId) ?? rows[0];
 
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
@@ -286,6 +291,16 @@ function Dashboard() {
           </td>
         </tr>)}</tbody>
       </table>
+    </section>
+    <section aria-label="Scenario compare" className="space-y-2 border-t border-border pt-4">
+      <h2 className="text-sm font-semibold">Saved scenarios vs a profile</h2>
+      <label className="flex items-center gap-2 text-xs" data-testid="dash-spc-label">
+        Reference profile
+        <select value={compareId} onChange={(e) => setCompareId(e.target.value)} data-testid="dash-spc-profile" className="max-w-[280px] rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+          {rows.map((r) => <option key={r.p.id} value={r.p.id}>{r.p.label} · {r.p.phenotype}</option>)}
+        </select>
+      </label>
+      {compareRow && <ScenarioCompareTable referenceLabel={compareRow.p.label} referenceOut={compareRow.out} />}
     </section>
   </main>;
 }

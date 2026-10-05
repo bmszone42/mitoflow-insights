@@ -5,7 +5,9 @@ import { AlertTriangle, ArrowLeft, CheckCircle2, CircleHelp } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
-import { therapies } from "@/lib/mito/treatment";
+import { profileInputs, therapies } from "@/lib/mito/treatment";
+import { defaultGeometry, simulate } from "@/lib/mito/model";
+import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
 
@@ -139,6 +141,14 @@ function DiagnosisPage() {
         <h2 className="text-sm font-semibold">Does the label fit?</h2>
         {d.patient.source === "user" ? <p className="mt-1 text-muted-foreground">Your results carry no condition label, so there is nothing to check against.</p> : <p className="mt-1"><span className={`font-medium ${fitStyle[d.fit]}`}>{d.fit}</span>. Pattern this profile was written to show: {d.expected.text}</p>}
       </div>
+    </section>
+
+    <section aria-label="Scenario compare" className="space-y-2">
+      <h2 className="text-sm font-semibold">Saved scenarios vs this profile</h2>
+      <ScenarioCompareTable
+        referenceLabel={d.patient.label}
+        referenceOut={simulate(profileInputs(d.patient), defaultGeometry)}
+      />
     </section>
 
     <section aria-label="Limits" className="text-xs leading-relaxed text-muted-foreground">

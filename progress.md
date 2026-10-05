@@ -1,3 +1,7 @@
+## Scenario compare on Dashboard and Diagnosis (2026-10-05) ✅
+- New shared ScenarioCompareTable component: saved scenarios recomputed live from their own settings, compared with a reference profile's simulated superoxide, ATP, free iron and peroxide, each with a "% vs profile" line (superoxide red above, green at or below).
+- Diagnosis: "Saved scenarios vs this profile" section follows the selected profile. Dashboard: "Saved scenarios vs a profile" card with a reference profile picker (default healthy adult). Empty state points to the Simulator. Verified live on both pages with a seeded scenario (Demo 04 reference: scenario at 1x strength showed -41% superoxide, -25% ATP), no page errors; typecheck and build clean.
+
 ## Scenario compare vs healthy adult (2026-10-05) ✅
 - The scenario compare table now opens with a "Healthy adult (reference)" row computed from model defaults, and every scenario cell shows a "% vs healthy" line under the value for superoxide, ATP, free iron and peroxide.
 - Superoxide above healthy shows in red, at or below in green; ATP, iron and peroxide percents are neutral. Values still recomputed live from each scenario's settings. Typecheck and build clean.
