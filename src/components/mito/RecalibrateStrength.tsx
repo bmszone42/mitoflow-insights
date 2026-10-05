@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { defaultGeometry, defaultInputs, simulate } from "@/lib/mito/model";
+import { clearRirrStrength, savedRirrStrength, saveRirrStrength } from "@/lib/mito/rirrDefault";
 import { applyTherapyDose, profileInputs, therapies } from "@/lib/mito/treatment";
 import { clearRuns, recordRun } from "@/lib/mito/runs";
 import type { DemoPatient } from "@/lib/mito/patientReference";
@@ -35,6 +36,7 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
   const [raw, setRaw] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [saved, setSaved] = useState<number | null>(() => savedRirrStrength());
   const target = Number(raw);
   const valid = raw.trim() !== "" && Number.isFinite(target) && target > 0 && target < 100;
   const fit = useMemo(() => (valid ? fitStrength(target) : null), [valid, target]);
