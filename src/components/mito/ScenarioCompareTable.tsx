@@ -96,6 +96,31 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
   return (
 
     <div className="overflow-x-auto" data-testid="scenario-profile-compare">
+      <div className="mb-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+        <span>Sort by</span>
+        {(
+          [
+            { key: "gap", label: "Defences gap", test: "spc-sort-gap" },
+            { key: "superoxide", label: "Superoxide", test: "spc-sort-superoxide" },
+            { key: "updated", label: "Last updated", test: "spc-sort-updated" },
+          ] as const
+        ).map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            data-testid={o.test}
+            aria-pressed={sortKey === o.key}
+            onClick={() => setSortKey(o.key)}
+            className={`rounded-full border px-2 py-0.5 transition-colors ${
+              sortKey === o.key
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
       <table className="w-full text-xs">
         <thead>
           <tr className="text-left text-muted-foreground">
