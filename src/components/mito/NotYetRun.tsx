@@ -83,6 +83,28 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
     onRan?.();
   }
 
+  const [batchMsg, setBatchMsg] = useState<string | null>(null);
+
+  // Runs and logs every missing therapy+dose cell at the effective strength.
+  async function runAllMissing() {
+    if (!base) return;
+    setBusy(true);
+    setBatchMsg(null);
+    const runBase = { ...base, rirrStrength: effStrength };
+    let n = 0;
+    for (const t of therapies) {
+      for (const d of doses) {
+        if (done.has(`${t.id}|${d}`)) continue;
+        simulate(applyTherapyDose(runBase, t, d), defaultGeometry);
+        await recordRun(profile!.id, "progress", d, [t.id], effStrength);
+        n++;
+      }
+    }
+    setBatchMsg(`Ran and logged ${n} missing combinations at ${effStrength}x ROS-induced strength.`);
+    setBusy(false);
+    onRan?.();
+  }
+
   const baseOut = useMemo(() => (base ? simulate({ ...base, rirrStrength: effStrength }, defaultGeometry) : null), [pid, effStrength]); // eslint-disable-line react-hooks/exhaustive-deps
   const healthySo = useMemo(() => {
     const h = demoPatients.find((x) => x.id === "demo-01");
@@ -123,7 +145,11 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
         <Button size="sm" data-testid="run-missing" disabled={!nextMissing || busy} onClick={runMissing}>
           <Play className="size-4" aria-hidden /> {nextMissing ? `Run missing: ${nextMissing.t.name} at ${nextMissing.d}x` : "All run"}
         </Button>
+        <Button size="sm" variant="outline" data-testid="run-all-missing" disabled={!nextMissing || busy} onClick={runAllMissing}>
+          Run all missing at {effStrength}x
+        </Button>
       </div>
+      {batchMsg && <p className="text-sm" data-testid="run-all-missing-result">{batchMsg}</p>}
       {last && (
         <p className="text-sm" data-testid="run-missing-result">
           Ran {last.therapy} at {last.dose}x (ROS-induced strength {last.strength}): ATP {last.atp.toFixed(1)} µM/s ({pct(last.atp, last.baseAtp)}), superoxide {last.so.toFixed(4)} nM ({pct(last.so, last.baseSo)}), peroxide {last.h2.toFixed(1)} nM ({pct(last.h2, last.baseH2)}) vs no therapy. Logged.
