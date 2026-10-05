@@ -25,17 +25,31 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
   const pct = (v: number, base: number, label: string) =>
     base === 0 ? "" : `${v >= base ? "+" : ""}${(((v - base) / base) * 100).toFixed(0)}% ${label}`;
 
+  // Defences-only gap: same matched-healthy comparison as the Dashboard and
+  // Timeline. Healthy defaults are re-run at the scenario's own membrane
+  // potential (iron and L:P held at healthy) with healthy vs the scenario's
+  // antioxidant capacity, so only defences and ROS-induced release show.
+  const defencesGap = (s: Scenario) => {
+    const geo = scenarioGeometry(s);
+    const matched = (ac: number) =>
+      simulate({ ...defaultInputs, deltaPsi: s.inputs.deltaPsi, antioxidantCapacity: ac }, geo).superoxide;
+    const base = matched(defaultInputs.antioxidantCapacity);
+    const val = matched(s.inputs.antioxidantCapacity);
+    return base === 0 ? 0 : ((val - base) / base) * 100;
+  };
+  const gapText = (g: number) => `${g >= 0 ? "+" : ""}${g.toFixed(0)}%`;
+
   // CSV mirrors the table above and carries the same fields as the JSON export
   // summary (id, name, ROS-induced strength + whether it was noted, preset,
   // readouts, updatedAt), so tuned scenarios can be shared as a flat file.
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
     const lines: string[] = [];
-    lines.push("Row type,Scenario,Superoxide (nM),Superoxide vs healthy (%),Superoxide vs profile (%),ATP (uM/s),ATP vs healthy (%),ATP vs profile (%),Free iron (uM),Free iron vs healthy (%),Free iron vs profile (%),Peroxide (nM),Peroxide vs healthy (%),Peroxide vs profile (%),ROS-induced strength,Strength noted,Preset,Scenario ID,Updated");
+    lines.push("Row type,Scenario,Superoxide (nM),Superoxide vs healthy (%),Superoxide vs profile (%),ATP (uM/s),ATP vs healthy (%),ATP vs profile (%),Free iron (uM),Free iron vs healthy (%),Free iron vs profile (%),Peroxide (nM),Peroxide vs healthy (%),Peroxide vs profile (%),Defences-only gap (%),ROS-induced strength,Strength noted,Preset,Scenario ID,Updated");
     const pctOnly = (v: number, base: number) => (base === 0 ? "" : `${v >= base ? "+" : ""}${(((v - base) / base) * 100).toFixed(0)}%`);
     const row = (cells: (string | number)[]) => lines.push(cells.map((c) => esc(String(c))).join(","));
-    row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "model defaults", "", "", "", ""]);
-    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", "profile settings", "", "", "", ""]);
+    row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "0%", "model defaults", "", "", "", ""]);
+    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", "", "profile settings", "", "", "", ""]);
     for (const s of items) {
       const o = simulate(s.inputs, scenarioGeometry(s));
       const strength = scenarioStrength(s);
@@ -45,6 +59,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
         o.atpFlux.toFixed(1), pctOnly(o.atpFlux, healthyOut.atpFlux), pctOnly(o.atpFlux, referenceOut.atpFlux),
         o.freeIron.toFixed(2), pctOnly(o.freeIron, healthyOut.freeIron), pctOnly(o.freeIron, referenceOut.freeIron),
         o.hydrogenPeroxide.toFixed(1), pctOnly(o.hydrogenPeroxide, healthyOut.hydrogenPeroxide), pctOnly(o.hydrogenPeroxide, referenceOut.hydrogenPeroxide),
+        gapText(defencesGap(s)),
         scenarioStrengthLabel(s), strength == null ? "no" : "yes", s.preset ?? "", s.id, new Date(s.updatedAt).toISOString(),
       ]);
     }
@@ -70,6 +85,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
             <th className="font-normal">ATP (µM/s)</th>
             <th className="font-normal">Free iron (µM)</th>
             <th className="font-normal">Peroxide (nM)</th>
+            <th className="font-normal">Defences only</th>
             <th className="font-normal">ROS-induced strength (partly published)</th>
           </tr>
         </thead>
@@ -81,6 +97,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
               <td>{healthyOut.atpFlux.toFixed(1)}</td>
               <td>{healthyOut.freeIron.toFixed(2)}</td>
               <td>{healthyOut.hydrogenPeroxide.toFixed(1)}</td>
+              <td className="text-primary">0%</td>
               <td className="text-muted-foreground">model defaults</td>
             </tr>
           )}
@@ -90,6 +107,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
             <td>{referenceOut.atpFlux.toFixed(1)}</td>
             <td>{referenceOut.freeIron.toFixed(2)}</td>
             <td>{referenceOut.hydrogenPeroxide.toFixed(1)}</td>
+            <td className="text-muted-foreground">—</td>
             <td className="text-muted-foreground">profile settings</td>
           </tr>
           {items.map((s) => {
@@ -123,6 +141,9 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
                   {o.hydrogenPeroxide.toFixed(1)}
                   <div className="text-[10px] text-muted-foreground">{pct(o.hydrogenPeroxide, healthyOut.hydrogenPeroxide, "vs healthy")}</div>
                   <div className="text-[10px] text-muted-foreground">{pct(o.hydrogenPeroxide, referenceOut.hydrogenPeroxide, "vs profile")}</div>
+                </td>
+                <td className={defencesGap(s) > 0 ? "text-destructive" : "text-primary"} data-testid="spc-defences-gap">
+                  {gapText(defencesGap(s))}
                 </td>
                 <td className="text-muted-foreground">{scenarioStrengthLabel(s)}</td>
               </tr>
