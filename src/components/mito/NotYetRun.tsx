@@ -129,25 +129,25 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
   }
 
   // Recalibration reset for the whole library: wipes the whole run log, then
-  // re-runs every therapy+dose cell for every profile at 1x ROS-induced
-  // strength, so the log matches the current calibration in one click.
+  // re-runs every therapy+dose cell for every profile at the picked ROS-induced
+  // strength (0.5x, 1x or 2x), so the log matches the current calibration in one click.
   async function clearAndRerunAll() {
-    if (!window.confirm(`Clear the whole run log and re-run all ${pool.length} profiles at 1x ROS-induced strength? This logs ${pool.length * total} runs.`)) return;
+    if (!window.confirm(`Clear the whole run log and re-run all ${pool.length} profiles at ${allStrength}x ROS-induced strength? This logs ${pool.length * total} runs.`)) return;
     setBusy(true);
     setBatchMsg(null);
     await clearRuns();
     let n = 0;
     for (const prof of pool) {
-      const runBase = { ...profileInputs(prof), rirrStrength: 1 };
+      const runBase = { ...profileInputs(prof), rirrStrength: allStrength };
       for (const t of therapies) for (const d of doses) {
         simulate(applyTherapyDose(runBase, t, d), defaultGeometry);
-        await recordRun(prof.id, "progress", d, [t.id], 1);
+        await recordRun(prof.id, "progress", d, [t.id], allStrength);
         n++;
       }
       setBatchMsg(`Re-running: ${prof.label} (${n} of ${pool.length * total})...`);
     }
     setStrength("all");
-    setBatchMsg(`Cleared the log and re-ran all ${pool.length} profiles at 1x ROS-induced strength: ${n} combinations logged.`);
+    setBatchMsg(`Cleared the log and re-ran all ${pool.length} profiles at ${allStrength}x ROS-induced strength: ${n} combinations logged.`);
     setBusy(false);
     onRan?.();
   }
