@@ -50,17 +50,26 @@ function TimelinePage() {
   // Per-visit simulation cache: a visit's diagnosis, readouts and projection
   // recompute only when that visit's content (labs, therapies, doses) or the
   // pinned projection therapy changes, not when other visits or form state do.
-  const simCache = useRef(new Map<string, { d: ReturnType<typeof diagnoseVisit>; r: ReturnType<typeof visitReadouts>; pj: ReturnType<typeof visitProjection>; gap: ReturnType<typeof defencesOnlyGap>; hc: ReturnType<typeof heartCheck> }>());
+  const simCache = useRef(new Map<string, { d: ReturnType<typeof diagnoseVisit>; r: ReturnType<typeof visitReadouts>; pj: ReturnType<typeof visitProjection>; gap: ReturnType<typeof defencesOnlyGap>; hc: ReturnType<typeof heartCheck>; s: ReturnType<typeof visitSim> }>());
     const timeline = useMemo(() => {
     const cache = simCache.current;
     if (cache.size > 200) cache.clear();
     return patientTimeline(p, visits).map((v) => {
       const key = `${p.id}|${v.id}|${onlyId ?? ""}|${JSON.stringify([v.values, v.h2o2Nm, v.therapies, v.doses])}`;
       let e = cache.get(key);
-      if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v), gap: defencesOnlyGap(p, v), hc: heartCheck(p, v) }; cache.set(key, e); }
+      if (!e) { e = { d: diagnoseVisit(p, v, onlyId), r: visitReadouts(p, v), pj: visitProjection(p, v), gap: defencesOnlyGap(p, v), hc: heartCheck(p, v), s: visitSim(p, v) }; cache.set(key, e); }
       return { v, ...e };
     });
   }, [p, visits, onlyId]);
+
+  // Per-visit gaps vs the healthy adult (model defaults) for the gap bar chart:
+  // superoxide, ATP and free iron, each as % of the healthy level.
+  const gapRows = useMemo(() => timeline.map(({ v, s }) => ({
+    date: v.date,
+    so: healthyOut.superoxide ? ((s.superoxide - healthyOut.superoxide) / healthyOut.superoxide) * 100 : 0,
+    atp: healthyOut.atpFlux ? ((s.atpFlux - healthyOut.atpFlux) / healthyOut.atpFlux) * 100 : 0,
+    fe: healthyOut.freeIron ? ((s.freeIron - healthyOut.freeIron) / healthyOut.freeIron) * 100 : 0,
+  })), [timeline]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
   const isH2o2 = metric === "h2o2Nm";
   const isMitosox = metric === "mitosox";
