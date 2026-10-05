@@ -127,6 +127,7 @@ export function scenariosExportPayload(items: Scenario[]): ScenarioExportPayload
       superoxide: s.snapshot.superoxide,
       hydrogenPeroxide: s.snapshot.hydrogenPeroxide,
       freeIron: s.snapshot.freeIron,
+      defencesOnlyGap: scenarioDefencesGap(s),
       updatedAt: s.updatedAt,
     };
   });
