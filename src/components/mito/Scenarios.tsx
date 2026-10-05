@@ -240,17 +240,45 @@ export function Scenarios({
               </tr>
             </thead>
             <tbody>
-              {items
-                .filter((s) => compareIds.has(s.id))
-                .map((s) => {
-                  const o = simulate(s.inputs, scenarioGeometry(s));
-                  return (
-                    <tr key={s.id} className="border-t border-border" data-testid="scenario-compare-row">
-                      <td className="py-1 pr-2 font-medium">{s.name}</td>
-                      <td data-testid="compare-so">{o.superoxide.toFixed(4)}</td>
-                      <td data-testid="compare-atp">{o.atpFlux.toFixed(1)}</td>
-                      <td data-testid="compare-iron">{o.freeIron.toFixed(2)}</td>
-                      <td>{o.hydrogenPeroxide.toFixed(1)}</td>
+              {(() => {
+                const healthy = simulate(defaultInputs, defaultGeometry);
+                const pct = (v: number, base: number) =>
+                  base === 0 ? "" : `${v >= base ? "+" : ""}${(((v - base) / base) * 100).toFixed(0)}% vs healthy`;
+                return (
+                  <>
+                    <tr className="border-t border-border" data-testid="scenario-compare-healthy">
+                      <td className="py-1 pr-2 font-medium">Healthy adult (reference)</td>
+                      <td data-testid="compare-so">{healthy.superoxide.toFixed(4)}</td>
+                      <td data-testid="compare-atp">{healthy.atpFlux.toFixed(1)}</td>
+                      <td data-testid="compare-iron">{healthy.freeIron.toFixed(2)}</td>
+                      <td>{healthy.hydrogenPeroxide.toFixed(1)}</td>
+                      <td className="text-muted-foreground">model defaults</td>
+                    </tr>
+                    {items
+                      .filter((s) => compareIds.has(s.id))
+                      .map((s) => {
+                        const o = simulate(s.inputs, scenarioGeometry(s));
+                        return (
+                          <tr key={s.id} className="border-t border-border" data-testid="scenario-compare-row">
+                            <td className="py-1 pr-2 font-medium">{s.name}</td>
+                            <td data-testid="compare-so">
+                              {o.superoxide.toFixed(4)}
+                              <div className={`text-[10px] ${o.superoxide > healthy.superoxide ? "text-destructive" : "text-primary"}`}>
+                                {pct(o.superoxide, healthy.superoxide)}
+                              </div>
+                            </td>
+                            <td data-testid="compare-atp">
+                              {o.atpFlux.toFixed(1)}
+                              <div className="text-[10px] text-muted-foreground">{pct(o.atpFlux, healthy.atpFlux)}</div>
+                            </td>
+                            <td data-testid="compare-iron">
+                              {o.freeIron.toFixed(2)}
+                              <div className="text-[10px] text-muted-foreground">{pct(o.freeIron, healthy.freeIron)}</div>
+                            </td>
+                            <td>
+                              {o.hydrogenPeroxide.toFixed(1)}
+                              <div className="text-[10px] text-muted-foreground">{pct(o.hydrogenPeroxide, healthy.hydrogenPeroxide)}</div>
+                            </td>
                       <td
                         className="text-muted-foreground"
                         data-testid="compare-strength"
