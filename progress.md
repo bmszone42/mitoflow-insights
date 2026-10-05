@@ -1,3 +1,6 @@
+## Reference profile defences-only gap in compare table (2026-10-05) ✅
+- ✅ ScenarioCompareTable takes a new optional `referenceInputs` prop; the reference profile row now shows its own defences-only gap (data-testid `spc-reference-gap`), computed from its inputs with the same matched-healthy comparison as scenarios (healthy defaults at the profile's membrane potential, iron and L:P held at healthy). Red above healthy, green at or below; CSV row carries it too.
+- ✅ Both call sites pass inputs: Diagnosis (`profileInputs(d.patient)`) and Dashboard (`profileInputs(compareRow.p)`). Verified live: Demo 04 (Leigh) reference row reads +143%. Typecheck clean.
 ## Scenario compare CSV download (2026-10-05) ✅
 - ✅ New "Download CSV" button on the shared ScenarioCompareTable (Dashboard and Diagnosis, data-testid `spc-csv`, shown once at least one scenario is saved). File `cristae-lab-scenario-compare.csv` mirrors the table: healthy adult row, reference profile row, then one row per scenario.
 - ✅ Columns match the JSON export summary fields (scenario ID, name, ROS-induced strength + whether it was noted, preset, readouts, updated ISO time) plus live recomputed superoxide, ATP, free iron and peroxide, each with "vs healthy" and "vs profile" percent columns, and the same model-estimates note as the page.
