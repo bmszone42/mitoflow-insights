@@ -1,3 +1,8 @@
+## Defences-only gap bar chart on the compare table (2026-10-05) ✅
+- ✅ New `src/components/mito/ScenarioGapChart.tsx`: horizontal bars of every saved scenario's defences-only gap, always sorted weakest defences first, red above the healthy level and green at or below, the reference profile in a neutral colour, dashed line at the healthy level (0%), percent printed at each bar end.
+- ✅ `ScenarioCompareTable.tsx` renders it under the table (Dashboard and Diagnosis), lazy-loaded with `lazy()` + `<Suspense>` so recharts stays out of those routes' initial bundles; the chart keeps its own order even when the table is sorted by superoxide or last updated.
+- ✅ Verified live with three seeded scenarios on /dashboard and /diagnosis?profile=demo-04: bars read Weak +486% (red), Demo 04 reference +143% (grey), Mid +100% (red), Strong -60% (green); switching the table sort to Last updated flipped the table rows but left the chart weakest-first; no page errors. Typecheck clean.
+
 ## Reference profile gap in the JSON export summary (2026-10-05) ✅
 - ✅ scenariosExportPayload takes an optional reference ({ label, inputs }); the summary gains a healthyReference block (model-default superoxide, ATP, peroxide, free iron) and a referenceProfile block (label, live recomputed readouts, defencesOnlyGap) mirroring the CSV's "reference profile" row. Fields now match between cristae-lab-scenarios.json and cristae-lab-scenario-compare.csv. Payload stays version 2 (additive fields).
 - ✅ New shared defencesGapFromInputs in scenarios.ts; scenarioDefencesGap and ScenarioCompareTable's reference gap both call it, so table, CSV and JSON can never disagree.

@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { simulate, defaultInputs, defaultGeometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { defencesGapFromInputs, listScenarios, scenarioDefencesGap, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, type Scenario } from "@/lib/mito/scenarios";
+
+// The gap bar chart is lazy-loaded so recharts stays out of the Dashboard and
+// Diagnosis bundles, exactly like the other chart modules.
+const ScenarioGapChart = lazy(() => import("./ScenarioGapChart").then((m) => ({ default: m.ScenarioGapChart })));
 
 
 /**
@@ -35,6 +39,17 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
   const referenceGap = useMemo(
     () => (referenceInputs ? defencesGapFromInputs(referenceInputs) : null),
     [referenceInputs]
+  );
+
+  // Bars for the chart below: every saved scenario plus the reference profile,
+  // each with its own defences-only gap. The chart sorts weakest first itself,
+  // so this list stays in saved order.
+  const gapRows = useMemo(
+    () => [
+      ...(referenceGap === null ? [] : [{ name: `${referenceLabel} (reference)`, gap: referenceGap, kind: "reference" as const }]),
+      ...items.map((s) => ({ name: s.name, gap: scenarioDefencesGap(s), kind: "scenario" as const })),
+    ],
+    [items, referenceGap, referenceLabel]
   );
 
   // Scenario rows sorted by the picked key, worst first: defences gap (weakest
@@ -211,6 +226,11 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
       </table>
       {items.length === 0 && (
         <p className="mt-1 text-[11px] text-muted-foreground">No saved scenarios yet. Save one on the Simulator to compare it here.</p>
+      )}
+      {items.length > 0 && (
+        <Suspense fallback={<div className="mt-3 h-48 animate-pulse rounded-md bg-secondary/40" />}>
+          <ScenarioGapChart rows={gapRows} />
+        </Suspense>
       )}
       {items.length > 0 && (
         <Button size="sm" variant="outline" className="mt-2" data-testid="spc-csv" onClick={downloadCsv}>
