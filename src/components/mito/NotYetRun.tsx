@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { demoPatients, type DemoPatient } from "@/lib/mito/patientReference";
 import { applyTherapyDose, profileInputs, therapies } from "@/lib/mito/treatment";
 import { defaultGeometry, simulate } from "@/lib/mito/model";
-import { recordRun, type RunRecord } from "@/lib/mito/runs";
+import { clearRuns, recordRun, type RunRecord } from "@/lib/mito/runs";
 import { realDoseFor, realDoseToModel } from "@/lib/mito/realDoses";
 
 const doses = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -105,6 +105,28 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
     onRan?.();
   }
 
+  // Recalibration reset: wipes the whole run log (every profile), then re-runs
+  // every cell for this profile at its current strength (model default 1.0).
+  async function clearAndRerun() {
+    if (!base || !profile) return;
+    if (!window.confirm("Clear the whole run log (all profiles) and re-run this profile at its current ROS-induced strength?")) return;
+    setBusy(true);
+    setBatchMsg(null);
+    await clearRuns();
+    const s = base.rirrStrength ?? 1;
+    const runBase = { ...base, rirrStrength: s };
+    let n = 0;
+    for (const t of therapies) for (const d of doses) {
+      simulate(applyTherapyDose(runBase, t, d), defaultGeometry);
+      await recordRun(profile.id, "progress", d, [t.id], s);
+      n++;
+    }
+    setStrength("all");
+    setBatchMsg(`Cleared the log and re-ran ${n} combinations at ${s}x ROS-induced strength.`);
+    setBusy(false);
+    onRan?.();
+  }
+
   const baseOut = useMemo(() => (base ? simulate({ ...base, rirrStrength: effStrength }, defaultGeometry) : null), [pid, effStrength]); // eslint-disable-line react-hooks/exhaustive-deps
   const healthySo = useMemo(() => {
     const h = demoPatients.find((x) => x.id === "demo-01");
@@ -147,6 +169,9 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
         </Button>
         <Button size="sm" variant="outline" data-testid="run-all-missing" disabled={!nextMissing || busy} onClick={runAllMissing}>
           Run all missing at {effStrength}x
+        </Button>
+        <Button size="sm" variant="outline" data-testid="clear-rerun" disabled={busy} onClick={clearAndRerun}>
+          Clear log and re-run at {base?.rirrStrength ?? 1}x
         </Button>
       </div>
       {batchMsg && <p className="text-sm" data-testid="run-all-missing-result">{batchMsg}</p>}
