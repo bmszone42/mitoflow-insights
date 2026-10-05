@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { recordRun } from "@/lib/mito/runs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { defaultGeometry, defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
@@ -227,7 +228,24 @@ export function Scenarios({
       </ul>
       {items.filter((s) => compareIds.has(s.id)).length >= 2 && (
         <div className="mt-3 overflow-x-auto" data-testid="scenario-compare">
-          <div className="mono-label mb-1">Compare, recomputed live from each scenario's settings</div>
+          <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <div className="mono-label">Compare, recomputed live from each scenario's settings</div>
+            <Button
+              size="sm"
+              variant="outline"
+              data-testid="compare-run-all"
+              onClick={async () => {
+                const sel = items.filter((s) => compareIds.has(s.id));
+                for (const s of sel) {
+                  simulate(s.inputs, scenarioGeometry(s));
+                  await recordRun(`scenario:${s.name}`, "scenario", 1, [], scenarioStrength(s));
+                }
+                toast.success(`Ran ${sel.length} scenarios, logged on the Progress page`);
+              }}
+            >
+              Run each as full run
+            </Button>
+          </div>
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-muted-foreground">
