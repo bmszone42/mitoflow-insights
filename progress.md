@@ -234,3 +234,5 @@
 - ✅ Compare CSV gained a "Defences-only gap (%)" column matching the table.
 - Verified live: seeded 0.4x antioxidant scenario reads +486%; typecheck clean.
 - ✅ Recalibrate ROS-induced strength helper on Progress (paste aconitase %, bisection fit at 0.2x defences, clear and re-run all 18 at fitted strength)
+
+- ✅ Scenario plan on /therapy-plan: pick a saved scenario, therapies and model doses ranked by defences-only gap drop, assumed turnover-based timing (weeks 1-12)
