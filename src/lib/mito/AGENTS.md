@@ -29,3 +29,5 @@
 - Progress real-dose sliders use realDoses.ts (top of published range = 1x model dose, linear, capped 2x); the run log stores realDose text and superoxide change; why: real units without implying a validated dose-response.
 
 - Not yet run grid has a batch button that runs and logs every missing cell at the effective strength (selected filter strength, else the profile setting); runs are sequential recordRun calls with source "progress".
+
+- Scenario compare lives in Scenarios.tsx: ticked scenarios are re-simulated with simulate(s.inputs, scenarioGeometry(s)), never the saved snapshot, so the table follows model updates.
