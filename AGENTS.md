@@ -23,6 +23,7 @@
 - Reuse `atpComparisonRows` and `IronLightMap` across views.
 
 - Simulator UI is split: `SliderPanel.tsx` owns controls and presets, `PatientRunBanner.tsx` wraps the patient-run notice and readouts, `TherapyEffectTable.tsx` owns before/after therapy rows, and `SimulatorCharts.tsx` holds every recharts chart (lazy-loaded behind Suspense so recharts stays out of the initial bundle); keep new Simulator sections in their own files to stop Simulator.tsx regrowing.
+- Charts inside `ScenarioCompareTable.tsx` (e.g. `ScenarioGapChart.tsx`) are separate modules lazy-loaded with `lazy()` + `<Suspense>`; why: the table itself is imported eagerly by Dashboard and Diagnosis, so a static recharts import in it would pull the charting library into those initial bundles.
 - Projected flag clearance picks its therapy only via `bestProjectionTherapy` in `treatment.ts` (all therapies, or the one picked via onlyId); Diagnosis, the Timeline and the dashboard each expose the same single-therapy picker; why: all pages and CSVs must agree.
 - Real-world dose anchors carry their source in `doseSource` on the `Therapy`; the Therapy plan, Therapy calculator and Therapy comparison render it as a link and the calculator's and comparison's CSVs export it. Only sources that resolve (checked live) are kept; therapies with no clinical dose get none.
 - Local-only build: no auth UI, no cloud sync; scenarios persist in IndexedDB via src/lib/mito/scenarios.ts and AI replies in localStorage. Why: single user running the app on their own machine.
