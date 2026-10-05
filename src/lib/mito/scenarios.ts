@@ -1,5 +1,5 @@
 import { openDB, type IDBPDatabase } from "idb";
-import { defaultGeometry, geometryRanges, type Geometry, type Inputs } from "./model";
+import { simulate, defaultInputs, defaultGeometry, geometryRanges, type Geometry, type Inputs } from "./model";
 
 export type Scenario = {
   id: string;
@@ -72,6 +72,20 @@ export function scenarioStrengthLabel(s: Scenario): string {
   return v == null ? `not noted (assumed ${DEFAULT_RIRR_STRENGTH}x)` : `${v}x`;
 }
 
+// Defences-only gap, the same matched-healthy comparison the Dashboard,
+// Timeline and scenario compare table use: healthy defaults re-run at the
+// scenario's own membrane potential (iron and L:P held at healthy), healthy
+// antioxidant capacity vs the scenario's, so only defences and ROS-induced
+// release show. Kept here so the JSON export and the table can never disagree.
+export function scenarioDefencesGap(s: Scenario): number {
+  const geo = scenarioGeometry(s);
+  const matched = (ac: number) =>
+    simulate({ ...defaultInputs, deltaPsi: s.inputs.deltaPsi, antioxidantCapacity: ac }, geo).superoxide;
+  const base = matched(defaultInputs.antioxidantCapacity);
+  const val = matched(s.inputs.antioxidantCapacity);
+  return base === 0 ? 0 : ((val - base) / base) * 100;
+}
+
 export type ScenarioSummaryRow = {
   id: string;
   name: string;
@@ -82,6 +96,7 @@ export type ScenarioSummaryRow = {
   superoxide?: number | undefined;
   hydrogenPeroxide?: number | undefined;
   freeIron?: number | undefined;
+  defencesOnlyGap?: number;
   updatedAt: number;
 };
 
@@ -112,6 +127,7 @@ export function scenariosExportPayload(items: Scenario[]): ScenarioExportPayload
       superoxide: s.snapshot.superoxide,
       hydrogenPeroxide: s.snapshot.hydrogenPeroxide,
       freeIron: s.snapshot.freeIron,
+      defencesOnlyGap: scenarioDefencesGap(s),
       updatedAt: s.updatedAt,
     };
   });

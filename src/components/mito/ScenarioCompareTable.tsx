@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { simulate, defaultInputs, defaultGeometry, type Inputs, type Outputs } from "@/lib/mito/model";
-import { listScenarios, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, type Scenario } from "@/lib/mito/scenarios";
+import { listScenarios, scenarioDefencesGap, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, type Scenario } from "@/lib/mito/scenarios";
 
 
 /**
@@ -25,18 +25,10 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
   const pct = (v: number, base: number, label: string) =>
     base === 0 ? "" : `${v >= base ? "+" : ""}${(((v - base) / base) * 100).toFixed(0)}% ${label}`;
 
-  // Defences-only gap: same matched-healthy comparison as the Dashboard and
-  // Timeline. Healthy defaults are re-run at the scenario's own membrane
-  // potential (iron and L:P held at healthy) with healthy vs the scenario's
-  // antioxidant capacity, so only defences and ROS-induced release show.
-  const defencesGap = (s: Scenario) => {
-    const geo = scenarioGeometry(s);
-    const matched = (ac: number) =>
-      simulate({ ...defaultInputs, deltaPsi: s.inputs.deltaPsi, antioxidantCapacity: ac }, geo).superoxide;
-    const base = matched(defaultInputs.antioxidantCapacity);
-    const val = matched(s.inputs.antioxidantCapacity);
-    return base === 0 ? 0 : ((val - base) / base) * 100;
-  };
+  // Defences-only gap: shared helper in scenarios.ts (same matched-healthy
+  // comparison as the Dashboard and Timeline, and the same number the JSON
+  // export summary carries).
+  const defencesGap = (s: Scenario) => scenarioDefencesGap(s);
   const gapText = (g: number) => `${g >= 0 ? "+" : ""}${g.toFixed(0)}%`;
 
   // Same matched-healthy gap for the reference profile itself, from its inputs.
