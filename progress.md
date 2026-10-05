@@ -193,3 +193,9 @@
 ## 2026-10-05: Healthy-adult reference row on the Timeline
 - ✅ Timeline table now leads with a "Healthy adult (model)" reference row (data-testid `tl-healthy`): model-default ATP, superoxide, peroxide, Defences only 0%, Heart check %, so every gap column has its baseline in view. The scenario compare table already had its healthy row.
 - ✅ Verified live on demo-04: reference reads ATP 45.4, superoxide 0.0124 nM, H2O2 32.9 nM; the Leigh visit reads +134% defences-only against it. Typecheck clean.
+
+## 2026-10-05: "Partly published" source note under the Dashboard superoxide column
+- ✅ Superoxide column header now carries a small "partly published" tag (data-testid `dash-so-note-tag`) and the table gained a note under it (data-testid `dash-so-note`).
+- ✅ The note explains the 6 → 11 shift: the ROS-induced ROS release mechanism is published (Zorov 2014), the exponent 1.0 is fitted to Melov 1999 Sod2-null mouse brain aconitase (24-33% of control), not a human measurement; raising it from 0.5 to 1.0 moved demo-12, demo-13, demo-14, demo-16 and demo-17 above the healthy adult, while the other six were already over it. Defences only stays 16 of 18 either way. Links to /references.
+- ✅ Counts re-verified in code at both strengths before writing the note (6 at 0.5, 11 at 1.0).
+- ✅ Tag renders on one line under the column header (whitespace-nowrap), so the header row stays readable.

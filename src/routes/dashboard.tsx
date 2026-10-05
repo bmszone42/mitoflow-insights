@@ -263,7 +263,7 @@ function Dashboard() {
     <section className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
-          <th className="px-3 py-2">Profile</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2">Superoxide</th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
+          <th className="px-3 py-2">Profile</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2" title="Model estimate. The ROS-induced ROS release strength is fitted to Melov 1999 (partly published); see the note under the table.">Superoxide <span className="block font-sans text-[9px] font-normal normal-case whitespace-nowrap leading-snug text-muted-foreground" data-testid="dash-so-note-tag">partly published</span></th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
           <th className="px-3 py-2">Peroxide flag</th><th className="px-3 py-2">Projected H2O2 ({dose}x)</th><th className="px-3 py-2">MitoSOX band (Gonzalo 2019)</th><th className="px-3 py-2">Projected MitoSOX ({dose}x)</th><th className="px-3 py-2">Flags: lab / assay / model / therapy ({dose}x)</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Responds to (model, {dose}x)</th><th className="px-3 py-2">Open</th>
         </tr></thead>
         <tbody>{rows.map((r) => <tr key={r.p.id} data-testid="dash-row" className="border-t border-border/60 align-top">
@@ -291,6 +291,9 @@ function Dashboard() {
           </td>
         </tr>)}</tbody>
       </table>
+      <p className="px-3 py-2 text-[11px] leading-relaxed text-muted-foreground" data-testid="dash-so-note">
+        <span className="font-medium text-foreground">Superoxide is partly published.</span> It is a model estimate, not a measurement. The ROS-induced ROS release term has a published mechanism (weak antioxidant defences make the chain leak more; Zorov 2014 review), but the strength used here, exponent 1.0, is fitted to Melov 1999's Sod2-null mouse brain aconitase (24-33% of control) rather than to any human measurement. That single fit is what moved the count of profiles whose model superoxide sits above the healthy adult from 6 to 11: demo-12, demo-13, demo-14, demo-16 and demo-17 crossed the line when the strength went from 0.5 to 1.0, while the other six were already over it. The Defences only gap is unaffected by the change (16 of 18 at either strength), because it compares each profile with the healthy adult held at the same membrane potential, labile iron and L:P. A measured aconitase figure from Williams 1998 would replace this fit. <Link className="underline underline-offset-2" to="/references">Sources</Link>
+      </p>
     </section>
     <section aria-label="Scenario compare" className="space-y-2 border-t border-border pt-4">
       <h2 className="text-sm font-semibold">Saved scenarios vs a profile</h2>
