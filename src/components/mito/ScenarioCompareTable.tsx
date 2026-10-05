@@ -49,6 +49,18 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
     return base === 0 ? 0 : ((val - base) / base) * 100;
   }, [referenceInputs]);
 
+  // Scenario rows sorted by defences-only gap, weakest defences first
+  // (largest positive gap at the top); ties keep the saved order.
+  const sortedItems = useMemo(
+    () =>
+      [...items]
+        .map((s) => ({ s, gap: defencesGap(s) }))
+        .sort((a, b) => b.gap - a.gap)
+        .map((r) => r.s),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [items]
+  );
+
   // CSV mirrors the table above and carries the same fields as the JSON export
   // summary (id, name, ROS-induced strength + whether it was noted, preset,
   // readouts, updatedAt), so tuned scenarios can be shared as a flat file.
@@ -60,7 +72,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
     const row = (cells: (string | number)[]) => lines.push(cells.map((c) => esc(String(c))).join(","));
     row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "0%", "model defaults", "", "", "", ""]);
     row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", referenceGap === null ? "" : gapText(referenceGap), "profile settings", "", "", "", ""]);
-    for (const s of items) {
+    for (const s of sortedItems) {
       const o = simulate(s.inputs, scenarioGeometry(s));
       const strength = scenarioStrength(s);
       row([
@@ -122,7 +134,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
             </td>
             <td className="text-muted-foreground">profile settings</td>
           </tr>
-          {items.map((s) => {
+          {sortedItems.map((s) => {
             const o = simulate(s.inputs, scenarioGeometry(s));
             const vsHealthy = pct(o.superoxide, healthyOut.superoxide, "vs healthy");
             const vsProfile = pct(o.superoxide, referenceOut.superoxide, "vs profile");
@@ -172,7 +184,8 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         </Button>
       )}
       <p className="mt-1 text-[10px] text-muted-foreground">
-        Scenarios are recomputed with the current model from their own saved settings, not the saved snapshot. "vs healthy" compares with the
+        Sorted by the Defences only gap, weakest defences first. Scenarios are recomputed with the current model from their own saved settings,
+        not the saved snapshot. "vs healthy" compares with the
         healthy adult's simulated values (model defaults); "vs profile" compares with {referenceLabel}'s simulated values, not lab measurements.
         Model estimates only.
       </p>
