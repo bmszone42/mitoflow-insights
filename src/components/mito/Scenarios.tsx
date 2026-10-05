@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
+import { defaultGeometry, defaultInputs, simulate, type Geometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import {
   deleteScenario,
   listScenarios,
