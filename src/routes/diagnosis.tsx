@@ -5,7 +5,9 @@ import { AlertTriangle, ArrowLeft, CheckCircle2, CircleHelp } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
-import { therapies } from "@/lib/mito/treatment";
+import { profileInputs, therapies } from "@/lib/mito/treatment";
+import { defaultGeometry, simulate } from "@/lib/mito/model";
+import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
 
