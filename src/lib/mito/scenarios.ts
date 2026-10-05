@@ -117,13 +117,14 @@ export type ReferenceSummaryRow = {
 
 export type ScenarioExportPayload = {
   format: "cristae-lab-scenarios";
-  version: 2;
+  version: 3;
   exportedAt: string;
   summary: {
     count: number;
     strengthIsAssumed: true;
     strengthNote: string;
     referenceNote: string;
+    versionNote: string;
     byStrength: Record<string, number>;
     healthyReference: { superoxide: number; atpFlux: number; hydrogenPeroxide: number; freeIron: number };
     referenceProfile: ReferenceSummaryRow | null;
@@ -169,7 +170,7 @@ export function scenariosExportPayload(items: Scenario[], reference?: { label: s
     : null;
   return {
     format: "cristae-lab-scenarios",
-    version: 2,
+    version: 3,
     exportedAt: new Date().toISOString(),
     summary: {
       count: rows.length,
@@ -179,6 +180,8 @@ export function scenariosExportPayload(items: Scenario[], reference?: { label: s
       referenceNote: referenceProfile
         ? "healthyReference is the healthy adult at model defaults; referenceProfile is the reference profile the scenario compare table uses, recomputed live from its saved inputs with the same matched-healthy defences-only gap as the table and CSV. Scenario rows are sorted by defences-only gap, weakest first, matching the compare table's default sort."
         : "No reference profile was passed at export time; the CSV export on the Dashboard and Diagnosis carries its own reference row.",
+      versionNote:
+        "Version 3. New since version 2: per-scenario defencesOnlyGap, the healthyReference block, the referenceProfile block with its own defencesOnlyGap, and scenario rows sorted by defences-only gap, weakest defences first, matching the compare table's default sort. Import still accepts version 2 files and the older flat array.",
       byStrength,
       healthyReference: {
         superoxide: healthyOut.superoxide,
