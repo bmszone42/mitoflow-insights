@@ -41,6 +41,8 @@ function DiagnosisPage() {
   // Projected-flag therapy pick: "best" uses the strongest therapy; a therapy id pins it, matching the dashboard's Batch therapy choice.
   const [projTherapy, setProjTherapy] = useState("best");
   const all = useMemo(() => diagnoseAll(users, dose, projTherapy === "best" ? undefined : projTherapy), [users, dose, projTherapy]);
+  // Heart check per profile: model Fe-S intact % at the profile's own settings vs the Melov 1999 Sod2-null heart band.
+  const hearts = useMemo(() => new Map(all.map((x) => [x.patient.id, melovHeartCheck(simulate(profileInputs(x.patient), defaultGeometry).aconitaseActivity)])), [all]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
@@ -56,7 +58,7 @@ function DiagnosisPage() {
     <section aria-label="All profiles" className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[760px] text-left text-xs">
         <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground"><tr>
-          <th className="px-3 py-2 font-medium">Profile</th><th className="px-3 py-2 font-medium">Patient Data</th><th className="px-3 py-2 font-medium">ROS assay</th><th className="px-3 py-2 font-medium">ATP assay</th><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Therapies</th><th className="px-3 py-2 font-medium">Top cause</th><th className="px-3 py-2 font-medium">Label fit</th>
+          <th className="px-3 py-2 font-medium">Profile</th><th className="px-3 py-2 font-medium">Patient Data</th><th className="px-3 py-2 font-medium">ROS assay</th><th className="px-3 py-2 font-medium">ATP assay</th><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Therapies</th><th className="px-3 py-2 font-medium">Heart check</th><th className="px-3 py-2 font-medium">Top cause</th><th className="px-3 py-2 font-medium">Label fit</th>
         </tr></thead>
         <tbody>{all.map((x) => <tr key={x.patient.id} data-testid="dx-row" onClick={() => setId(x.patient.id)} className={`cursor-pointer border-t border-border/60 hover:bg-muted/30 ${x.patient.id === id ? "bg-primary/10" : ""}`}>
           <th scope="row" className="px-3 py-2 font-medium">{x.patient.phenotype}<span className="block text-[10px] font-normal text-muted-foreground">{x.patient.label} · {x.patient.age}y · {Math.round(x.realShare * 100)}% real data</span></th>
