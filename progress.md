@@ -1,4 +1,9 @@
+## Scenario compare CSV download (2026-10-05) ✅
+- ✅ New "Download CSV" button on the shared ScenarioCompareTable (Dashboard and Diagnosis, data-testid `spc-csv`, shown once at least one scenario is saved). File `cristae-lab-scenario-compare.csv` mirrors the table: healthy adult row, reference profile row, then one row per scenario.
+- ✅ Columns match the JSON export summary fields (scenario ID, name, ROS-induced strength + whether it was noted, preset, readouts, updated ISO time) plus live recomputed superoxide, ATP, free iron and peroxide, each with "vs healthy" and "vs profile" percent columns, and the same model-estimates note as the page.
+- ✅ Verified live on /diagnosis with a seeded scenario: healthy 0.0124 nM, reference Demo 04 0.0212 nM, scenario 0.0335 nM (+170% vs healthy, +58% vs profile, strength 1x, noted yes). Button also present on /dashboard. Typecheck clean.
 ## Scenario compare on Dashboard and Diagnosis (2026-10-05) ✅
+
 - New shared ScenarioCompareTable component: saved scenarios recomputed live from their own settings, compared with a reference profile's simulated superoxide, ATP, free iron and peroxide, each with a "% vs profile" line (superoxide red above, green at or below).
 - Diagnosis: "Saved scenarios vs this profile" section follows the selected profile. Dashboard: "Saved scenarios vs a profile" card with a reference profile picker (default healthy adult). Empty state points to the Simulator. Verified live on both pages with a seeded scenario (Demo 04 reference: scenario at 1x strength showed -41% superoxide, -25% ATP), no page errors; typecheck and build clean.
 
