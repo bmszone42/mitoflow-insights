@@ -1,3 +1,6 @@
+## Compare table sorted by defences-only gap (2026-10-05) ✅
+- ✅ ScenarioCompareTable scenario rows are sorted by the Defences only gap, weakest defences first (largest positive gap at the top); the healthy and reference rows stay pinned at the top. CSV rows follow the same sorted order. Caption under the table notes the sorting. Verified live on /diagnosis with two seeded scenarios: Weak defences (+486%) first, Strong defences (-69%) second. Typecheck clean.
+
 ## Reference profile defences-only gap in compare table (2026-10-05) ✅
 - ✅ ScenarioCompareTable takes a new optional `referenceInputs` prop; the reference profile row now shows its own defences-only gap (data-testid `spc-reference-gap`), computed from its inputs with the same matched-healthy comparison as scenarios (healthy defaults at the profile's membrane potential, iron and L:P held at healthy). Red above healthy, green at or below; CSV row carries it too.
 - ✅ Both call sites pass inputs: Diagnosis (`profileInputs(d.patient)`) and Dashboard (`profileInputs(compareRow.p)`). Verified live: Demo 04 (Leigh) reference row reads +143%. Typecheck clean.
