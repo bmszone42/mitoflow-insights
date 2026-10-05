@@ -1,5 +1,5 @@
 import { openDB, type IDBPDatabase } from "idb";
-import { defaultGeometry, geometryRanges, type Geometry, type Inputs } from "./model";
+import { simulate, defaultInputs, defaultGeometry, geometryRanges, type Geometry, type Inputs } from "./model";
 
 export type Scenario = {
   id: string;
