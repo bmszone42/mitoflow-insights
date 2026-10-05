@@ -303,7 +303,7 @@ function Dashboard() {
           {rows.map((r) => <option key={r.p.id} value={r.p.id}>{r.p.label} · {r.p.phenotype}</option>)}
         </select>
       </label>
-      {compareRow && <ScenarioCompareTable referenceLabel={compareRow.p.label} referenceOut={compareRow.out} />}
+      {compareRow && <ScenarioCompareTable referenceLabel={compareRow.p.label} referenceOut={compareRow.out} referenceInputs={profileInputs(compareRow.p)} />}
     </section>
   </main>;
 }

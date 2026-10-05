@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { simulate, defaultInputs, defaultGeometry, type Outputs } from "@/lib/mito/model";
+import { simulate, defaultInputs, defaultGeometry, type Inputs, type Outputs } from "@/lib/mito/model";
 import { listScenarios, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, type Scenario } from "@/lib/mito/scenarios";
 
 
@@ -10,7 +10,7 @@ import { listScenarios, scenarioGeometry, scenarioStrength, scenarioStrengthLabe
  * Percentages are vs the reference; the healthy line shows where each
  * scenario falls short of normal levels.
  */
-export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referenceLabel: string; referenceOut: Outputs }) {
+export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceInputs }: { referenceLabel: string; referenceOut: Outputs; referenceInputs?: Inputs }) {
   const [items, setItems] = useState<Scenario[]>([]);
   useEffect(() => {
     listScenarios().then(setItems).catch(() => setItems([]));
@@ -39,6 +39,16 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
   };
   const gapText = (g: number) => `${g >= 0 ? "+" : ""}${g.toFixed(0)}%`;
 
+  // Same matched-healthy gap for the reference profile itself, from its inputs.
+  const referenceGap = useMemo(() => {
+    if (!referenceInputs) return null;
+    const matched = (ac: number) =>
+      simulate({ ...defaultInputs, deltaPsi: referenceInputs.deltaPsi, antioxidantCapacity: ac }, defaultGeometry).superoxide;
+    const base = matched(defaultInputs.antioxidantCapacity);
+    const val = matched(referenceInputs.antioxidantCapacity);
+    return base === 0 ? 0 : ((val - base) / base) * 100;
+  }, [referenceInputs]);
+
   // CSV mirrors the table above and carries the same fields as the JSON export
   // summary (id, name, ROS-induced strength + whether it was noted, preset,
   // readouts, updatedAt), so tuned scenarios can be shared as a flat file.
@@ -49,7 +59,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
     const pctOnly = (v: number, base: number) => (base === 0 ? "" : `${v >= base ? "+" : ""}${(((v - base) / base) * 100).toFixed(0)}%`);
     const row = (cells: (string | number)[]) => lines.push(cells.map((c) => esc(String(c))).join(","));
     row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "0%", "model defaults", "", "", "", ""]);
-    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", "", "profile settings", "", "", "", ""]);
+    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", referenceGap === null ? "" : gapText(referenceGap), "profile settings", "", "", "", ""]);
     for (const s of items) {
       const o = simulate(s.inputs, scenarioGeometry(s));
       const strength = scenarioStrength(s);
@@ -107,7 +117,9 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut }: { referen
             <td>{referenceOut.atpFlux.toFixed(1)}</td>
             <td>{referenceOut.freeIron.toFixed(2)}</td>
             <td>{referenceOut.hydrogenPeroxide.toFixed(1)}</td>
-            <td className="text-muted-foreground">—</td>
+            <td className={referenceGap !== null && referenceGap > 0 ? "text-destructive" : "text-primary"} data-testid="spc-reference-gap">
+              {referenceGap === null ? "—" : gapText(referenceGap)}
+            </td>
             <td className="text-muted-foreground">profile settings</td>
           </tr>
           {items.map((s) => {
