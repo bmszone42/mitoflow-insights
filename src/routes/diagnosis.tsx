@@ -153,6 +153,7 @@ function DiagnosisPage() {
       <ScenarioCompareTable
         referenceLabel={d.patient.label}
         referenceOut={simulate(profileInputs(d.patient), defaultGeometry)}
+        referenceInputs={profileInputs(d.patient)}
       />
     </section>
 
