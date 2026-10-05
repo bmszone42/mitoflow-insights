@@ -49,6 +49,18 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
     return base === 0 ? 0 : ((val - base) / base) * 100;
   }, [referenceInputs]);
 
+  // Scenario rows sorted by defences-only gap, weakest defences first
+  // (largest positive gap at the top); ties keep the saved order.
+  const sortedItems = useMemo(
+    () =>
+      [...items]
+        .map((s) => ({ s, gap: defencesGap(s) }))
+        .sort((a, b) => b.gap - a.gap)
+        .map((r) => r.s),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [items]
+  );
+
   // CSV mirrors the table above and carries the same fields as the JSON export
   // summary (id, name, ROS-induced strength + whether it was noted, preset,
   // readouts, updatedAt), so tuned scenarios can be shared as a flat file.
