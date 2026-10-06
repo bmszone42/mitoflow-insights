@@ -1,4 +1,4 @@
- ## Diagnosis therapy picker shows the model dose (2026-10-06) ✅
+## Diagnosis therapy picker shows the model dose (2026-10-06) ✅
 - ✅ The Therapy picker beside Projected flags on the Diagnosis page now suffixes every option with the chosen Model dose, e.g. "Mitochondrial antioxidant support 1.5x", and the "Strongest therapy" option reads "Strongest therapy 1.5x", matching the Dashboard therapy chart's picker labels.
 - ✅ The picker's max width grew to 220px so the longer labels are not clipped.
 - ✅ Verified live: options read "... 1x" at the default dose, then "... 1.5x" after switching Model dose to 1.5x; selecting an option keeps the suffixed label; no page errors, build OK.
