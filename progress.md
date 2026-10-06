@@ -336,3 +336,6 @@
 
 ## Strength range check on Progress (2026-10-06) ✅
 - ✅ StrengthRange.tsx: low/high sliders (0-1.5x, 0.05 steps) with a per-profile table showing effective strength (profile's own, else saved default, else 1.0x model default), its source, and inside/outside coloring, plus an "N of M profiles inside" count.
+
+- ✅ Recalibrate: SOD vs glutathione weight slider for the Williams fit
+- ✅ Scenario compare: strength-source filter (all, saved default, profile own)
