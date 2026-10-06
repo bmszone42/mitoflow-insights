@@ -112,12 +112,16 @@ function RunsPage() {
                   <th className="font-normal">Times run</th>
                   <th className="font-normal">Last run</th>
                 </tr></thead>
-                <tbody>{list.map((r) => (
-                  <tr key={r.id} className="border-t border-border" data-testid="runs-row">
+                <tbody>{list.map((r) => {
+                  const inBand = r.rirrStrength != null && r.rirrStrength >= range.lo && r.rirrStrength <= range.hi;
+                  return (
+                  <tr key={r.id} data-testid="runs-row" className={inBand
+                    ? "border-t border-border border-l-2 border-l-primary bg-primary/5"
+                    : "border-t border-border border-l-2 border-l-destructive bg-destructive/5"}>
                     <td className="py-1">{sourceLabels[r.source]}</td>
                     <td>{doseLabel(r.dose)}</td>
                     <td className="max-w-md"><span className="text-muted-foreground">{r.therapyIds.map(therapyName).join(", ")}</span></td>
-                    <td data-testid="runs-rirr">{r.rirrStrength != null ? `${r.rirrStrength}x` : "not noted"}</td>
+                    <td data-testid="runs-rirr" className={inBand ? "text-primary" : "text-destructive"}>{r.rirrStrength != null ? `${r.rirrStrength}x` : "not noted"}</td>
                     <td data-testid="runs-real-dose">{r.realDose ?? "-"}</td>
                     <td data-testid="runs-so-change">{r.soChangePct != null ? `${r.soChangePct.toFixed(1)}%` : "-"}</td>
                     <td>{r.count}{r.count > 1 && <span className="ml-1 text-xs text-amber-600 dark:text-amber-400">repeated</span>}</td>
