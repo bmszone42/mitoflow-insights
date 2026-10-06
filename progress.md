@@ -1,3 +1,10 @@
+## Timeline pair gap (2026-10-06)
+
+- Timeline gap chart draws a dashed Combined therapies gap line for visits with two or more therapies, plus a shaded corridor strip spanning the pair's combined defences-only gap at the low and high ends of the saved strength band.
+- Corridor math: pairGapCorridor in src/lib/mito/timeline.ts; wired as pairGap/pairCor in src/routes/timeline.tsx; rendered as pcor-lo/pcor-span bars and a dashed Line in src/components/mito/TimelineGapChart.tsx.
+- Verified live: two-therapy visit (antioxidant support + iron chelation) saves and its dashed pair dot and strips render; earlier failure was Playwright clicking before hydration, not an app bug.
+- Pending: Williams 1998 aconitase number; user's real therapy measurements.
+
 ## Auto-ranked Top 3 therapy pairs on Strength plan (2026-10-06) ✅
 - ✅ New "Top 3 pairs" section on /strength-plan: searches all 153 therapy pairs over the 0.5x-2x dose grid at the current strength, ranks the three that lower superoxide most, then re-checks only those three at both band edges.
 - ✅ Each row shows best doses, combined superoxide change now and at both edges, combined defences-only gap, holds-across-band flag and a Log button (same recordRun call as the manual pair picker).

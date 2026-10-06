@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
-import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, therapyGapCorridor, visitReadouts, visitProjection, visitSim, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, therapyGapCorridor, pairGapCorridor, visitReadouts, visitProjection, visitSim, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 import { useSavedRirr } from "@/lib/mito/rirrDefault";
 import { useStrengthRange } from "@/lib/mito/rangeState";
 import { defaultGeometry, defaultInputs, melovHeartCheck, simulate } from "@/lib/mito/model";
@@ -74,8 +74,11 @@ function TimelinePage() {
   // therapy's dose multiplier so the chart can draw one strength line per therapy.
   // Corridor strips: for each therapy, the defences-only gap it gives at the
   // low and high ends of the saved strength range, keyed cor-<id>.
-  const gapRows = useMemo(() => timeline.map(({ v, s }) => {
+  const gapRows = useMemo(() => timeline.map(({ v, s, gap }) => {
     const corridor = therapyGapCorridor(p, v, range.lo, range.hi);
+    // Combined pair gap: all the visit's therapies together, at their model
+    // doses (line) and at the band's low and high strengths (strip).
+    const pairCor = pairGapCorridor(p, v, range.lo, range.hi);
     return {
       date: v.date,
       so: healthyOut.superoxide ? ((s.superoxide - healthyOut.superoxide) / healthyOut.superoxide) * 100 : 0,
@@ -83,6 +86,8 @@ function TimelinePage() {
       fe: healthyOut.freeIron ? ((s.freeIron - healthyOut.freeIron) / healthyOut.freeIron) * 100 : 0,
       doses: Object.fromEntries(v.therapies.map((t) => [t, v.doses?.[t] ?? 1])),
       corridors: Object.fromEntries(v.therapies.map((t) => [`cor-${t}`, corridor[t] ?? null])),
+      pairGap: v.therapies.length >= 2 ? gap.after : null,
+      pairCor,
     };
   }), [timeline, p, range.lo, range.hi]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
@@ -210,7 +215,7 @@ function TimelinePage() {
       </table>
       <div className="mt-4">
         <h2 className="text-sm font-semibold">Visit gaps vs the healthy adult</h2>
-        <p className="text-[11px] text-muted-foreground">Each visit's simulated superoxide, ATP and free iron as % of the healthy adult (model defaults), sorted by the superoxide gap, biggest first. Red: worse than healthy (superoxide and free iron above, ATP below); green: at or better than healthy. Lines: each therapy's dose multiplier (right axis, 0-2x); a line breaks on visits where that therapy was not given. Shaded strips: for each therapy, the defences-only gap that therapy alone gives at the low and high ends of your saved strength range (set on Progress), so each gap can be read against your range; strips are model estimates, not lab results.</p>
+        <p className="text-[11px] text-muted-foreground">Each visit's simulated superoxide, ATP and free iron as % of the healthy adult (model defaults), sorted by the superoxide gap, biggest first. Red: worse than healthy (superoxide and free iron above, ATP below); green: at or better than healthy. Lines: each therapy's dose multiplier (right axis, 0-2x); a line breaks on visits where that therapy was not given. Shaded strips: for each therapy, the defences-only gap that therapy alone gives at the low and high ends of your saved strength range (set on Progress), so each gap can be read against your range; strips are model estimates, not lab results. On visits with two or more therapies, a dashed line shows their combined defences-only gap at their model doses, with a darker strip for the combined gap at the band's low and high strengths.</p>
         <Suspense fallback={<div className="flex h-64 items-center justify-center text-xs text-muted-foreground">Loading chart…</div>}>
           <TimelineGapChart rows={gapRows} />
         </Suspense>

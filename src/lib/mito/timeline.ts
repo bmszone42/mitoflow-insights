@@ -149,6 +149,30 @@ export function therapyGapCorridor(p: DemoPatient, v: Visit, lo: number, hi: num
 }
 
 /**
+ * Combined gap corridor for a multi-therapy visit: the defences-only gap all
+ * the visit's therapies give together at the low and high ends of the strength
+ * range (low first, high second, regardless of which is better). Null for
+ * visits with fewer than two therapies, where there is no pair to combine.
+ */
+export function pairGapCorridor(p: DemoPatient, v: Visit, lo: number, hi: number): [number, number] | null {
+  if (v.therapies.length < 2) return null;
+  const healthyInputs = profileInputs(demoPatients[0]);
+  const vi = profileInputs(visitProfile(p, v));
+  const matched = (deltaPsi: number, ac: number) =>
+    simulate({ ...healthyInputs, deltaPsi, antioxidantCapacity: ac }, defaultGeometry).superoxide;
+  const base = matched(vi.deltaPsi, healthyInputs.antioxidantCapacity);
+  const pct = (a: number) => (base === 0 ? 0 : ((a - base) / base) * 100);
+  const at = (d: number) => {
+    let ti = vi;
+    for (const id of v.therapies) { const t = therapies.find((x) => x.id === id); if (t) ti = applyTherapyDose(ti, t, d); }
+    return matched(ti.deltaPsi, ti.antioxidantCapacity);
+  };
+  const a = pct(at(lo));
+  const b = pct(at(hi));
+  return [Math.min(a, b), Math.max(a, b)];
+}
+
+/**
  * Heart check at a visit (Melov 1999 Sod2-null heart: complex I 59%, complex II
  * 24% of normal): the model's Fe-S intact % at the visit's own settings, flagged
  * when it falls inside that band. "after" applies the visit's therapies at their
