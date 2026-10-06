@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { savedRirrStrength, useProfileRirr, useSavedRirr } from "@/lib/mito/rirrDefault";
-import { DEFAULT_RIRR_STRENGTH } from "@/lib/mito/scenarios";
 import type { DemoPatient } from "@/lib/mito/patientReference";
+
+const MODEL_DEFAULT = 1.0; // model's built-in ROS-induced strength when nothing is saved
 
 export function StrengthRange({ pool }: { pool: DemoPatient[] }) {
   const saved = useSavedRirr();

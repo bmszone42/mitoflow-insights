@@ -9,6 +9,7 @@ import { clearRuns, listRuns, type RunRecord, type RunSource } from "@/lib/mito/
 import { NotYetRun } from "@/components/mito/NotYetRun";
 import { StrengthHistory } from "@/components/mito/StrengthHistory";
 import { RecalibrateStrength } from "@/components/mito/RecalibrateStrength";
+import { StrengthRange } from "@/components/mito/StrengthRange";
 
 export const Route = createFileRoute("/runs")({
   head: () => ({
