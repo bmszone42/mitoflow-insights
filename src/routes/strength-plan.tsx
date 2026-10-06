@@ -69,10 +69,37 @@ function StrengthPlan() {
   const progress = runs.filter((r) => r.patientId === p.id && r.soChangePct !== undefined).sort((a, b) => a.at - b.at);
   const profHist = hist.filter((h) => h.detail.includes(p.id) || h.detail.includes(p.label) || h.kind.startsWith("default")).slice(0, 12);
 
+  const [pairA, setPairA] = useState(therapies[0].id);
+  const [pairB, setPairB] = useState(therapies[1]?.id ?? therapies[0].id);
+  const pair = useMemo(() => {
+    const tA = therapies.find((t) => t.id === pairA);
+    const tB = therapies.find((t) => t.id === pairB);
+    if (!tA || !tB || tA.id === tB.id) return null;
+    const at = (s: number) => {
+      const b = { ...base, rirrStrength: s };
+      const so0 = metrics(b).superoxide;
+      let best = { doseA: 0, doseB: 0, so: 0, gap: defencesGapFromInputs(b) };
+      for (const dA of DOSES) for (const dB of DOSES) {
+        const inp = applyTherapyDose(applyTherapyDose(b, tA, dA), tB, dB);
+        const so = so0 ? (metrics(inp).superoxide / so0 - 1) * 100 : 0;
+        if (so < best.so) best = { doseA: dA, doseB: dB, so, gap: defencesGapFromInputs(inp) };
+      }
+      return best;
+    };
+    const cur = at(strength), low = at(lo), high = at(hi);
+    return { tA, tB, cur, lo: low, hi: high, robust: low.so < 0 && high.so < 0 };
+  }, [base, strength, lo, hi, pairA, pairB]);
+
   const logTop = async () => {
     const top = rows.find((r) => r.dose > 0);
     if (!top) return;
     await recordRun(p.id, "plan", top.dose, [top.t.id], strength, { realDose: top.t.clinicalDose, soChangePct: top.so });
+    reload();
+  };
+
+  const logPair = async () => {
+    if (!pair || pair.cur.doseA === 0) return;
+    await recordRun(p.id, "plan", pair.cur.doseA, [pair.tA.id, pair.tB.id], strength, { realDose: `${pair.tA.clinicalDose} + ${pair.tB.clinicalDose}`, soChangePct: pair.cur.so });
     reload();
   };
 
