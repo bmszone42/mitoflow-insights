@@ -170,7 +170,7 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
           ownAc={ownAc}
         />
       </Suspense>
-      <p className="text-xs text-muted-foreground">Both fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops. The dashed horizontal line is your pasted number and each dot is that fit's strength, green inside your picked band and red outside it.</p>
+      <p className="text-xs text-muted-foreground">All fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops, and the dotted line is your own measurement at the defence level you enter. The dashed horizontal line is your pasted number and each dot is that fit's strength, green inside your picked band and red outside it.</p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}
       <p className="text-xs text-muted-foreground">The saved default lives in this browser only and changes what the Simulator starts at; it does not re-run or change anything already in the Progress log. The code default stays 1.0x until you send me the number, so I can update the label and the reference score too.</p>
     </section>
