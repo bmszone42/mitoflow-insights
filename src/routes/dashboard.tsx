@@ -7,7 +7,7 @@ import { demoPatients, lpMapping, patientSex, h2o2BandCheck, projectedH2o2, proj
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, bestProjectionTherapy, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
-import { useProfileRirr, useSavedRirr } from "@/lib/mito/rirrDefault";
+import { useSavedRirr } from "@/lib/mito/rirrDefault";
 import { ProfileStrengthEditor } from "@/components/mito/ProfileStrengthEditor";
 import { recordRun } from "@/lib/mito/runs";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
@@ -55,8 +55,7 @@ function Dashboard() {
   const users = useUserPatients();
   // Saved recalibrated strength; applied after mount so every page agrees.
   const rirr = useSavedRirr();
-  // Per-profile strength overrides; bump re-runs the profile simulations.
-  const [, setProfileOverride] = useProfileRirr();
+  // Bump re-runs the profile simulations after a per-profile strength change.
   const [strengthEpoch, setStrengthEpoch] = useState(0);
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
