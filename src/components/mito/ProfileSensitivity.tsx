@@ -49,6 +49,7 @@ function TuneAndSave({ patient, geo, healthy }: { patient: DemoPatient; geo: Geo
     await putScenario({
       id: crypto.randomUUID(), name: n,
       notes: `Tuned from ${patient.label} on the Profile sensitivity card. ROS-induced strength ${vals.rirrStrength.toFixed(2)}x (${strengthLabel}). ROS-induced ROS release strength is partly published (fitted to Melov 1999).`,
+      strengthSource: strengthLabel,
       inputs, geometry: geo,
       snapshot: { atpFlux: o.atpFlux, superoxide: o.superoxide, hydrogenPeroxide: o.hydrogenPeroxide, fesIntact: o.fesIntact, freeIron: o.freeIron },
       createdAt: now, updatedAt: now,
