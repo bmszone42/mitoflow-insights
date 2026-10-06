@@ -1,3 +1,10 @@
+## Timeline snap strip (2026-10-06)
+
+- Timeline gap chart now plots scheduled snaps from the Snap plan page as a date strip below the chart: green dot when the planned target strength sits inside the saved band, red when outside, band shaded behind. Only planned snaps show; done and skipped stay in history.
+- Reads useSnapPlan from src/lib/mito/snapPlan.ts and the shared band from rangeState.ts, so it follows the Progress range sliders and saved band.
+- Verified live: seeded snaps at 0.75x (green, in band) and 1.30x (red, outside) render with correct colors; a done snap is excluded.
+- Pending: Williams 1998 aconitase number; user's real therapy measurements.
+
 ## Timeline pair gap (2026-10-06)
 
 - Timeline gap chart draws a dashed Combined therapies gap line for visits with two or more therapies, plus a shaded corridor strip spanning the pair's combined defences-only gap at the low and high ends of the saved strength band.
