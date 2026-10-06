@@ -54,7 +54,7 @@ export function RunHistoryChart({ runs, range }: { runs: RunRecord[]; range?: { 
         <ComposedChart margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
           <XAxis dataKey="t" type="number" domain={[t0 - pad, t1 + pad]} tickFormatter={fmtTime} tick={{ fontSize: 11 }} />
-          <YAxis domain={[-yMax, yMax]} tick={{ fontSize: 11 }} label={{ value: "Superoxide change (%)", angle: -90, position: "insideLeft", fontSize: 11 }} />
+          <YAxis domain={[-2 * yStep, 2 * yStep]} ticks={yTicks} tick={{ fontSize: 11 }} label={{ value: "Superoxide change (%)", angle: -90, position: "insideLeft", fontSize: 11 }} />
           <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeOpacity={0.6} />
           {range && (
             <ReferenceArea
