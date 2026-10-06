@@ -90,6 +90,34 @@ function StrengthPlan() {
     return { tA, tB, cur, lo: low, hi: high, robust: low.so < 0 && high.so < 0 };
   }, [base, strength, lo, hi, pairA, pairB]);
 
+  type PairBest = { doseA: number; doseB: number; so: number; gap: number };
+  type TopPair = { tA: (typeof therapies)[number]; tB: (typeof therapies)[number]; cur: PairBest; low: PairBest; high: PairBest; robust: boolean };
+  const topPairs: TopPair[] = useMemo(() => {
+    const bestAt = (tA: (typeof therapies)[number], tB: (typeof therapies)[number], s: number): PairBest => {
+      const b = { ...base, rirrStrength: s };
+      const s0 = metrics(b).superoxide;
+      let best = { doseA: 0, doseB: 0, so: 0, gap: defencesGapFromInputs(b) };
+      for (const dA of DOSES) for (const dB of DOSES) {
+        const inp = applyTherapyDose(applyTherapyDose(b, tA, dA), tB, dB);
+        const so = s0 ? (metrics(inp).superoxide / s0 - 1) * 100 : 0;
+        if (so < best.so) best = { doseA: dA, doseB: dB, so, gap: defencesGapFromInputs(inp) };
+      }
+      return best;
+    };
+    const scored: { tA: TopPair["tA"]; tB: TopPair["tB"]; cur: PairBest }[] = [];
+    for (let i = 0; i < therapies.length; i++) for (let j = i + 1; j < therapies.length; j++) {
+      const tA = therapies[i]!, tB = therapies[j]!;
+      const cur = bestAt(tA, tB, strength);
+      if (cur.doseA === 0 && cur.doseB === 0) continue;
+      scored.push({ tA, tB, cur });
+    }
+    scored.sort((a, b) => a.cur.so - b.cur.so);
+    return scored.slice(0, 3).map((r) => {
+      const low = bestAt(r.tA, r.tB, lo), high = bestAt(r.tA, r.tB, hi);
+      return { ...r, low, high, robust: low.so < 0 && high.so < 0 };
+    });
+  }, [base, strength, lo, hi]);
+
   const logTop = async () => {
     const top = rows.find((r) => r.dose > 0);
     if (!top) return;
@@ -100,6 +128,12 @@ function StrengthPlan() {
   const logPair = async () => {
     if (!pair || pair.cur.doseA === 0) return;
     await recordRun(p.id, "plan", pair.cur.doseA, [pair.tA.id, pair.tB.id], strength, { realDose: `${pair.tA.clinicalDose} + ${pair.tB.clinicalDose}`, soChangePct: pair.cur.so });
+    reload();
+  };
+
+  const logPairRank = async (r: TopPair) => {
+    if (r.cur.doseA === 0 && r.cur.doseB === 0) return;
+    await recordRun(p.id, "plan", Math.max(r.cur.doseA, r.cur.doseB), [r.tA.id, r.tB.id], strength, { realDose: `${r.tA.clinicalDose} + ${r.tB.clinicalDose}`, soChangePct: r.cur.so });
     reload();
   };
 
@@ -143,6 +177,35 @@ function StrengthPlan() {
           </tbody>
         </table>
         <p className="p-2 text-xs text-muted-foreground">Ranked: therapies that lower superoxide at both band edges first, then by superoxide drop at the current strength. Edge columns use the same best dose search.</p>
+      </section>
+
+      <section className="space-y-3 rounded-lg border p-4" data-testid="top-pairs-section">
+        <h2 className="font-medium">Top 3 pairs</h2>
+        <p className="text-xs text-muted-foreground">The model searches every pair of therapies together and ranks the three that lower superoxide most at the current strength, then re-checks each at both band edges. A pair can be a single therapy at its best dose plus no benefit from the other. Combined effects are a model estimate, not a studied combination.</p>
+        {topPairs.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No pair of therapies lowers superoxide at this profile's current strength.</p>
+        ) : (
+          <table className="w-full text-sm" data-testid="top-pairs-table">
+            <thead className="bg-muted/50 text-left">
+              <tr><th className="p-2">Rank</th><th className="p-2">Combination</th><th className="p-2">Best doses</th><th className="p-2">Superoxide now</th><th className="p-2">At {lo.toFixed(2)}x</th><th className="p-2">At {hi.toFixed(2)}x</th><th className="p-2">Combined gap</th><th className="p-2">Holds across band</th><th className="p-2"></th></tr>
+            </thead>
+            <tbody>
+              {topPairs.map((r, i) => (
+                <tr key={`${r.tA.id}-${r.tB.id}`} className="border-t" data-testid={`top-pair-${i + 1}`}>
+                  <td className="p-2">#{i + 1}</td>
+                  <td className="p-2">{r.tA.name} + {r.tB.name}</td>
+                  <td className="p-2">{r.cur.doseA}x + {r.cur.doseB}x</td>
+                  <td className={`p-2 ${r.cur.so < 0 ? "text-primary" : "text-destructive"}`}>{pct(r.cur.so)}</td>
+                  <td className="p-2">{pct(r.low.so)}</td>
+                  <td className="p-2">{pct(r.high.so)}</td>
+                  <td className="p-2" data-testid={`top-pair-${i + 1}-gap`}>{pct(r.cur.gap)}</td>
+                  <td className={`p-2 ${r.robust ? "text-primary" : "text-muted-foreground"}`}>{r.robust ? "yes" : "no"}</td>
+                  <td className="p-2"><Button size="sm" onClick={() => logPairRank(r)} data-testid={`top-pair-${i + 1}-log`}>Log</Button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </section>
 
       <section className="space-y-3 rounded-lg border p-4" data-testid="pair-section">
