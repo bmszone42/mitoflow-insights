@@ -1,3 +1,8 @@
+## Scenario compare table: strength band row coloring (2026-10-06) ✅
+- ✅ ScenarioCompareTable.tsx now reads the shared saved range (rangeState) and tints every row green when the strength it was run at sits inside the band, red when outside, matching the Strength history chart dots: left edge accent plus a light tint, and the strength cell text follows the same color.
+- ✅ Each row is judged by the strength it actually ran at: scenarios use their own saved rirrStrength (legacy scenarios fall back to the assumed 0.5x), the reference row uses the profile's inputs, the healthy row uses model defaults (1x); the strength cells now show that value.
+- ✅ A count line above the table reads "N of M scenarios inside the band (lo-hi), K outside" and follows the strength-source filter; the footnote states the rule.
+
 ## Timeline therapy-strength chart: saved range band (2026-10-06) ✅
 - ✅ TimelineGapChart.tsx now draws the saved strength range as a shaded band behind the per-therapy strength lines on the right-hand 0-2x axis, labeled "range lo-hi", moving live with the Progress range sliders via the shared rangeState store.
 - ✅ Verified live: band rect and label render on the Timeline chart with the default 0.50x-1.00x range.
