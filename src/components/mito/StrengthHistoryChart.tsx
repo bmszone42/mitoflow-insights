@@ -41,14 +41,9 @@ export function StrengthHistoryChart({ rows }: { rows: StrengthHistoryEntry[] })
     profile: r.kind === "profile-set" ? r.strength : undefined,
     batch: r.kind === "batch-run" ? r.strength : undefined,
   }));
-  // Cleared-default events sit between saved ones; they break the line by
-  // having default undefined, so give them a null row marker at y undefined.
-  for (const r of rows) {
-    if (r.kind === "default-cleared") {
-      data.push({ t: new Date(r.at).getTime(), label: r.at, kind: r.kind, detail: r.detail, default: undefined, profile: undefined, batch: undefined });
-    }
-  }
-  data.sort((a, b) => a.t - b.t);
+  // Cleared-default events have no strength, so they fall out of the data and
+  // the default line simply breaks there (connectNulls={false}).
+
 
   const fmtTime = (t: number) => new Date(t).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
