@@ -40,6 +40,8 @@ export function RunHistoryChart({ runs, range }: { runs: RunRecord[]; range?: { 
   const fmtTime = (t: number) => new Date(t).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
   const yMax = Math.max(5, ...plotted.map((d) => Math.abs(d.so))) * 1.15;
+  const yStep = Math.ceil(yMax / 2);
+  const yTicks = [-2 * yStep, -yStep, 0, yStep, 2 * yStep];
 
   return (
     <div className="h-64 w-full" data-testid="run-history-chart">
