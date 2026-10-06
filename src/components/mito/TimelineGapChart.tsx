@@ -24,7 +24,7 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
     data.forEach((r, i) => { if (r[t.id as keyof typeof r] != null) last = i; });
     return [t.id, last] as const;
   }));
-  const endLabel = (t: (typeof used)[number], i: number) => (props: { x?: number | string; y?: number | string; index?: number }) => {
+  const endLabel = (t: (typeof used)[number], i: number) => (props: { x?: number | string | undefined; y?: number | string | undefined; index?: number | undefined }) => {
     if (props.index !== lastIdx.get(t.id)) return null;
     return (
       <text x={Number(props.x) + 6} y={Number(props.y)} fontSize={10} fill={lineColor(i)} dominantBaseline="middle">
