@@ -55,7 +55,7 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           <YAxis yAxisId="str" orientation="right" domain={[0, 2]} tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v: number) => `${v}x`} />
           <Tooltip
             content={<GapTooltip />}
-            formatter={(v: number | (number | null)[] | null, name: string) => {
+            formatter={(v: number | null, name: string) => {
               const n = v ?? 0;
               return used.some((t) => t.name === name) ? [`${n.toFixed(2)}x`, name] : [`${n > 0 ? "+" : ""}${n.toFixed(1)}%`, name];
             }}
