@@ -148,7 +148,12 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
         )}
       </p>
       <Suspense fallback={<div className="h-56 w-full animate-pulse rounded bg-muted" />}>
-        <RecalibrateCurve ac={ac} williamsAc={williamsCapacity(sod, gsh, wRaw)} target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
+        <RecalibrateCurve
+          target={valid ? target : null}
+          melovFitted={fitMelov && !fitMelov.clamped ? fitMelov.s : null}
+          williamsFitted={fitWilliams && !fitWilliams.clamped ? fitWilliams.s : null}
+          williamsAc={williamsAc}
+        />
       </Suspense>
       <p className="text-xs text-muted-foreground">Both fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops. The dashed horizontal line is your pasted number and each dot is that fit's strength, green inside your picked band and red outside it.</p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}
