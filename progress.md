@@ -440,3 +440,4 @@
 - ✅ Each dot is green when the run's ROS-induced strength sat inside the saved range band, red when outside or when no strength was noted; reads the shared range state so it follows the Progress sliders live.
 - ✅ Count line above the chart: "N of M runs inside the band (lo-hi), K outside or with no strength noted."
 - ✅ Verified live with seeded runs: 2 of 3 inside the 0.50x-1.00x band, correct green/red dots, clean axis ticks.
+- ✅ Strength plan: "Add #1 pair to Snap plan" schedules a snap today to the band edge where the top pair works best

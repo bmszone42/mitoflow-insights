@@ -6,6 +6,7 @@ import { defencesGapFromInputs } from "@/lib/mito/scenarios";
 import { useStrengthRange } from "@/lib/mito/rangeState";
 import { useProfileRirr, useSavedRirr, strengthHistory, RIRR_HISTORY_EVENT, type StrengthHistoryEntry } from "@/lib/mito/rirrDefault";
 import { listRuns, recordRun, type RunRecord } from "@/lib/mito/runs";
+import { addSnaps, todayStr } from "@/lib/mito/snapPlan";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/strength-plan")({
@@ -144,6 +145,17 @@ function StrengthPlan() {
     reload();
   };
 
+  // Schedules a snap for today to the band edge where the #1 pair works best,
+  // so the target always sits inside the band. Applies only on confirm at /snap-plan.
+  const [snapMsg, setSnapMsg] = useState("");
+  const addTopToSnap = () => {
+    const r = topPairs[0];
+    if (!r) return;
+    const to = r.low.so <= r.high.so ? lo : hi;
+    addSnaps([{ profileId: p.id, label: `${p.label} (pair: ${r.tA.name} + ${r.tB.name})`, from: strength, to, date: todayStr() }]);
+    setSnapMsg(`Scheduled ${p.id.replace("demo-", "Demo ")} ${strength.toFixed(2)}x to ${to.toFixed(2)}x today, where ${r.tA.name} + ${r.tB.name} gives ${pct(to === lo ? r.low.so : r.high.so)}.`);
+  };
+
   return (
     <main className="mx-auto max-w-6xl space-y-6 p-6">
       <header className="space-y-2">
@@ -188,7 +200,11 @@ function StrengthPlan() {
       </section>
 
       <section className="space-y-3 rounded-lg border p-4" data-testid="top-pairs-section">
-        <h2 className="font-medium">Top 3 pairs</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-medium">Top 3 pairs</h2>
+          <Button size="sm" variant="outline" disabled={!topPairs[0]} onClick={addTopToSnap} data-testid="top-pair-snap">Add #1 pair to Snap plan</Button>
+        </div>
+        {snapMsg && <p className="text-xs text-primary" data-testid="top-pair-snap-msg">{snapMsg} <Link to="/snap-plan" className="underline">Open Snap plan</Link></p>}
         <p className="text-xs text-muted-foreground">The model searches every pair of therapies together at your current strength and at both band edges, then ranks the three that hold across your whole range first: pairs that still lower superoxide at both edges outrank the rest, ordered by their worst edge result. A pair can be a single therapy at its best dose plus no benefit from the other. Combined effects are a model estimate, not a studied combination.</p>
         {topPairs.length === 0 ? (
           <p className="text-sm text-muted-foreground">No pair of therapies lowers superoxide at this profile's current strength.</p>
