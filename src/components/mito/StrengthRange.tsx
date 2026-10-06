@@ -13,7 +13,7 @@ export function StrengthRange({ pool }: { pool: DemoPatient[] }) {
   const [lo, setLo] = useState(0.5);
   const [hi, setHi] = useState(1.0);
 
-  const effective = (id: string) => overrides[id] ?? saved ?? savedRirrStrength() ?? DEFAULT_RIRR_STRENGTH * 2; // 1.0x model default
+  const effective = (id: string) => overrides[id] ?? saved ?? savedRirrStrength() ?? MODEL_DEFAULT;
   const source = (id: string) => (overrides[id] != null ? "profile's own" : saved != null ? "saved default" : "model default");
 
   const rows = pool.map((p) => {
