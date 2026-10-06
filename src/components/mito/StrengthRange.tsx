@@ -20,6 +20,10 @@ export function StrengthRange({ pool, onRan }: { pool: DemoPatient[]; onRan?: ()
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [{ lo, hi }, setRange] = useStrengthRange();
+  // Preview of the pending snap (which profiles move, and to what), and the
+  // previous overrides kept after a snap so it can be undone.
+  const [preview, setPreview] = useState<{ id: string; label: string; from: number; to: number }[] | null>(null);
+  const [lastSnap, setLastSnap] = useState<Record<string, number | null> | null>(null);
 
   const effective = (id: string) => overrides[id] ?? saved ?? savedRirrStrength() ?? MODEL_DEFAULT;
   const source = (id: string) => (overrides[id] != null ? "profile's own" : saved != null ? "saved default" : "model default");
@@ -31,19 +35,34 @@ export function StrengthRange({ pool, onRan }: { pool: DemoPatient[]; onRan?: ()
   const inCount = rows.filter((r) => r.inside).length;
   const outside = rows.filter((r) => !r.inside);
 
+  const snapTarget = (s: number) => (Math.abs(s - lo) <= Math.abs(s - hi) ? lo : hi);
+
+  // First click only previews: list each outside profile with its current
+  // effective strength and the edge it would snap to. Confirm applies it.
+  function previewSnap() {
+    setPreview(outside.map((r) => ({ id: r.p.id, label: r.p.label, from: r.s, to: snapTarget(r.s) })));
+    setMsg(null);
+  }
+
   // Snap every outside profile to its nearest range edge (saved as the
   // profile's own strength), then clear the run log and re-run all profiles at
   // their effective strengths so the history and Progress grid reflect it.
   async function snapAndRerun() {
-    if (!window.confirm(`Set ${outside.length} outside profile(s) to the nearest edge of ${lo.toFixed(2)}x to ${hi.toFixed(2)}x, then clear the run log and re-run all ${pool.length} profiles at their own strengths?`)) return;
+    if (!preview) return;
     setBusy(true);
     setMsg(null);
+    // Keep each moving profile's previous override (null = followed default)
+    // so Undo can restore exactly what was there before.
+    const prev: Record<string, number | null> = {};
+    for (const m of preview) prev[m.id] = overrides[m.id] ?? null;
     const eff: Record<string, number> = {};
     for (const r of rows) {
-      const v = r.inside ? r.s : Math.abs(r.s - lo) <= Math.abs(r.s - hi) ? lo : hi;
+      const v = r.inside ? r.s : snapTarget(r.s);
       if (!r.inside) setOverride(r.p.id, v);
       eff[r.p.id] = v;
     }
+    setLastSnap(prev);
+    setPreview(null);
     await clearRuns();
     let n = 0;
     for (const p of pool) {
@@ -56,10 +75,20 @@ export function StrengthRange({ pool, onRan }: { pool: DemoPatient[]; onRan?: ()
       }
       setMsg(`Re-running: ${p.label} (${n} runs)...`);
     }
-    logStrength("batch-run", null, `Snap to range ${lo.toFixed(2)}x-${hi.toFixed(2)}x and re-run all ${pool.length} profiles (${outside.length} snapped, ${n} runs)`);
-    setMsg(`Snapped ${outside.length} profile(s) to the range edges and re-ran all ${pool.length} profiles: ${n} runs logged.`);
+    logStrength("batch-run", null, `Snap to range ${lo.toFixed(2)}x-${hi.toFixed(2)}x and re-run all ${pool.length} profiles (${preview.length} snapped, ${n} runs)`);
+    setMsg(`Snapped ${preview.length} profile(s) to the range edges and re-ran all ${pool.length} profiles: ${n} runs logged.`);
     setBusy(false);
     onRan?.();
+  }
+
+  // Restore the overrides as they were before the last snap. The Progress
+  // grid is not rebuilt here; use Clear log and re-run to match it again.
+  function undoSnap() {
+    if (!lastSnap) return;
+    for (const [id, v] of Object.entries(lastSnap)) setOverride(id, v);
+    logStrength("batch-run", null, `Undo snap: restored ${Object.keys(lastSnap).length} profile strength(s) to pre-snap values`);
+    setLastSnap(null);
+    setMsg(`Undid the snap for ${Object.keys(lastSnap).length} profile(s). Re-run the batch to rebuild the Progress grid at the restored strengths.`);
   }
 
   return (
