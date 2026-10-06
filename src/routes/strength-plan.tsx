@@ -145,6 +145,44 @@ function StrengthPlan() {
         <p className="p-2 text-xs text-muted-foreground">Ranked: therapies that lower superoxide at both band edges first, then by superoxide drop at the current strength. Edge columns use the same best dose search.</p>
       </section>
 
+      <section className="space-y-3 rounded-lg border p-4" data-testid="pair-section">
+        <h2 className="font-medium">Try two together</h2>
+        <p className="text-xs text-muted-foreground">Pick two therapies; the model searches both dose sliders together and shows the combined superoxide change and defences-only gap. Combined effects are a model estimate, not a studied combination.</p>
+        <div className="flex flex-wrap items-end gap-4">
+          <label className="text-sm">Therapy A
+            <select className="ml-2 rounded border bg-background px-2 py-1" value={pairA} onChange={(e) => setPairA(e.target.value)} data-testid="pair-a">
+              {therapies.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </label>
+          <label className="text-sm">Therapy B
+            <select className="ml-2 rounded border bg-background px-2 py-1" value={pairB} onChange={(e) => setPairB(e.target.value)} data-testid="pair-b">
+              {therapies.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </label>
+          {pair && <Button size="sm" onClick={logPair} data-testid="pair-log">Log this pair</Button>}
+        </div>
+        {pair === null ? (
+          <p className="text-sm text-muted-foreground">Pick two different therapies to see the combined effect.</p>
+        ) : (
+          <table className="w-full text-sm" data-testid="pair-table">
+            <thead className="bg-muted/50 text-left">
+              <tr><th className="p-2">Combination</th><th className="p-2">Best doses</th><th className="p-2">Superoxide now</th><th className="p-2">At {lo.toFixed(2)}x</th><th className="p-2">At {hi.toFixed(2)}x</th><th className="p-2">Combined gap</th><th className="p-2">Holds across band</th></tr>
+            </thead>
+            <tbody>
+              <tr className="border-t">
+                <td className="p-2">{pair.tA.name} + {pair.tB.name}</td>
+                <td className="p-2">{pair.cur.doseA}x + {pair.cur.doseB}x</td>
+                <td className={`p-2 ${pair.cur.so < 0 ? "text-primary" : "text-destructive"}`}>{pct(pair.cur.so)}</td>
+                <td className="p-2">{pct(pair.lo.so)}</td>
+                <td className="p-2">{pct(pair.hi.so)}</td>
+                <td className="p-2" data-testid="pair-gap">{pct(pair.cur.gap)}</td>
+                <td className={`p-2 ${pair.robust ? "text-primary" : "text-muted-foreground"}`}>{pair.robust ? "yes" : "no"}</td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+      </section>
+
       <section className="grid gap-4 md:grid-cols-2">
         <div className="rounded-lg border p-4">
           <h2 className="mb-2 font-medium">Logged progress for this profile</h2>
