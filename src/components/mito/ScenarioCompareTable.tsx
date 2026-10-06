@@ -57,16 +57,22 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
   // (newest at the top). Ties keep the saved order; healthy and reference rows
   // stay pinned above.
   const [sortKey, setSortKey] = useState<"gap" | "superoxide" | "updated">("gap");
+  const [sourceFilter, setSourceFilter] = useState<"all" | "default" | "profile">("all");
   const sortedItems = useMemo(
     () =>
       items
+        .filter((s) => {
+          if (sourceFilter === "all") return true;
+          const src = scenarioStrengthSource(s).toLowerCase();
+          return sourceFilter === "default" ? src.includes("saved default") : src.includes("profile's own");
+        })
         .map((s) => ({ s, gap: defencesGap(s), so: simulate(s.inputs, scenarioGeometry(s)).superoxide }))
         .sort((a, b) =>
           sortKey === "gap" ? b.gap - a.gap : sortKey === "superoxide" ? b.so - a.so : b.s.updatedAt - a.s.updatedAt
         )
         .map((r) => r.s),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [items, sortKey]
+    [items, sortKey, sourceFilter]
   );
 
   // CSV mirrors the table above and carries the same fields as the JSON export
@@ -124,6 +130,29 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
             onClick={() => setSortKey(o.key)}
             className={`rounded-full border px-2 py-0.5 transition-colors ${
               sortKey === o.key
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+        <span className="ml-3">Strength source</span>
+        {(
+          [
+            { key: "all", label: "All" },
+            { key: "default", label: "Saved default" },
+            { key: "profile", label: "Profile's own" },
+          ] as const
+        ).map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            data-testid={`spc-src-${o.key}`}
+            aria-pressed={sourceFilter === o.key}
+            onClick={() => setSourceFilter(o.key)}
+            className={`rounded-full border px-2 py-0.5 transition-colors ${
+              sourceFilter === o.key
                 ? "border-primary bg-primary/10 text-foreground"
                 : "border-border text-muted-foreground hover:text-foreground"
             }`}

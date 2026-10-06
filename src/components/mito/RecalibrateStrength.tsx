@@ -24,9 +24,10 @@ export function aconitasePct(s: number, ac: number = WEAK_AC) {
 // Bisection: aconitase % falls monotonically as strength rises.
 // Williams 1998 Sod2+/- drops: MnSOD activity -50%, glutathione -30% (abstract).
 // ASSUMED mapping: antioxidant capacity = healthy x (1 - mean of the two drops),
-// SOD and glutathione weighted equally. 50% and 30% give 0.6x.
-export function williamsCapacity(sodDrop: number, gshDrop: number) {
-  const c = defaultInputs.antioxidantCapacity * (1 - (sodDrop + gshDrop) / 200);
+// sodWeight (0-100%) sets SOD's share; default 50 = equal weight. 50% and 30% give 0.6x.
+export function williamsCapacity(sodDrop: number, gshDrop: number, sodWeight = 50) {
+  const w = Math.min(100, Math.max(0, sodWeight)) / 100;
+  const c = defaultInputs.antioxidantCapacity * (1 - (w * sodDrop + (1 - w) * gshDrop) / 100);
   return Math.max(0.05, Math.round(c * 100) / 100);
 }
 
@@ -56,7 +57,8 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
   const [gshRaw, setGshRaw] = useState("30");
   const sod = Math.min(100, Math.max(0, Number(sodRaw) || 0));
   const gsh = Math.min(100, Math.max(0, Number(gshRaw) || 0));
-  const ac = anchor === "williams" ? williamsCapacity(sod, gsh) : WEAK_AC;
+  const [wRaw, setWRaw] = useState(50);
+  const ac = anchor === "williams" ? williamsCapacity(sod, gsh, wRaw) : WEAK_AC;
   const fit = useMemo(() => (valid ? fitStrength(target, ac) : null), [valid, target, ac]);
   const current = useMemo(() => aconitasePct(defaultInputs.rirrStrength), []);
 
@@ -103,7 +105,8 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
           <span className="flex flex-wrap items-center gap-2">
             <label className="flex items-center gap-1">SOD drop %<input data-testid="recal-sod" inputMode="decimal" className="w-14 rounded border border-input bg-background px-1 py-0.5" value={sodRaw} onChange={(e) => setSodRaw(e.target.value)} /></label>
             <label className="flex items-center gap-1">Glutathione drop %<input data-testid="recal-gsh" inputMode="decimal" className="w-14 rounded border border-input bg-background px-1 py-0.5" value={gshRaw} onChange={(e) => setGshRaw(e.target.value)} /></label>
-            <span data-testid="recal-ac">Defences: <strong>{ac}x</strong> (ASSUMED: healthy x (1 minus the mean drop))</span>
+            <label className="flex items-center gap-1">SOD weight<input data-testid="recal-weight" type="range" min={0} max={100} step={5} value={wRaw} onChange={(e) => setWRaw(Number(e.target.value))} /><span>{wRaw}% SOD / {100 - wRaw}% GSH</span></label>
+            <span data-testid="recal-ac">Defences: <strong>{ac}x</strong> (ASSUMED: healthy x (1 minus the weighted drop))</span>
           </span>
         )}
       </div>
@@ -141,7 +144,7 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
         )}
       </p>
       <Suspense fallback={<div className="h-56 w-full animate-pulse rounded bg-muted" />}>
-        <RecalibrateCurve ac={ac} williamsAc={williamsCapacity(sod, gsh)} target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
+        <RecalibrateCurve ac={ac} williamsAc={williamsCapacity(sod, gsh, wRaw)} target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
       </Suspense>
       <p className="text-xs text-muted-foreground">Both fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops. The dashed horizontal line is your pasted number and the dot is the fitted strength on the selected anchor.</p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}
