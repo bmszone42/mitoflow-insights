@@ -353,3 +353,8 @@
 - ✅ RecalibrateCurve.tsx draws the same picked range as a vertical shaded band (shared range state, moves live with the sliders), labeled "range lo-hi".
 - ✅ The fitted-strength dot now colors green inside the band and red outside it; no target entered yet leaves the dot hidden as before.
 - ✅ Verified live on /runs with a 0.70x-1.00x band: band renders between the curves with its label, no page errors; build clean.
+
+## Snap preview and undo on Strength range (2026-10-06) ✅
+- ✅ StrengthRange.tsx: the snap button now opens a preview table first, listing each outside profile with its current effective strength and the edge it will move to; Confirm applies the snap and re-runs all 18 profiles, Cancel dismisses.
+- ✅ After a snap, an Undo button restores each moved profile's previous override (including "follow default" for profiles that had none) and logs the undo to Strength history. The Progress grid is not rebuilt on undo; the message says to re-run the batch.
+- ✅ Verified live: Demo 10 at 0.20x with a 0.90x-1.10x band previewed as 0.20x -> 0.90x, confirm snapped it and logged 2880 runs, undo restored 0.20x; build clean.
