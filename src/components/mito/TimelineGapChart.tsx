@@ -1,5 +1,6 @@
-import { Bar, CartesianGrid, Cell, ComposedChart, Legend, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, CartesianGrid, Cell, ComposedChart, Legend, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { therapies } from "@/lib/mito/treatment";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 
 export type GapRow = { date: string; so: number; atp: number; fe: number; doses: Record<string, number> };
 
@@ -11,6 +12,7 @@ const color = (metric: "so" | "atp" | "fe", v: number) => (bad(metric, v) ? "var
 const lineColor = (i: number) => `var(--chart-${(i % 5) + 1})`;
 
 export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
+  const [range] = useStrengthRange();
   const sorted = [...rows].sort((a, b) => b.so - a.so);
   // One line per therapy that appears in any visit; null where not given so the line breaks.
   const used = therapies.filter((t) => sorted.some((r) => r.doses[t.id] != null));
@@ -46,6 +48,19 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           <ReferenceLine yAxisId="gap" y={0} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
+          {range && (
+            <ReferenceArea
+              yAxisId="str"
+              y1={range.lo}
+              y2={range.hi}
+              fill="var(--primary)"
+              fillOpacity={0.14}
+              stroke="var(--primary)"
+              strokeOpacity={0.35}
+              strokeDasharray="4 4"
+              label={{ value: `range ${range.lo.toFixed(2)}x-${range.hi.toFixed(2)}x`, position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }}
+            />
+          )}
           <Bar yAxisId="gap" dataKey="so" name="Superoxide gap">
             {data.map((r, i) => <Cell key={i} fill={color("so", r.so)} />)}
           </Bar>

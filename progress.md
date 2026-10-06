@@ -1,3 +1,7 @@
+## Timeline therapy-strength chart: saved range band (2026-10-06) ✅
+- ✅ TimelineGapChart.tsx now draws the saved strength range as a shaded band behind the per-therapy strength lines on the right-hand 0-2x axis, labeled "range lo-hi", moving live with the Progress range sliders via the shared rangeState store.
+- ✅ Verified live: band rect and label render on the Timeline chart with the default 0.50x-1.00x range.
+
 ## Diagnosis therapy picker shows the model dose (2026-10-06) ✅
 - ✅ The Therapy picker beside Projected flags on the Diagnosis page now suffixes every option with the chosen Model dose, e.g. "Mitochondrial antioxidant support 1.5x", and the "Strongest therapy" option reads "Strongest therapy 1.5x", matching the Dashboard therapy chart's picker labels.
 - ✅ The picker's max width grew to 220px so the longer labels are not clipped.
