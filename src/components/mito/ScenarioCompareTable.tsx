@@ -1,7 +1,8 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { simulate, defaultInputs, defaultGeometry, type Inputs, type Outputs } from "@/lib/mito/model";
-import { defencesGapFromInputs, listScenarios, scenarioDefencesGap, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, scenarioStrengthSource, type Scenario } from "@/lib/mito/scenarios";
+import { defencesGapFromInputs, DEFAULT_RIRR_STRENGTH, listScenarios, scenarioDefencesGap, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, scenarioStrengthSource, type Scenario } from "@/lib/mito/scenarios";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 
 // The gap bar chart is lazy-loaded so recharts stays out of the Dashboard and
 // Diagnosis bundles, exactly like the other chart modules.
@@ -21,6 +22,22 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
   }, []);
 
   const healthyOut = useMemo(() => simulate(defaultInputs, defaultGeometry), []);
+
+  // Strength band shared with the Strength range check sliders, the Strength
+  // history chart and the Recalibrate curve: a row reads green when the
+  // strength it was run at sits inside the band and red when outside, the same
+  // rule that colors the history dots.
+  const [range] = useStrengthRange();
+  const rowStrength = (s: Scenario) => scenarioStrength(s) ?? DEFAULT_RIRR_STRENGTH;
+  const inBand = (v: number) => v >= range.lo && v <= range.hi;
+  const rowTone = (v: number) =>
+    inBand(v)
+      ? "border-l-2 border-l-primary bg-primary/5"
+      : "border-l-2 border-l-destructive bg-destructive/5";
+  const strengthTone = (v: number) => (inBand(v) ? "text-primary" : "text-destructive");
+  // The reference row is run from the profile's own inputs, which already carry
+  // its own or the saved default strength; the healthy row uses model defaults.
+  const referenceStrength = referenceInputs?.rirrStrength ?? defaultInputs.rirrStrength;
 
   // When the reference already IS the healthy adult, the extra row would duplicate it.
   const sameAsHealthy =
@@ -74,6 +91,8 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [items, sortKey, sourceFilter]
   );
+  // Counted over the rows actually shown, so the source filter changes it too.
+  const insideCount = sortedItems.filter((s) => inBand(rowStrength(s))).length;
 
   // CSV mirrors the table above and carries the same fields as the JSON export
   // summary (id, name, ROS-induced strength + whether it was noted, preset,
