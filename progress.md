@@ -2,6 +2,7 @@
 
 - ✅ Each top-three pair chart label has a Snap button scheduling the selected profile today at the pair's best-performing saved-band edge.
 - ✅ Uses the existing browser-local Snap plan, names the selected pair, and leaves strength unchanged until confirmation on Snap plan.
+- ✅ Verified all three buttons schedule distinct named pairs inside the band and read back on Snap plan without runtime errors; fixed scheduled-strip overlap with the pair chart.
 
 ## Timeline combined gap over time (2026-10-06)
 
