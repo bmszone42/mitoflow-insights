@@ -1,3 +1,10 @@
+## Paste-your-measurements panel (2026-10-06)
+
+- ✅ New "Paste your measurements" panel on the Progress page: one line per entry (date, therapy, dose x, aconitase %, MitoSOX, optional strength x), with a preview table that flags bad lines.
+- ✅ Applying adds each line as a real visit on the Timeline gap chart, logs it as a run, and moves the band sliders to the lowest and highest strengths in the data.
+- ✅ Strength per line: pasted value wins, otherwise fitted from the aconitase % at 0.6x defences (0.2x cannot reach mild readings and clamped them to 0x).
+- ✅ Verified live: two pasted lines fitted 0.90x-1.50x, both visits render on the Timeline gap chart, runs logged, no errors.
+
 ## Timeline pair Snap buttons (2026-10-06)
 
 - ✅ Each top-three pair chart label has a Snap button scheduling the selected profile today at the pair's best-performing saved-band edge.
