@@ -29,6 +29,10 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
       entries[`cor-lo-${t.id}`] = c ? c[0] : null;
       entries[`cor-span-${t.id}`] = c ? c[1] - c[0] : null;
     }
+    // Combined pair strip: the gap all the visit's therapies give together at
+    // the band's low and high strengths. Null on single-therapy visits.
+    entries["pcor-lo"] = r.pairCor ? r.pairCor[0] : null;
+    entries["pcor-span"] = r.pairCor ? r.pairCor[1] - r.pairCor[0] : null;
     return { ...r, ...entries };
   });
   // Last non-null point per therapy, where the line's name label is drawn.
