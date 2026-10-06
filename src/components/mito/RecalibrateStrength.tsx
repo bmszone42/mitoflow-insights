@@ -139,9 +139,9 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
         )}
       </p>
       <Suspense fallback={<div className="h-56 w-full animate-pulse rounded bg-muted" />}>
-        <RecalibrateCurve ac={ac} target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
+        <RecalibrateCurve ac={ac} williamsAc={williamsCapacity(sod, gsh)} target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
       </Suspense>
-      <p className="text-xs text-muted-foreground">The curve shows how the model's aconitase % falls as the strength rises; the dashed line is your pasted number and the dot is the fitted strength.</p>
+      <p className="text-xs text-muted-foreground">Both fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops. The dashed horizontal line is your pasted number and the dot is the fitted strength on the selected anchor.</p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}
       <p className="text-xs text-muted-foreground">The saved default lives in this browser only and changes what the Simulator starts at; it does not re-run or change anything already in the Progress log. The code default stays 1.0x until you send me the number, so I can update the label and the reference score too.</p>
     </section>

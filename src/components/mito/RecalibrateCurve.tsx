@@ -10,7 +10,7 @@ export function RecalibrateCurve({ target, fitted, ac, williamsAc }: { target: n
     const x = Math.round(s * 100) / 100;
     data.push({
       s: x,
-      melov: Math.round(aconitasePct(x, S_MIN === 0 ? 0.2 : 0.2) * 10) / 10,
+      melov: Math.round(aconitasePct(x, 0.2) * 10) / 10,
       williams: Math.round(aconitasePct(x, williamsAc) * 10) / 10,
     });
   }
