@@ -1,8 +1,11 @@
 // History of every ROS-induced strength value used in this browser, with dates,
 // so past runs can be compared. Reads localStorage after mount only.
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RIRR_HISTORY_EVENT, clearStrengthHistory, strengthHistory, type StrengthHistoryEntry } from "@/lib/mito/rirrDefault";
+
+const StrengthHistoryChart = lazy(() => import("./StrengthHistoryChart").then((m) => ({ default: m.StrengthHistoryChart })));
+
 
 const KIND_LABEL: Record<StrengthHistoryEntry["kind"], string> = {
   "default-saved": "Default saved",
@@ -44,6 +47,10 @@ export function StrengthHistory() {
       </div>
     </div>
     {rows.length === 0 ? <p className="text-sm text-muted-foreground">No strength changes logged yet.</p> : <>
+      <Suspense fallback={<div className="h-64 w-full animate-pulse rounded bg-muted" />}>
+        <StrengthHistoryChart rows={rows} />
+      </Suspense>
+
       <table className="w-full text-sm">
         <thead className="text-left text-muted-foreground"><tr><th className="py-1">Date</th><th>Event</th><th>Strength</th><th>Detail</th></tr></thead>
         <tbody>{shown.map((r, i) => <tr key={r.at + i} className="border-t border-border">
