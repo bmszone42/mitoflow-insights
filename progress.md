@@ -318,3 +318,7 @@
 - ✅ Strength history log on Progress (dates, events, CSV, clear)
 - ✅ Strength history time chart on Progress (step line for saved default with a gap where cleared, scatter marks for per-profile strengths and batch runs, 1x reference line; lazy-loaded)
 - ✅ Tuned scenarios saved from Profile sensitivity carry the profile's own strength (or saved default) and note its source
+
+## Dashboard therapy chart: dose in the therapy labels (2026-10-06) ✅
+- ✅ TherapyProfileChart.tsx therapy picker options now read "<therapy name> <dose>x" (e.g. "Iron chelation 1.5x"), following the Dashboard's Model dose picker.
+- ✅ Verified live: 15 options each carry the current dose, switching Model dose to 1.5x rewrites every label to 1.5x, no page errors.
