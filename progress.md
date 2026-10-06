@@ -348,3 +348,8 @@
 - ✅ StrengthHistoryChart.tsx: every dot (saved-default line dots, per-profile circles, batch-run triangles) is green inside the picked strength band and red outside it; colors follow the shared range state live.
 - ✅ Count line above the chart: "N of M history points inside the band (lo-hi), K outside"; each history entry counted once even when its default-line dot and profile dot overlap.
 - ✅ Verified live: seeded history with a 0.90x-1.10x band shows 1 of 4 inside; the 1.0x default dot is green, the 1.3x and 0.8x profile dots and the 0.7x batch triangle are red; build clean.
+
+## Recalibrate curve shows the strength band (2026-10-06) ✅
+- ✅ RecalibrateCurve.tsx draws the same picked range as a vertical shaded band (shared range state, moves live with the sliders), labeled "range lo-hi".
+- ✅ The fitted-strength dot now colors green inside the band and red outside it; no target entered yet leaves the dot hidden as before.
+- ✅ Verified live on /runs with a 0.70x-1.00x band: band renders between the curves with its label, no page errors; build clean.
