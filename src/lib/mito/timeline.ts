@@ -122,6 +122,33 @@ export function defencesOnlyGap(p: DemoPatient, v: Visit) {
 }
 
 /**
+ * Per-therapy gap corridor over a strength range: for each therapy on the
+ * visit, the defences-only gap that therapy alone would give at the low and
+ * high ends of the strength range (low first, high second, regardless of
+ * which is better). Lets charts shade the gap band the saved strength range
+ * covers, therapy by therapy. Other therapies on the visit are left out so
+ * each corridor is that therapy's own effect.
+ */
+export function therapyGapCorridor(p: DemoPatient, v: Visit, lo: number, hi: number): Record<string, [number, number]> {
+  const healthyInputs = profileInputs(demoPatients[0]);
+  const vi = profileInputs(visitProfile(p, v));
+  const matched = (deltaPsi: number, ac: number) =>
+    simulate({ ...healthyInputs, deltaPsi, antioxidantCapacity: ac }, defaultGeometry).superoxide;
+  const base = matched(vi.deltaPsi, healthyInputs.antioxidantCapacity);
+  const pct = (a: number) => (base === 0 ? 0 : ((a - base) / base) * 100);
+  const out: Record<string, [number, number]> = {};
+  for (const id of v.therapies) {
+    const t = therapies.find((x) => x.id === id);
+    if (!t) continue;
+    const at = (d: number) => { const ti = applyTherapyDose(vi, t, d); return matched(ti.deltaPsi, ti.antioxidantCapacity); };
+    const a = pct(at(lo));
+    const b = pct(at(hi));
+    out[id] = [Math.min(a, b), Math.max(a, b)];
+  }
+  return out;
+}
+
+/**
  * Heart check at a visit (Melov 1999 Sod2-null heart: complex I 59%, complex II
  * 24% of normal): the model's Fe-S intact % at the visit's own settings, flagged
  * when it falls inside that band. "after" applies the visit's therapies at their

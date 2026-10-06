@@ -1,8 +1,15 @@
-import { Bar, CartesianGrid, Cell, ComposedChart, Legend, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Fragment } from "react";
+import { Bar, CartesianGrid, Cell, ComposedChart, DefaultTooltipContent, Legend, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { therapies } from "@/lib/mito/treatment";
 import { useStrengthRange } from "@/lib/mito/rangeState";
 
-export type GapRow = { date: string; so: number; atp: number; fe: number; doses: Record<string, number> };
+export type GapRow = { date: string; so: number; atp: number; fe: number; doses: Record<string, number>; corridors?: Record<string, [number, number] | null> };
+
+// Tooltip content without the corridor plumbing rows (cor-lo / cor-span).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function GapTooltip(props: any) {
+  return <DefaultTooltipContent {...props} payload={(props.payload ?? []).filter((e: { dataKey?: unknown }) => !String(e.dataKey ?? "").startsWith("cor-"))} />;
+}
 
 // Per-visit gaps vs the healthy adult (model defaults), as %. Superoxide and
 // free iron are bad when above healthy; ATP is bad when below healthy.
@@ -16,10 +23,15 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
   const sorted = [...rows].sort((a, b) => b.so - a.so);
   // One line per therapy that appears in any visit; null where not given so the line breaks.
   const used = therapies.filter((t) => sorted.some((r) => r.doses[t.id] != null));
-  const data = sorted.map((r) => ({
-    ...r,
-    ...Object.fromEntries(used.map((t) => [t.id, r.doses[t.id] ?? null])),
-  }));
+  const data = sorted.map((r) => {
+    const entries: Record<string, number | null> = Object.fromEntries(used.map((t) => [t.id, r.doses[t.id] ?? null]));
+    for (const t of used) {
+      const c = r.corridors?.[`cor-${t.id}`];
+      entries[`cor-lo-${t.id}`] = c ? c[0] : null;
+      entries[`cor-span-${t.id}`] = c ? c[1] - c[0] : null;
+    }
+    return { ...r, ...entries };
+  });
   // Last non-null point per therapy, where the line's name label is drawn.
   const lastIdx = new Map(used.map((t) => {
     let last = -1;
@@ -43,7 +55,11 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           <YAxis yAxisId="gap" tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v: number) => `${v}%`} />
           <YAxis yAxisId="str" orientation="right" domain={[0, 2]} tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v: number) => `${v}x`} />
           <Tooltip
-            formatter={(v: number, name: string) => (used.some((t) => t.name === name) ? [`${v.toFixed(2)}x`, name] : [`${v > 0 ? "+" : ""}${v.toFixed(1)}%`, name])}
+            content={<GapTooltip />}
+            formatter={(v: number | (number | null)[] | null, name: string) => {
+              const n = v ?? 0;
+              return used.some((t) => t.name === name) ? [`${n.toFixed(2)}x`, name] : [`${n > 0 ? "+" : ""}${n.toFixed(1)}%`, name];
+            }}
             labelClassName="text-foreground"
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
@@ -70,6 +86,29 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           <Bar yAxisId="gap" dataKey="fe" name="Free iron gap">
             {data.map((r, i) => <Cell key={i} fill={color("fe", r.fe)} />)}
           </Bar>
+          {/* Gap corridor strips: per therapy, a strip from the defences-only gap
+              at the range's low strength to the gap at the high strength, so each
+              gap can be read against the saved band. Two stacked bars: the first
+              is transparent padding up to the low value, the second is the colored
+              span. Null where that therapy was not given. */}
+          {used.map((t, i) => (
+            <Fragment key={`cor-${t.id}`}>
+              <Bar yAxisId="gap" stackId={`cor-${t.id}`} dataKey={`cor-lo-${t.id}`} fill="transparent" stroke="none" isAnimationActive={false} legendType="none" />
+              <Bar
+                yAxisId="gap"
+                stackId={`cor-${t.id}`}
+                dataKey={`cor-span-${t.id}`}
+                name={`${t.name} gap in range`}
+                fill={lineColor(i)}
+                fillOpacity={0.22}
+                stroke={lineColor(i)}
+                strokeOpacity={0.5}
+                strokeDasharray="3 3"
+                isAnimationActive={false}
+                legendType="none"
+              />
+            </Fragment>
+          ))}
           {used.map((t, i) => (
             <Line key={t.id} yAxisId="str" type="monotone" dataKey={t.id} name={t.name} stroke={lineColor(i)} strokeWidth={2} dot={{ r: 3 }} label={{ content: endLabel(t, i) }} />
           ))}
