@@ -8,6 +8,11 @@
 - ✅ Import is unchanged: scenariosFromJson accepts any versioned payload plus the older flat array, so version 2 files still load.
 - ✅ Verified live: seeded a scenario, clicked Export JSON on the Simulator, read the file back (version 3, versionNote present, row gap +486.3%, reference gap +3.9%), and round-tripped it through the importer (1 scenario).
 
+## Recalibrate curve: saved range band and both fit dots (2026-10-06) ✅
+- ✅ The strength band from the range sliders is drawn behind both the Melov and Williams curves on the Recalibrate chart, and it moves live with the sliders.
+- ✅ Each fit gets its own dot where the pasted aconitase number crosses its curve: green inside the band, red outside, colored to match its curve (Melov solid, Williams dashed amber). A number the model cannot reach at that defence level shows "not reached by the model" in the readout instead of a dot.
+- ✅ A readout line above the chart states both fitted strengths and whether each is inside or outside the band, e.g. "Melov fit 0.67x, inside · Williams fit 1.31x, outside".
+
 ## Recalibrate: Williams SOD and glutathione anchor (2026-10-05) ✅
 - ✅ Anchor picker: weakest 0.2x (Melov method) or Williams-derived defences from SOD and glutathione drops (default 50/30 gives 0.6x, ASSUMED equal weighting)
 - ✅ Strength fitted from aconitase at the chosen defence level; curve follows the anchor
