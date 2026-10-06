@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { simulate, defaultInputs, defaultGeometry, type Inputs, type Outputs } from "@/lib/mito/model";
-import { defencesGapFromInputs, listScenarios, scenarioDefencesGap, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, type Scenario } from "@/lib/mito/scenarios";
+import { defencesGapFromInputs, listScenarios, scenarioDefencesGap, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, scenarioStrengthSource, type Scenario } from "@/lib/mito/scenarios";
 
 // The gap bar chart is lazy-loaded so recharts stays out of the Dashboard and
 // Diagnosis bundles, exactly like the other chart modules.
@@ -75,11 +75,11 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
   const downloadCsv = () => {
     const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
     const lines: string[] = [];
-    lines.push("Row type,Scenario,Superoxide (nM),Superoxide vs healthy (%),Superoxide vs profile (%),ATP (uM/s),ATP vs healthy (%),ATP vs profile (%),Free iron (uM),Free iron vs healthy (%),Free iron vs profile (%),Peroxide (nM),Peroxide vs healthy (%),Peroxide vs profile (%),Defences-only gap (%),ROS-induced strength,Strength noted,Preset,Scenario ID,Updated");
+    lines.push("Row type,Scenario,Superoxide (nM),Superoxide vs healthy (%),Superoxide vs profile (%),ATP (uM/s),ATP vs healthy (%),ATP vs profile (%),Free iron (uM),Free iron vs healthy (%),Free iron vs profile (%),Peroxide (nM),Peroxide vs healthy (%),Peroxide vs profile (%),Defences-only gap (%),ROS-induced strength,Strength noted,Strength source,Preset,Scenario ID,Updated");
     const pctOnly = (v: number, base: number) => (base === 0 ? "" : `${v >= base ? "+" : ""}${(((v - base) / base) * 100).toFixed(0)}%`);
     const row = (cells: (string | number)[]) => lines.push(cells.map((c) => esc(String(c))).join(","));
-    row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "0%", "model defaults", "", "", "", ""]);
-    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", referenceGap === null ? "" : gapText(referenceGap), "profile settings", "", "", "", ""]);
+    row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "0%", "model defaults", "", "model defaults", "", "", ""]);
+    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", referenceGap === null ? "" : gapText(referenceGap), "profile settings", "", "profile settings", "", "", ""]);
     for (const s of sortedItems) {
       const o = simulate(s.inputs, scenarioGeometry(s));
       const strength = scenarioStrength(s);
@@ -90,7 +90,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         o.freeIron.toFixed(2), pctOnly(o.freeIron, healthyOut.freeIron), pctOnly(o.freeIron, referenceOut.freeIron),
         o.hydrogenPeroxide.toFixed(1), pctOnly(o.hydrogenPeroxide, healthyOut.hydrogenPeroxide), pctOnly(o.hydrogenPeroxide, referenceOut.hydrogenPeroxide),
         gapText(defencesGap(s)),
-        scenarioStrengthLabel(s), strength == null ? "no" : "yes", s.preset ?? "", s.id, new Date(s.updatedAt).toISOString(),
+        scenarioStrengthLabel(s), strength == null ? "no" : "yes", scenarioStrengthSource(s), s.preset ?? "", s.id, new Date(s.updatedAt).toISOString(),
       ]);
     }
     lines.push("");
@@ -142,6 +142,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
             <th className="font-normal">Peroxide (nM)</th>
             <th className="font-normal">Defences only</th>
             <th className="font-normal">ROS-induced strength (partly published)</th>
+            <th className="font-normal">Strength source</th>
           </tr>
         </thead>
         <tbody>
@@ -219,6 +220,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
                   {gapText(defencesGap(s))}
                 </td>
                 <td className="text-muted-foreground">{scenarioStrengthLabel(s)}</td>
+                <td className="text-muted-foreground" data-testid="spc-strength-source">{scenarioStrengthSource(s)}</td>
               </tr>
             );
           })}
