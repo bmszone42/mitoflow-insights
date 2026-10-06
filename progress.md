@@ -1,3 +1,9 @@
+## Auto-ranked Top 3 therapy pairs on Strength plan (2026-10-06) ✅
+- ✅ New "Top 3 pairs" section on /strength-plan: searches all 153 therapy pairs over the 0.5x-2x dose grid at the current strength, ranks the three that lower superoxide most, then re-checks only those three at both band edges.
+- ✅ Each row shows best doses, combined superoxide change now and at both edges, combined defences-only gap, holds-across-band flag and a Log button (same recordRun call as the manual pair picker).
+- ✅ Pairs with no benefit at any dose are excluded from ranking; single-therapy-at-best-dose pairs can still rank.
+- ✅ Verified live: three ranked rows rendered (top: Mild uncoupling + Mito-targeted antioxidant, 2x + 1.5x, gap -74%), Log lands a run, no console errors.
+
 ## Scenario compare table: strength band row coloring (2026-10-06) ✅
 - ✅ ScenarioCompareTable.tsx now reads the shared saved range (rangeState) and tints every row green when the strength it was run at sits inside the band, red when outside, matching the Strength history chart dots: left edge accent plus a light tint, and the strength cell text follows the same color.
 - ✅ Each row is judged by the strength it actually ran at: scenarios use their own saved rirrStrength (legacy scenarios fall back to the assumed 0.5x), the reference row uses the profile's inputs, the healthy row uses model defaults (1x); the strength cells now show that value.
