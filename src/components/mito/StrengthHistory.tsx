@@ -52,12 +52,15 @@ export function StrengthHistory() {
       </Suspense>
 
       <table className="w-full text-sm">
-        <thead className="text-left text-muted-foreground"><tr><th className="py-1">Date</th><th>Event</th><th>Strength</th><th>Detail</th></tr></thead>
+        <thead className="text-left text-muted-foreground"><tr><th className="py-1">Date</th><th>Event</th><th>Strength</th><th>Detail</th><th /></tr></thead>
         <tbody>{shown.map((r, i) => <tr key={r.at + i} className="border-t border-border">
           <td className="py-1 pr-2 whitespace-nowrap">{new Date(r.at).toLocaleString()}</td>
           <td className="pr-2">{KIND_LABEL[r.kind]}</td>
           <td className="pr-2 font-mono">{r.strength === null ? "default" : `${r.strength}x`}</td>
           <td className="text-muted-foreground">{r.detail}</td>
+          <td className="pl-2 text-right">{r.strength !== null && <Button variant="ghost" size="sm" onClick={() => {
+            if (window.confirm(`Make ${r.strength}x the saved default strength again? This is logged as a new history entry.`)) saveRirrStrength(r.strength!);
+          }}>Restore</Button>}</td>
         </tr>)}</tbody>
       </table>
       {rows.length > 15 && <Button variant="ghost" size="sm" onClick={() => setAll(!all)}>{all ? "Show fewer" : `Show all ${rows.length}`}</Button>}
