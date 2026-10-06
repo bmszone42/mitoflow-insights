@@ -83,6 +83,9 @@ function RunsPage() {
       <>
         <div className="flex items-center gap-3">
           <p className="text-sm text-muted-foreground" data-testid="runs-count">{runs.length} unique combinations across {byPatient.size} profiles.</p>
+          <p className="text-xs text-muted-foreground" data-testid="runs-band-count">
+            {runs.filter((r) => r.rirrStrength != null && r.rirrStrength >= range.lo && r.rirrStrength <= range.hi).length} of {runs.length} runs inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); rows are green inside and red outside or with no strength noted.
+          </p>
           <Button variant="outline" size="sm" data-testid="runs-clear" onClick={async () => { await clearRuns(); setRuns([]); }}>
             <Trash2 className="size-4" aria-hidden /> Clear log
           </Button>
