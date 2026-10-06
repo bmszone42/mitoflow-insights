@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { demoPatients, type DemoPatient } from "@/lib/mito/patientReference";
@@ -10,6 +10,12 @@ import { NotYetRun } from "@/components/mito/NotYetRun";
 import { StrengthHistory } from "@/components/mito/StrengthHistory";
 import { RecalibrateStrength } from "@/components/mito/RecalibrateStrength";
 import { StrengthRange } from "@/components/mito/StrengthRange";
+import { useStrengthRange } from "@/lib/mito/rangeState";
+
+// Lazy so recharts stays out of the initial Progress bundle.
+const RunHistoryChart = lazy(() =>
+  import("@/components/mito/RunHistoryChart").then((m) => ({ default: m.RunHistoryChart })),
+);
 
 export const Route = createFileRoute("/runs")({
   head: () => ({
