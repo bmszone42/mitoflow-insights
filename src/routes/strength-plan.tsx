@@ -104,18 +104,20 @@ function StrengthPlan() {
       }
       return best;
     };
-    const scored: { tA: TopPair["tA"]; tB: TopPair["tB"]; cur: PairBest }[] = [];
+    // Rank across the whole band: every pair is scored at the current strength
+    // and both band edges, then sorted so pairs that still lower superoxide at
+    // both edges come first, by their worst edge result, then current strength.
+    const scored: TopPair[] = [];
     for (let i = 0; i < therapies.length; i++) for (let j = i + 1; j < therapies.length; j++) {
       const tA = therapies[i]!, tB = therapies[j]!;
       const cur = bestAt(tA, tB, strength);
       if (cur.doseA === 0 && cur.doseB === 0) continue;
-      scored.push({ tA, tB, cur });
+      const low = bestAt(tA, tB, lo), high = bestAt(tA, tB, hi);
+      scored.push({ tA, tB, cur, low, high, robust: low.so < 0 && high.so < 0 });
     }
-    scored.sort((a, b) => a.cur.so - b.cur.so);
-    return scored.slice(0, 3).map((r) => {
-      const low = bestAt(r.tA, r.tB, lo), high = bestAt(r.tA, r.tB, hi);
-      return { ...r, low, high, robust: low.so < 0 && high.so < 0 };
-    });
+    const worstEdge = (r: TopPair) => Math.max(r.low.so, r.high.so);
+    scored.sort((a, b) => Number(b.robust) - Number(a.robust) || worstEdge(a) - worstEdge(b) || a.cur.so - b.cur.so);
+    return scored.slice(0, 3);
   }, [base, strength, lo, hi]);
 
   const logTop = async () => {
