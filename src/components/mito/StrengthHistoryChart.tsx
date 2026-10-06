@@ -25,22 +25,27 @@ export function StrengthHistoryChart({ rows }: { rows: StrengthHistoryEntry[] })
     </p>;
   }
 
-  // Time series oldest first so the default line reads left to right.
-  const sorted = [...withStrength].reverse();
+  // Oldest first so the saved default steps left to right: the value holds
+  // from one save to the next, then drops to nothing where it was cleared.
+  const sorted = [...rows].reverse();
   const t0 = new Date(sorted[0]!.at).getTime();
   const t1 = new Date(sorted[sorted.length - 1]!.at).getTime();
   const pad = Math.max(60_000, (t1 - t0) * 0.04);
 
-  const data = sorted.map((r) => ({
-    t: new Date(r.at).getTime(),
-    label: r.at,
-    kind: r.kind,
-    detail: r.detail,
-    // Undefined breaks the default line where a cleared event ends it.
-    default: r.kind === "default-saved" ? r.strength : undefined,
-    profile: r.kind === "profile-set" ? r.strength : undefined,
-    batch: r.kind === "batch-run" ? r.strength : undefined,
-  }));
+  let current: number | undefined;
+  const data = sorted.map((r) => {
+    if (r.kind === "default-saved") current = r.strength!;
+    if (r.kind === "default-cleared") current = undefined;
+    return {
+      t: new Date(r.at).getTime(),
+      kind: r.kind,
+      detail: r.detail,
+      default: current,
+      profile: r.kind === "profile-set" ? r.strength : undefined,
+      batch: r.kind === "batch-run" ? r.strength : undefined,
+    };
+  });
+
   // Cleared-default events have no strength, so they fall out of the data and
   // the default line simply breaks there (connectNulls={false}).
 
