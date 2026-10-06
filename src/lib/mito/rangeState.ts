@@ -37,7 +37,11 @@ export function setStrengthRange(nextLo: number, nextHi: number) {
 export function useStrengthRange(): [{ lo: number; hi: number }, (lo: number, hi: number) => void] {
   const [r, setR] = useState(strengthRange());
   useEffect(() => {
-    const load = () => setR(strengthRange());
+    // Re-read after mount: the module-level read happens during SSR and on the
+    // very first client render, so a range saved in this browser must be
+    // picked up here before the band is trusted. Same pattern as useSavedRirr.
+    reloadStrengthRange();
+    setR(strengthRange());
     window.addEventListener(RANGE_EVENT, load);
     return () => window.removeEventListener(RANGE_EVENT, load);
   }, []);
