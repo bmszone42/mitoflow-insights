@@ -8,11 +8,13 @@ import { useStrengthRange } from "@/lib/mito/rangeState";
 // range band from the Strength history sliders is drawn behind both curves, and
 // each fit gets its own dot so you can see where the pasted number lands
 // relative to the band on either anchor.
-export function RecalibrateCurve({ target, melovFitted, williamsFitted, williamsAc }: {
+export function RecalibrateCurve({ target, melovFitted, williamsFitted, williamsAc, ownFitted, ownAc }: {
   target: number | null;
   melovFitted: number | null;
   williamsFitted: number | null;
   williamsAc: number;
+  ownFitted: number | null;
+  ownAc: number;
 }) {
   const [range] = useStrengthRange();
   const inBand = (v: number) => !range || (v >= range.lo && v <= range.hi);
@@ -23,6 +25,7 @@ export function RecalibrateCurve({ target, melovFitted, williamsFitted, williams
       s: x,
       melov: Math.round(aconitasePct(x, WEAK_AC) * 10) / 10,
       williams: Math.round(aconitasePct(x, williamsAc) * 10) / 10,
+      own: Math.round(aconitasePct(x, ownAc) * 10) / 10,
     });
   }
   const bandLabel = range ? ` (${range.lo.toFixed(2)}x-${range.hi.toFixed(2)}x)` : "";
