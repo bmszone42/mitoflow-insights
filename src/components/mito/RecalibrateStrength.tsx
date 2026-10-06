@@ -108,6 +108,16 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
           <input type="radio" name="recal-anchor" data-testid="recal-anchor-williams" checked={anchor === "williams"} onChange={() => setAnchor("williams")} />
           From Williams 1998 SOD and glutathione drops
         </label>
+        <label className="flex items-center gap-1">
+          <input type="radio" name="recal-anchor" data-testid="recal-anchor-own" checked={anchor === "own"} onChange={() => setAnchor("own")} />
+          My own measurement
+        </label>
+        {anchor === "own" && (
+          <span className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-1">Defence level (x of healthy)<input data-testid="recal-own-ac" inputMode="decimal" className="w-14 rounded border border-input bg-background px-1 py-0.5" value={ownAcRaw} onChange={(e) => setOwnAcRaw(e.target.value)} /></label>
+            <span className="text-muted-foreground">Your own aconitase reading, fitted at the defence level you measured it under.</span>
+          </span>
+        )}
         {anchor === "williams" && (
           <span className="flex flex-wrap items-center gap-2">
             <label className="flex items-center gap-1">SOD drop %<input data-testid="recal-sod" inputMode="decimal" className="w-14 rounded border border-input bg-background px-1 py-0.5" value={sodRaw} onChange={(e) => setSodRaw(e.target.value)} /></label>
@@ -156,6 +166,8 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
           melovFitted={fitMelov && !fitMelov.clamped ? fitMelov.s : null}
           williamsFitted={fitWilliams && !fitWilliams.clamped ? fitWilliams.s : null}
           williamsAc={williamsAc}
+          ownFitted={fitOwn && !fitOwn.clamped ? fitOwn.s : null}
+          ownAc={ownAc}
         />
       </Suspense>
       <p className="text-xs text-muted-foreground">Both fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops. The dashed horizontal line is your pasted number and each dot is that fit's strength, green inside your picked band and red outside it.</p>
