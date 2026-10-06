@@ -18,6 +18,20 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
     ...r,
     ...Object.fromEntries(used.map((t) => [t.id, r.doses[t.id] ?? null])),
   }));
+  // Last non-null point per therapy, where the line's name label is drawn.
+  const lastIdx = new Map(used.map((t) => {
+    let last = -1;
+    data.forEach((r, i) => { if (r[t.id as keyof typeof r] != null) last = i; });
+    return [t.id, last] as const;
+  }));
+  const endLabel = (t: (typeof used)[number], i: number) => (props: { x?: number | string; y?: number | string; index?: number }) => {
+    if (props.index !== lastIdx.get(t.id)) return null;
+    return (
+      <text x={Number(props.x) + 6} y={Number(props.y)} fontSize={10} fill={lineColor(i)} dominantBaseline="middle">
+        {t.name}
+      </text>
+    );
+  };
   return (
     <div className="h-64 w-full" data-testid="tl-gap-chart">
       <ResponsiveContainer>
@@ -42,7 +56,7 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
             {data.map((r, i) => <Cell key={i} fill={color("fe", r.fe)} />)}
           </Bar>
           {used.map((t, i) => (
-            <Line key={t.id} yAxisId="str" type="monotone" dataKey={t.id} name={t.name} stroke={lineColor(i)} strokeWidth={2} dot={{ r: 3 }} />
+            <Line key={t.id} yAxisId="str" type="monotone" dataKey={t.id} name={t.name} stroke={lineColor(i)} strokeWidth={2} dot={{ r: 3 }} label={{ content: endLabel(t, i) }} />
           ))}
         </ComposedChart>
       </ResponsiveContainer>
