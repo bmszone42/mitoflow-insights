@@ -105,9 +105,9 @@ function DiagnosisPage() {
           <div className="flex flex-wrap items-center gap-2">
             <h4 className="text-xs font-semibold">Projected flags <span className="font-mono text-muted-foreground">{d.projectedFlags.length}</span></h4>
             <label className="flex items-center gap-1 text-[11px] text-muted-foreground">Therapy
-              <select value={projTherapy} onChange={(e) => setProjTherapy(e.target.value)} className="max-w-[200px] rounded border border-border bg-background px-1 py-0.5 font-mono text-[11px]" data-testid="dx-proj-therapy">
-                <option value="best">Strongest therapy</option>
-                {therapies.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              <select value={projTherapy} onChange={(e) => setProjTherapy(e.target.value)} className="max-w-[220px] rounded border border-border bg-background px-1 py-0.5 font-mono text-[11px]" data-testid="dx-proj-therapy">
+                <option value="best">{`Strongest therapy ${dose}x`}</option>
+                {therapies.map((t) => <option key={t.id} value={t.id}>{`${t.name} ${dose}x`}</option>)}
               </select>
             </label>
           </div>
