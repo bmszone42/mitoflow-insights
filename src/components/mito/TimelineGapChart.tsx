@@ -90,25 +90,25 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
               at the range's low strength to the gap at the high strength, so each
               gap can be read against the saved band. Two stacked bars: the first
               is transparent padding up to the low value, the second is the colored
-              span. Null where that therapy was not given. */}
-          {used.map((t, i) => (
-            <Fragment key={`cor-${t.id}`}>
-              <Bar yAxisId="gap" stackId={`cor-${t.id}`} dataKey={`cor-lo-${t.id}`} fill="transparent" stroke="none" isAnimationActive={false} legendType="none" />
-              <Bar
-                yAxisId="gap"
-                stackId={`cor-${t.id}`}
-                dataKey={`cor-span-${t.id}`}
-                name={`${t.name} gap in range`}
-                fill={lineColor(i)}
-                fillOpacity={0.22}
-                stroke={lineColor(i)}
-                strokeOpacity={0.5}
-                strokeDasharray="3 3"
-                isAnimationActive={false}
-                legendType="none"
-              />
-            </Fragment>
-          ))}
+              span. Null where that therapy was not given. Flat array, not a
+              Fragment: recharts only registers chart items as direct children. */}
+          {used.flatMap((t, i) => [
+            <Bar key={`cor-lo-${t.id}`} yAxisId="gap" stackId={`cor-${t.id}`} dataKey={`cor-lo-${t.id}`} fill="transparent" stroke="none" isAnimationActive={false} legendType="none" />,
+            <Bar
+              key={`cor-span-${t.id}`}
+              yAxisId="gap"
+              stackId={`cor-${t.id}`}
+              dataKey={`cor-span-${t.id}`}
+              name={`${t.name} gap in range`}
+              fill={lineColor(i)}
+              fillOpacity={0.22}
+              stroke={lineColor(i)}
+              strokeOpacity={0.5}
+              strokeDasharray="3 3"
+              isAnimationActive={false}
+              legendType="none"
+            />,
+          ])}
           {used.map((t, i) => (
             <Line key={t.id} yAxisId="str" type="monotone" dataKey={t.id} name={t.name} stroke={lineColor(i)} strokeWidth={2} dot={{ r: 3 }} label={{ content: endLabel(t, i) }} />
           ))}
