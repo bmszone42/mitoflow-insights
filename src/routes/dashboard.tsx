@@ -8,6 +8,7 @@ import { useUserPatients } from "@/lib/mito/userPatients";
 import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, bestProjectionTherapy, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
 import { useSavedRirr } from "@/lib/mito/rirrDefault";
+import { ProfileStrengthEditor } from "@/components/mito/ProfileStrengthEditor";
 import { recordRun } from "@/lib/mito/runs";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 // Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
@@ -54,6 +55,8 @@ function Dashboard() {
   const users = useUserPatients();
   // Saved recalibrated strength; applied after mount so every page agrees.
   const rirr = useSavedRirr();
+  // Bump re-runs the profile simulations after a per-profile strength change.
+  const [strengthEpoch, setStrengthEpoch] = useState(0);
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
   // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
@@ -120,7 +123,7 @@ function Dashboard() {
       if (fb !== fa) return fb - fa;
       return a.p.label.localeCompare(b.p.label);
     });
-  }, [users, dose, batchTherapy, rirr]);
+  }, [users, dose, batchTherapy, rirr, strengthEpoch]);
 
   // Light memo: display filtering only (readoutOnly checkbox), no simulations.
   // Log each profile's therapy sweep to the local run log (Scenario progress page).
@@ -263,6 +266,7 @@ function Dashboard() {
     </Suspense> : <div className="border-y border-border py-4">
       <Button variant="outline" size="sm" onClick={() => setShowChart(true)} data-testid="dash-show-chart">Show therapy chart</Button>
     </div>}
+    <ProfileStrengthEditor profiles={rows.map((r) => r.p)} onChanged={() => setStrengthEpoch((n) => n + 1)} />
     <section className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>

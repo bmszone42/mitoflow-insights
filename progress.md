@@ -306,3 +306,8 @@
 - ✅ RecalibrateCurve.tsx now draws both fit curves on one chart: solid line = Melov 1999 at 0.2x defences, dashed amber line = Williams 1998 at the defence level from its SOD and glutathione drops (0.6x at the 50%/30% defaults), with a legend.
 - ✅ The dashed horizontal line still marks the pasted aconitase number and the red dot marks the fitted strength on the selected anchor; the Williams curve follows the editable SOD and glutathione drop inputs live.
 - ✅ Verified live on /runs: both lines render, target line at 45%, no page errors.
+
+## Per-profile ROS-induced strength (2026-10-06) ✅
+- ✅ New src/lib/mito/rirrDefault.ts additions: per-profile overrides in localStorage (cristae-lab-rirr-profiles), profileRirr/saveProfileRirr/useProfileRirr; profileInputs in treatment.ts uses a profile's own strength first, then the saved default, then 1.0x.
+- ✅ New src/components/mito/ProfileStrengthEditor.tsx on the Dashboard: one input per profile (0-1.5x, blank = follow default), labeled a tuning control, browser-only.
+- ✅ Dashboard therapy chart strength line now varies per profile; caption updated. Verified live: Demo 15 at 0.2x and Demo 04 at 1.5x dip and peak against the 1.0x default, no page errors.
