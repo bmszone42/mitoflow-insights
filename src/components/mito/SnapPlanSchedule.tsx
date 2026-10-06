@@ -56,7 +56,7 @@ export function SnapPlanSchedule({ plan, overrides, setOverride, lo, hi }: Props
     if (!last) return;
     for (const s of last) {
       setOverride(s.profileId, s.prev ?? null);
-      updateSnap(s.id, { status: "planned", appliedAt: undefined, prev: undefined });
+      updateSnap(s.id, { status: "planned", appliedAt: "", prev: null });
     }
     logStrength("batch-run", null, `Snap plan: undid ${last.length} snap(s)`);
     setMsg(`Undid ${last.length} snap(s). Re-run the batch on Progress to rebuild the grid at the restored strengths.`);
