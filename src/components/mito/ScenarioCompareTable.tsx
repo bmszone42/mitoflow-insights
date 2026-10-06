@@ -201,7 +201,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         </thead>
         <tbody>
           {!sameAsHealthy && (
-            <tr className={`border-t border-border ${rowTone(defaultInputs.rirrStrength)}`} data-testid="spc-healthy" data-in-band={inBand(defaultInputs.rirrStrength) ? "yes" : "no"}>
+            <tr className={`border-t border-border ${rowTone(defaultInputs.rirrStrength)}`} data-testid="spc-healthy" data-strength={defaultInputs.rirrStrength} data-in-band={inBand(defaultInputs.rirrStrength) ? "yes" : "no"}>
               <td className="py-1 pr-2 font-medium">Healthy adult (model)</td>
               <td>{healthyOut.superoxide.toFixed(4)}</td>
               <td>{healthyOut.atpFlux.toFixed(1)}</td>
@@ -211,7 +211,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
               <td className={strengthTone(defaultInputs.rirrStrength)}>model defaults ({defaultInputs.rirrStrength}x)</td>
             </tr>
           )}
-          <tr className={`border-t border-border ${rowTone(referenceStrength)}`} data-testid="spc-reference" data-in-band={inBand(referenceStrength) ? "yes" : "no"}>
+          <tr className={`border-t border-border ${rowTone(referenceStrength)}`} data-testid="spc-reference" data-strength={referenceStrength} data-in-band={inBand(referenceStrength) ? "yes" : "no"}>
             <td className="py-1 pr-2 font-medium">{referenceLabel} (reference)</td>
             <td>{referenceOut.superoxide.toFixed(4)}</td>
             <td>{referenceOut.atpFlux.toFixed(1)}</td>
