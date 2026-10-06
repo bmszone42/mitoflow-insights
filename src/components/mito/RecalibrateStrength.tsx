@@ -10,7 +10,7 @@ import { clearRuns, recordRun } from "@/lib/mito/runs";
 import type { DemoPatient } from "@/lib/mito/patientReference";
 
 const doses = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
-const WEAK_AC = 0.2; // weakest defences, the Sod2-null stand-in used for the Melov 1999 fit
+export const WEAK_AC = 0.2; // weakest defences, the Sod2-null stand-in used for the Melov 1999 fit
 export const S_MIN = 0;
 export const S_MAX = 1.5;
 
@@ -59,7 +59,11 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
   const gsh = Math.min(100, Math.max(0, Number(gshRaw) || 0));
   const [wRaw, setWRaw] = useState(50);
   const ac = anchor === "williams" ? williamsCapacity(sod, gsh, wRaw) : WEAK_AC;
+  const williamsAc = williamsCapacity(sod, gsh, wRaw);
   const fit = useMemo(() => (valid ? fitStrength(target, ac) : null), [valid, target, ac]);
+  // Both anchors fitted side by side so the curve can show each against the band.
+  const fitMelov = useMemo(() => (valid ? fitStrength(target, WEAK_AC) : null), [valid, target]);
+  const fitWilliams = useMemo(() => (valid ? fitStrength(target, williamsAc) : null), [valid, target, williamsAc]);
   const current = useMemo(() => aconitasePct(defaultInputs.rirrStrength), []);
 
   async function rerun() {
@@ -146,7 +150,7 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
       <Suspense fallback={<div className="h-56 w-full animate-pulse rounded bg-muted" />}>
         <RecalibrateCurve ac={ac} williamsAc={williamsCapacity(sod, gsh, wRaw)} target={valid ? target : null} fitted={fit && !fit.clamped ? fit.s : null} />
       </Suspense>
-      <p className="text-xs text-muted-foreground">Both fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops. The dashed horizontal line is your pasted number and the dot is the fitted strength on the selected anchor.</p>
+      <p className="text-xs text-muted-foreground">Both fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops. The dashed horizontal line is your pasted number and each dot is that fit's strength, green inside your picked band and red outside it.</p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}
       <p className="text-xs text-muted-foreground">The saved default lives in this browser only and changes what the Simulator starts at; it does not re-run or change anything already in the Progress log. The code default stays 1.0x until you send me the number, so I can update the label and the reference score too.</p>
     </section>
