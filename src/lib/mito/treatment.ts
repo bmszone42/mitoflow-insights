@@ -3,7 +3,7 @@ import { atpNetworkRangeFlags, effectiveAtpCost, etcSteps } from "./reference";
 import { rosSourceRows } from "./rosPhysiology";
 import { inputsFromPatient, type DemoPatient } from "./patientReference";
 import type { Mechanism, diagnoseProfile } from "./diagnosis";
-import { activeRirr } from "./rirrDefault";
+import { activeRirr, profileRirr } from "./rirrDefault";
 
 // Therapy classes mapped to existing model sliders. Research levers only:
 // slider moves are illustrative, never doses or recommendations.
