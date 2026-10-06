@@ -9,6 +9,7 @@ import { clearRuns, listRuns, type RunRecord, type RunSource } from "@/lib/mito/
 import { NotYetRun } from "@/components/mito/NotYetRun";
 import { StrengthHistory } from "@/components/mito/StrengthHistory";
 import { RecalibrateStrength } from "@/components/mito/RecalibrateStrength";
+import { StrengthRange } from "@/components/mito/StrengthRange";
 
 export const Route = createFileRoute("/runs")({
   head: () => ({
@@ -65,6 +66,7 @@ function RunsPage() {
     {runs === null && <p className="text-sm text-muted-foreground">Loading…</p>}
     {runs !== null && <RecalibrateStrength pool={pool} onRan={() => listRuns().then(setRuns)} />}
     {runs !== null && <StrengthHistory />}
+    {runs !== null && <StrengthRange pool={pool} />}
     {runs !== null && <NotYetRun pool={pool} runs={runs} onRan={() => listRuns().then(setRuns)} />}
     {runs !== null && runs.length === 0 && (
       <p className="text-sm text-muted-foreground" data-testid="runs-empty">Nothing logged yet. Open the <Link className="text-primary underline underline-offset-2" to="/dashboard">Dashboard</Link>, <Link className="text-primary underline underline-offset-2" to="/therapy-tools">Therapy tools</Link> or <Link className="text-primary underline underline-offset-2" to="/therapy-plan">Therapy plan</Link> and each combination you run appears here.</p>

@@ -333,3 +333,6 @@
 - ✅ Scenario type gains optional strengthSource; Profile sensitivity save records it (profile's own strength / saved default / tuned on this card / model default).
 - ✅ scenarioStrengthSource() in scenarios.ts falls back to parsing older notes text, else "not noted".
 - ✅ Scenario compare table and its CSV gain a Strength source column; JSON export summary rows gain strengthSource.
+
+## Strength range check on Progress (2026-10-06) ✅
+- ✅ StrengthRange.tsx: low/high sliders (0-1.5x, 0.05 steps) with a per-profile table showing effective strength (profile's own, else saved default, else 1.0x model default), its source, and inside/outside coloring, plus an "N of M profiles inside" count.
