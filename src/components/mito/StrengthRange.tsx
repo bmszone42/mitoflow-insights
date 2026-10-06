@@ -47,7 +47,7 @@ export function StrengthRange({ pool, onRan }: { pool: DemoPatient[]; onRan?: ()
     await clearRuns();
     let n = 0;
     for (const p of pool) {
-      const s = eff[p.id];
+      const s = eff[p.id] ?? MODEL_DEFAULT;
       const base = { ...profileInputs(p), rirrStrength: s };
       for (const t of therapies) for (const d of DOSES) {
         simulate(applyTherapyDose(base, t, d), defaultGeometry);
