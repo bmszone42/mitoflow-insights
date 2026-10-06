@@ -31,7 +31,7 @@ export function williamsCapacity(sodDrop: number, gshDrop: number, sodWeight = 5
   return Math.max(0.05, Math.round(c * 100) / 100);
 }
 
-function fitStrength(target: number, ac: number) {
+export function fitStrength(target: number, ac: number) {
   const aconitasePctAc = (x: number) => aconitasePct(x, ac);
   const hi = aconitasePctAc(S_MIN);
   const lo = aconitasePctAc(S_MAX);
