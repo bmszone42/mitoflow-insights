@@ -311,3 +311,6 @@
 - ✅ New src/lib/mito/rirrDefault.ts additions: per-profile overrides in localStorage (cristae-lab-rirr-profiles), profileRirr/saveProfileRirr/useProfileRirr; profileInputs in treatment.ts uses a profile's own strength first, then the saved default, then 1.0x.
 - ✅ New src/components/mito/ProfileStrengthEditor.tsx on the Dashboard: one input per profile (0-1.5x, blank = follow default), labeled a tuning control, browser-only.
 - ✅ Dashboard therapy chart strength line now varies per profile; caption updated. Verified live: Demo 15 at 0.2x and Demo 04 at 1.5x dip and peak against the 1.0x default, no page errors.
+
+## Timeline chart: therapy name labels on lines (2026-10-06) ✅
+- ✅ TimelineGapChart.tsx draws each therapy's name at the last point of its line, in the line's own color; right margin widened so labels fit. Legend unchanged. Verified live: "Nitric oxide reduction" label renders at the line end, no page errors.
