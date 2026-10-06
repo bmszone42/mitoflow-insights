@@ -1,25 +1,53 @@
 import { CartesianGrid, Legend, Line, LineChart, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { aconitasePct, S_MAX, S_MIN } from "./RecalibrateStrength";
+import { aconitasePct, S_MAX, S_MIN, WEAK_AC } from "./RecalibrateStrength";
 import { useStrengthRange } from "@/lib/mito/rangeState";
 
 // Strength vs aconitase curves for the Recalibrate helper: the Melov 1999 fit
 // (weakest defences, Sod2-null stand-in) and the Williams 1998 fit (Sod2+/-
-// defence level from the SOD and glutathione drops) side by side.
-export function RecalibrateCurve({ target, fitted, ac, williamsAc }: { target: number | null; fitted: number | null; ac: number; williamsAc: number }) {
-  // The same picked range as the Strength history band, so the fitted strength
-  // can be read against it; updates live with the sliders on the page.
+// defence level from the SOD and glutathione drops) side by side. The picked
+// range band from the Strength history sliders is drawn behind both curves, and
+// each fit gets its own dot so you can see where the pasted number lands
+// relative to the band on either anchor.
+export function RecalibrateCurve({ target, melovFitted, williamsFitted, williamsAc }: {
+  target: number | null;
+  melovFitted: number | null;
+  williamsFitted: number | null;
+  williamsAc: number;
+}) {
   const [range] = useStrengthRange();
+  const inBand = (v: number) => !range || (v >= range.lo && v <= range.hi);
   const data = [];
   for (let s = S_MIN; s <= S_MAX + 1e-9; s += 0.05) {
     const x = Math.round(s * 100) / 100;
     data.push({
       s: x,
-      melov: Math.round(aconitasePct(x, 0.2) * 10) / 10,
+      melov: Math.round(aconitasePct(x, WEAK_AC) * 10) / 10,
       williams: Math.round(aconitasePct(x, williamsAc) * 10) / 10,
     });
   }
+  const bandLabel = range ? ` (${range.lo.toFixed(2)}x-${range.hi.toFixed(2)}x)` : "";
   return (
     <div className="h-56 w-full" data-testid="recal-curve">
+      {(melovFitted !== null || williamsFitted !== null) && (
+        <p className="mb-1 text-xs text-muted-foreground" data-testid="recal-band-readout">
+          Against the band{bandLabel}: Melov fit{" "}
+          {melovFitted !== null ? (
+            <span className={inBand(melovFitted) ? "text-primary" : "text-destructive"}>
+              {melovFitted}x, {inBand(melovFitted) ? "inside" : "outside"}
+            </span>
+          ) : (
+            "not reached by the model"
+          )}
+          {" "}· Williams fit{" "}
+          {williamsFitted !== null ? (
+            <span className={inBand(williamsFitted) ? "text-primary" : "text-destructive"}>
+              {williamsFitted}x, {inBand(williamsFitted) ? "inside" : "outside"}
+            </span>
+          ) : (
+            "not reached by the model"
+          )}
+        </p>
+      )}
       <ResponsiveContainer>
         <LineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
@@ -31,8 +59,11 @@ export function RecalibrateCurve({ target, fitted, ac, williamsAc }: { target: n
           <Line type="monotone" dataKey="melov" name="Melov 1999 (0.2x defences)" stroke="var(--primary)" dot={false} strokeWidth={2} isAnimationActive={false} />
           <Line type="monotone" dataKey="williams" name={`Williams 1998 (${williamsAc}x defences)`} stroke="var(--chart-3, #f59e0b)" dot={false} strokeWidth={2} strokeDasharray="6 3" isAnimationActive={false} />
           {target !== null && <ReferenceLine y={target} stroke="var(--muted-foreground)" strokeDasharray="4 4" />}
-          {fitted !== null && target !== null && (
-            <ReferenceDot x={fitted} y={aconitasePct(fitted, ac)} r={5} fill={range && (fitted < range.lo || fitted > range.hi) ? "var(--destructive)" : "var(--primary)"} stroke="none" />
+          {melovFitted !== null && target !== null && (
+            <ReferenceDot x={melovFitted} y={aconitasePct(melovFitted, WEAK_AC)} r={5} fill={inBand(melovFitted) ? "var(--primary)" : "var(--destructive)"} stroke="none" />
+          )}
+          {williamsFitted !== null && target !== null && (
+            <ReferenceDot x={williamsFitted} y={aconitasePct(williamsFitted, williamsAc)} r={5} fill={inBand(williamsFitted) ? "var(--chart-3, #f59e0b)" : "var(--destructive)"} stroke="none" />
           )}
         </LineChart>
       </ResponsiveContainer>
