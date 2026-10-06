@@ -4,13 +4,13 @@
 // runs are separate scatter marks. Lazy-loaded so recharts stays out of the
 // initial Progress bundle.
 import {
-  CartesianGrid, ComposedChart, Legend, Line, ReferenceLine, ResponsiveContainer,
+  CartesianGrid, ComposedChart, Legend, Line, ReferenceArea, ReferenceLine, ResponsiveContainer,
   Scatter, Tooltip, XAxis, YAxis,
 } from "recharts";
 import type { StrengthHistoryEntry } from "@/lib/mito/rirrDefault";
 
 
-export function StrengthHistoryChart({ rows }: { rows: StrengthHistoryEntry[] }) {
+export function StrengthHistoryChart({ rows, range }: { rows: StrengthHistoryEntry[]; range?: { lo: number; hi: number } }) {
   const withStrength = rows.filter((r) => r.strength !== null);
   if (!withStrength.length) {
     return <p className="text-sm text-muted-foreground" data-testid="strength-chart-empty">
@@ -50,6 +50,7 @@ export function StrengthHistoryChart({ rows }: { rows: StrengthHistoryEntry[] })
           <XAxis dataKey="t" type="number" domain={[t0 - pad, t1 + pad]} tickFormatter={fmtTime} tick={{ fontSize: 11 }} />
           <YAxis domain={[0, 1.5]} ticks={[0, 0.5, 1, 1.5]} tick={{ fontSize: 11 }} label={{ value: "ROS-induced strength (x)", angle: -90, position: "insideLeft", fontSize: 11 }} />
           <ReferenceLine y={1} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeOpacity={0.6} />
+          {range && <ReferenceArea y1={range.lo} y2={range.hi} fill="var(--primary)" fillOpacity={0.12} stroke="var(--primary)" strokeOpacity={0.35} strokeDasharray="4 4" ifOverflow="extendDomain" label={{ value: `range ${range.lo.toFixed(2)}x-${range.hi.toFixed(2)}x`, position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />}
           <Tooltip
             labelFormatter={(t: number) => fmtTime(t)}
             formatter={(v: number, name: string) => [`${v}x`, name]}

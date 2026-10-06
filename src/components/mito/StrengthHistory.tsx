@@ -3,6 +3,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RIRR_HISTORY_EVENT, clearStrengthHistory, saveRirrStrength, strengthHistory, type StrengthHistoryEntry } from "@/lib/mito/rirrDefault";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 
 const StrengthHistoryChart = lazy(() => import("./StrengthHistoryChart").then((m) => ({ default: m.StrengthHistoryChart })));
 
