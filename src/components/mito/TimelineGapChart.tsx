@@ -54,11 +54,11 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
               y1={range.lo}
               y2={range.hi}
               fill="var(--primary)"
-              fillOpacity={0.08}
+              fillOpacity={0.14}
               stroke="var(--primary)"
-              strokeOpacity={0.3}
+              strokeOpacity={0.35}
               strokeDasharray="4 4"
-              label={{ value: `range ${range.lo.toFixed(2)}x-${range.hi.toFixed(2)}x`, position: "insideBottomRight", fontSize: 10, fill: "var(--muted-foreground)" }}
+              label={{ value: `range ${range.lo.toFixed(2)}x-${range.hi.toFixed(2)}x`, position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }}
             />
           )}
           <Bar yAxisId="gap" dataKey="so" name="Superoxide gap">
