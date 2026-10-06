@@ -8,7 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
-import { therapies } from "@/lib/mito/treatment";
+import { profileInputs, therapies } from "@/lib/mito/treatment";
+import { pairBandCurve, rankPairs } from "@/lib/mito/pairRank";
 import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, therapyGapCorridor, pairGapCorridor, visitReadouts, visitProjection, visitSim, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 import { useSavedRirr } from "@/lib/mito/rirrDefault";
 import { useStrengthRange } from "@/lib/mito/rangeState";
@@ -16,6 +17,7 @@ import { defaultGeometry, defaultInputs, melovHeartCheck, simulate } from "@/lib
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
 const TimelineGapChart = lazy(() => import("@/components/mito/TimelineGapChart"));
+const PairBandChart = lazy(() => import("@/components/mito/PairBandChart"));
 
 export const Route = createFileRoute("/timeline")({
   validateSearch: (s) => z.object({ profile: z.string().optional() }).parse(s),
@@ -51,6 +53,12 @@ function TimelinePage() {
   const all = useMemo(() => [...users, ...demoPatients], [users]);
   const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
   const p = all.find((x) => x.id === id) ?? all[0]!;
+  const pairRanked = useMemo(() => {
+    const base = profileInputs(p);
+    const strength = base.rirrStrength ?? 1;
+    const pairs = rankPairs(base, strength, range.lo, range.hi);
+    return { pairs, strength, data: pairBandCurve(base, pairs, Math.min(range.lo, strength), Math.max(range.hi, strength)) };
+  }, [p, range.lo, range.hi, rirr]);
   // Projected-flag therapy pick: "visit" uses each visit's own therapies; a therapy id pins the Diagnosis projection, matching the dashboard's Batch therapy choice.
   const [projTherapy, setProjTherapy] = useState("visit");
   const onlyId = projTherapy === "visit" ? undefined : projTherapy;
@@ -219,6 +227,15 @@ function TimelinePage() {
         <Suspense fallback={<div className="flex h-64 items-center justify-center text-xs text-muted-foreground">Loading chart…</div>}>
           <TimelineGapChart rows={gapRows} />
         </Suspense>
+      </div>
+      <div className="mt-4">
+        <h2 className="text-sm font-semibold">Top 3 pairs across your band</h2>
+        <p className="text-[11px] text-muted-foreground">The same ranking as the Strength plan page, for this profile: each line is a pair's superoxide change at its best joint model dose, drawn across your saved band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x). A line that stays below the red no-change line holds across your whole range. Model estimate, not a studied combination.</p>
+        {pairRanked.pairs.length === 0 ? <p className="text-xs text-muted-foreground">No pair lowers superoxide for this profile.</p> : (
+          <Suspense fallback={<div className="flex h-64 items-center justify-center text-xs text-muted-foreground">Loading chart…</div>}>
+            <PairBandChart pairs={pairRanked.pairs} data={pairRanked.data} current={pairRanked.strength} />
+          </Suspense>
+        )}
       </div>
       <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Defences only is the superoxide gap vs the healthy adult at the same membrane potential, with labile iron and L:P held at healthy (same comparison as the Dashboard); after the arrow it applies the visit's therapies at their model doses, a model estimate, not a lab result. Heart check is the model's Fe-S intact % at the visit's own settings against the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal); red means inside that band. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags. With a therapy picked in the Projected flag therapy menu, the column instead shows the Diagnosis projection for that therapy at the 1x model dose, the same pick as the dashboard's Batch therapy, so the pages agree.</p>
     </section>

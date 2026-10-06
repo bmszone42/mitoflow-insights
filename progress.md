@@ -441,3 +441,5 @@
 - ✅ Count line above the chart: "N of M runs inside the band (lo-hi), K outside or with no strength noted."
 - ✅ Verified live with seeded runs: 2 of 3 inside the 0.50x-1.00x band, correct green/red dots, clean axis ticks.
 - ✅ Strength plan: "Add #1 pair to Snap plan" schedules a snap today to the band edge where the top pair works best
+
+- ✅ Timeline: "Top 3 pairs across your band" line chart, shared ranking in pairRank.ts
