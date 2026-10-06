@@ -389,3 +389,8 @@
 
 ## Strength plan page
 - ✅ /strength-plan: therapies ranked at current strength, checked at both band edges, logged progress and strength history per profile
+
+## Per-therapy gap corridors on the Timeline gap chart (2026-10-06) ✅
+- ✅ therapyGapCorridor in timeline.ts: per visit and therapy, the defences-only gap that therapy alone gives at the saved range's low and high strengths, % vs matched healthy.
+- ✅ TimelineGapChart.tsx draws each corridor as a stacked-bar strip (transparent low pad + colored span) on the gap axis, next to each visit's gap bars; flat corridors (therapies that do not move antioxidant capacity or membrane potential) draw as a hairline; tooltip filters the corridor plumbing rows out.
+- ✅ Verified live on /timeline (demo-04) with an added antioxidant-support visit: the teal strip renders below zero at that visit; build clean.
