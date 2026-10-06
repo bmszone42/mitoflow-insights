@@ -183,7 +183,7 @@ function StrengthPlan() {
 
       <section className="space-y-3 rounded-lg border p-4" data-testid="top-pairs-section">
         <h2 className="font-medium">Top 3 pairs</h2>
-        <p className="text-xs text-muted-foreground">The model searches every pair of therapies together and ranks the three that lower superoxide most at the current strength, then re-checks each at both band edges. A pair can be a single therapy at its best dose plus no benefit from the other. Combined effects are a model estimate, not a studied combination.</p>
+        <p className="text-xs text-muted-foreground">The model searches every pair of therapies together at your current strength and at both band edges, then ranks the three that hold across your whole range first: pairs that still lower superoxide at both edges outrank the rest, ordered by their worst edge result. A pair can be a single therapy at its best dose plus no benefit from the other. Combined effects are a model estimate, not a studied combination.</p>
         {topPairs.length === 0 ? (
           <p className="text-sm text-muted-foreground">No pair of therapies lowers superoxide at this profile's current strength.</p>
         ) : (
