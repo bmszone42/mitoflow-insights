@@ -367,3 +367,8 @@
 - ✅ StrengthRange.tsx: the snap button now opens a preview table first, listing each outside profile with its current effective strength and the edge it will move to; Confirm applies the snap and re-runs all 18 profiles, Cancel dismisses.
 - ✅ After a snap, an Undo button restores each moved profile's previous override (including "follow default" for profiles that had none) and logs the undo to Strength history. The Progress grid is not rebuilt on undo; the message says to re-run the batch.
 - ✅ Verified live: Demo 10 at 0.20x with a 0.90x-1.10x band previewed as 0.20x -> 0.90x, confirm snapped it and logged 2880 runs, undo restored 0.20x; build clean.
+
+## Recalibrate: own aconitase measurement (2026-10-06)
+- ✅ Third anchor "My own measurement" in the Recalibrate box: editable defence level (x of healthy) so a personal aconitase reading fits at the level it was measured under.
+- ✅ Curve shows the own-measurement fit as a third dotted line and dot, band-colored (green inside, red outside), alongside Melov and Williams.
+- ✅ Readout line reports all three fits at once; unreachable numbers read "not reached by the model" instead of guessing.

@@ -52,18 +52,21 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
   const [saved, setSaved] = useState<number | null>(() => savedRirrStrength());
   const target = Number(raw);
   const valid = raw.trim() !== "" && Number.isFinite(target) && target > 0 && target < 100;
-  const [anchor, setAnchor] = useState<"melov" | "williams">("melov");
+  const [anchor, setAnchor] = useState<"melov" | "williams" | "own">("melov");
+  const [ownAcRaw, setOwnAcRaw] = useState("0.6");
+  const ownAc = Math.min(2, Math.max(0.05, Number(ownAcRaw) || 0.6));
   const [sodRaw, setSodRaw] = useState("50");
   const [gshRaw, setGshRaw] = useState("30");
   const sod = Math.min(100, Math.max(0, Number(sodRaw) || 0));
   const gsh = Math.min(100, Math.max(0, Number(gshRaw) || 0));
   const [wRaw, setWRaw] = useState(50);
-  const ac = anchor === "williams" ? williamsCapacity(sod, gsh, wRaw) : WEAK_AC;
+  const ac = anchor === "williams" ? williamsCapacity(sod, gsh, wRaw) : anchor === "own" ? ownAc : WEAK_AC;
   const williamsAc = williamsCapacity(sod, gsh, wRaw);
   const fit = useMemo(() => (valid ? fitStrength(target, ac) : null), [valid, target, ac]);
-  // Both anchors fitted side by side so the curve can show each against the band.
+  // All anchors fitted side by side so the curve can show each against the band.
   const fitMelov = useMemo(() => (valid ? fitStrength(target, WEAK_AC) : null), [valid, target]);
   const fitWilliams = useMemo(() => (valid ? fitStrength(target, williamsAc) : null), [valid, target, williamsAc]);
+  const fitOwn = useMemo(() => (valid ? fitStrength(target, ownAc) : null), [valid, target, ownAc]);
   const current = useMemo(() => aconitasePct(defaultInputs.rirrStrength), []);
 
   async function rerun() {
@@ -105,6 +108,16 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
           <input type="radio" name="recal-anchor" data-testid="recal-anchor-williams" checked={anchor === "williams"} onChange={() => setAnchor("williams")} />
           From Williams 1998 SOD and glutathione drops
         </label>
+        <label className="flex items-center gap-1">
+          <input type="radio" name="recal-anchor" data-testid="recal-anchor-own" checked={anchor === "own"} onChange={() => setAnchor("own")} />
+          My own measurement
+        </label>
+        {anchor === "own" && (
+          <span className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-1">Defence level (x of healthy)<input data-testid="recal-own-ac" inputMode="decimal" className="w-14 rounded border border-input bg-background px-1 py-0.5" value={ownAcRaw} onChange={(e) => setOwnAcRaw(e.target.value)} /></label>
+            <span className="text-muted-foreground">Your own aconitase reading, fitted at the defence level you measured it under.</span>
+          </span>
+        )}
         {anchor === "williams" && (
           <span className="flex flex-wrap items-center gap-2">
             <label className="flex items-center gap-1">SOD drop %<input data-testid="recal-sod" inputMode="decimal" className="w-14 rounded border border-input bg-background px-1 py-0.5" value={sodRaw} onChange={(e) => setSodRaw(e.target.value)} /></label>
@@ -153,9 +166,11 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
           melovFitted={fitMelov && !fitMelov.clamped ? fitMelov.s : null}
           williamsFitted={fitWilliams && !fitWilliams.clamped ? fitWilliams.s : null}
           williamsAc={williamsAc}
+          ownFitted={fitOwn && !fitOwn.clamped ? fitOwn.s : null}
+          ownAc={ownAc}
         />
       </Suspense>
-      <p className="text-xs text-muted-foreground">Both fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops. The dashed horizontal line is your pasted number and each dot is that fit's strength, green inside your picked band and red outside it.</p>
+      <p className="text-xs text-muted-foreground">All fits side by side: the solid line is the Melov 1999 fit at the weakest defences (0.2x), the dashed line is the Williams 1998 fit at the defence level from its SOD and glutathione drops, and the dotted line is your own measurement at the defence level you enter. The dashed horizontal line is your pasted number and each dot is that fit's strength, green inside your picked band and red outside it.</p>
       {msg && <p className="text-sm" data-testid="recal-msg">{msg}</p>}
       <p className="text-xs text-muted-foreground">The saved default lives in this browser only and changes what the Simulator starts at; it does not re-run or change anything already in the Progress log. The code default stays 1.0x until you send me the number, so I can update the label and the reference score too.</p>
     </section>
