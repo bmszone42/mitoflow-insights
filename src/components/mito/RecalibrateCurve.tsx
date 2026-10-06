@@ -6,6 +6,9 @@ import { useStrengthRange } from "@/lib/mito/rangeState";
 // (weakest defences, Sod2-null stand-in) and the Williams 1998 fit (Sod2+/-
 // defence level from the SOD and glutathione drops) side by side.
 export function RecalibrateCurve({ target, fitted, ac, williamsAc }: { target: number | null; fitted: number | null; ac: number; williamsAc: number }) {
+  // The same picked range as the Strength history band, so the fitted strength
+  // can be read against it; updates live with the sliders on the page.
+  const [range] = useStrengthRange();
   const data = [];
   for (let s = S_MIN; s <= S_MAX + 1e-9; s += 0.05) {
     const x = Math.round(s * 100) / 100;
