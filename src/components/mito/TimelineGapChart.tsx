@@ -2,12 +2,12 @@ import { Bar, CartesianGrid, Cell, ComposedChart, DefaultTooltipContent, Legend,
 import { therapies } from "@/lib/mito/treatment";
 import { useStrengthRange } from "@/lib/mito/rangeState";
 
-export type GapRow = { date: string; so: number; atp: number; fe: number; doses: Record<string, number>; corridors?: Record<string, [number, number] | null> };
+export type GapRow = { date: string; so: number; atp: number; fe: number; doses: Record<string, number>; corridors?: Record<string, [number, number] | null>; pairGap?: number | null; pairCor?: [number, number] | null };
 
-// Tooltip content without the corridor plumbing rows (cor-lo / cor-span).
+// Tooltip content without the corridor plumbing rows (cor-lo / cor-span / pcor-*).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function GapTooltip(props: any) {
-  return <DefaultTooltipContent {...props} payload={(props.payload ?? []).filter((e: { dataKey?: unknown }) => !String(e.dataKey ?? "").startsWith("cor-"))} />;
+  return <DefaultTooltipContent {...props} payload={(props.payload ?? []).filter((e: { dataKey?: unknown }) => { const k = String(e.dataKey ?? ""); return !k.startsWith("cor-") && !k.startsWith("pcor-"); })} />;
 }
 
 // Per-visit gaps vs the healthy adult (model defaults), as %. Superoxide and

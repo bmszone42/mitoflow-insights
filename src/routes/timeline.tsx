@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { demoPatients, patientMetrics, type PatientMetricKey } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { therapies } from "@/lib/mito/treatment";
-import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, therapyGapCorridor, visitReadouts, visitProjection, visitSim, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
+import { addVisit, addPlan, defencesOnlyGap, heartCheck, diagnoseVisit, therapyGapCorridor, pairGapCorridor, visitReadouts, visitProjection, visitSim, patientTimeline, removeVisit, useVisits, withDerived } from "@/lib/mito/timeline";
 import { useSavedRirr } from "@/lib/mito/rirrDefault";
 import { useStrengthRange } from "@/lib/mito/rangeState";
 import { defaultGeometry, defaultInputs, melovHeartCheck, simulate } from "@/lib/mito/model";
