@@ -75,7 +75,8 @@ export function metrics(inputs: Inputs) {
 
 /** Profile state = measured baseline (membrane potential, labile iron, inverse MitoSOX), same mapping as "Run in Simulator". */
 export const profileInputs = (p: DemoPatient): Inputs => {
-  const s = activeRirr();
+  const own = profileRirr(p.id);
+  const s = own !== null ? own : activeRirr();
   return { ...defaultInputs, ...inputsFromPatient(p).patch, ...(s !== null ? { rirrStrength: s } : {}) };
 };
 
