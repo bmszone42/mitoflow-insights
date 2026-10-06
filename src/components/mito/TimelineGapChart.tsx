@@ -56,7 +56,7 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           <Tooltip
             content={<GapTooltip />}
             formatter={(v: unknown, name: string) => {
-              const n = v ?? 0;
+              const n = Number(v ?? 0);
               return used.some((t) => t.name === name) ? [`${n.toFixed(2)}x`, name] : [`${n > 0 ? "+" : ""}${n.toFixed(1)}%`, name];
             }}
             labelClassName="text-foreground"
