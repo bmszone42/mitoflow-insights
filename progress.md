@@ -341,3 +341,5 @@
 - ✅ Scenario compare: strength-source filter (all, saved default, profile own)
 - ✅ Strength range: snap outside profiles to nearest edge and re-run all
 - ✅ Strength range: shared range state (src/lib/mito/rangeState.ts) so the Strength history chart draws the picked range as a shaded band that moves live with the sliders
+
+- [x] Strength range pick (low/high sliders) persisted in browser storage (cristae-lab-rirr-range) so the sliders and history-chart band survive a reload
