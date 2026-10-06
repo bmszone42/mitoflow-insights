@@ -88,6 +88,14 @@ function RunsPage() {
           </Button>
         </div>
 
+        <section className="space-y-2" data-testid="runs-chart-section">
+          <h2 className="text-lg font-medium">Superoxide change over time</h2>
+          <p className="text-xs text-muted-foreground">Each dot is a logged run with a recorded superoxide change. Green means the run's ROS-induced strength sat inside your saved range, red means outside or not noted.</p>
+          <Suspense fallback={<p className="text-sm text-muted-foreground">Loading chart…</p>}>
+            <RunHistoryChart runs={runs} range={range} />
+          </Suspense>
+        </section>
+
         {[...byPatient.entries()].map(([pid, list]) => {
           const p = profileOf(pid);
           return (
