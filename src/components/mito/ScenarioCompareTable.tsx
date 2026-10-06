@@ -131,7 +131,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
 
   return (
 
-    <div className="overflow-x-auto" data-testid="scenario-profile-compare">
+    <div className="overflow-x-auto" data-testid="scenario-profile-compare" data-range={`${range.lo}-${range.hi}`}>
       <div className="mb-1 flex items-center gap-1 text-[10px] text-muted-foreground">
         <span>Sort by</span>
         {(
