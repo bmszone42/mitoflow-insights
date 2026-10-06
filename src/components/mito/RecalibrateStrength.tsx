@@ -1,3 +1,4 @@
+import { logStrength } from "@/lib/mito/rirrDefault";
 import { lazy, Suspense, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -77,6 +78,7 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
       setMsg(`Re-running: ${prof.label} (${n} of ${n0})...`);
     }
     setMsg(`Cleared the log and re-ran all ${pool.length} profiles at ${s}x (fitted to ${target}% aconitase at ${ac}x defences): ${n} combinations logged.`);
+    logStrength("batch-run", s, `Recalibrate re-run all ${pool.length} profiles (${n} runs)`);
     setBusy(false);
     onRan?.();
   }

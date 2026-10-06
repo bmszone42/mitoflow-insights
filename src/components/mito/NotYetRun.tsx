@@ -1,3 +1,4 @@
+import { logStrength } from "@/lib/mito/rirrDefault";
 import { useMemo, useState } from "react";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -122,6 +123,7 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
       await recordRun(profile.id, "progress", d, [t.id], s);
       n++;
     }
+    logStrength("batch-run", s, `Clear and re-run ${profile.label} (${n} runs)`);
     setStrength("all");
     setBatchMsg(`Cleared the log and re-ran ${n} combinations at ${s}x ROS-induced strength.`);
     setBusy(false);
@@ -147,6 +149,7 @@ export function NotYetRun({ pool, runs, onRan }: { pool: DemoPatient[]; runs: Ru
       }
       setBatchMsg(`Re-running: ${prof.label} (${n} of ${pool.length * total})...`);
     }
+    logStrength("batch-run", allStrength, `Clear and re-run all ${pool.length} profiles (${n} runs)`);
     setStrength("all");
     setBatchMsg(`Cleared the log and re-ran all ${pool.length} profiles at ${allStrength}x ROS-induced strength: ${n} combinations logged.`);
     setBusy(false);
