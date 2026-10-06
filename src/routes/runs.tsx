@@ -48,6 +48,7 @@ function RunsPage() {
   const users = useUserPatients();
   const pool = useMemo(() => [...users, ...demoPatients], [users]);
   const [runs, setRuns] = useState<RunRecord[] | null>(null);
+  const [range] = useStrengthRange();
 
   useEffect(() => { listRuns().then(setRuns); }, []);
 
