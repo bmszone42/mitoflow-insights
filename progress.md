@@ -1,3 +1,10 @@
+## Single therapies ranked across the band (2026-10-06)
+
+- Strength plan therapy table now ranks the same way as the pairs: therapies that lower superoxide at both band edges first, then by worst edge (the higher of the two edge columns), then by drop at the current strength.
+- Added a Worst edge column (colored like the other gap cells) so the ranking is visible; ranking note states the rule.
+- Verified live: at the 0.50x-1.00x band the five therapies that hold rank by worst edge -65%, -64%, -50%, -23%, -12%, then the no-benefit rows.
+- Pending: Williams 1998 aconitase number; user's real therapy measurements.
+
 ## Top pairs ranked across the band (2026-10-06)
 
 - Strength plan Top 3 pairs now scores every therapy pair at the current strength AND both band edges, then ranks pairs that still lower superoxide at both edges first, ordered by worst edge result, then current strength. Explainer text updated.
