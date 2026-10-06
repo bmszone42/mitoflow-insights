@@ -127,7 +127,8 @@ function RunsPage() {
                     <td>{r.count}{r.count > 1 && <span className="ml-1 text-xs text-amber-600 dark:text-amber-400">repeated</span>}</td>
                     <td className="text-muted-foreground">{new Date(r.at).toLocaleString()}</td>
                   </tr>
-                ))}</tbody>
+                  );
+                })}</tbody>
               </table>
             </section>
           );
