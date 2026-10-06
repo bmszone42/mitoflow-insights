@@ -6,7 +6,12 @@ import { addVisit } from "@/lib/mito/timeline";
 import { recordRun } from "@/lib/mito/runs";
 import { setStrengthRange } from "@/lib/mito/rangeState";
 import { logStrength } from "@/lib/mito/rirrDefault";
-import { fitStrength, WEAK_AC } from "./RecalibrateStrength";
+import { fitStrength } from "./RecalibrateStrength";
+
+// Aconitase-to-strength fit for pasted lines reads at 0.6x defences (the
+// Williams-style moderate level): the 0.2x Sod2-null stand-in cannot reach
+// high aconitase percentages and would clamp every mild reading to 0x.
+const PASTE_FIT_AC = 0.6;
 
 // Paste-your-measurements panel on the Progress page. One line per entry:
 //   date, therapy name, dose x, aconitase %, superoxide (MitoSOX), [strength x]
@@ -48,7 +53,7 @@ function parseLine(line: string): Parsed | { error: string } {
     strength = Number(sRaw.replace(/x$/i, ""));
     strengthFrom = "pasted";
   } else if (aconitase !== null && aconitase > 0 && aconitase < 100) {
-    const fit = fitStrength(aconitase, WEAK_AC);
+    const fit = fitStrength(aconitase, PASTE_FIT_AC);
     strength = fit.s;
     strengthFrom = "fitted";
   } else {
