@@ -1,3 +1,8 @@
+## Timeline pair Snap buttons (2026-10-06)
+
+- ✅ Each top-three pair chart label has a Snap button scheduling the selected profile today at the pair's best-performing saved-band edge.
+- ✅ Uses the existing browser-local Snap plan, names the selected pair, and leaves strength unchanged until confirmation on Snap plan.
+
 ## Timeline combined gap over time (2026-10-06)
 
 - ✅ Visit gap chart now orders visits by date, earliest first, so the combined therapies gap line shows chronological changes rather than gap-rank order.
