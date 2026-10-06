@@ -328,3 +328,8 @@
 ## Dashboard therapy chart: dose in the therapy labels (2026-10-06) ✅
 - ✅ TherapyProfileChart.tsx therapy picker options now read "<therapy name> <dose>x" (e.g. "Iron chelation 1.5x"), following the Dashboard's Model dose picker.
 - ✅ Verified live: 15 options each carry the current dose, switching Model dose to 1.5x rewrites every label to 1.5x, no page errors.
+
+## Strength source in scenario compare + JSON export (2026-10-06) ✅
+- ✅ Scenario type gains optional strengthSource; Profile sensitivity save records it (profile's own strength / saved default / tuned on this card / model default).
+- ✅ scenarioStrengthSource() in scenarios.ts falls back to parsing older notes text, else "not noted".
+- ✅ Scenario compare table and its CSV gain a Strength source column; JSON export summary rows gain strengthSource.
