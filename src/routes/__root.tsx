@@ -127,6 +127,7 @@ const navLinks = [
   { to: "/timeline", label: "Timeline" },
   { to: "/therapy-plan", label: "Therapy plan" },
   { to: "/strength-plan", label: "Strength plan" },
+  { to: "/snap-plan", label: "Snap plan" },
   { to: "/therapy-tools", label: "Therapy tools" },
   { to: "/carriers", label: "Carriers" },
   { to: "/runs", label: "Progress" },

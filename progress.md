@@ -394,3 +394,8 @@
 - ✅ therapyGapCorridor in timeline.ts: per visit and therapy, the defences-only gap that therapy alone gives at the saved range's low and high strengths, % vs matched healthy.
 - ✅ TimelineGapChart.tsx draws each corridor as a stacked-bar strip (transparent low pad + colored span) on the gap axis, next to each visit's gap bars; flat corridors (therapies that do not move antioxidant capacity or membrane potential) draw as a hairline; tooltip filters the corridor plumbing rows out.
 - ✅ Verified live on /timeline (demo-04) with an added antioxidant-support visit: the teal strip renders below zero at that visit; build clean.
+
+## Snap plan page
+- ✅ /snap-plan: pick profiles (outside band preselected), date per profile or for all, target nearest edge or custom
+- ✅ Schedule with Planned / Due today / Overdue / Done / Skipped, apply due with preview + confirm, apply now, skip, remove, undo, CSV
+- ✅ Progress tracker: done bar, band count now vs after planned snaps, date strip colored by band
