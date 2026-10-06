@@ -55,8 +55,8 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
     );
   };
   return (
-    <div className="h-64 w-full" data-testid="tl-gap-chart">
-      <ResponsiveContainer>
+    <div className="w-full" data-testid="tl-gap-chart">
+      <ResponsiveContainer height={256}>
         <ComposedChart data={data} margin={{ top: 8, right: 110, bottom: 4, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
           <XAxis dataKey="date" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
