@@ -32,9 +32,9 @@ export function TherapyProfileChart({ profiles, dose, flaggedIds }: { profiles: 
         <h2 className="text-sm font-semibold">Therapy effect across flagged profiles (model, {dose}x)</h2>
         <p className="text-xs text-muted-foreground">Percent change in model ATP flux, superoxide and H2O2 from each flagged profile's own baseline. Only therapies that move a readout by at least 1% somewhere are listed. The line is each profile's ROS-induced strength (right axis, 0-1.5x); it follows each profile's own strength when one is set below, otherwise the saved recalibrated default. Model slider move, not a drug dose or efficacy claim.</p>
       </div>
-      <label className="flex items-center gap-2 text-xs">Therapy
+      <label className="flex items-center gap-2 text-xs" data-testid="dash-chart-therapy-label">Therapy
         <select value={id ?? ""} onChange={(e) => setPick(e.target.value)} data-testid="dash-chart-therapy" className="rounded border border-border bg-background px-1.5 py-0.5 text-xs">
-          {options.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          {options.map((t) => <option key={t.id} value={t.id}>{`${t.name} ${dose}x`}</option>)}
         </select>
       </label>
     </div>
