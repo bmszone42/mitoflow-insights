@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import { Bar, CartesianGrid, Cell, ComposedChart, DefaultTooltipContent, Legend, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { therapies } from "@/lib/mito/treatment";
 import { useStrengthRange } from "@/lib/mito/rangeState";
