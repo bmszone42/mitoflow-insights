@@ -90,6 +90,34 @@ function StrengthPlan() {
     return { tA, tB, cur, lo: low, hi: high, robust: low.so < 0 && high.so < 0 };
   }, [base, strength, lo, hi, pairA, pairB]);
 
+  type PairBest = { doseA: number; doseB: number; so: number; gap: number };
+  type TopPair = { tA: (typeof therapies)[number]; tB: (typeof therapies)[number]; cur: PairBest; low: PairBest; high: PairBest; robust: boolean };
+  const topPairs: TopPair[] = useMemo(() => {
+    const bestAt = (tA: (typeof therapies)[number], tB: (typeof therapies)[number], s: number): PairBest => {
+      const b = { ...base, rirrStrength: s };
+      const s0 = metrics(b).superoxide;
+      let best = { doseA: 0, doseB: 0, so: 0, gap: defencesGapFromInputs(b) };
+      for (const dA of DOSES) for (const dB of DOSES) {
+        const inp = applyTherapyDose(applyTherapyDose(b, tA, dA), tB, dB);
+        const so = s0 ? (metrics(inp).superoxide / s0 - 1) * 100 : 0;
+        if (so < best.so) best = { doseA: dA, doseB: dB, so, gap: defencesGapFromInputs(inp) };
+      }
+      return best;
+    };
+    const scored: { tA: TopPair["tA"]; tB: TopPair["tB"]; cur: PairBest }[] = [];
+    for (let i = 0; i < therapies.length; i++) for (let j = i + 1; j < therapies.length; j++) {
+      const tA = therapies[i]!, tB = therapies[j]!;
+      const cur = bestAt(tA, tB, strength);
+      if (cur.doseA === 0 && cur.doseB === 0) continue;
+      scored.push({ tA, tB, cur });
+    }
+    scored.sort((a, b) => a.cur.so - b.cur.so);
+    return scored.slice(0, 3).map((r) => {
+      const low = bestAt(r.tA, r.tB, lo), high = bestAt(r.tA, r.tB, hi);
+      return { ...r, low, high, robust: low.so < 0 && high.so < 0 };
+    });
+  }, [base, strength, lo, hi]);
+
   const logTop = async () => {
     const top = rows.find((r) => r.dose > 0);
     if (!top) return;
@@ -100,6 +128,12 @@ function StrengthPlan() {
   const logPair = async () => {
     if (!pair || pair.cur.doseA === 0) return;
     await recordRun(p.id, "plan", pair.cur.doseA, [pair.tA.id, pair.tB.id], strength, { realDose: `${pair.tA.clinicalDose} + ${pair.tB.clinicalDose}`, soChangePct: pair.cur.so });
+    reload();
+  };
+
+  const logPairRank = async (r: TopPair) => {
+    if (r.cur.doseA === 0 && r.cur.doseB === 0) return;
+    await recordRun(p.id, "plan", Math.max(r.cur.doseA, r.cur.doseB), [r.tA.id, r.tB.id], strength, { realDose: `${r.tA.clinicalDose} + ${r.tB.clinicalDose}`, soChangePct: r.cur.so });
     reload();
   };
 
