@@ -7,6 +7,7 @@ import { defaultGeometry, simulate } from "@/lib/mito/model";
 import { clearRuns, recordRun } from "@/lib/mito/runs";
 import { Slider } from "@/components/ui/slider";
 import { logStrength, savedRirrStrength, useProfileRirr, useSavedRirr } from "@/lib/mito/rirrDefault";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 import type { DemoPatient } from "@/lib/mito/patientReference";
 
 const MODEL_DEFAULT = 1.0; // model's built-in ROS-induced strength when nothing is saved
@@ -18,8 +19,7 @@ export function StrengthRange({ pool, onRan }: { pool: DemoPatient[]; onRan?: ()
   const [overrides, setOverride] = useProfileRirr();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const [lo, setLo] = useState(0.5);
-  const [hi, setHi] = useState(1.0);
+  const [{ lo, hi }, setRange] = useStrengthRange();
 
   const effective = (id: string) => overrides[id] ?? saved ?? savedRirrStrength() ?? MODEL_DEFAULT;
   const source = (id: string) => (overrides[id] != null ? "profile's own" : saved != null ? "saved default" : "model default");
