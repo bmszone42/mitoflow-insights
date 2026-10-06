@@ -69,8 +69,8 @@ function StrengthPlan() {
   const progress = runs.filter((r) => r.patientId === p.id && r.soChangePct !== undefined).sort((a, b) => a.at - b.at);
   const profHist = hist.filter((h) => h.detail.includes(p.id) || h.detail.includes(p.label) || h.kind.startsWith("default")).slice(0, 12);
 
-  const [pairA, setPairA] = useState(therapies[0].id);
-  const [pairB, setPairB] = useState(therapies[1]?.id ?? therapies[0].id);
+  const [pairA, setPairA] = useState(therapies[0]?.id ?? "");
+  const [pairB, setPairB] = useState(therapies[1]?.id ?? therapies[0]?.id ?? "");
   const pair = useMemo(() => {
     const tA = therapies.find((t) => t.id === pairA);
     const tB = therapies.find((t) => t.id === pairB);
