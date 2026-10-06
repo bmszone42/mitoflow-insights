@@ -314,3 +314,5 @@
 
 ## Timeline chart: therapy name labels on lines (2026-10-06) ✅
 - ✅ TimelineGapChart.tsx draws each therapy's name at the last point of its line, in the line's own color; right margin widened so labels fit. Legend unchanged. Verified live: "Nitric oxide reduction" label renders at the line end, no page errors.
+
+- ✅ Strength history log on Progress (dates, events, CSV, clear)
