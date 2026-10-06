@@ -47,7 +47,9 @@ export function setStrengthRange(nextLo: number, nextHi: number) {
 }
 
 export function useStrengthRange(): [{ lo: number; hi: number }, (lo: number, hi: number) => void] {
-  const [r, setR] = useState(strengthRange());
+  // Start at the neutral default on both server and first client render, so
+  // hydration matches; the saved range is read in the effect below.
+  const [r, setR] = useState({ lo: 0.5, hi: 1.0 });
   useEffect(() => {
     // Re-read after mount: the module-level read happens during SSR and on the
     // very first client render, so a range saved in this browser must be
