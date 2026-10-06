@@ -2,7 +2,7 @@
 // so past runs can be compared. Reads localStorage after mount only.
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RIRR_HISTORY_EVENT, clearStrengthHistory, strengthHistory, type StrengthHistoryEntry } from "@/lib/mito/rirrDefault";
+import { RIRR_HISTORY_EVENT, clearStrengthHistory, saveRirrStrength, strengthHistory, type StrengthHistoryEntry } from "@/lib/mito/rirrDefault";
 
 const StrengthHistoryChart = lazy(() => import("./StrengthHistoryChart").then((m) => ({ default: m.StrengthHistoryChart })));
 
