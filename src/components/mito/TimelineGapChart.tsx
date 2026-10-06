@@ -142,6 +142,54 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           <Line yAxisId="gap" type="monotone" dataKey="pairGap" name="Combined therapies gap" stroke="var(--foreground)" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3 }} connectNulls={false} />
         </ComposedChart>
       </ResponsiveContainer>
+      {snaps.length > 0 && (
+        <div className="mt-1" data-testid="tl-snap-strip">
+          <p className="text-[11px] text-muted-foreground">
+            Scheduled snaps: green when the planned target strength sits inside your range, red when outside. Dates come from the Snap plan page.
+          </p>
+          <div className="h-20 w-full">
+            <ResponsiveContainer>
+              <ComposedChart
+                data={snaps.map((s) => ({ x: new Date(`${s.date}T12:00:00`).getTime(), y: s.to, label: `${s.label}: ${s.from.toFixed(2)}x to ${s.to.toFixed(2)}x (${snapStatus(s)})`, in: !!range && s.to >= range.lo && s.to <= range.hi }))}
+                margin={{ top: 4, right: 110, bottom: 4, left: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
+                <XAxis
+                  type="number"
+                  dataKey="x"
+                  domain={["dataMin - 86400000", "dataMax + 86400000"]}
+                  tick={{ fontSize: 11 }}
+                  className="fill-muted-foreground"
+                  tickFormatter={(v: number) => new Date(v).toISOString().slice(0, 10)}
+                />
+                <YAxis domain={[0, 2]} tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v: number) => `${v}x`} width={40} />
+                <Tooltip
+                  formatter={(v: unknown, name: string) => (name === "y" ? [`${Number(v).toFixed(2)}x`, "Target strength"] : [String(v), name])}
+                  labelFormatter={(v: unknown) => new Date(Number(v)).toISOString().slice(0, 10)}
+                  labelClassName="text-foreground"
+                />
+                {range && (
+                  <ReferenceArea
+                    y1={range.lo}
+                    y2={range.hi}
+                    fill="var(--primary)"
+                    fillOpacity={0.14}
+                    stroke="var(--primary)"
+                    strokeOpacity={0.35}
+                    strokeDasharray="4 4"
+                  />
+                )}
+                <Scatter dataKey="y" name="Planned snap" isAnimationActive={false}>
+                  {snaps.map((s) => {
+                    const inBand = !!range && s.to >= range.lo && s.to <= range.hi;
+                    return <Cell key={s.id} fill={inBand ? "var(--primary)" : "var(--destructive)"} />;
+                  })}
+                </Scatter>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
