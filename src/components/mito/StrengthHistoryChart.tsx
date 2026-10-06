@@ -1,4 +1,3 @@
-// ============= Full file contents =============
 
 // Strength-over-time chart for the Strength history section: each logged event
 // with a numeric strength is plotted at its timestamp. The saved default is a
