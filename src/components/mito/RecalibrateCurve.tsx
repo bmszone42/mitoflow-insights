@@ -1,5 +1,6 @@
-import { CartesianGrid, Legend, Line, LineChart, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Legend, Line, LineChart, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { aconitasePct, S_MAX, S_MIN } from "./RecalibrateStrength";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 
 // Strength vs aconitase curves for the Recalibrate helper: the Melov 1999 fit
 // (weakest defences, Sod2-null stand-in) and the Williams 1998 fit (Sod2+/-
