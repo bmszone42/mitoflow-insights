@@ -62,8 +62,13 @@ function StrengthPlan() {
       });
     };
     const cur = at(strength), low = at(lo), high = at(hi);
-    return cur.map((r, i) => ({ ...r, lo: low[i]!.so, hi: high[i]!.so, robust: low[i]!.so < 0 && high[i]!.so < 0 }))
-      .sort((a, b) => Number(b.robust) - Number(a.robust) || a.so - b.so);
+    // Rank across the whole band, the same rule as the pair ranking: therapies
+    // that lower superoxide at both edges first, then by their worst edge
+    // result, then by the drop at the current strength.
+    return cur.map((r, i) => {
+      const worst = Math.max(low[i]!.so, high[i]!.so);
+      return { ...r, lo: low[i]!.so, hi: high[i]!.so, worst, robust: low[i]!.so < 0 && high[i]!.so < 0 };
+    }).sort((a, b) => Number(b.robust) - Number(a.robust) || a.worst - b.worst || a.so - b.so);
   }, [base, strength, lo, hi]);
 
   const progress = runs.filter((r) => r.patientId === p.id && r.soChangePct !== undefined).sort((a, b) => a.at - b.at);
@@ -161,7 +166,7 @@ function StrengthPlan() {
       <section className="overflow-x-auto rounded-lg border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
-            <tr><th className="p-2">Therapy</th><th className="p-2">Best model dose</th><th className="p-2">Superoxide now</th><th className="p-2">At {lo.toFixed(2)}x</th><th className="p-2">At {hi.toFixed(2)}x</th><th className="p-2">Gap after</th><th className="p-2">Holds across band</th><th className="p-2">Real-world anchor</th></tr>
+            <tr><th className="p-2">Therapy</th><th className="p-2">Best model dose</th><th className="p-2">Superoxide now</th><th className="p-2">At {lo.toFixed(2)}x</th><th className="p-2">At {hi.toFixed(2)}x</th><th className="p-2">Worst edge</th><th className="p-2">Gap after</th><th className="p-2">Holds across band</th><th className="p-2">Real-world anchor</th></tr>
           </thead>
           <tbody>
             {rows.map((r) => (
@@ -171,6 +176,7 @@ function StrengthPlan() {
                 <td className={`p-2 ${r.so < 0 ? "text-primary" : "text-destructive"}`}>{pct(r.so)}</td>
                 <td className="p-2">{pct(r.lo)}</td>
                 <td className="p-2">{pct(r.hi)}</td>
+                <td className={`p-2 ${r.worst < 0 ? "text-primary" : "text-destructive"}`} data-testid={`row-${r.t.id}-worst`}>{pct(r.worst)}</td>
                 <td className="p-2">{pct(r.gap)}</td>
                 <td className={`p-2 ${r.robust ? "text-primary" : "text-muted-foreground"}`}>{r.robust ? "yes" : "no"}</td>
                 <td className="p-2">{r.t.doseSource ? <a className="underline" href={r.t.doseSource.url} target="_blank" rel="noreferrer">{r.t.clinicalDose}</a> : r.t.clinicalDose}</td>
@@ -178,7 +184,7 @@ function StrengthPlan() {
             ))}
           </tbody>
         </table>
-        <p className="p-2 text-xs text-muted-foreground">Ranked: therapies that lower superoxide at both band edges first, then by superoxide drop at the current strength. Edge columns use the same best dose search.</p>
+        <p className="p-2 text-xs text-muted-foreground" data-testid="rows-ranking-note">Ranked: therapies that lower superoxide at both band edges first, then by their worst edge (the higher of the two edge columns), then by superoxide drop at the current strength. Edge columns use the same best dose search, so the worst edge is the therapy's weakest result anywhere in your range.</p>
       </section>
 
       <section className="space-y-3 rounded-lg border p-4" data-testid="top-pairs-section">
