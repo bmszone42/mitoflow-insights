@@ -301,3 +301,8 @@
 ## Strength line on the Dashboard therapy chart (2026-10-05) ✅
 - ✅ TherapyProfileChart.tsx switched to a ComposedChart: per-profile ROS-induced strength line on a right 0-1.5x axis alongside the ATP/superoxide/H2O2 percent-change bars. Strength comes from profileInputs (saved recalibrated default overlay), so the line is flat unless profiles carry their own strength; caption says so.
 - ✅ Verified live: line renders at 1.0x across all flagged profiles, legend shows "ROS-induced strength", no page errors.
+
+## Recalibrate: Melov and Williams fits side by side (2026-10-06) ✅
+- ✅ RecalibrateCurve.tsx now draws both fit curves on one chart: solid line = Melov 1999 at 0.2x defences, dashed amber line = Williams 1998 at the defence level from its SOD and glutathione drops (0.6x at the 50%/30% defaults), with a legend.
+- ✅ The dashed horizontal line still marks the pasted aconitase number and the red dot marks the fitted strength on the selected anchor; the Williams curve follows the editable SOD and glutathione drop inputs live.
+- ✅ Verified live on /runs: both lines render, target line at 45%, no page errors.
