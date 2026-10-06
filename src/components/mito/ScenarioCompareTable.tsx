@@ -78,8 +78,8 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
     lines.push("Row type,Scenario,Superoxide (nM),Superoxide vs healthy (%),Superoxide vs profile (%),ATP (uM/s),ATP vs healthy (%),ATP vs profile (%),Free iron (uM),Free iron vs healthy (%),Free iron vs profile (%),Peroxide (nM),Peroxide vs healthy (%),Peroxide vs profile (%),Defences-only gap (%),ROS-induced strength,Strength noted,Strength source,Preset,Scenario ID,Updated");
     const pctOnly = (v: number, base: number) => (base === 0 ? "" : `${v >= base ? "+" : ""}${(((v - base) / base) * 100).toFixed(0)}%`);
     const row = (cells: (string | number)[]) => lines.push(cells.map((c) => esc(String(c))).join(","));
-    row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "0%", "model defaults", "", "", "", ""]);
-    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", referenceGap === null ? "" : gapText(referenceGap), "profile settings", "", "", "", ""]);
+    row(["healthy reference", "Healthy adult (model)", healthyOut.superoxide.toFixed(4), "", "", healthyOut.atpFlux.toFixed(1), "", "", healthyOut.freeIron.toFixed(2), "", "", healthyOut.hydrogenPeroxide.toFixed(1), "", "", "0%", "model defaults", "", "model defaults", "", "", ""]);
+    row(["reference profile", `${referenceLabel} (reference)`, referenceOut.superoxide.toFixed(4), "", "", referenceOut.atpFlux.toFixed(1), "", "", referenceOut.freeIron.toFixed(2), "", "", referenceOut.hydrogenPeroxide.toFixed(1), "", "", referenceGap === null ? "" : gapText(referenceGap), "profile settings", "", "profile settings", "", "", ""]);
     for (const s of sortedItems) {
       const o = simulate(s.inputs, scenarioGeometry(s));
       const strength = scenarioStrength(s);
