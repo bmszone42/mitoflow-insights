@@ -111,6 +111,20 @@ onValueChange={(v) => setRange(Math.min(v[0] ?? lo, hi), hi)} />
 onValueChange={(v) => setRange(lo, Math.max(v[0] ?? hi, lo))} />
         </div>
       </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          size="sm"
+          variant="ghost"
+          data-testid="sr-reset"
+          disabled={lo === 0.5 && hi === 1.0}
+          onClick={() => { setRange(0.5, 1.0); setMsg("Range reset to 0.50x-1.00x. Profile strengths are unchanged; use the snap if you want to move them."); }}
+        >
+          Reset range to 0.5x-1.0x
+        </Button>
+        {(lo !== 0.5 || hi !== 1.0) && (
+          <span className="text-xs text-muted-foreground">Band differs from the default 0.50x-1.00x.</span>
+        )}
+      </div>
       <p className="text-xs text-muted-foreground" data-testid="sr-count">{inCount} of {rows.length} profiles inside {lo.toFixed(2)}x to {hi.toFixed(2)}x.</p>
       <div className="flex flex-wrap items-center gap-3">
         <Button size="sm" variant="outline" data-testid="sr-snap" disabled={busy || outside.length === 0} onClick={previewSnap}>

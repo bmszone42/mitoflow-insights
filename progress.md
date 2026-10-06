@@ -8,6 +8,10 @@
 - ✅ Import is unchanged: scenariosFromJson accepts any versioned payload plus the older flat array, so version 2 files still load.
 - ✅ Verified live: seeded a scenario, clicked Export JSON on the Simulator, read the file back (version 3, versionNote present, row gap +486.3%, reference gap +3.9%), and round-tripped it through the importer (1 scenario).
 
+## Strength range reset button (2026-10-06) ✅
+- ✅ New "Reset range to 0.5x-1.0x" button on the Strength range check: restores the default band, saves it to this browser, and refreshes the band on the Strength history and Recalibrate charts live.
+- ✅ The button greys out when the band is already at the default, and a note appears while the band differs from 0.50x-1.00x. Resetting does not move any profile's strength; the snap preview remains the way to move them.
+
 ## Recalibrate curve: saved range band and both fit dots (2026-10-06) ✅
 - ✅ The strength band from the range sliders is drawn behind both the Melov and Williams curves on the Recalibrate chart, and it moves live with the sliders.
 - ✅ Each fit gets its own dot where the pasted aconitase number crosses its curve: green inside the band, red outside, colored to match its curve (Melov solid, Williams dashed amber). A number the model cannot reach at that defence level shows "not reached by the model" in the readout instead of a dot.
