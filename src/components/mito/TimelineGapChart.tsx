@@ -1,5 +1,6 @@
-import { Bar, CartesianGrid, Cell, ComposedChart, Legend, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, CartesianGrid, Cell, ComposedChart, Legend, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { therapies } from "@/lib/mito/treatment";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 
 export type GapRow = { date: string; so: number; atp: number; fe: number; doses: Record<string, number> };
 
