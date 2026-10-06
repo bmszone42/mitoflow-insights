@@ -113,11 +113,45 @@ onValueChange={(v) => setRange(lo, Math.max(v[0] ?? hi, lo))} />
       </div>
       <p className="text-xs text-muted-foreground" data-testid="sr-count">{inCount} of {rows.length} profiles inside {lo.toFixed(2)}x to {hi.toFixed(2)}x.</p>
       <div className="flex flex-wrap items-center gap-3">
-        <Button size="sm" variant="outline" data-testid="sr-snap" disabled={busy || outside.length === 0} onClick={snapAndRerun}>
-          Snap {outside.length} outside to nearest edge and re-run all {pool.length}
+        <Button size="sm" variant="outline" data-testid="sr-snap" disabled={busy || outside.length === 0} onClick={previewSnap}>
+          Preview snap of {outside.length} outside to nearest edge
         </Button>
+        {lastSnap && (
+          <Button size="sm" variant="ghost" data-testid="sr-undo" disabled={busy} onClick={undoSnap}>
+            Undo snap ({Object.keys(lastSnap).length} profile{Object.keys(lastSnap).length === 1 ? "" : "s"})
+          </Button>
+        )}
         {msg && <span className="text-xs text-muted-foreground" data-testid="sr-msg">{msg}</span>}
       </div>
+      {preview && (
+        <div className="space-y-2 rounded-md border border-border bg-muted/40 p-3" data-testid="sr-preview">
+          <p className="text-xs font-medium">
+            Snap preview: {preview.length} profile{preview.length === 1 ? "" : "s"} will move to the nearest edge of {lo.toFixed(2)}x to {hi.toFixed(2)}x. Confirming clears the run log and re-runs all {pool.length} profiles at their own strengths.
+          </p>
+          <table className="w-full text-sm">
+            <thead><tr className="text-left text-muted-foreground">
+              <th className="py-1 font-normal">Profile</th>
+              <th className="font-normal">Current</th>
+              <th className="font-normal">After snap</th>
+            </tr></thead>
+            <tbody>{preview.map((m) => (
+              <tr key={m.id} className="border-t border-border" data-testid="sr-preview-row">
+                <td className="py-1 pr-2">{m.label}</td>
+                <td className="pr-2 font-mono">{m.from.toFixed(2)}x</td>
+                <td className="font-mono text-destructive">{m.to.toFixed(2)}x</td>
+              </tr>
+            ))}</tbody>
+          </table>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" data-testid="sr-confirm" disabled={busy} onClick={snapAndRerun}>
+              Confirm snap and re-run all {pool.length}
+            </Button>
+            <Button size="sm" variant="ghost" data-testid="sr-cancel" disabled={busy} onClick={() => setPreview(null)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
       <table className="w-full text-sm">
         <thead><tr className="text-left text-muted-foreground">
           <th className="py-1 font-normal">Profile</th>
