@@ -27,6 +27,18 @@ export function strengthRange(): { lo: number; hi: number } {
   return { lo, hi };
 }
 
+/**
+ * Re-reads the saved range from this browser into the module state. The
+ * module-level read runs during SSR and on the first client render, so callers
+ * that must show the band the user actually saved call this once after mount.
+ */
+export function reloadStrengthRange() {
+  if (typeof window === "undefined") return;
+  const r = load();
+  lo = r.lo;
+  hi = r.hi;
+}
+
 export function setStrengthRange(nextLo: number, nextHi: number) {
   lo = Math.min(nextLo, nextHi);
   hi = Math.max(nextLo, nextHi);
@@ -42,8 +54,9 @@ export function useStrengthRange(): [{ lo: number; hi: number }, (lo: number, hi
     // picked up here before the band is trusted. Same pattern as useSavedRirr.
     reloadStrengthRange();
     setR(strengthRange());
-    window.addEventListener(RANGE_EVENT, load);
-    return () => window.removeEventListener(RANGE_EVENT, load);
+    const sync = () => setR(strengthRange());
+    window.addEventListener(RANGE_EVENT, sync);
+    return () => window.removeEventListener(RANGE_EVENT, sync);
   }, []);
   return [r, setStrengthRange];
 }
