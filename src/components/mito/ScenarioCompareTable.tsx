@@ -1,7 +1,8 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { simulate, defaultInputs, defaultGeometry, type Inputs, type Outputs } from "@/lib/mito/model";
-import { defencesGapFromInputs, listScenarios, scenarioDefencesGap, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, scenarioStrengthSource, type Scenario } from "@/lib/mito/scenarios";
+import { defencesGapFromInputs, DEFAULT_RIRR_STRENGTH, listScenarios, scenarioDefencesGap, scenarioGeometry, scenarioStrength, scenarioStrengthLabel, scenarioStrengthSource, type Scenario } from "@/lib/mito/scenarios";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 
 // The gap bar chart is lazy-loaded so recharts stays out of the Dashboard and
 // Diagnosis bundles, exactly like the other chart modules.
@@ -21,6 +22,22 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
   }, []);
 
   const healthyOut = useMemo(() => simulate(defaultInputs, defaultGeometry), []);
+
+  // Strength band shared with the Strength range check sliders, the Strength
+  // history chart and the Recalibrate curve: a row reads green when the
+  // strength it was run at sits inside the band and red when outside, the same
+  // rule that colors the history dots.
+  const [range] = useStrengthRange();
+  const rowStrength = (s: Scenario) => scenarioStrength(s) ?? DEFAULT_RIRR_STRENGTH;
+  const inBand = (v: number) => v >= range.lo && v <= range.hi;
+  const rowTone = (v: number) =>
+    inBand(v)
+      ? "border-l-2 border-l-primary bg-primary/5"
+      : "border-l-2 border-l-destructive bg-destructive/5";
+  const strengthTone = (v: number) => (inBand(v) ? "text-primary" : "text-destructive");
+  // The reference row is run from the profile's own inputs, which already carry
+  // its own or the saved default strength; the healthy row uses model defaults.
+  const referenceStrength = referenceInputs?.rirrStrength ?? defaultInputs.rirrStrength;
 
   // When the reference already IS the healthy adult, the extra row would duplicate it.
   const sameAsHealthy =
@@ -74,6 +91,8 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [items, sortKey, sourceFilter]
   );
+  // Counted over the rows actually shown, so the source filter changes it too.
+  const insideCount = sortedItems.filter((s) => inBand(rowStrength(s))).length;
 
   // CSV mirrors the table above and carries the same fields as the JSON export
   // summary (id, name, ROS-induced strength + whether it was noted, preset,
@@ -161,6 +180,12 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
           </button>
         ))}
       </div>
+      {items.length > 0 && (
+        <p className="mb-1 text-[10px] text-muted-foreground" data-testid="spc-band-count">
+          {insideCount} of {sortedItems.length} scenarios inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x), {sortedItems.length - insideCount} outside.
+          Rows are green inside the band and red outside, judged by the strength each row was run at.
+        </p>
+      )}
       <table className="w-full text-xs">
         <thead>
           <tr className="text-left text-muted-foreground">
@@ -176,17 +201,17 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         </thead>
         <tbody>
           {!sameAsHealthy && (
-            <tr className="border-t border-border" data-testid="spc-healthy">
+            <tr className={`border-t border-border ${rowTone(defaultInputs.rirrStrength)}`} data-testid="spc-healthy">
               <td className="py-1 pr-2 font-medium">Healthy adult (model)</td>
               <td>{healthyOut.superoxide.toFixed(4)}</td>
               <td>{healthyOut.atpFlux.toFixed(1)}</td>
               <td>{healthyOut.freeIron.toFixed(2)}</td>
               <td>{healthyOut.hydrogenPeroxide.toFixed(1)}</td>
               <td className="text-primary">0%</td>
-              <td className="text-muted-foreground">model defaults</td>
+              <td className={strengthTone(defaultInputs.rirrStrength)}>model defaults ({defaultInputs.rirrStrength}x)</td>
             </tr>
           )}
-          <tr className="border-t border-border" data-testid="spc-reference">
+          <tr className={`border-t border-border ${rowTone(referenceStrength)}`} data-testid="spc-reference">
             <td className="py-1 pr-2 font-medium">{referenceLabel} (reference)</td>
             <td>{referenceOut.superoxide.toFixed(4)}</td>
             <td>{referenceOut.atpFlux.toFixed(1)}</td>
@@ -195,14 +220,20 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
             <td className={referenceGap !== null && referenceGap > 0 ? "text-destructive" : "text-primary"} data-testid="spc-reference-gap">
               {referenceGap === null ? "—" : gapText(referenceGap)}
             </td>
-            <td className="text-muted-foreground">profile settings</td>
+            <td className={strengthTone(referenceStrength)} data-testid="spc-reference-strength">profile settings ({referenceStrength}x)</td>
           </tr>
           {sortedItems.map((s) => {
             const o = simulate(s.inputs, scenarioGeometry(s));
             const vsHealthy = pct(o.superoxide, healthyOut.superoxide, "vs healthy");
             const vsProfile = pct(o.superoxide, referenceOut.superoxide, "vs profile");
             return (
-              <tr key={s.id} className="border-t border-border" data-testid="spc-row">
+              <tr
+                key={s.id}
+                className={`border-t border-border ${rowTone(rowStrength(s))}`}
+                data-testid="spc-row"
+                data-strength={rowStrength(s)}
+                data-in-band={inBand(rowStrength(s)) ? "yes" : "no"}
+              >
                 <td className="py-1 pr-2 font-medium">{s.name}</td>
                 <td>
                   {o.superoxide.toFixed(4)}
@@ -248,7 +279,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
                 <td className={defencesGap(s) > 0 ? "text-destructive" : "text-primary"} data-testid="spc-defences-gap">
                   {gapText(defencesGap(s))}
                 </td>
-                <td className="text-muted-foreground">{scenarioStrengthLabel(s)}</td>
+                <td className={strengthTone(rowStrength(s))} data-testid="spc-row-strength">{scenarioStrengthLabel(s)}</td>
                 <td className="text-muted-foreground" data-testid="spc-strength-source">{scenarioStrengthSource(s)}</td>
               </tr>
             );
@@ -274,6 +305,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         not the saved snapshot. "vs healthy" compares with the
         healthy adult's simulated values (model defaults), colored red when the value is worse than normal
         (higher superoxide, free iron or peroxide, lower ATP) and green at or better; "vs profile" compares with {referenceLabel}'s simulated values, not lab measurements.
+        Row tint follows the saved strength band: green when the strength that row was run at is inside the band, red when outside, the same rule as the Strength history chart dots.
         Model estimates only.
       </p>
 

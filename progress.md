@@ -1,3 +1,8 @@
+## Scenario compare table: strength band row coloring (2026-10-06) ✅
+- ✅ ScenarioCompareTable.tsx now reads the shared saved range (rangeState) and tints every row green when the strength it was run at sits inside the band, red when outside, matching the Strength history chart dots: left edge accent plus a light tint, and the strength cell text follows the same color.
+- ✅ Each row is judged by the strength it actually ran at: scenarios use their own saved rirrStrength (legacy scenarios fall back to the assumed 0.5x), the reference row uses the profile's inputs, the healthy row uses model defaults (1x); the strength cells now show that value.
+- ✅ A count line above the table reads "N of M scenarios inside the band (lo-hi), K outside" and follows the strength-source filter; the footnote states the rule.
+
 ## Timeline therapy-strength chart: saved range band (2026-10-06) ✅
 - ✅ TimelineGapChart.tsx now draws the saved strength range as a shaded band behind the per-therapy strength lines on the right-hand 0-2x axis, labeled "range lo-hi", moving live with the Progress range sliders via the shared rangeState store.
 - ✅ Verified live: band rect and label render on the Timeline chart with the default 0.50x-1.00x range.
@@ -376,3 +381,8 @@
 - ✅ Third anchor "My own measurement" in the Recalibrate box: editable defence level (x of healthy) so a personal aconitase reading fits at the level it was measured under.
 - ✅ Curve shows the own-measurement fit as a third dotted line and dot, band-colored (green inside, red outside), alongside Melov and Williams.
 - ✅ Readout line reports all three fits at once; unreachable numbers read "not reached by the model" instead of guessing.
+
+## Scenario compare rows colored by the strength band (2026-10-06) ✅
+- ✅ ScenarioCompareTable.tsx: every row tints green inside the picked band and red outside it (left edge accent plus a light tint, strength cell text follows the same color), judged by the strength that row actually ran at; count line above the table reads "N of M scenarios inside the band (lo-hi), K outside" and follows the strength-source filter.
+- ✅ Fix: the band is now read only after mount (useStrengthRange starts at the 0.5x-1.0x default on the server and the first client render, then loads the saved range). Before this, the colors the server rendered with the default band were never patched after hydration, so the healthy and reference rows stayed green even when 1x sat outside a saved band such as 1.1x-1.4x.
+- ✅ Verified live: with the default band, healthy, reference, tuned and 0.70x rows are green and 1.30x red ("2 of 3 scenarios inside"); after saving the band at 1.10x-1.40x and reloading, healthy and reference turn red and 1.30x green ("1 of 3 inside"); build clean.
