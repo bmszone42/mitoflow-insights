@@ -20,6 +20,10 @@ const lineColor = (i: number) => `var(--chart-${(i % 5) + 1})`;
 
 export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
   const [range] = useStrengthRange();
+  // Scheduled snaps from the Snap plan page, plotted as a date strip under the
+  // gap chart: green when the snap's target strength sits inside the saved
+  // band, red when outside. Only planned snaps show; done and skipped are history.
+  const snaps = useSnapPlan().filter((s) => s.status === "planned");
   const sorted = [...rows].sort((a, b) => b.so - a.so);
   // One line per therapy that appears in any visit; null where not given so the line breaks.
   const used = therapies.filter((t) => sorted.some((r) => r.doses[t.id] != null));
