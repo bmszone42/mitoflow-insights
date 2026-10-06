@@ -56,7 +56,7 @@ export function StrengthRange({ pool, onRan }: { pool: DemoPatient[]; onRan?: ()
       }
       setMsg(`Re-running: ${p.label} (${n} runs)...`);
     }
-    logStrength("batch-run", null as unknown as number, `Snap to range ${lo.toFixed(2)}x-${hi.toFixed(2)}x and re-run all ${pool.length} profiles (${outside.length} snapped, ${n} runs)`);
+    logStrength("batch-run", null, `Snap to range ${lo.toFixed(2)}x-${hi.toFixed(2)}x and re-run all ${pool.length} profiles (${outside.length} snapped, ${n} runs)`);
     setMsg(`Snapped ${outside.length} profile(s) to the range edges and re-ran all ${pool.length} profiles: ${n} runs logged.`);
     setBusy(false);
     onRan?.();
