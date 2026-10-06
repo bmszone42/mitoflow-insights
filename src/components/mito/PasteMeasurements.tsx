@@ -68,13 +68,11 @@ export function PasteMeasurements({ pool, onRan }: { pool: DemoPatient[]; onRan?
     return lines.map((l) => ({ line: l, result: parseLine(l) }));
   }, [raw]);
 
-  const good = parsed.filter((p): p is { line: string; result: Parsed } => !("error" in p.result && !("date" in p.result)));
   const okRows = parsed.map((p) => p.result).filter((r): r is Parsed => "date" in r);
   const badCount = parsed.length - okRows.length;
   const band = okRows.length
     ? { lo: Math.min(...okRows.map((r) => r.strength)), hi: Math.max(...okRows.map((r) => r.strength)) }
     : null;
-  void good;
 
   async function apply() {
     const prof = pool.find((p) => p.id === patientId);

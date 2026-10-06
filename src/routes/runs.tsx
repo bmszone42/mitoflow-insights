@@ -10,6 +10,7 @@ import { NotYetRun } from "@/components/mito/NotYetRun";
 import { StrengthHistory } from "@/components/mito/StrengthHistory";
 import { RecalibrateStrength } from "@/components/mito/RecalibrateStrength";
 import { StrengthRange } from "@/components/mito/StrengthRange";
+import { PasteMeasurements } from "@/components/mito/PasteMeasurements";
 import { useStrengthRange } from "@/lib/mito/rangeState";
 
 // Lazy so recharts stays out of the initial Progress bundle.
