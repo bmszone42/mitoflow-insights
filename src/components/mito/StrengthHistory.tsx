@@ -3,6 +3,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RIRR_HISTORY_EVENT, clearStrengthHistory, saveRirrStrength, strengthHistory, type StrengthHistoryEntry } from "@/lib/mito/rirrDefault";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 
 const StrengthHistoryChart = lazy(() => import("./StrengthHistoryChart").then((m) => ({ default: m.StrengthHistoryChart })));
 
@@ -18,6 +19,7 @@ const KIND_LABEL: Record<StrengthHistoryEntry["kind"], string> = {
 export function StrengthHistory() {
   const [rows, setRows] = useState<StrengthHistoryEntry[]>([]);
   const [all, setAll] = useState(false);
+  const [range] = useStrengthRange();
   useEffect(() => {
     const load = () => setRows(strengthHistory());
     load();
@@ -48,7 +50,7 @@ export function StrengthHistory() {
     </div>
     {rows.length === 0 ? <p className="text-sm text-muted-foreground">No strength changes logged yet.</p> : <>
       <Suspense fallback={<div className="h-64 w-full animate-pulse rounded bg-muted" />}>
-        <StrengthHistoryChart rows={rows} />
+        <StrengthHistoryChart rows={rows} range={range} />
       </Suspense>
 
       <table className="w-full text-sm">
