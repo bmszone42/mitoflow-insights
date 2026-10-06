@@ -19,6 +19,7 @@
 - [x] Route simulated ATP yield by NADH and succinate supply using literature P/O stoichiometry rather than one blanket yield.
 - [ ] Calibrate all matrix concentrations, effective ROS sink pools, flux capacities and light/Fe-S multipliers to matched tissue-specific experiments before interpreting absolute µM/s as measurements.
 # Roadmap
+- [x] Show the Timeline combined therapies gap as a chronological line alongside its range strip.
 ## Cited ROS physiology and high-uncoupling check (2026-10-01)
 - [x] Show full verified paper citations next to all 11 modeled ROS sources, with explicit absence of transferable µM/s ranges.
 - [x] Check 40% uncoupling against the same-geometry simulated default: two of 11 sources cross the model-only ±25% change threshold.

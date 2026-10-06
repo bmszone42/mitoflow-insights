@@ -24,7 +24,7 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
   // gap chart: green when the snap's target strength sits inside the saved
   // band, red when outside. Only planned snaps show; done and skipped are history.
   const snaps = useSnapPlan().filter((s) => s.status === "planned");
-  const sorted = [...rows].sort((a, b) => b.so - a.so);
+  const sorted = [...rows].sort((a, b) => a.date.localeCompare(b.date));
   // One line per therapy that appears in any visit; null where not given so the line breaks.
   const used = therapies.filter((t) => sorted.some((r) => r.doses[t.id] != null));
   const data = sorted.map((r) => {
@@ -139,7 +139,7 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           ))}
           {/* Combined pair gap line: all of a visit's therapies together at
               their model doses, dashed, only where a visit has 2+ therapies. */}
-          <Line yAxisId="gap" type="monotone" dataKey="pairGap" name="Combined therapies gap" stroke="var(--foreground)" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3 }} connectNulls={false} />
+          <Line yAxisId="gap" type="linear" dataKey="pairGap" name="Combined therapies gap" stroke="var(--foreground)" strokeWidth={3} strokeDasharray="6 3" dot={{ r: 4 }} connectNulls={false} isAnimationActive={false} />
         </ComposedChart>
       </ResponsiveContainer>
       {snaps.length > 0 && (

@@ -1,3 +1,10 @@
+## Timeline combined gap over time (2026-10-06)
+
+- ✅ Visit gap chart now orders visits by date, earliest first, so the combined therapies gap line shows chronological changes rather than gap-rank order.
+- ✅ Combined gap uses a thicker dashed line with visible dots; missing pair visits remain breaks, and the saved-range corridor strips remain unchanged.
+- ✅ Verified by adding two model visits with the same pair at different doses: two combined-gap dots and their connecting line render in chronological order; no runtime errors and preview build OK.
+- ❌ Real therapy measurements and the Williams 1998 aconitase number still require user-supplied values.
+
 ## Single therapies ranked across the band (2026-10-06)
 
 - Strength plan therapy table now ranks the same way as the pairs: therapies that lower superoxide at both band edges first, then by worst edge (the higher of the two edge columns), then by drop at the current strength.
