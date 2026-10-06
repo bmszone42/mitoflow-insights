@@ -74,8 +74,11 @@ function TimelinePage() {
   // therapy's dose multiplier so the chart can draw one strength line per therapy.
   // Corridor strips: for each therapy, the defences-only gap it gives at the
   // low and high ends of the saved strength range, keyed cor-<id>.
-  const gapRows = useMemo(() => timeline.map(({ v, s }) => {
+  const gapRows = useMemo(() => timeline.map(({ v, s, gap }) => {
     const corridor = therapyGapCorridor(p, v, range.lo, range.hi);
+    // Combined pair gap: all the visit's therapies together, at their model
+    // doses (line) and at the band's low and high strengths (strip).
+    const pairCor = pairGapCorridor(p, v, range.lo, range.hi);
     return {
       date: v.date,
       so: healthyOut.superoxide ? ((s.superoxide - healthyOut.superoxide) / healthyOut.superoxide) * 100 : 0,
@@ -83,6 +86,8 @@ function TimelinePage() {
       fe: healthyOut.freeIron ? ((s.freeIron - healthyOut.freeIron) / healthyOut.freeIron) * 100 : 0,
       doses: Object.fromEntries(v.therapies.map((t) => [t, v.doses?.[t] ?? 1])),
       corridors: Object.fromEntries(v.therapies.map((t) => [`cor-${t}`, corridor[t] ?? null])),
+      pairGap: v.therapies.length >= 2 ? gap.after : null,
+      pairCor,
     };
   }), [timeline, p, range.lo, range.hi]);
   const [metric, setMetric] = useState<PatientMetricKey | "h2o2Nm" | SimKey>("lactate");
