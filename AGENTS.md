@@ -34,3 +34,4 @@
 - Carrier efficiency levers live in src/lib/mito/carriers.ts (applyCarriers maps 0-2x rates onto existing Inputs, clamped by inputRanges) and stay local to /carriers; why: made-up rates must never reach flags, scenarios or Diagnosis.
 - Mitophagy is the model input mitoHalfLife (published turnover half-lives) handled by qualityControl in model.ts, neutral at the 17.2 d default; the urolithin A card in mitophagy.ts only shortens it locally. Why: turnover must change the model math while defaults keep cited outputs stable.
 - Scheduled strength snaps live in src/lib/mito/snapPlan.ts (localStorage cristae-lab-snap-plan) and only apply on user confirm at /snap-plan, writing per-profile overrides via saveProfileRirr; why: dates mark snaps due without silently changing model strength.
+- Timeline visit-gap chart orders rows by date and breaks the combined-gap line at visits without a pair; why: connecting gap-ranked or missing-pair visits would imply a false time trend.
