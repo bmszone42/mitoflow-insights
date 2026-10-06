@@ -340,3 +340,4 @@
 - ✅ Recalibrate: SOD vs glutathione weight slider for the Williams fit
 - ✅ Scenario compare: strength-source filter (all, saved default, profile own)
 - ✅ Strength range: snap outside profiles to nearest edge and re-run all
+- ✅ Strength range: shared range state (src/lib/mito/rangeState.ts) so the Strength history chart draws the picked range as a shaded band that moves live with the sliders
