@@ -1,6 +1,7 @@
-import { Bar, CartesianGrid, Cell, ComposedChart, DefaultTooltipContent, Legend, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, CartesianGrid, Cell, ComposedChart, DefaultTooltipContent, Legend, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Scatter, Tooltip, XAxis, YAxis } from "recharts";
 import { therapies } from "@/lib/mito/treatment";
 import { useStrengthRange } from "@/lib/mito/rangeState";
+import { snapStatus, useSnapPlan } from "@/lib/mito/snapPlan";
 
 export type GapRow = { date: string; so: number; atp: number; fe: number; doses: Record<string, number>; corridors?: Record<string, [number, number] | null>; pairGap?: number | null; pairCor?: [number, number] | null };
 
