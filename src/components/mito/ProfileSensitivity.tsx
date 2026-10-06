@@ -1,4 +1,5 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { savedRirrStrength, useProfileRirr } from "@/lib/mito/rirrDefault";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,6 +27,17 @@ function TuneAndSave({ patient, geo, healthy }: { patient: DemoPatient; geo: Geo
   const [vals, setVals] = useState(() => Object.fromEntries(tuneKeys.map((k) => [k, base[k]])) as Record<(typeof tuneKeys)[number], number>);
   const [name, setName] = useState(`${patient.label} tuned`);
   const [saved, setSaved] = useState("");
+  const [overrides] = useProfileRirr();
+  const own = overrides[patient.id] ?? null;
+  const [strengthSource, setStrengthSource] = useState("model default");
+  // After mount, start the strength slider at the profile's own strength, else the saved default.
+  useEffect(() => {
+    const def = savedRirrStrength();
+    const s = own ?? def ?? base.rirrStrength;
+    setStrengthSource(own != null ? "profile's own strength" : def != null ? "saved default" : "model default");
+    setVals((v) => ({ ...v, rirrStrength: s }));
+  }, [patient.id, own]); // eslint-disable-line react-hooks/exhaustive-deps
+  const strengthLabel = Math.abs(vals.rirrStrength - (own ?? savedRirrStrength() ?? base.rirrStrength)) < 1e-9 ? strengthSource : "tuned on this card";
   const inputs = { ...base, ...vals };
   const o = useMemo(() => simulate(inputs, geo), [JSON.stringify(vals), geo, base]); // eslint-disable-line react-hooks/exhaustive-deps
   const b = useMemo(() => simulate(base, geo), [base, geo]);
@@ -36,7 +48,7 @@ function TuneAndSave({ patient, geo, healthy }: { patient: DemoPatient; geo: Geo
     const n = name.trim() || `${patient.label} tuned`;
     await putScenario({
       id: crypto.randomUUID(), name: n,
-      notes: `Tuned from ${patient.label} on the Profile sensitivity card. ROS-induced ROS release strength is partly published (fitted to Melov 1999).`,
+      notes: `Tuned from ${patient.label} on the Profile sensitivity card. ROS-induced strength ${vals.rirrStrength.toFixed(2)}x (${strengthLabel}). ROS-induced ROS release strength is partly published (fitted to Melov 1999).`,
       inputs, geometry: geo,
       snapshot: { atpFlux: o.atpFlux, superoxide: o.superoxide, hydrogenPeroxide: o.hydrogenPeroxide, fesIntact: o.fesIntact, freeIron: o.freeIron },
       createdAt: now, updatedAt: now,
@@ -61,6 +73,7 @@ function TuneAndSave({ patient, geo, healthy }: { patient: DemoPatient; geo: Geo
       <div className="flex flex-wrap items-center gap-2">
         <input aria-label="Scenario name" className="w-64 rounded border border-input bg-background px-2 py-1 text-sm" value={name} onChange={(e) => setName(e.target.value)} />
         <Button size="sm" data-testid="profile-tune-save" onClick={save}>Save as scenario</Button>
+        <span className="text-xs text-muted-foreground" data-testid="profile-tune-strength">Saves strength {vals.rirrStrength.toFixed(2)}x ({strengthLabel}) with the scenario.</span>
         {saved && <span className="text-xs text-muted-foreground" data-testid="profile-tune-saved">Saved "{saved}". Open it from the Simulator's scenario list.</span>}
       </div>
     </div>

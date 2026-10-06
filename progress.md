@@ -317,3 +317,4 @@
 
 - ✅ Strength history log on Progress (dates, events, CSV, clear)
 - ✅ Strength history time chart on Progress (step line for saved default with a gap where cleared, scatter marks for per-profile strengths and batch runs, 1x reference line; lazy-loaded)
+- ✅ Tuned scenarios saved from Profile sensitivity carry the profile's own strength (or saved default) and note its source
