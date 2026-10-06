@@ -112,9 +112,29 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
               legendType="none"
             />,
           ])}
+          {/* Combined pair strip: the defences-only gap all of a visit's
+              therapies give together at the band's low and high strengths.
+              Only present on visits with two or more therapies. */}
+          <Bar yAxisId="gap" stackId="pcor" dataKey="pcor-lo" fill="transparent" stroke="none" isAnimationActive={false} legendType="none" />
+          <Bar
+            yAxisId="gap"
+            stackId="pcor"
+            dataKey="pcor-span"
+            name="Combined gap in range"
+            fill="var(--foreground)"
+            fillOpacity={0.18}
+            stroke="var(--foreground)"
+            strokeOpacity={0.45}
+            strokeDasharray="3 3"
+            isAnimationActive={false}
+            legendType="none"
+          />
           {used.map((t, i) => (
             <Line key={t.id} yAxisId="str" type="monotone" dataKey={t.id} name={t.name} stroke={lineColor(i)} strokeWidth={2} dot={{ r: 3 }} label={{ content: endLabel(t, i) }} />
           ))}
+          {/* Combined pair gap line: all of a visit's therapies together at
+              their model doses, dashed, only where a visit has 2+ therapies. */}
+          <Line yAxisId="gap" type="monotone" dataKey="pairGap" name="Combined therapies gap" stroke="var(--foreground)" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3 }} connectNulls={false} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
