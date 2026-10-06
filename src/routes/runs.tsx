@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { demoPatients, type DemoPatient } from "@/lib/mito/patientReference";
@@ -10,6 +10,12 @@ import { NotYetRun } from "@/components/mito/NotYetRun";
 import { StrengthHistory } from "@/components/mito/StrengthHistory";
 import { RecalibrateStrength } from "@/components/mito/RecalibrateStrength";
 import { StrengthRange } from "@/components/mito/StrengthRange";
+import { useStrengthRange } from "@/lib/mito/rangeState";
+
+// Lazy so recharts stays out of the initial Progress bundle.
+const RunHistoryChart = lazy(() =>
+  import("@/components/mito/RunHistoryChart").then((m) => ({ default: m.RunHistoryChart })),
+);
 
 export const Route = createFileRoute("/runs")({
   head: () => ({
@@ -42,6 +48,7 @@ function RunsPage() {
   const users = useUserPatients();
   const pool = useMemo(() => [...users, ...demoPatients], [users]);
   const [runs, setRuns] = useState<RunRecord[] | null>(null);
+  const [range] = useStrengthRange();
 
   useEffect(() => { listRuns().then(setRuns); }, []);
 
@@ -80,6 +87,14 @@ function RunsPage() {
             <Trash2 className="size-4" aria-hidden /> Clear log
           </Button>
         </div>
+
+        <section className="space-y-2" data-testid="runs-chart-section">
+          <h2 className="text-lg font-medium">Superoxide change over time</h2>
+          <p className="text-xs text-muted-foreground">Each dot is a logged run with a recorded superoxide change. Green means the run's ROS-induced strength sat inside your saved range, red means outside or not noted.</p>
+          <Suspense fallback={<p className="text-sm text-muted-foreground">Loading chart…</p>}>
+            <RunHistoryChart runs={runs} range={range} />
+          </Suspense>
+        </section>
 
         {[...byPatient.entries()].map(([pid, list]) => {
           const p = profileOf(pid);

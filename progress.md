@@ -399,3 +399,9 @@
 - ✅ /snap-plan: pick profiles (outside band preselected), date per profile or for all, target nearest edge or custom
 - ✅ Schedule with Planned / Due today / Overdue / Done / Skipped, apply due with preview + confirm, apply now, skip, remove, undo, CSV
 - ✅ Progress tracker: done bar, band count now vs after planned snaps, date strip colored by band
+
+## Superoxide-change-over-time chart on the Progress page (2026-10-06) ✅
+- ✅ New `RunHistoryChart.tsx` (lazy-loaded on `/runs`): every logged run with a recorded superoxide change is plotted at its timestamp on a percent axis with a zero reference line.
+- ✅ Each dot is green when the run's ROS-induced strength sat inside the saved range band, red when outside or when no strength was noted; reads the shared range state so it follows the Progress sliders live.
+- ✅ Count line above the chart: "N of M runs inside the band (lo-hi), K outside or with no strength noted."
+- ✅ Verified live with seeded runs: 2 of 3 inside the 0.50x-1.00x band, correct green/red dots, clean axis ticks.
