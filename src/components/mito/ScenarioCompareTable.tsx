@@ -180,6 +180,12 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
           </button>
         ))}
       </div>
+      {items.length > 0 && (
+        <p className="mb-1 text-[10px] text-muted-foreground" data-testid="spc-band-count">
+          {insideCount} of {sortedItems.length} scenarios inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x), {sortedItems.length - insideCount} outside.
+          Rows are green inside the band and red outside, judged by the strength each row was run at.
+        </p>
+      )}
       <table className="w-full text-xs">
         <thead>
           <tr className="text-left text-muted-foreground">
@@ -195,17 +201,17 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         </thead>
         <tbody>
           {!sameAsHealthy && (
-            <tr className="border-t border-border" data-testid="spc-healthy">
+            <tr className={`border-t border-border ${rowTone(defaultInputs.rirrStrength)}`} data-testid="spc-healthy" data-in-band={inBand(defaultInputs.rirrStrength) ? "yes" : "no"}>
               <td className="py-1 pr-2 font-medium">Healthy adult (model)</td>
               <td>{healthyOut.superoxide.toFixed(4)}</td>
               <td>{healthyOut.atpFlux.toFixed(1)}</td>
               <td>{healthyOut.freeIron.toFixed(2)}</td>
               <td>{healthyOut.hydrogenPeroxide.toFixed(1)}</td>
               <td className="text-primary">0%</td>
-              <td className="text-muted-foreground">model defaults</td>
+              <td className={strengthTone(defaultInputs.rirrStrength)}>model defaults ({defaultInputs.rirrStrength}x)</td>
             </tr>
           )}
-          <tr className="border-t border-border" data-testid="spc-reference">
+          <tr className={`border-t border-border ${rowTone(referenceStrength)}`} data-testid="spc-reference" data-in-band={inBand(referenceStrength) ? "yes" : "no"}>
             <td className="py-1 pr-2 font-medium">{referenceLabel} (reference)</td>
             <td>{referenceOut.superoxide.toFixed(4)}</td>
             <td>{referenceOut.atpFlux.toFixed(1)}</td>
@@ -214,14 +220,20 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
             <td className={referenceGap !== null && referenceGap > 0 ? "text-destructive" : "text-primary"} data-testid="spc-reference-gap">
               {referenceGap === null ? "—" : gapText(referenceGap)}
             </td>
-            <td className="text-muted-foreground">profile settings</td>
+            <td className={strengthTone(referenceStrength)} data-testid="spc-reference-strength">profile settings ({referenceStrength}x)</td>
           </tr>
           {sortedItems.map((s) => {
             const o = simulate(s.inputs, scenarioGeometry(s));
             const vsHealthy = pct(o.superoxide, healthyOut.superoxide, "vs healthy");
             const vsProfile = pct(o.superoxide, referenceOut.superoxide, "vs profile");
             return (
-              <tr key={s.id} className="border-t border-border" data-testid="spc-row">
+              <tr
+                key={s.id}
+                className={`border-t border-border ${rowTone(rowStrength(s))}`}
+                data-testid="spc-row"
+                data-strength={rowStrength(s)}
+                data-in-band={inBand(rowStrength(s)) ? "yes" : "no"}
+              >
                 <td className="py-1 pr-2 font-medium">{s.name}</td>
                 <td>
                   {o.superoxide.toFixed(4)}
@@ -267,7 +279,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
                 <td className={defencesGap(s) > 0 ? "text-destructive" : "text-primary"} data-testid="spc-defences-gap">
                   {gapText(defencesGap(s))}
                 </td>
-                <td className="text-muted-foreground">{scenarioStrengthLabel(s)}</td>
+                <td className={strengthTone(rowStrength(s))} data-testid="spc-row-strength">{scenarioStrengthLabel(s)}</td>
                 <td className="text-muted-foreground" data-testid="spc-strength-source">{scenarioStrengthSource(s)}</td>
               </tr>
             );
