@@ -48,6 +48,19 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           <ReferenceLine yAxisId="gap" y={0} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
+          {range && (
+            <ReferenceArea
+              yAxisId="str"
+              y1={range.lo}
+              y2={range.hi}
+              fill="var(--primary)"
+              fillOpacity={0.08}
+              stroke="var(--primary)"
+              strokeOpacity={0.3}
+              strokeDasharray="4 4"
+              label={{ value: `range ${range.lo.toFixed(2)}x-${range.hi.toFixed(2)}x`, position: "insideBottomLeft", fontSize: 10, fill: "var(--muted-foreground)" }}
+            />
+          )}
           <Bar yAxisId="gap" dataKey="so" name="Superoxide gap">
             {data.map((r, i) => <Cell key={i} fill={color("so", r.so)} />)}
           </Bar>
