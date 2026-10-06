@@ -52,18 +52,21 @@ export function RecalibrateStrength({ pool, onRan }: { pool: DemoPatient[]; onRa
   const [saved, setSaved] = useState<number | null>(() => savedRirrStrength());
   const target = Number(raw);
   const valid = raw.trim() !== "" && Number.isFinite(target) && target > 0 && target < 100;
-  const [anchor, setAnchor] = useState<"melov" | "williams">("melov");
+  const [anchor, setAnchor] = useState<"melov" | "williams" | "own">("melov");
+  const [ownAcRaw, setOwnAcRaw] = useState("0.6");
+  const ownAc = Math.min(2, Math.max(0.05, Number(ownAcRaw) || 0.6));
   const [sodRaw, setSodRaw] = useState("50");
   const [gshRaw, setGshRaw] = useState("30");
   const sod = Math.min(100, Math.max(0, Number(sodRaw) || 0));
   const gsh = Math.min(100, Math.max(0, Number(gshRaw) || 0));
   const [wRaw, setWRaw] = useState(50);
-  const ac = anchor === "williams" ? williamsCapacity(sod, gsh, wRaw) : WEAK_AC;
+  const ac = anchor === "williams" ? williamsCapacity(sod, gsh, wRaw) : anchor === "own" ? ownAc : WEAK_AC;
   const williamsAc = williamsCapacity(sod, gsh, wRaw);
   const fit = useMemo(() => (valid ? fitStrength(target, ac) : null), [valid, target, ac]);
-  // Both anchors fitted side by side so the curve can show each against the band.
+  // All anchors fitted side by side so the curve can show each against the band.
   const fitMelov = useMemo(() => (valid ? fitStrength(target, WEAK_AC) : null), [valid, target]);
   const fitWilliams = useMemo(() => (valid ? fitStrength(target, williamsAc) : null), [valid, target, williamsAc]);
+  const fitOwn = useMemo(() => (valid ? fitStrength(target, ownAc) : null), [valid, target, ownAc]);
   const current = useMemo(() => aconitasePct(defaultInputs.rirrStrength), []);
 
   async function rerun() {
