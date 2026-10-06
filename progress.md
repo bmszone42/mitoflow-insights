@@ -386,3 +386,6 @@
 - ✅ ScenarioCompareTable.tsx: every row tints green inside the picked band and red outside it (left edge accent plus a light tint, strength cell text follows the same color), judged by the strength that row actually ran at; count line above the table reads "N of M scenarios inside the band (lo-hi), K outside" and follows the strength-source filter.
 - ✅ Fix: the band is now read only after mount (useStrengthRange starts at the 0.5x-1.0x default on the server and the first client render, then loads the saved range). Before this, the colors the server rendered with the default band were never patched after hydration, so the healthy and reference rows stayed green even when 1x sat outside a saved band such as 1.1x-1.4x.
 - ✅ Verified live: with the default band, healthy, reference, tuned and 0.70x rows are green and 1.30x red ("2 of 3 scenarios inside"); after saving the band at 1.10x-1.40x and reloading, healthy and reference turn red and 1.30x green ("1 of 3 inside"); build clean.
+
+## Strength plan page
+- ✅ /strength-plan: therapies ranked at current strength, checked at both band edges, logged progress and strength history per profile

@@ -17,6 +17,7 @@ import { Route as LabRangesRouteImport } from './routes/lab-ranges'
 import { Route as PatientBaselineRouteImport } from './routes/patient-baseline'
 import { Route as ReferencesRouteImport } from './routes/references'
 import { Route as RunsRouteImport } from './routes/runs'
+import { Route as StrengthPlanRouteImport } from './routes/strength-plan'
 import { Route as TherapyCalculatorRouteImport } from './routes/therapy-calculator'
 import { Route as TherapyCompareRouteImport } from './routes/therapy-compare'
 import { Route as TherapyPlanRouteImport } from './routes/therapy-plan'
@@ -68,6 +69,11 @@ const ReferencesRoute = ReferencesRouteImport.update({
 const RunsRoute = RunsRouteImport.update({
   id: '/runs',
   path: '/runs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StrengthPlanRoute = StrengthPlanRouteImport.update({
+  id: '/strength-plan',
+  path: '/strength-plan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TherapyCalculatorRoute = TherapyCalculatorRouteImport.update({
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/patient-baseline': typeof PatientBaselineRoute
   '/references': typeof ReferencesRoute
   '/runs': typeof RunsRoute
+  '/strength-plan': typeof StrengthPlanRoute
   '/therapy-calculator': typeof TherapyCalculatorRoute
   '/therapy-compare': typeof TherapyCompareRoute
   '/therapy-plan': typeof TherapyPlanRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/patient-baseline': typeof PatientBaselineRoute
   '/references': typeof ReferencesRoute
   '/runs': typeof RunsRoute
+  '/strength-plan': typeof StrengthPlanRoute
   '/therapy-calculator': typeof TherapyCalculatorRoute
   '/therapy-compare': typeof TherapyCompareRoute
   '/therapy-plan': typeof TherapyPlanRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/patient-baseline': typeof PatientBaselineRoute
   '/references': typeof ReferencesRoute
   '/runs': typeof RunsRoute
+  '/strength-plan': typeof StrengthPlanRoute
   '/therapy-calculator': typeof TherapyCalculatorRoute
   '/therapy-compare': typeof TherapyCompareRoute
   '/therapy-plan': typeof TherapyPlanRoute
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/patient-baseline'
     | '/references'
     | '/runs'
+    | '/strength-plan'
     | '/therapy-calculator'
     | '/therapy-compare'
     | '/therapy-plan'
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/patient-baseline'
     | '/references'
     | '/runs'
+    | '/strength-plan'
     | '/therapy-calculator'
     | '/therapy-compare'
     | '/therapy-plan'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/patient-baseline'
     | '/references'
     | '/runs'
+    | '/strength-plan'
     | '/therapy-calculator'
     | '/therapy-compare'
     | '/therapy-plan'
@@ -276,6 +288,7 @@ export interface RootRouteChildren {
   PatientBaselineRoute: typeof PatientBaselineRoute
   ReferencesRoute: typeof ReferencesRoute
   RunsRoute: typeof RunsRoute
+  StrengthPlanRoute: typeof StrengthPlanRoute
   TherapyCalculatorRoute: typeof TherapyCalculatorRoute
   TherapyCompareRoute: typeof TherapyCompareRoute
   TherapyPlanRoute: typeof TherapyPlanRoute
@@ -346,6 +359,13 @@ declare module '@tanstack/react-router' {
       path: '/runs'
       fullPath: '/runs'
       preLoaderRoute: typeof RunsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/strength-plan': {
+      id: '/strength-plan'
+      path: '/strength-plan'
+      fullPath: '/strength-plan'
+      preLoaderRoute: typeof StrengthPlanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/therapy-calculator': {
@@ -444,6 +464,7 @@ const rootRouteChildren: RootRouteChildren = {
   PatientBaselineRoute: PatientBaselineRoute,
   ReferencesRoute: ReferencesRoute,
   RunsRoute: RunsRoute,
+  StrengthPlanRoute: StrengthPlanRoute,
   TherapyCalculatorRoute: TherapyCalculatorRoute,
   TherapyCompareRoute: TherapyCompareRoute,
   TherapyPlanRoute: TherapyPlanRoute,
