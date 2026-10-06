@@ -105,6 +105,7 @@ export type ScenarioSummaryRow = {
   name: string;
   rirrStrength: number | null;
   strengthNoted: boolean;
+  strengthSource: string;
   preset?: string | undefined;
   atpFlux?: number | undefined;
   superoxide?: number | undefined;
@@ -151,6 +152,7 @@ export function scenariosExportPayload(items: Scenario[], reference?: { label: s
       name: s.name,
       rirrStrength: strength,
       strengthNoted: strength != null,
+      strengthSource: scenarioStrengthSource(s),
       preset: s.preset,
       atpFlux: s.snapshot.atpFlux,
       superoxide: s.snapshot.superoxide,
