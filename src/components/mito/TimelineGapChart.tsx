@@ -12,6 +12,7 @@ const color = (metric: "so" | "atp" | "fe", v: number) => (bad(metric, v) ? "var
 const lineColor = (i: number) => `var(--chart-${(i % 5) + 1})`;
 
 export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
+  const [range] = useStrengthRange();
   const sorted = [...rows].sort((a, b) => b.so - a.so);
   // One line per therapy that appears in any visit; null where not given so the line breaks.
   const used = therapies.filter((t) => sorted.some((r) => r.doses[t.id] != null));
