@@ -1,3 +1,9 @@
+## Top pairs ranked across the band (2026-10-06)
+
+- Strength plan Top 3 pairs now scores every therapy pair at the current strength AND both band edges, then ranks pairs that still lower superoxide at both edges first, ordered by worst edge result, then current strength. Explainer text updated.
+- Verified live: top 3 all hold across the 0.50x-1.00x band (worst edges -69%, -68%, -65%).
+- Pending: Williams 1998 aconitase number; user's real therapy measurements.
+
 ## Timeline snap strip (2026-10-06)
 
 - Timeline gap chart now plots scheduled snaps from the Snap plan page as a date strip below the chart: green dot when the planned target strength sits inside the saved band, red when outside, band shaded behind. Only planned snaps show; done and skipped stay in history.
