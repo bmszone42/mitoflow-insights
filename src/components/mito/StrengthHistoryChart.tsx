@@ -9,13 +9,6 @@ import {
 } from "recharts";
 import type { StrengthHistoryEntry } from "@/lib/mito/rirrDefault";
 
-const KIND_LABEL: Record<StrengthHistoryEntry["kind"], string> = {
-  "default-saved": "Default saved",
-  "default-cleared": "Default cleared",
-  "profile-set": "Profile strength set",
-  "profile-cleared": "Profile strength cleared",
-  "batch-run": "Batch run",
-};
 
 export function StrengthHistoryChart({ rows }: { rows: StrengthHistoryEntry[] }) {
   const withStrength = rows.filter((r) => r.strength !== null);
@@ -45,9 +38,6 @@ export function StrengthHistoryChart({ rows }: { rows: StrengthHistoryEntry[] })
       batch: r.kind === "batch-run" ? r.strength : undefined,
     };
   });
-
-  // Cleared-default events have no strength, so they fall out of the data and
-  // the default line simply breaks there (connectNulls={false}).
 
 
   const fmtTime = (t: number) => new Date(t).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
