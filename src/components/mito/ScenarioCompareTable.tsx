@@ -305,6 +305,7 @@ export function ScenarioCompareTable({ referenceLabel, referenceOut, referenceIn
         not the saved snapshot. "vs healthy" compares with the
         healthy adult's simulated values (model defaults), colored red when the value is worse than normal
         (higher superoxide, free iron or peroxide, lower ATP) and green at or better; "vs profile" compares with {referenceLabel}'s simulated values, not lab measurements.
+        Row tint follows the saved strength band: green when the strength that row was run at is inside the band, red when outside, the same rule as the Strength history chart dots.
         Model estimates only.
       </p>
 
