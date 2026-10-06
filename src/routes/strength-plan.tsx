@@ -179,6 +179,35 @@ function StrengthPlan() {
         <p className="p-2 text-xs text-muted-foreground">Ranked: therapies that lower superoxide at both band edges first, then by superoxide drop at the current strength. Edge columns use the same best dose search.</p>
       </section>
 
+      <section className="space-y-3 rounded-lg border p-4" data-testid="top-pairs-section">
+        <h2 className="font-medium">Top 3 pairs</h2>
+        <p className="text-xs text-muted-foreground">The model searches every pair of therapies together and ranks the three that lower superoxide most at the current strength, then re-checks each at both band edges. A pair can be a single therapy at its best dose plus no benefit from the other. Combined effects are a model estimate, not a studied combination.</p>
+        {topPairs.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No pair of therapies lowers superoxide at this profile's current strength.</p>
+        ) : (
+          <table className="w-full text-sm" data-testid="top-pairs-table">
+            <thead className="bg-muted/50 text-left">
+              <tr><th className="p-2">Rank</th><th className="p-2">Combination</th><th className="p-2">Best doses</th><th className="p-2">Superoxide now</th><th className="p-2">At {lo.toFixed(2)}x</th><th className="p-2">At {hi.toFixed(2)}x</th><th className="p-2">Combined gap</th><th className="p-2">Holds across band</th><th className="p-2"></th></tr>
+            </thead>
+            <tbody>
+              {topPairs.map((r, i) => (
+                <tr key={`${r.tA.id}-${r.tB.id}`} className="border-t" data-testid={`top-pair-${i + 1}`}>
+                  <td className="p-2">#{i + 1}</td>
+                  <td className="p-2">{r.tA.name} + {r.tB.name}</td>
+                  <td className="p-2">{r.cur.doseA}x + {r.cur.doseB}x</td>
+                  <td className={`p-2 ${r.cur.so < 0 ? "text-primary" : "text-destructive"}`}>{pct(r.cur.so)}</td>
+                  <td className="p-2">{pct(r.low.so)}</td>
+                  <td className="p-2">{pct(r.high.so)}</td>
+                  <td className="p-2" data-testid={`top-pair-${i + 1}-gap`}>{pct(r.cur.gap)}</td>
+                  <td className={`p-2 ${r.robust ? "text-primary" : "text-muted-foreground"}`}>{r.robust ? "yes" : "no"}</td>
+                  <td className="p-2"><Button size="sm" onClick={() => logPairRank(r)} data-testid={`top-pair-${i + 1}-log`}>Log</Button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
+
       <section className="space-y-3 rounded-lg border p-4" data-testid="pair-section">
         <h2 className="font-medium">Try two together</h2>
         <p className="text-xs text-muted-foreground">Pick two therapies; the model searches both dose sliders together and shows the combined superoxide change and defences-only gap. Combined effects are a model estimate, not a studied combination.</p>
