@@ -11,6 +11,7 @@ export type Scenario = {
   interpretation?: { condition: string; text: string; at: number };
   micrograph?: { thumb: string; analysis: string; at: number };
   preset?: string; // preset name when the scenario was saved from a preset button
+  strengthSource?: string; // where rirrStrength came from when saved (profile's own strength, saved default, tuned on the card, model default)
   createdAt: number;
   updatedAt: number;
 };
@@ -70,6 +71,15 @@ export function scenarioStrength(s: Scenario): number | null {
 export function scenarioStrengthLabel(s: Scenario): string {
   const v = scenarioStrength(s);
   return v == null ? `not noted (assumed ${DEFAULT_RIRR_STRENGTH}x)` : `${v}x`;
+}
+
+// Where a scenario's strength came from: the structured field saved by the
+// Profile sensitivity card, else parsed from older notes text, else unknown.
+export function scenarioStrengthSource(s: Scenario): string {
+  if (typeof s.strengthSource === "string" && s.strengthSource) return s.strengthSource;
+  const m = /ROS-induced strength [\d.]+x \(([^)]+)\)/.exec(s.notes ?? "");
+  if (m?.[1]) return m[1];
+  return "not noted";
 }
 
 // Defences-only gap, the same matched-healthy comparison the Dashboard,
