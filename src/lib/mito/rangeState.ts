@@ -30,6 +30,7 @@ export function strengthRange(): { lo: number; hi: number } {
 export function setStrengthRange(nextLo: number, nextHi: number) {
   lo = Math.min(nextLo, nextHi);
   hi = Math.max(nextLo, nextHi);
+  try { localStorage.setItem(KEY, JSON.stringify({ lo, hi })); } catch { /* storage unavailable */ }
   window.dispatchEvent(new Event(RANGE_EVENT));
 }
 
