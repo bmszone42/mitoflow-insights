@@ -339,3 +339,4 @@
 
 - ✅ Recalibrate: SOD vs glutathione weight slider for the Williams fit
 - ✅ Scenario compare: strength-source filter (all, saved default, profile own)
+- ✅ Strength range: snap outside profiles to nearest edge and re-run all
