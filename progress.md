@@ -1,3 +1,9 @@
+## Timeline visits persist in this browser (2026-10-07)
+
+- ✅ Timeline visits (user, real and plan rows) now persist in IndexedDB ("cristae-lab-visits"), like runs; baseline and synthetic rows are still regenerated from demo data.
+- ✅ Writes are fire-and-forget (add, plan, remove); hydration loads stored rows on first use and merges without duplicates.
+- ✅ Verified live: added a visit, reloaded the page, visit still present (1 IndexedDB row), build green.
+
 - ✅ Strength plan and Snap plan merged into Therapy plan tabs (Suggestions, Pairs, Schedule); /strength-plan and /snap-plan redirect.
 - ✅ Menu grouped into Model, Patient, Plan, Reference; header band control (same saved band); selected profile remembered across pages (localStorage cristae-lab-profile).
 - ✅ Paste measurements also schedules one snap per date (checkbox, on by default), shown on the Timeline snap strip.

@@ -1,21 +1,57 @@
 import { useSyncExternalStore } from "react";
+import { openDB, type IDBPDatabase } from "idb";
 import { demoPatients, patientMetrics, projectedMitoSox, projectedH2o2, mitoSoxBand, h2o2NmBand, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
 import { defaultGeometry, melovHeartCheck, simulate } from "./model";
 
-// Timeline visits live in module memory only (tab-only, never persisted or sent anywhere).
+// Timeline visits persist in this browser via IndexedDB ("cristae-lab-visits"), like runs.
+// Baseline and synthetic visits are regenerated from the demo data; only user/real/plan rows are stored.
 /** origin "real": a real-world visit with measured labs and the actual doses taken (free text, e.g. "20 mg/day"); actualDoses are recorded only, the model still uses `doses`. */
 export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; h2o2Nm?: number | undefined; therapies: string[]; doses?: Record<string, number> | undefined; actualDoses?: Record<string, string> | undefined; origin: "baseline" | "synthetic" | "user" | "plan" | "real" };
 
 let visits: Visit[] = [];
 const listeners = new Set<() => void>();
 const emit = () => { visits = [...visits]; listeners.forEach((l) => l()); };
-export const useVisits = () => useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => visits, () => visits);
-export const addVisit = (v: Omit<Visit, "id" | "origin">, origin: "user" | "real" = "user") => { visits.push({ ...v, id: `v-${Date.now()}-${Math.round(Math.random() * 1e6)}`, origin }); emit(); };
+
+let vdbp: Promise<IDBPDatabase> | null = null;
+function vdb() {
+  if (typeof indexedDB === "undefined") throw new Error("IndexedDB unavailable");
+  vdbp ??= openDB("cristae-lab-visits", 1, { upgrade(d) { d.createObjectStore("visits", { keyPath: "id" }); } });
+  return vdbp;
+}
+
+// Fire-and-forget persistence; never throws into the UI.
+const persist = (v: Visit) => { void vdb().then((d) => d.put("visits", v)).catch(() => {}); };
+const unpersist = (id: string) => { void vdb().then((d) => d.delete("visits", id)).catch(() => {}); };
+
+let hydrated = false;
+function hydrate() {
+  if (hydrated || typeof indexedDB === "undefined") return;
+  hydrated = true;
+  void vdb()
+    .then((d) => d.getAll("visits"))
+    .then((rows) => {
+      if (!Array.isArray(rows) || !rows.length) return;
+      const stored = rows as Visit[];
+      const known = new Set(visits.map((v) => v.id));
+      visits.push(...stored.filter((v) => !known.has(v.id)));
+      emit();
+    })
+    .catch(() => {});
+}
+
+export const useVisits = () => useSyncExternalStore((l) => { listeners.add(l); hydrate(); return () => listeners.delete(l); }, () => visits, () => visits);
+export const addVisit = (v: Omit<Visit, "id" | "origin">, origin: "user" | "real" = "user") => {
+  const visit: Visit = { ...v, id: `v-${Date.now()}-${Math.round(Math.random() * 1e6)}`, origin };
+  visits.push(visit); persist(visit); emit();
+};
 /** Plan row: therapies and doses only, no new labs. Labs are filled from the latest earlier non-plan visit in patientTimeline. */
-export const addPlan = (v: Pick<Visit, "patientId" | "date" | "therapies" | "doses">) => { visits.push({ ...v, id: `p-${Date.now()}-${Math.round(Math.random() * 1e6)}`, values: {} as Record<PatientMetricKey, number>, origin: "plan" }); emit(); };
-export const removeVisit = (id: string) => { visits = visits.filter((v) => v.id !== id); emit(); };
+export const addPlan = (v: Pick<Visit, "patientId" | "date" | "therapies" | "doses">) => {
+  const plan: Visit = { ...v, id: `p-${Date.now()}-${Math.round(Math.random() * 1e6)}`, values: {} as Record<PatientMetricKey, number>, origin: "plan" };
+  visits.push(plan); persist(plan); emit();
+};
+export const removeVisit = (id: string) => { visits = visits.filter((v) => v.id !== id); unpersist(id); emit(); };
 
 /** L:P is derived: lactate (mmol/L) x 1000 / pyruvate (µmol/L). */
 export const withDerived = (values: Record<PatientMetricKey, number>) => ({ ...values, lactatePyruvate: values.pyruvate > 0 ? Math.round((values.lactate * 1000 / values.pyruvate) * 10) / 10 : values.lactatePyruvate });
