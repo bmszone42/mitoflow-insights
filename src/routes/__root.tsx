@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -11,6 +12,11 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
+import { ChevronDown } from "lucide-react";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -120,46 +126,79 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-const navLinks = [
-  { to: "/", label: "Simulator" },
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/diagnosis", label: "Diagnosis" },
-  { to: "/timeline", label: "Timeline" },
-  { to: "/therapy-plan", label: "Therapy plan" },
-  { to: "/strength-plan", label: "Strength plan" },
-  { to: "/snap-plan", label: "Snap plan" },
-  { to: "/therapy-tools", label: "Therapy tools" },
-  { to: "/carriers", label: "Carriers" },
-  { to: "/runs", label: "Progress" },
-  { to: "/lab-ranges", label: "Lab ranges" },
-  { to: "/references", label: "References" },
+const navGroups = [
+  { label: "Model", links: [
+    { to: "/", label: "Simulator" },
+    { to: "/carriers", label: "Carriers" },
+  ] },
+  { label: "Patient", links: [
+    { to: "/dashboard", label: "Dashboard" },
+    { to: "/diagnosis", label: "Diagnosis" },
+    { to: "/timeline", label: "Timeline" },
+    { to: "/runs", label: "Progress" },
+  ] },
+  { label: "Plan", links: [
+    { to: "/therapy-plan", label: "Therapy plan" },
+    { to: "/strength-plan", label: "Strength plan" },
+    { to: "/snap-plan", label: "Snap plan" },
+    { to: "/therapy-tools", label: "Therapy tools" },
+  ] },
+  { label: "Reference", links: [
+    { to: "/lab-ranges", label: "Lab ranges" },
+    { to: "/references", label: "References" },
+  ] },
 ] as const;
+
+function NavGroup({ group }: { group: (typeof navGroups)[number] }) {
+  const path = useRouterState({ select: (r) => r.location.pathname });
+  const active = group.links.some((l) => (l.to === "/" ? path === "/" : path.startsWith(l.to)));
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        data-testid={`nav-${group.label.toLowerCase()}`}
+        className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm transition-colors ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+      >
+        {group.label}
+        <ChevronDown className="size-3.5" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        {group.links.map((l) => (
+          <DropdownMenuItem key={l.to} asChild>
+            <Link to={l.to} activeOptions={{ exact: l.to === "/" }} activeProps={{ className: "font-medium text-foreground" }}>{l.label}</Link>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function BandControl() {
+  const [{ lo, hi }, setRange] = useStrengthRange();
+  return (
+    <Popover>
+      <PopoverTrigger data-testid="header-band" className="ml-auto rounded-md border border-border px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground" aria-label="Strength band">
+        Band {lo.toFixed(2)}x-{hi.toFixed(2)}x
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-72 space-y-3">
+        <p className="text-sm font-medium">Strength band</p>
+        <Slider min={0} max={1.5} step={0.05} value={[lo, hi]} onValueChange={(v) => setRange(v[0]!, v[1]!)} aria-label="Strength band" />
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="font-mono">{lo.toFixed(2)}x to {hi.toFixed(2)}x</span>
+          <button type="button" className="underline hover:text-foreground disabled:opacity-50" disabled={lo === 0.5 && hi === 1} onClick={() => setRange(0.5, 1)}>Reset to 0.50x-1.00x</button>
+        </div>
+        <p className="text-xs text-muted-foreground">Same band as the Progress sliders; every chart that colors inside or outside follows it.</p>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 function TopNav() {
   return (
-    <nav
-      data-testid="top-nav"
-      className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur"
-    >
+    <nav data-testid="top-nav" className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-1 gap-y-1 px-4 py-2">
-        <Link
-          to="/"
-          className="mr-3 text-sm font-semibold tracking-tight text-foreground"
-        >
-          Cristae Lab
-        </Link>
-        {navLinks.map((l) => (
-          <Link
-            key={l.to}
-            to={l.to}
-            activeOptions={{ exact: l.to === "/" }}
-            activeProps={{ className: "bg-accent text-foreground" }}
-            inactiveProps={{ className: "text-muted-foreground hover:text-foreground" }}
-            className="rounded-md px-2.5 py-1.5 text-sm transition-colors"
-          >
-            {l.label}
-          </Link>
-        ))}
+        <Link to="/" className="mr-3 text-sm font-semibold tracking-tight text-foreground">Cristae Lab</Link>
+        {navGroups.map((g) => <NavGroup key={g.label} group={g} />)}
+        <BandControl />
       </div>
     </nav>
   );
