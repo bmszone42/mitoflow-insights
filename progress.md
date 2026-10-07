@@ -527,7 +527,14 @@
 - ✅ New "Flag filter" select in the Dashboard header: All profiles, Flagged only (at least one lab, assay or model flag), Not flagged only. Flagged profiles were already sorted first by total flag count; the filter keeps that order.
 - ✅ The count beside the filter shows "17 of 18" when filtered; the band summary line keeps counting all 18 profiles so the "in band / outside" split stays truthful under a filter.
 - ✅ CSV and batch CSV exports follow the filter (they export the table's rows).
-- ✅ Verified live: flagged shows 17 rows (all except healthy Demo 02), unflagged shows Demo 02 alone, order stays flag-descending in every view, no page errors, build clean.
+ - ✅ Verified live: flagged shows 17 rows (all except healthy Demo 02), unflagged shows Demo 02 alone, order stays flag-descending in every view, no page errors, build clean.
+
+## Sort by latest progress on the Dashboard table (2026-10-07) ✅
+- ✅ New "Sort by" select in the Dashboard header: Flag count (old default, most flagged first) or Latest progress (newest logged run first; profiles with no runs last, then alphabetical). CSV and batch CSV exports follow the sort and the filter (they export the table's rows).
+- ✅ The Latest progress column header is now clickable: one click switches to the latest sort (header shows "↓"), clicking again returns to flag count. data-testids: dash-sort-label, dash-sort, dash-sort-latest.
+- ✅ The run-logging effect now refreshes the latest-run map after the on-load dashboard sweep, so the Latest progress sort is correct on a browser's very first visit instead of falling back to alphabetical until reload.
+- ✅ Verified live in a fresh browser: latest sort puts the profiles whose sweep runs logged last at the top (Demo 02, Demo 10, Demo 01) and Demo 15 first-logged at the bottom; header click toggles back to flag count; no page errors, build OK.
+
 
 ## Leftover cloud-auth code removed (2026-10-07) ✅
 - ✅ Uninstalled @lovable.dev/cloud-auth-js and @supabase/supabase-js; deleted the generated src/integrations/supabase and src/integrations/lovable folders. No app code imported them.
