@@ -27,8 +27,8 @@
 - Projected flag clearance picks its therapy only via `bestProjectionTherapy` in `treatment.ts` (all therapies, or the one picked via onlyId); Diagnosis, the Timeline and the dashboard each expose the same single-therapy picker; why: all pages and CSVs must agree.
 - Real-world dose anchors carry their source in `doseSource` on the `Therapy`; the Therapy plan, Therapy calculator and Therapy comparison render it as a link and the calculator's and comparison's CSVs export it. Only sources that resolve (checked live) are kept; therapies with no clinical dose get none.
 - Local-only build: no auth UI, no cloud sync; scenarios persist in IndexedDB via src/lib/mito/scenarios.ts and AI replies in localStorage. Why: single user running the app on their own machine.
-- Therapy UI is consolidated: /therapy-tools holds the dose calculator and comparison as tabs; /therapy-plan holds Suggestions (strength-ranked plus flagged therapies), Pairs and Schedule tabs via ?tab=; old routes only redirect. Why: overlapping therapy routes confused navigation.
-- Run logging for the Scenario progress page goes through recordRun in src/lib/mito/runs.ts (IndexedDB "cristae-lab-runs", dedupe key patient|source|dose|therapies); any new page that runs therapy simulations must call it. Why: the progress page only stays truthful if every simulation site logs.
+- Therapy UI is consolidated: /therapy-tools holds calculator and comparison tabs; /therapy-plan holds Suggestions, Pairs and Schedule tabs via ?tab=; old routes only redirect. Why: overlapping therapy routes confused navigation.
+- Run logging goes through recordRun in src/lib/mito/runs.ts (IndexedDB "cristae-lab-runs", dedupe key patient|source|dose|therapies); any new page that simulates therapies must call it. Why: the progress page stays truthful only if every simulation site logs.
 - Exploratory levers (made-up, or dose-anchored via src/lib/mito/doseAnchors.ts with trial doses and an assumed effect size) stay local component state, are labeled as such, and never enter Inputs, flags or scenarios; why: keeps cited model outputs clean.
 - Every study reference gets a synopsis and 0-100 score in src/lib/mito/referenceLibrary.ts keyed by DOI; the /references page reads it. Why: one scored library for all sources.
 - Carrier efficiency levers live in src/lib/mito/carriers.ts (applyCarriers maps 0-2x rates onto existing Inputs, clamped by inputRanges) and stay local to /carriers; why: made-up rates must never reach flags, scenarios or Diagnosis.
@@ -36,5 +36,7 @@
 - Scheduled strength snaps live in src/lib/mito/snapPlan.ts (localStorage cristae-lab-snap-plan) and only apply on user confirm at /snap-plan, writing per-profile overrides via saveProfileRirr; why: dates mark snaps due without silently changing model strength.
 - Timeline visit-gap chart orders rows by date and breaks the combined-gap line at visits without a pair; why: connecting gap-ranked or missing-pair visits would imply a false time trend.
 - Timeline visits persist in IndexedDB "cristae-lab-visits" (user/real/plan rows only, fire-and-forget writes, hydrate on first useVisits); why: pasted measurements must survive a reload like runs do.
-- Selected profile is shared via useSelectedProfile in src/lib/mito/selectedProfile.ts (localStorage, ?profile= wins); why: switching profile on one page must carry to every page.
-- Start here explainer is one shared component (src/components/mito/StartHereCard.tsx) with per-page storageKey, steps and strengthWhere; why: the term definitions must match everywhere while each page names only its own controls.
+- Selected profile is shared via useSelectedProfile (localStorage, ?profile= wins); why: a profile picked on one page must carry to every page.
+- Start here explainer is one shared component (StartHereCard.tsx) with per-page storageKey, steps and strengthWhere; why: definitions must match everywhere while each page names only its own controls.
+- /runs?profile= shows one profile's logged runs only and hides the tool panels until "Show the tools"; why: a Dashboard row click must land on that profile's rows.
+

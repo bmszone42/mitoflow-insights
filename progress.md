@@ -1,4 +1,12 @@
+## Dashboard Latest progress opens that profile's log (2026-10-07)
+
+- ✅ The Dashboard's Latest progress cell is now a link to /runs?profile=<id>, so one click lands on that profile's run log; profiles with no runs stay plain text.
+- ✅ The Progress page reads ?profile=: only that profile's rows show, the counts and the superoxide-change chart follow the filter, and a "Show all profiles" link returns the full log.
+- ✅ On such a jump the tool panels (recalibrate, strength history, band, paste measurements, not yet run) start hidden with a "Show the tools" line, so the profile's rows land in view instead of below the fold.
+- ✅ Verified live: seeded run log, clicked the Demo 07 cell, landed on /runs?profile=demo-07 with one section and its rows in view (tools hidden), "Show the tools" restored the panels, "Show all profiles" returned every section; a direct /runs?profile=demo-15 with no logged runs says "No runs logged for Demo 15 yet"; plain /runs unchanged; no page errors, build green.
+
 ## Dashboard band, progress and Snap plan link (2026-10-07)
+
 
 - ✅ Dashboard table gains a Band column: each profile's effective strength vs the saved band (same store as the Progress sliders), red when outside.
 - ✅ Dashboard table gains a Latest progress column: newest run per profile from the local run log (date, source, strength), or "No runs yet".
