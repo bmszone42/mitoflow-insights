@@ -148,12 +148,14 @@ function Dashboard() {
     for (const r of simulated) recordRun(r.p.id, "dashboard", dose, therapies.map((t) => t.id), profileInputs(r.p).rirrStrength);
   }, [simulated, dose]);
 
-  const rows = useMemo(() => simulated.map((r) => ({
+  const rows = useMemo(() => simulated
+    .filter((r) => flagFilter === "all" || (flagFilter === "flagged" ? r.labFlags + r.assayFlags + r.modelFlags > 0 : r.labFlags + r.assayFlags + r.modelFlags === 0))
+    .map((r) => ({
     ...r,
     resp: r.respAll === null ? null : readoutOnly
       ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
       : r.respAll,
-  })), [simulated, readoutOnly]);
+  })), [simulated, readoutOnly, flagFilter]);
 
   const compareRow = rows.find((r) => r.p.id === compareId) ?? rows[0];
 
