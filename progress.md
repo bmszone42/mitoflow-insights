@@ -1,4 +1,11 @@
+## Dashboard band summary line (2026-10-07)
+
+- ✅ A line above the Dashboard table counts profiles inside the saved band ("18 of 18 profiles sit inside the band (0.50x-1.00x); 0 outside."), using each profile's own effective strength, the same value the Band column shows.
+- ✅ "Edit the band" in that line opens the header band popover, so the band stays edited in one place instead of gaining a second slider set.
+- ✅ Verified live: default band reads 18 of 18 in / 0 outside while no Band cell says Outside; dragging the band's top edge down to 0.05x-0.50x flips the line to 0 of 18 in / 18 outside and all 18 Band cells then read Outside; the popover opens from the in-page link; no page errors. Build OK.
+
 ## Dashboard Latest progress opens that profile's log (2026-10-07)
+
 
 - ✅ The Dashboard's Latest progress cell is now a link to /runs?profile=<id>, so one click lands on that profile's run log; profiles with no runs stay plain text.
 - ✅ The Progress page reads ?profile=: only that profile's rows show, the counts and the superoxide-change chart follow the filter, and a "Show all profiles" link returns the full log.
