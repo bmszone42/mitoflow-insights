@@ -473,3 +473,9 @@
 - ✅ Strength plan: "Add #1 pair to Snap plan" schedules a snap today to the band edge where the top pair works best
 
 - ✅ Timeline: "Top 3 pairs across your band" line chart, shared ranking in pairRank.ts
+
+## "Start here" card on the Simulator (2026-10-07) ✅
+- ✅ New `StartHereCard.tsx` mounted above the Simulator grid: plain-words explainer of strength, band and the defences-only gap, with the live strength value from the sliders and the saved band, colored green inside / red outside like the other charts.
+- ✅ "Try this first" list (click a therapy lever or preset, drag antioxidant capacity down, open Diagnosis) plus a note that outputs are model estimates, not clinical advice.
+- ✅ Hide button remembers the choice in this browser (localStorage cristae-lab-start-here); a one-line "What do strength, band and gap mean?" link brings the card back.
+- ✅ Verified live: card renders on the Simulator tab, Hide collapses it, it stays collapsed after a reload, the link restores it, and the band chip follows a saved band (1.10x-1.40x) after reload; no page errors, build clean.
