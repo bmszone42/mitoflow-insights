@@ -12,6 +12,7 @@ import { defaultGeometry, melovHeartCheck, simulate } from "@/lib/mito/model";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
+import { StartHereCard } from "@/components/mito/StartHereCard";
 
 export const Route = createFileRoute("/diagnosis")({
   validateSearch: (s) => z.object({ profile: z.string().optional() }).parse(s),
@@ -50,6 +51,8 @@ function DiagnosisPage() {
   const [id, setId] = useSelectedProfile("demo-04", Route.useSearch().profile);
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
+  // Inputs behind the plain-words card: the selected profile's own strength, or the saved default.
+  const cardInputs = useMemo(() => profileInputs(d.patient), [d, rirr]);
 
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
     <div className="flex flex-wrap gap-2"><Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 size-4" aria-hidden />Back to lab</Link></Button><Button variant="outline" size="sm" asChild><Link to="/" search={{ patient: id }} data-testid="dx-run-sim">Run in Simulator</Link></Button><Button variant="outline" size="sm" asChild><Link to="/treatment" search={{ profile: id }} data-testid="dx-treatment">See therapy targets</Link></Button><Button variant="outline" size="sm" asChild><Link to="/therapy-plan" search={{ profile: id }} data-testid="dx-plan">Therapy plan</Link></Button><Button variant="outline" size="sm" asChild><Link to="/timeline" search={{ profile: id }}>Timeline</Link></Button><Button variant="outline" size="sm" asChild><Link to="/dashboard">Dashboard</Link></Button></div>
@@ -58,6 +61,18 @@ function DiagnosisPage() {
       <h1 className="mt-1 text-2xl font-semibold">Diagnosis</h1>
       <p className="mt-2 border-l-2 border-destructive pl-3 text-xs leading-relaxed" role="note" data-testid="dx-banner">Mostly synthetic data; values from published cases or your own results are labeled. For research and teaching only, not a medical diagnosis. Causes are mitochondrial mechanisms ranked from model and assay flags; nothing here confirms a disease.</p>
     </header>
+
+    <StartHereCard
+      inputs={cardInputs}
+      storageKey="cristae-lab-start-here-diagnosis"
+      strengthWhere="You move it on the Simulator's ROS-induced ROS release strength slider, and the Progress page can save your value as the default for every page."
+      steps={[
+        "1. Pick a profile row above, or use the Profile picker below, to see its flags and ranked causes.",
+        "2. Look for Superoxide high, defences only among the flags: a positive number means your defences look weaker than healthy.",
+        "3. Set your band at the top right and check whether that gap still holds at both ends of it.",
+      ]}
+    />
+
 
     <section aria-label="All profiles" className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[760px] text-left text-xs">

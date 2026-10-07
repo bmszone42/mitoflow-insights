@@ -37,3 +37,4 @@
 - Timeline visit-gap chart orders rows by date and breaks the combined-gap line at visits without a pair; why: connecting gap-ranked or missing-pair visits would imply a false time trend.
 - Timeline visits persist in IndexedDB "cristae-lab-visits" (user/real/plan rows only, fire-and-forget writes, hydrate on first useVisits); why: pasted measurements must survive a reload like runs do.
 - Selected profile is shared via useSelectedProfile in src/lib/mito/selectedProfile.ts (localStorage, ?profile= wins); why: switching profile on one page must carry to every page.
+- Start here explainer is one shared component (src/components/mito/StartHereCard.tsx) with per-page storageKey, steps and strengthWhere; why: the term definitions must match everywhere while each page names only its own controls.

@@ -481,3 +481,9 @@
 - ✅ Verified live: card renders on the Simulator tab, Hide collapses it, it stays collapsed after a reload, the link restores it, and the band chip follows a saved band (1.10x-1.40x) after reload; no page errors, build clean.
 - ✅ Timeline visits export/import as a JSON file (dedupe on profile, date, therapies, type)
 - [x] Move everything file (Timeline): visits, runs, snaps, band, strengths in one download/load
+
+## "Start here" card on Diagnosis (2026-10-07) ✅
+- ✅ `StartHereCard.tsx` is now shared: optional `storageKey`, `steps` and `strengthWhere` props keep the same plain-words definitions of strength, band and the defences-only gap on every page, while each page points at the controls it actually has.
+- ✅ Diagnosis mounts the card under its page header, reading the selected profile's own strength (its saved override, else the saved default), with Diagnosis-specific "Try this first" steps: pick a profile row, read the "Superoxide high, defences only" flag, then check whether that gap holds across your band.
+- ✅ Dismissal is remembered per page: Diagnosis uses localStorage `cristae-lab-start-here-diagnosis`, so hiding it there leaves the Simulator card showing.
+- ✅ Verified live: card renders on Diagnosis with the strength chip (1.00x) and band chip (0.50x to 1.00x), Hide collapses it and it stays collapsed after a reload, the Simulator card is unaffected, and the "What do strength, band and gap mean?" link restores it; no page errors, build clean.
