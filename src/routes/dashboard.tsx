@@ -60,6 +60,8 @@ function Dashboard() {
   const [strengthEpoch, setStrengthEpoch] = useState(0);
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
+  // Table order: "flags" is most-flagged first (the old default); "latest" puts recently run profiles at the top, no runs last.
+  const [sortKey, setSortKey] = useState<"flags" | "latest">("flags");
   // Flag filter: "all" shows every profile; "flagged" only profiles with at least one lab, assay or model flag; "unflagged" only profiles with none.
   const [flagFilter, setFlagFilter] = useState<"all" | "flagged" | "unflagged">("all");
   // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
@@ -143,9 +145,15 @@ function Dashboard() {
   }, [users, dose, batchTherapy, rirr, strengthEpoch]);
 
   // Light memo: display filtering only (readoutOnly checkbox), no simulations.
-  // Log each profile's therapy sweep to the local run log (Scenario progress page).
+  // Log each profile's therapy sweep to the local run log (Scenario progress page),
+  // then refresh the latest-run map so the Latest progress sort is correct on first load.
   useEffect(() => {
     for (const r of simulated) recordRun(r.p.id, "dashboard", dose, therapies.map((t) => t.id), profileInputs(r.p).rirrStrength);
+    listRuns().then((all) => {
+      const byProfile: Record<string, RunRecord> = {};
+      for (const r of all) byProfile[r.patientId] ??= r;
+      setLatestRuns(byProfile);
+    });
   }, [simulated, dose]);
 
   const rows = useMemo(() => simulated
@@ -155,7 +163,16 @@ function Dashboard() {
     resp: r.respAll === null ? null : readoutOnly
       ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
       : r.respAll,
-  })), [simulated, readoutOnly, flagFilter]);
+  }))
+    // "flags" keeps the simulated order (most-flagged first); "latest" sorts by the newest
+    // logged run per profile, with profiles that have no runs last (then alphabetical).
+    .sort((a, b) => {
+      if (sortKey !== "latest") return 0;
+      const ra = latestRuns[a.p.id], rb = latestRuns[b.p.id];
+      if (ra && rb && ra.at !== rb.at) return rb.at - ra.at;
+      if (!!ra !== !!rb) return ra ? -1 : 1;
+      return a.p.label.localeCompare(b.p.label);
+    }), [simulated, readoutOnly, flagFilter, sortKey, latestRuns]);
 
   const compareRow = rows.find((r) => r.p.id === compareId) ?? rows[0];
 
@@ -248,9 +265,16 @@ function Dashboard() {
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Patient dashboard</h1>
-        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. The flag filter shows only profiles with at least one lab, assay or model flag (Flagged only) or none (Not flagged only); CSV exports follow the filter. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Projected H2O2 scales the measured peroxide (or the model value if not measured) by the model's peroxide change under the Batch therapy pick, or the strongest peroxide-lowering therapy when "All therapies" is picked; a model estimate, not a measurement. Projected MitoSOX does the same for the measured MitoSOX fold using the model's superoxide change, since MitoSOX reports superoxide. The therapy count lists model therapies that target a strong cause and move ATP, superoxide or peroxide by 1% or more; it is not an abnormal flag and is not part of the total. Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at the chosen model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
+        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by the Sort by control: Flag count (most flagged first) or Latest progress (newest logged run first; profiles with no runs last, then alphabetical); clicking the Latest progress column header switches between the two. CSV exports follow the sort and the filter. The flag filter shows only profiles with at least one lab, assay or model flag (Flagged only) or none (Not flagged only); CSV exports follow the filter. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Projected H2O2 scales the measured peroxide (or the model value if not measured) by the model's peroxide change under the Batch therapy pick, or the strongest peroxide-lowering therapy when "All therapies" is picked; a model estimate, not a measurement. Projected MitoSOX does the same for the measured MitoSOX fold using the model's superoxide change, since MitoSOX reports superoxide. The therapy count lists model therapies that target a strong cause and move ATP, superoxide or peroxide by 1% or more; it is not an abnormal flag and is not part of the total. Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at the chosen model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
       </div>
       <div className="flex flex-col items-end gap-2">
+        <label className="flex items-center gap-2 text-xs" data-testid="dash-sort-label">
+          Sort by
+          <select value={sortKey} onChange={(e) => setSortKey(e.target.value as typeof sortKey)} data-testid="dash-sort" className="rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+            <option value="flags">Flag count</option>
+            <option value="latest">Latest progress</option>
+          </select>
+        </label>
         <label className="flex items-center gap-2 text-xs" data-testid="dash-flag-filter-label">
           Flag filter
           <select value={flagFilter} onChange={(e) => setFlagFilter(e.target.value as typeof flagFilter)} data-testid="dash-flag-filter" className="rounded border border-border bg-background px-1.5 py-0.5 text-xs">
@@ -308,7 +332,7 @@ function Dashboard() {
 
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
-          <th className="px-3 py-2">Profile</th><th className="px-3 py-2" title="This profile's ROS-induced ROS release strength against your saved band (same band as the Progress sliders).">Band</th><th className="px-3 py-2" title="Newest entry for this profile in the local run log (Scenario progress page). Click to open this profile's runs.">Latest progress</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2" title="Model estimate. The ROS-induced ROS release strength is fitted to Melov 1999 (partly published); see the note under the table.">Superoxide <span className="block font-sans text-[9px] font-normal normal-case whitespace-nowrap leading-snug text-muted-foreground" data-testid="dash-so-note-tag">partly published</span></th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
+          <th className="px-3 py-2">Profile</th><th className="px-3 py-2" title="This profile's ROS-induced ROS release strength against your saved band (same band as the Progress sliders).">Band</th><th className="px-3 py-2"><button type="button" data-testid="dash-sort-latest" title="Click to sort by latest progress (newest logged run first); click again to return to flag count." onClick={() => setSortKey((k) => (k === "latest" ? "flags" : "latest"))}>Latest progress{sortKey === "latest" ? " ↓" : ""}</button></th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2" title="Model estimate. The ROS-induced ROS release strength is fitted to Melov 1999 (partly published); see the note under the table.">Superoxide <span className="block font-sans text-[9px] font-normal normal-case whitespace-nowrap leading-snug text-muted-foreground" data-testid="dash-so-note-tag">partly published</span></th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
           <th className="px-3 py-2">Peroxide flag</th><th className="px-3 py-2">Projected H2O2 ({dose}x)</th><th className="px-3 py-2">MitoSOX band (Gonzalo 2019)</th><th className="px-3 py-2">Projected MitoSOX ({dose}x)</th><th className="px-3 py-2">Flags: lab / assay / model / therapy ({dose}x)</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Responds to (model, {dose}x)</th><th className="px-3 py-2">Open</th>
         </tr></thead>
         <tbody>{rows.map((r) => <tr key={r.p.id} data-testid="dash-row" className="border-t border-border/60 align-top">
