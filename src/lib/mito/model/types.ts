@@ -1,3 +1,5 @@
+import type { Photoreceptor } from "./photoreceptor";
+
 export type Inputs = {
   nadhRatio: number; // NADH/(NADH+NAD+), 0-1
   succinate: number; // relative Complex II drive, 0-2

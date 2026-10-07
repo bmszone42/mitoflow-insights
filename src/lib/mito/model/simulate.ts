@@ -70,7 +70,10 @@
  *    observable, not an absolute radiometric prediction.
  */
 import type { Inputs, Outputs, FerroptosisState, Coherence, RosBudget } from "./types";
-import { defaultInputs, THZ_CAL, LOO_CAL } from "./types";
+import { defaultInputs, THZ_CAL } from "./types";
+
+// Keeps lipid peroxyl (and so ferroptosis) on its prior calibration after the ROS rebuild.
+const LOO_CAL = 1.15;
 import { photoreceptor } from "./photoreceptor";
 import { geometryEffects, defaultGeometry, type Geometry } from "./geometry";
 
