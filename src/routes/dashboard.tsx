@@ -145,9 +145,15 @@ function Dashboard() {
   }, [users, dose, batchTherapy, rirr, strengthEpoch]);
 
   // Light memo: display filtering only (readoutOnly checkbox), no simulations.
-  // Log each profile's therapy sweep to the local run log (Scenario progress page).
+  // Log each profile's therapy sweep to the local run log (Scenario progress page),
+  // then refresh the latest-run map so the Latest progress sort is correct on first load.
   useEffect(() => {
     for (const r of simulated) recordRun(r.p.id, "dashboard", dose, therapies.map((t) => t.id), profileInputs(r.p).rirrStrength);
+    listRuns().then((all) => {
+      const byProfile: Record<string, RunRecord> = {};
+      for (const r of all) byProfile[r.patientId] ??= r;
+      setLatestRuns(byProfile);
+    });
   }, [simulated, dose]);
 
   const rows = useMemo(() => simulated
