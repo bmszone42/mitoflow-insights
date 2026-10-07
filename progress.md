@@ -512,6 +512,7 @@
 - ✅ Verified live: card renders on the Simulator tab, Hide collapses it, it stays collapsed after a reload, the link restores it, and the band chip follows a saved band (1.10x-1.40x) after reload; no page errors, build clean.
 - ✅ Timeline visits export/import as a JSON file (dedupe on profile, date, therapies, type)
 - [x] Move everything file (Timeline): visits, runs, snaps, band, strengths in one download/load; two-browser round trip verified (visits, runs, band, profile strengths, history, snap plan, selected profile all carried over)
+- [x] Backup version stamp: files carry version: 1; import rejects newer files with a clear message and migrates older ones through a step-by-step path in backup.ts
 
 ## "Start here" card on Diagnosis (2026-10-07) ✅
 - ✅ `StartHereCard.tsx` is now shared: optional `storageKey`, `steps` and `strengthWhere` props keep the same plain-words definitions of strength, band and the defences-only gap on every page, while each page points at the controls it actually has.
