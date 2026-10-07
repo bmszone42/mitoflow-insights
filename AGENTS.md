@@ -11,7 +11,7 @@
 
 ## Project rules
 
-- Redox math in `model.ts`; ATP/P/O bands in `reference.ts`; fuel supply changes flux, not P/O.
+- Redox math lives in `src/lib/mito/model/` (types, simulate, photoreceptor, geometry, ranges, analysis) behind the `model.ts` barrel; import from the barrel so splits stay invisible to callers; ATP/P/O bands in `reference.ts`; fuel supply changes flux, not P/O.
 - State in `index.tsx`; scenarios use owner-only Cloud or signed-out IndexedDB with legacy geometry defaults.
 - AI interpretation streams through `api/interpret.ts`; key stays server-side.
 - AI routes share an in-memory limiter; use database limits for strict enforcement.
