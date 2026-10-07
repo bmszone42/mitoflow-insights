@@ -509,3 +509,5 @@
 - ✅ Diagnosis mounts the card under its page header, reading the selected profile's own strength (its saved override, else the saved default), with Diagnosis-specific "Try this first" steps: pick a profile row, read the "Superoxide high, defences only" flag, then check whether that gap holds across your band.
 - ✅ Dismissal is remembered per page: Diagnosis uses localStorage `cristae-lab-start-here-diagnosis`, so hiding it there leaves the Simulator card showing.
 - ✅ Verified live: card renders on Diagnosis with the strength chip (1.00x) and band chip (0.50x to 1.00x), Hide collapses it and it stays collapsed after a reload, the Simulator card is unaffected, and the "What do strength, band and gap mean?" link restores it; no page errors, build clean.
+
+- ✅ Upgraded recharts 3.10, zod 4.6, ai 7.0.128 and @ai-sdk/openai 4.0.84; charts and AI interpretation verified (2026-10-07)

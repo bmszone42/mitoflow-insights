@@ -33,7 +33,7 @@ export function BaselineProfileChart({ profiles }: { profiles: Profile[] }) {
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis dataKey="name" interval={0} angle={-35} textAnchor="end" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
           <YAxis unit="%" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
-          <Tooltip formatter={(v: number) => `${v}% of healthy`} labelFormatter={(l, p) => `${l}${p?.[0] ? ` (${p[0].payload.profile})` : ""}`} contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", fontSize: 11 }} />
+          <Tooltip formatter={(v: any) => `${v}% of healthy`} labelFormatter={(l, p) => `${l}${p?.[0] ? ` (${p[0].payload.profile})` : ""}`} contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", fontSize: 11 }} />
           <Legend verticalAlign="top" wrapperStyle={{ fontSize: 11 }} />
           <ReferenceLine y={100} stroke="var(--muted-foreground)" strokeDasharray="4 4" label={{ value: "healthy", position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />
           <Bar dataKey="atp" name="ATP" fill="var(--chart-1)" />

@@ -110,7 +110,7 @@ function Calculator({ patient, search, set }: { patient: DemoPatient; search: Se
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis dataKey="dose" stroke="var(--muted-foreground)" fontSize={12} />
           <YAxis unit="%" stroke="var(--muted-foreground)" fontSize={12} />
-          <Tooltip formatter={(v: number) => `${v}%`} />
+          <Tooltip formatter={(v: any) => `${v}%`} />
           <Legend />
           <Line dataKey="ATP" stroke="var(--primary)" strokeWidth={2} />
           <Line dataKey="Superoxide" stroke="var(--destructive)" strokeWidth={2} />
@@ -306,7 +306,7 @@ function Compare({ patient, all, search, set }: { patient: DemoPatient; all: Dem
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis dataKey="dose" stroke="var(--muted-foreground)" fontSize={12} />
           <YAxis unit="%" stroke="var(--muted-foreground)" fontSize={12} />
-          <Tooltip formatter={(v: number) => `${v}%`} />
+          <Tooltip formatter={(v: any) => `${v}%`} />
           <Legend />
           <Line dataKey="A ATP" stroke="var(--primary)" strokeWidth={2} />
           <Line dataKey="B ATP" stroke="var(--primary)" strokeWidth={2} strokeDasharray="6 3" />

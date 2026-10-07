@@ -260,12 +260,12 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                 <XAxis type="number" tickFormatter={(v) => `${v}%`} stroke="var(--muted-foreground)" fontSize={11} />
                 <YAxis type="category" dataKey="name" width={110} stroke="var(--muted-foreground)" fontSize={11} />
-                <Tooltip {...tip} formatter={(v: number, n) => [fmt(v), n === "down" ? "Driver down" : "Driver up"]} />
+                <Tooltip {...tip} formatter={(v: any, n) => [fmt(v), n === "down" ? "Driver down" : "Driver up"]} />
                 <ReferenceLine x={0} stroke="var(--muted-foreground)" />
                 {(["down", "up"] as const).map((k) => (
                   <Bar key={k} dataKey={k} stackId="a" cursor="pointer" onClick={(d: { payload?: { key?: string } }) => d?.payload?.key && onDriverClick?.(d.payload.key)}>
                     {tornado.map((t, i) => (
-                      <Cell key={i} fill={t[k] >= 0 ? "var(--accent)" : "var(--primary)"} stroke={fuelFocus && WARBURG_KEYS.has(t.key) ? "var(--foreground)" : undefined} strokeWidth={fuelFocus && WARBURG_KEYS.has(t.key) ? 2 : 0} fillOpacity={fuelFocus && !WARBURG_KEYS.has(t.key) ? 0.35 : 1} />
+                      <Cell key={i} fill={t[k] >= 0 ? "var(--accent)" : "var(--primary)"} stroke={fuelFocus && WARBURG_KEYS.has(t.key) ? "var(--foreground)" : "none"} strokeWidth={fuelFocus && WARBURG_KEYS.has(t.key) ? 2 : 0} fillOpacity={fuelFocus && !WARBURG_KEYS.has(t.key) ? 0.35 : 1} />
                     ))}
                   </Bar>
                 ))}
@@ -374,7 +374,7 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
                 label={{ value: "ROS nM (log)", angle: -90, position: "insideLeft", fill: "var(--muted-foreground)", fontSize: 11 }}
               />
               <YAxis yAxisId="fe" orientation="right" stroke="var(--muted-foreground)" fontSize={11} />
-              <Tooltip {...tip} formatter={(v: number) => Number(v).toPrecision(3)} labelFormatter={(v) => `${dDef.label} ${Number(v).toFixed(2)}`} />
+              <Tooltip {...tip} formatter={(v: any) => Number(v).toPrecision(3)} labelFormatter={(v) => `${dDef.label} ${Number(v).toFixed(2)}`} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <ReferenceLine yAxisId="ros" x={inputs[driver]} stroke="var(--foreground)" strokeDasharray="4 4" />
               <Line yAxisId="ros" dataKey="superoxide" name="O2•- nM" stroke="var(--chart-1)" dot={false} />

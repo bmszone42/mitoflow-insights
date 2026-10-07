@@ -365,7 +365,7 @@ export function SimulatorCharts({ inputs, out }: { inputs: Inputs; out: Outputs 
               />
               <Tooltip
                 {...tooltipProps()}
-                formatter={(value: number, name: string) =>
+                formatter={(value: any, name: any) =>
                   name === "Fe-S intact" || name === "Aconitase" || name === "Free Fe2+ (rel)"
                     ? [`${value.toFixed(1)}%`, name]
                     : [`${(10 ** value).toPrecision(3)} pM`, name]
@@ -430,7 +430,7 @@ export function SimulatorCharts({ inputs, out }: { inputs: Inputs; out: Outputs 
               <YAxis stroke={chartStyle.axis} fontSize={11} unit="%" />
               <Tooltip
                 {...tooltipProps()}
-                formatter={(value: number, name: string) => [`${value >= 0 ? "+" : ""}${value.toFixed(1)}%`, name]}
+                formatter={(value: any, name: any) => [`${value >= 0 ? "+" : ""}${value.toFixed(1)}%`, name]}
               />
               <ReferenceLine y={0} stroke={chartStyle.axis} strokeDasharray="2 3" />
               <ReferenceLine x={3} stroke="var(--color-primary)" strokeDasharray="4 3" label={{ value: "3", position: "top", fontSize: 10, fill: "var(--color-primary)" }} />
@@ -479,7 +479,7 @@ export function SimulatorCharts({ inputs, out }: { inputs: Inputs; out: Outputs 
               <YAxis yAxisId="right" orientation="right" stroke={chartStyle.axis} fontSize={11} domain={[0, 100]} unit="%" />
               <Tooltip
                 {...tooltipProps()}
-                formatter={(value: number, name: string) =>
+                formatter={(value: any, name: any) =>
                   name.startsWith("Free Fe2+") ? [`${value.toFixed(2)} µM`, name] : [`${value.toFixed(1)}%`, name]
                 }
               />
@@ -522,7 +522,7 @@ export function SimulatorCharts({ inputs, out }: { inputs: Inputs; out: Outputs 
               <YAxis yAxisId="right" orientation="right" stroke={chartStyle.axis} fontSize={11} domain={[0, 100]} unit="%" />
               <Tooltip
                 {...tooltipProps()}
-                formatter={(value: number, name: string) =>
+                formatter={(value: any, name: any) =>
                   name.startsWith("ONOO-") ? [`${value.toFixed(3)} nM`, name] : [`${value.toFixed(1)}%`, name]
                 }
               />

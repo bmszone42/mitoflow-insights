@@ -13,7 +13,7 @@ export default function PairBandChart({ pairs, data, current, onSnap }: { pairs:
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis dataKey="s" type="number" domain={["dataMin", "dataMax"]} tickFormatter={(v) => `${Number(v).toFixed(2)}x`} fontSize={11} />
           <YAxis tickFormatter={(v) => `${Math.round(Number(v))}%`} fontSize={11} width={48} />
-          <Tooltip formatter={(v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}%`} labelFormatter={(l) => `Strength ${Number(l).toFixed(2)}x`} />
+          <Tooltip formatter={(v: any) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}%`} labelFormatter={(l) => `Strength ${Number(l).toFixed(2)}x`} />
           <Legend content={() => <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs">
             {pairs.map((r, i) => <div key={`${r.tA.id}-${r.tB.id}`} className={`flex max-w-full items-center gap-2 ${["text-chart-1", "text-chart-2", "text-chart-3"][i]}`}>
               <span className="min-w-0">#{i + 1} {r.tA.name} + {r.tB.name} ({r.robust ? "holds" : "breaks"})</span>

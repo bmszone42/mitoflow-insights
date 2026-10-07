@@ -64,7 +64,7 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
           <YAxis yAxisId="str" orientation="right" domain={[0, 2]} tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v: number) => `${v}x`} />
           <Tooltip
             content={<GapTooltip />}
-            formatter={(v: unknown, name: string) => {
+            formatter={(v: any, name: any) => {
               const n = Number(v ?? 0);
               return used.some((t) => t.name === name) ? [`${n.toFixed(2)}x`, name] : [`${n > 0 ? "+" : ""}${n.toFixed(1)}%`, name];
             }}
@@ -164,7 +164,7 @@ export default function TimelineGapChart({ rows }: { rows: GapRow[] }) {
                 />
                 <YAxis domain={[0, 2]} tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v: number) => `${v}x`} width={40} />
                 <Tooltip
-                  formatter={(v: unknown, name: string) => (name === "y" ? [`${Number(v).toFixed(2)}x`, "Target strength"] : [String(v), name])}
+                  formatter={(v: any, name: any) => (name === "y" ? [`${Number(v).toFixed(2)}x`, "Target strength"] : [String(v), name])}
                   labelFormatter={(v: unknown) => new Date(Number(v)).toISOString().slice(0, 10)}
                   labelClassName="text-foreground"
                 />

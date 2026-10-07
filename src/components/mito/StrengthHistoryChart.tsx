@@ -79,8 +79,8 @@ export function StrengthHistoryChart({ rows, range }: { rows: StrengthHistoryEnt
           <ReferenceLine y={1} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeOpacity={0.6} />
           {range && <ReferenceArea y1={range.lo} y2={range.hi} fill="var(--primary)" fillOpacity={0.12} stroke="var(--primary)" strokeOpacity={0.35} strokeDasharray="4 4" ifOverflow="extendDomain" label={{ value: `range ${range.lo.toFixed(2)}x-${range.hi.toFixed(2)}x`, position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />}
           <Tooltip
-            labelFormatter={(t: number) => fmtTime(t)}
-            formatter={(v: number, name: string) => [`${v}x`, name]}
+            labelFormatter={(t: any) => fmtTime(t)}
+            formatter={(v: any, name: any) => [`${v}x`, name]}
             contentStyle={{ fontSize: 12 }}
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
