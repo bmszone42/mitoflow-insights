@@ -1,3 +1,4 @@
+import { useSelectedProfile } from "@/lib/mito/selectedProfile";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { savedRirrStrength, useProfileRirr } from "@/lib/mito/rirrDefault";
 import { Button } from "@/components/ui/button";
@@ -92,7 +93,7 @@ export function ProfileSensitivity({ geo }: { geo: Geometry }) {
   const [delta, setDelta] = useState(0.2);
   const [out, setOut] = useState<ProfileSensOut | "all">("all");
   const [sortRirr, setSortRirr] = useState(false);
-  const [pid, setPid] = useState(demoPatients[0]!.id);
+  const [pid, setPid] = useSelectedProfile(demoPatients[0]!.id);
   const rows = useMemo(() => profileSensitivity(geo, delta), [geo, delta]);
   const sorted = useMemo(() => {
     if (!sortRirr) return rows;

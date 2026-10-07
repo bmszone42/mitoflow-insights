@@ -1,3 +1,4 @@
+import { useSelectedProfile } from "@/lib/mito/selectedProfile";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { z } from "zod";
@@ -52,7 +53,7 @@ function TimelinePage() {
   // as the Progress sliders, so the band moves live with them.
   const [range] = useStrengthRange();
   const all = useMemo(() => [...users, ...demoPatients], [users]);
-  const [id, setId] = useState(Route.useSearch().profile ?? "demo-04");
+  const [id, setId] = useSelectedProfile("demo-04", Route.useSearch().profile);
   const p = all.find((x) => x.id === id) ?? all[0]!;
   const pairRanked = useMemo(() => {
     const base = profileInputs(p);

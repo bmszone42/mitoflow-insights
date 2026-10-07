@@ -1,3 +1,4 @@
+import { useSelectedProfile } from "@/lib/mito/selectedProfile";
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense, useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/carriers")({
 const pct = (a: number, b: number) => (b ? ((a - b) / b) * 100 : 0);
 
 function CarriersPage() {
-  const [pid, setPid] = useState(demoPatients[0].id);
+  const [pid, setPid] = useSelectedProfile(demoPatients[0].id);
   const [rates, setRates] = useState<CarrierRates>(unitRates);
   const [sel, setSel] = useState<CarrierId>("ant");
   const patient = demoPatients.find((p) => p.id === pid) ?? demoPatients[0];

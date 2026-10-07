@@ -1,3 +1,4 @@
+import { useSelectedProfile } from "@/lib/mito/selectedProfile";
 import { useMemo, useState } from "react";
 import { AlertCircle, AlertTriangle, CheckCircle2, FlaskConical, Minus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -29,7 +30,7 @@ function statusFor(value: number, key: Parameters<typeof isCohortOutlier>[1], re
 const formatValue = (value: number, decimals: number) => value.toFixed(decimals);
 
 export function PatientData({ inputs, out }: { inputs: Inputs; out: Outputs }) {
-  const [patientId, setPatientId] = useState("demo-01");
+  const [patientId, setPatientId] = useSelectedProfile("demo-01");
   const users = useUserPatients();
   const all = [...users, ...demoPatients];
   const patient = all.find((entry) => entry.id === patientId) ?? demoPatients[0];

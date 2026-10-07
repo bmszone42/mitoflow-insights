@@ -1,3 +1,4 @@
+- ✅ Menu grouped into Model, Patient, Plan, Reference; header band control (same saved band); selected profile remembered across pages (localStorage cristae-lab-profile).
 - ✅ Paste measurements also schedules one snap per date (checkbox, on by default), shown on the Timeline snap strip.
 
 ## Paste-your-measurements panel (2026-10-06)
