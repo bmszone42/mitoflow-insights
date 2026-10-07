@@ -9,7 +9,8 @@ import { diagnoseProfile, flagOverlaps } from "@/lib/mito/diagnosis";
 import { applyTherapyDose, bestProjectionTherapy, calculatorDoses, metrics, profileInputs, therapies, type Therapy } from "@/lib/mito/treatment";
 import { useSavedRirr } from "@/lib/mito/rirrDefault";
 import { ProfileStrengthEditor } from "@/components/mito/ProfileStrengthEditor";
-import { recordRun } from "@/lib/mito/runs";
+import { listRuns, recordRun, type RunRecord } from "@/lib/mito/runs";
+import { useStrengthRange } from "@/lib/mito/rangeState";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 // Lazy so recharts and the chart code stay out of the initial dashboard bundle; loaded on first open.
 const TherapyProfileChart = lazy(() => import("@/components/mito/TherapyProfileChart").then((m) => ({ default: m.TherapyProfileChart })));
@@ -68,6 +69,20 @@ function Dashboard() {
   const [batchTherapy, setBatchTherapy] = useState("all");
   // Reference profile for the scenario compare card at the bottom of the page.
   const [compareId, setCompareId] = useState("demo-01");
+  // Saved strength band (same store as the Progress sliders and header control).
+  const [range] = useStrengthRange();
+  // Latest logged run per profile, from the local run log (Scenario progress page).
+  const [latestRuns, setLatestRuns] = useState<Record<string, RunRecord>>({});
+  useEffect(() => {
+    let on = true;
+    listRuns().then((all) => {
+      if (!on) return;
+      const byProfile: Record<string, RunRecord> = {};
+      for (const r of all) byProfile[r.patientId] ??= r; // listRuns is newest-first
+      setLatestRuns(byProfile);
+    });
+    return () => { on = false; };
+  }, [strengthEpoch]);
   // Heavy memo: every per-profile simulation and the 20-therapy sweep. Keyed only on
   // users, dose and batchTherapy, so toggling readoutOnly never re-runs it.
   const simulated = useMemo(() => {
@@ -251,6 +266,7 @@ function Dashboard() {
             </select>
           </label>
           <Button asChild variant="outline" size="sm"><Link to="/therapy-plan" data-testid="dash-plan-link">Therapy plan</Link></Button>
+          <Button asChild variant="outline" size="sm"><Link to="/therapy-plan" search={{ tab: "schedule" }} data-testid="dash-snap-link">Snap plan</Link></Button>
           <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
           <Button variant="outline" size="sm" onClick={downloadBatchCsv} data-testid="dash-batch-csv"><Download className="size-4" aria-hidden />Batch therapy CSV</Button>
         </div>
@@ -270,11 +286,21 @@ function Dashboard() {
     <section className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
-          <th className="px-3 py-2">Profile</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2" title="Model estimate. The ROS-induced ROS release strength is fitted to Melov 1999 (partly published); see the note under the table.">Superoxide <span className="block font-sans text-[9px] font-normal normal-case whitespace-nowrap leading-snug text-muted-foreground" data-testid="dash-so-note-tag">partly published</span></th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
+          <th className="px-3 py-2">Profile</th><th className="px-3 py-2" title="This profile's ROS-induced ROS release strength against your saved band (same band as the Progress sliders).">Band</th><th className="px-3 py-2" title="Newest entry for this profile in the local run log (Scenario progress page).">Latest progress</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2" title="Model estimate. The ROS-induced ROS release strength is fitted to Melov 1999 (partly published); see the note under the table.">Superoxide <span className="block font-sans text-[9px] font-normal normal-case whitespace-nowrap leading-snug text-muted-foreground" data-testid="dash-so-note-tag">partly published</span></th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
           <th className="px-3 py-2">Peroxide flag</th><th className="px-3 py-2">Projected H2O2 ({dose}x)</th><th className="px-3 py-2">MitoSOX band (Gonzalo 2019)</th><th className="px-3 py-2">Projected MitoSOX ({dose}x)</th><th className="px-3 py-2">Flags: lab / assay / model / therapy ({dose}x)</th><th className="px-3 py-2">Top mechanism</th><th className="px-3 py-2">Top overlapping disorders</th><th className="px-3 py-2">Responds to (model, {dose}x)</th><th className="px-3 py-2">Open</th>
         </tr></thead>
         <tbody>{rows.map((r) => <tr key={r.p.id} data-testid="dash-row" className="border-t border-border/60 align-top">
           <th scope="row" className="px-3 py-2 font-medium">{r.p.label}<div className="font-normal text-muted-foreground">{r.p.phenotype} · {r.p.age}y {patientSex(r.p)}</div></th>
+          <td className="px-3 py-2 font-mono" data-testid="dash-band">{(() => {
+            const s = profileInputs(r.p).rirrStrength;
+            const inBand = s >= range.lo && s <= range.hi;
+            return <><span className={inBand ? "" : "text-destructive"}>{s.toFixed(2)}x</span><div className={`font-sans text-[10px] ${inBand ? "text-muted-foreground" : "text-destructive"}`}>{inBand ? "In band" : `Outside ${range.lo.toFixed(2)}-${range.hi.toFixed(2)}x`}</div></>;
+          })()}</td>
+          <td className="px-3 py-2" data-testid="dash-latest">{(() => {
+            const run = latestRuns[r.p.id];
+            if (!run) return <span className="text-muted-foreground">No runs yet</span>;
+            return <><div>{new Date(run.at).toLocaleDateString()}</div><div className="text-[10px] text-muted-foreground">{run.source}{run.rirrStrength != null ? ` · ${run.rirrStrength.toFixed(2)}x` : ""}</div></>;
+          })()}</td>
           <td className="px-3 py-2 font-mono" data-testid="dash-lp"><span className={r.p.values.lactatePyruvate > 25 ? "text-destructive" : ""}>{r.p.values.lactatePyruvate.toFixed(1)}</span><div className="font-sans text-[10px] text-muted-foreground" title={r.lp.note}>{r.lp.nadhRatio !== undefined ? `Mapped: NADH ${r.lp.nadhRatio.toFixed(2)}` : "Not mapped"}</div></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.atpFlux)} <span className="text-muted-foreground">{pct(r.out.atpFlux, r.healthy.atpFlux)}</span></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.superoxide)} <span className="text-muted-foreground">{pct(r.out.superoxide, r.healthy.superoxide)}</span><div className={`font-sans text-[10px] ${r.matchedProfileSo > r.matchedHealthySo ? "text-destructive" : "text-muted-foreground"}`} data-testid="dash-so-matched" title="Profile vs healthy adult at the same membrane potential, labile iron and L:P (held at healthy); the gap reflects only antioxidant capacity and ROS-induced ROS release.">Defences only: {pct(r.matchedProfileSo, r.matchedHealthySo)}</div></td>
