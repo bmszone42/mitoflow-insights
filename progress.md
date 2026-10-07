@@ -511,3 +511,9 @@
 - ✅ Verified live: card renders on Diagnosis with the strength chip (1.00x) and band chip (0.50x to 1.00x), Hide collapses it and it stays collapsed after a reload, the Simulator card is unaffected, and the "What do strength, band and gap mean?" link restores it; no page errors, build clean.
 
 - ✅ Upgraded recharts 3.10, zod 4.6, ai 7.0.128 and @ai-sdk/openai 4.0.84; charts and AI interpretation verified (2026-10-07)
+
+## Flag filter on the Dashboard table (2026-10-07) ✅
+- ✅ New "Flag filter" select in the Dashboard header: All profiles, Flagged only (at least one lab, assay or model flag), Not flagged only. Flagged profiles were already sorted first by total flag count; the filter keeps that order.
+- ✅ The count beside the filter shows "17 of 18" when filtered; the band summary line keeps counting all 18 profiles so the "in band / outside" split stays truthful under a filter.
+- ✅ CSV and batch CSV exports follow the filter (they export the table's rows).
+- ✅ Verified live: flagged shows 17 rows (all except healthy Demo 02), unflagged shows Demo 02 alone, order stays flag-descending in every view, no page errors, build clean.
