@@ -4,6 +4,24 @@ import { openDB } from "idb";
 import { exportVisits, importVisits } from "./timeline";
 import { listRuns, type RunRecord } from "./runs";
 
+export const BACKUP_VERSION = 1;
+
+// Migrate an older backup file forward, one version at a time.
+// Add a case here when the format changes; never silently drop unknown fields.
+function migrate(data: Record<string, unknown>, from: number): Record<string, unknown> {
+  let d = data;
+  let v = from;
+  while (v < BACKUP_VERSION) {
+    switch (v) {
+      // case 1: d = migrate1to2(d); break;
+      default:
+        throw new Error(`No migration path from backup version ${v}.`);
+    }
+    v++;
+  }
+  return d;
+}
+
 const LS_KEYS = [
   "cristae-lab-snap-plan",
   "cristae-lab-rirr-range",
