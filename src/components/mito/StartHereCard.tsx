@@ -3,19 +3,35 @@ import { Button } from "@/components/ui/button";
 import { useStrengthRange } from "@/lib/mito/rangeState";
 import type { Inputs } from "@/lib/mito/model";
 
-// Plain-words explainer shown above the Simulator for the three terms the rest
-// of the app assumes you know: strength, band and gap. It reads the live slider
-// value and the saved band so the words match what the charts are coloring.
-// Dismissal is remembered in this browser only; a one-line link brings it back.
+// Plain-words explainer shown above the Simulator and Diagnosis for the three
+// terms the rest of the app assumes you know: strength, band and gap. It reads
+// the live slider value and the saved band so the words match what the charts
+// are coloring. Dismissal is remembered per page in this browser only; a
+// one-line link brings it back.
 const KEY = "cristae-lab-start-here";
 
-function readHidden() {
+function readHidden(key: string) {
   try {
-    return localStorage.getItem(KEY) === "hidden";
+    return localStorage.getItem(key) === "hidden";
   } catch {
     return false;
   }
 }
+
+function writeHidden(key: string, hidden: boolean) {
+  try {
+    if (hidden) localStorage.setItem(key, "hidden");
+    else localStorage.removeItem(key);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+const DEFAULT_STEPS = [
+  "1. Click a therapy lever or a drug preset on the left and watch the readouts move.",
+  "2. Drag antioxidant capacity down and see superoxide and peroxide climb.",
+  "3. Open Diagnosis to see your gap and which therapies close it.",
+];
 
 function Term({
   n,
@@ -46,27 +62,32 @@ function Term({
   );
 }
 
-export function StartHereCard({ inputs }: { inputs: Inputs }) {
+export function StartHereCard({
+  inputs,
+  storageKey = KEY,
+  steps = DEFAULT_STEPS,
+  strengthWhere = "You move it on the ROS-induced ROS release strength slider under Iron and defence, and the Progress page can save your value as the default for every page.",
+}: {
+  inputs: Inputs;
+  /** localStorage key for the dismissal, so each page remembers its own state. */
+  storageKey?: string;
+  /** The "Try this first" lines, numbered to match the page they sit on. */
+  steps?: string[];
+  /** Where the reader actually changes strength on this page. */
+  strengthWhere?: ReactNode;
+}) {
   const [hidden, setHidden] = useState(false);
   const [range] = useStrengthRange();
   useEffect(() => {
-    setHidden(readHidden());
-  }, []);
+    setHidden(readHidden(storageKey));
+  }, [storageKey]);
 
   const hide = () => {
-    try {
-      localStorage.setItem(KEY, "hidden");
-    } catch {
-      /* storage unavailable */
-    }
+    writeHidden(storageKey, true);
     setHidden(true);
   };
   const show = () => {
-    try {
-      localStorage.removeItem(KEY);
-    } catch {
-      /* storage unavailable */
-    }
+    writeHidden(storageKey, false);
     setHidden(false);
   };
 
@@ -120,8 +141,7 @@ export function StartHereCard({ inputs }: { inputs: Inputs }) {
           How strongly one burst of ROS pushes the mitochondrion to release even more ROS, a vicious
           cycle. 0x switches it off and the model starts at 1.0x. It only bites when antioxidant
           capacity is below normal, so weak defences plus a high strength is what makes superoxide
-          snowball. You move it on the ROS-induced ROS release strength slider under Iron and
-          defence, and the Progress page can save your value as the default for every page.
+          snowball. {strengthWhere}
         </Term>
         <Term n={2} title="Band" chip={`${range.lo.toFixed(2)}x to ${range.hi.toFixed(2)}x`}>
           The stretch of strength you treat as plausible for you. Charts across the app color a
@@ -141,9 +161,9 @@ export function StartHereCard({ inputs }: { inputs: Inputs }) {
       <div className="mt-3 rounded-lg border border-dashed border-border p-3">
         <div className="mono-label">Try this first</div>
         <ol className="mt-1.5 space-y-1 text-[11px] leading-relaxed text-muted-foreground">
-          <li>1. Click a therapy lever or a drug preset on the left and watch the readouts move.</li>
-          <li>2. Drag antioxidant capacity down and see superoxide and peroxide climb.</li>
-          <li>3. Open Diagnosis to see your gap and which therapies close it.</li>
+          {steps.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
         </ol>
       </div>
 
