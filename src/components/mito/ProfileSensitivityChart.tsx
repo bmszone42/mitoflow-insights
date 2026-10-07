@@ -15,7 +15,7 @@ export default function ProfileSensitivityChart({ data, healthy }: { data: Recor
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <ReferenceLine y={healthy} stroke="var(--muted-foreground)" strokeDasharray="4 4" label={{ value: "healthy", fontSize: 10, position: "right" }} />
           {profileSensKeys.map((k, i) => (
-            <Line key={k} dataKey={k} name={shortLabel[k]} stroke={colors[i]} dot={false} strokeWidth={2} />
+            <Line key={k} dataKey={k} name={shortLabel[k]} stroke={colors[i] ?? "var(--primary)"} dot={false} strokeWidth={2} />
           ))}
         </LineChart>
       </ResponsiveContainer>

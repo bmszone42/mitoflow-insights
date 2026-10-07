@@ -265,7 +265,7 @@ export function Sensitivity({ inputs, geo, onSaved, term, onDriverClick }: { inp
                 {(["down", "up"] as const).map((k) => (
                   <Bar key={k} dataKey={k} stackId="a" cursor="pointer" onClick={(d: { payload?: { key?: string } }) => d?.payload?.key && onDriverClick?.(d.payload.key)}>
                     {tornado.map((t, i) => (
-                      <Cell key={i} fill={t[k] >= 0 ? "var(--accent)" : "var(--primary)"} stroke={fuelFocus && WARBURG_KEYS.has(t.key) ? "var(--foreground)" : undefined} strokeWidth={fuelFocus && WARBURG_KEYS.has(t.key) ? 2 : 0} fillOpacity={fuelFocus && !WARBURG_KEYS.has(t.key) ? 0.35 : 1} />
+                      <Cell key={i} fill={t[k] >= 0 ? "var(--accent)" : "var(--primary)"} stroke={fuelFocus && WARBURG_KEYS.has(t.key) ? "var(--foreground)" : "none"} strokeWidth={fuelFocus && WARBURG_KEYS.has(t.key) ? 2 : 0} fillOpacity={fuelFocus && !WARBURG_KEYS.has(t.key) ? 0.35 : 1} />
                     ))}
                   </Bar>
                 ))}
