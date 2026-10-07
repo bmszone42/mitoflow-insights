@@ -69,6 +69,20 @@ function Dashboard() {
   const [batchTherapy, setBatchTherapy] = useState("all");
   // Reference profile for the scenario compare card at the bottom of the page.
   const [compareId, setCompareId] = useState("demo-01");
+  // Saved strength band (same store as the Progress sliders and header control).
+  const [range] = useStrengthRange();
+  // Latest logged run per profile, from the local run log (Scenario progress page).
+  const [latestRuns, setLatestRuns] = useState<Record<string, RunRecord>>({});
+  useEffect(() => {
+    let on = true;
+    listRuns().then((all) => {
+      if (!on) return;
+      const byProfile: Record<string, RunRecord> = {};
+      for (const r of all) byProfile[r.patientId] ??= r; // listRuns is newest-first
+      setLatestRuns(byProfile);
+    });
+    return () => { on = false; };
+  }, [strengthEpoch]);
   // Heavy memo: every per-profile simulation and the 20-therapy sweep. Keyed only on
   // users, dose and batchTherapy, so toggling readoutOnly never re-runs it.
   const simulated = useMemo(() => {
