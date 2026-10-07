@@ -283,7 +283,16 @@ function Dashboard() {
       <Button variant="outline" size="sm" onClick={() => setShowChart(true)} data-testid="dash-show-chart">Show therapy chart</Button>
     </div>}
     <ProfileStrengthEditor profiles={rows.map((r) => r.p)} onChanged={() => setStrengthEpoch((n) => n + 1)} />
+    <p className="px-1 text-xs text-muted-foreground" data-testid="dash-band-summary">{(() => {
+      const inBand = rows.filter((r) => { const s = profileInputs(r.p).rirrStrength; return s >= range.lo && s <= range.hi; }).length;
+      return <>
+        <span className="font-medium text-foreground">{inBand} of {rows.length} profiles</span> sit inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); {rows.length - inBand} outside.{" "}
+        <button type="button" data-testid="dash-band-edit" className="text-primary underline underline-offset-2" onClick={() => document.querySelector<HTMLElement>('[data-testid="header-band"]')?.click()}>Edit the band</button>
+        <span className="text-muted-foreground"> The same band colors the Band column and every chart that marks inside or outside.</span>
+      </>;
+    })()}</p>
     <section className="overflow-x-auto border-y border-border">
+
       <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="text-[10px] uppercase text-muted-foreground"><tr>
           <th className="px-3 py-2">Profile</th><th className="px-3 py-2" title="This profile's ROS-induced ROS release strength against your saved band (same band as the Progress sliders).">Band</th><th className="px-3 py-2" title="Newest entry for this profile in the local run log (Scenario progress page). Click to open this profile's runs.">Latest progress</th><th className="px-3 py-2">L:P ratio</th><th className="px-3 py-2">ATP flux</th><th className="px-3 py-2" title="Model estimate. The ROS-induced ROS release strength is fitted to Melov 1999 (partly published); see the note under the table.">Superoxide <span className="block font-sans text-[9px] font-normal normal-case whitespace-nowrap leading-snug text-muted-foreground" data-testid="dash-so-note-tag">partly published</span></th><th className="px-3 py-2">H2O2 (nM)</th><th className="px-3 py-2">H2O2 band (Sies 2017)</th>
