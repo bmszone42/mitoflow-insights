@@ -139,8 +139,6 @@ const navGroups = [
   ] },
   { label: "Plan", links: [
     { to: "/therapy-plan", label: "Therapy plan" },
-    { to: "/strength-plan", label: "Strength plan" },
-    { to: "/snap-plan", label: "Snap plan" },
     { to: "/therapy-tools", label: "Therapy tools" },
   ] },
   { label: "Reference", links: [

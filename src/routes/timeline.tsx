@@ -244,7 +244,7 @@ function TimelinePage() {
             <PairBandChart pairs={pairRanked.pairs} data={pairRanked.data} current={pairRanked.strength} onSnap={schedulePair} />
           </Suspense>
         )}
-        {pairSnapMessage && <p role="status" className="mt-2 text-xs text-primary">{pairSnapMessage} <Link to="/snap-plan" className="underline">Open Snap plan</Link></p>}
+        {pairSnapMessage && <p role="status" className="mt-2 text-xs text-primary">{pairSnapMessage} <Link to="/therapy-plan" search={{ tab: "schedule" }} className="underline">Open Schedule</Link></p>}
       </div>
       <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Defences only is the superoxide gap vs the healthy adult at the same membrane potential, with labile iron and L:P held at healthy (same comparison as the Dashboard); after the arrow it applies the visit's therapies at their model doses, a model estimate, not a lab result. Heart check is the model's Fe-S intact % at the visit's own settings against the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal); red means inside that band. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags. With a therapy picked in the Projected flag therapy menu, the column instead shows the Diagnosis projection for that therapy at the 1x model dose, the same pick as the dashboard's Batch therapy, so the pages agree.</p>
     </section>

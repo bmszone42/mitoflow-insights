@@ -8,16 +8,21 @@ import { diagnoseAll, diagnoseProfile, therapyPlanRows } from "@/lib/mito/diagno
 import { buildPlan, modelDoses, profileInputs } from "@/lib/mito/treatment";
 import { recordRun } from "@/lib/mito/runs";
 import { ScenarioTherapyPlan } from "@/components/mito/ScenarioTherapyPlan";
+import { StrengthPlanPanel } from "@/components/mito/StrengthPlanPanel";
+import { SnapPlanPanel } from "@/components/mito/SnapPlanPanel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+type PlanTab = "suggestions" | "pairs" | "schedule";
 type Diagnosed = ReturnType<typeof diagnoseProfile>;
 
 export const Route = createFileRoute("/therapy-plan")({
-  validateSearch: (s: Record<string, unknown>): { profile?: string | undefined } => ({
+  validateSearch: (s: Record<string, unknown>): { profile?: string | undefined; tab?: PlanTab | undefined } => ({
     profile: typeof s["profile"] === "string" ? s["profile"] : undefined,
+    tab: s["tab"] === "pairs" || s["tab"] === "schedule" || s["tab"] === "suggestions" ? s["tab"] : undefined,
   }),
   head: () => ({ meta: [
     { title: "Therapy plan: flagged therapies and projected clearance | Cristae Lab" },
-    { name: "description", content: "Flagged model therapies for each profile at a chosen model dose, with ATP and ROS changes and projected MitoSOX and peroxide flag clearance. Research only." },
+    { name: "description", content: "Therapy suggestions, ranked pairs and a snap schedule, plus flagged model therapies for each profile at a chosen model dose, with ATP and ROS changes and projected MitoSOX and peroxide flag clearance. Research only." },
     { property: "og:title", content: "Therapy plan | Cristae Lab" },
     { property: "og:description", content: "Per-profile flagged therapies, model dose, readout changes and projected flag clearance. Model estimates, not a prescription." },
     { property: "og:type", content: "website" },
@@ -33,6 +38,29 @@ const f = (v: number, d = 2) => (Math.abs(v) < 0.01 && v !== 0 ? v.toExponential
 const pctOf = (a: number, b: number) => (a === 0 ? "" : ` (${b >= a ? "+" : ""}${(((b - a) / a) * 100).toFixed(0)}%)`);
 
 function TherapyPlan() {
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const tab = search.tab ?? "suggestions";
+  return <main className="mx-auto max-w-6xl p-4">
+    <Button asChild variant="ghost" size="sm"><Link to="/dashboard"><ArrowLeft className="mr-1 size-4" />Dashboard</Link></Button>
+    <h1 className="mt-2 text-xl font-semibold">Therapy plan</h1>
+    <Tabs value={tab} onValueChange={(v) => navigate({ search: (prev) => ({ ...prev, tab: v as PlanTab }), replace: true })} className="mt-3">
+      <TabsList>
+        <TabsTrigger value="suggestions" data-testid="tab-suggestions">Suggestions</TabsTrigger>
+        <TabsTrigger value="pairs" data-testid="tab-pairs">Pairs</TabsTrigger>
+        <TabsTrigger value="schedule" data-testid="tab-schedule">Schedule</TabsTrigger>
+      </TabsList>
+      <TabsContent value="suggestions" className="space-y-8">
+        <StrengthPlanPanel view="suggestions" />
+        <FlaggedPlan />
+      </TabsContent>
+      <TabsContent value="pairs"><StrengthPlanPanel view="pairs" /></TabsContent>
+      <TabsContent value="schedule"><SnapPlanPanel /></TabsContent>
+    </Tabs>
+  </main>;
+}
+
+function FlaggedPlan() {
   const search = Route.useSearch();
   const users = useUserPatients();
   const pool = useMemo(() => [...users, ...demoPatients], [users]);
@@ -52,9 +80,8 @@ function TherapyPlan() {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([body], { type: "text/csv" })); a.download = `cristae-lab-therapy-plan-${id}-${dose}x.csv`; a.click();
   };
 
-  return <main className="mx-auto max-w-6xl p-4">
-    <Button asChild variant="ghost" size="sm"><Link to="/dashboard"><ArrowLeft className="mr-1 size-4" />Dashboard</Link></Button>
-    <h1 className="mt-2 text-xl font-semibold">Therapy plan</h1>
+  return <section data-testid="flagged-plan">
+    <h2 className="text-lg font-semibold">Flagged therapies</h2>
     <p className="mt-1 text-sm text-muted-foreground">Flagged therapies per profile (they target a strong cause and move ATP, superoxide or peroxide by 1% or more at the chosen model dose), with projected flag clearance. Model estimates for research and teaching, not a prescription or diagnosis.</p>
     <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
       <label>Profile <select data-testid="plan-profile" className="ml-1 rounded border border-input bg-background px-1 py-0.5" value={id} onChange={(e) => setId(e.target.value)}><option value="all">All profiles</option>{pool.map((p) => <option key={p.id} value={p.id}>{p.label} ({p.phenotype})</option>)}</select></label>
@@ -79,7 +106,7 @@ function TherapyPlan() {
     {id !== "all" && <PlanByCause d={diagnoseAll(users).find((x) => x.patient.id === id)} />}
     <ScenarioTherapyPlan />
     <p className="mt-3 text-[10px] text-muted-foreground">Sorted by projected flags cleared, then lowest projected MitoSOX. Projections scale the measured MitoSOX fold (Gonzalo 2019 band 0.59-1.5x) and measured peroxide (Sies 2017, flagged above 100 nM) by the model's change; model estimates, not lab results. Model dose is a slider value, never a drug dose. The real-world dose column is the published clinical or trial dose the 1x model dose is anchored to; it is an illustrative link between the model lever and the literature, never a dosing guide, and other model doses do not scale it. Each dose source links to the label, fact sheet or trial listing behind that anchor; links are informational only. Demo profiles are synthetic.</p>
-  </main>;
+  </section>;
 }
 
 function Tag({ s }: { s: string }) {
