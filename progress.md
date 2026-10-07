@@ -1,3 +1,12 @@
+## Redirect stub routes deleted (2026-10-07)
+
+- ✅ Removed the five leftover redirect-only route files: /therapy-calculator, /therapy-compare, /treatment-plan, /snap-plan, /strength-plan. Nothing in the app linked to them (only docs and the generated route tree), and the app is local-only and unpublished, so no old bookmarks needed keeping.
+- ✅ The pages they used to forward to are unchanged: /therapy-tools (Dose calculator, Compare two therapies), /therapy-plan (Suggestions, Pairs, Schedule via ?tab=).
+- ✅ Old addresses now show the app's own 404 page inside the normal header, not a crash.
+- ✅ Also deleted the unused cloud client folder src/integrations/supabase (client.ts, client.server.ts, auth-middleware.ts, previewAuthStorage.ts, types.ts): nothing imported it and it broke the typecheck after @supabase/supabase-js was uninstalled. .env.example stays cloud-key free.
+- ✅ Verified live: all five old addresses render "404 Page not found" with the site header; /therapy-tools, /therapy-plan, /therapy-plan?tab=schedule, /therapy-plan?tab=pairs and /dashboard all render; zero page errors; build OK.
+- Note: earlier progress entries that name /strength-plan, /snap-plan, /therapy-calculator, /therapy-compare or /treatment-plan describe work done at those addresses; they now live under /therapy-plan and /therapy-tools.
+
 ## Dashboard band summary line (2026-10-07)
 
 - ✅ A line above the Dashboard table counts profiles inside the saved band ("18 of 18 profiles sit inside the band (0.50x-1.00x); 0 outside."), using each profile's own effective strength, the same value the Band column shows.
@@ -26,7 +35,7 @@
 - ✅ Writes are fire-and-forget (add, plan, remove); hydration loads stored rows on first use and merges without duplicates.
 - ✅ Verified live: added a visit, reloaded the page, visit still present (1 IndexedDB row), build green.
 
-- ✅ Strength plan and Snap plan merged into Therapy plan tabs (Suggestions, Pairs, Schedule); /strength-plan and /snap-plan redirect.
+- ✅ Strength plan and Snap plan merged into Therapy plan tabs (Suggestions, Pairs, Schedule); the old /strength-plan and /snap-plan addresses were later deleted (see "Redirect stub routes deleted").
 - ✅ Menu grouped into Model, Patient, Plan, Reference; header band control (same saved band); selected profile remembered across pages (localStorage cristae-lab-profile).
 - ✅ Paste measurements also schedules one snap per date (checkbox, on by default), shown on the Timeline snap strip.
 
