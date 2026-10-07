@@ -61,6 +61,7 @@ function Dashboard() {
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
   // Table order: "flags" is most-flagged first (the old default); "latest" puts recently run profiles at the top, no runs last.
+  const [sortKey, setSortKey] = useState<"flags" | "latest">("flags");
   // Flag filter: "all" shows every profile; "flagged" only profiles with at least one lab, assay or model flag; "unflagged" only profiles with none.
   const [flagFilter, setFlagFilter] = useState<"all" | "flagged" | "unflagged">("all");
   // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
