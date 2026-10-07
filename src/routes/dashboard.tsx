@@ -291,6 +291,12 @@ function Dashboard() {
         </tr></thead>
         <tbody>{rows.map((r) => <tr key={r.p.id} data-testid="dash-row" className="border-t border-border/60 align-top">
           <th scope="row" className="px-3 py-2 font-medium">{r.p.label}<div className="font-normal text-muted-foreground">{r.p.phenotype} · {r.p.age}y {patientSex(r.p)}</div></th>
+          <td className="px-3 py-2 font-mono" data-testid="dash-band">{(() => {
+            const s = profileInputs(r.p).rirrStrength;
+            const inBand = s >= range.lo && s <= range.hi;
+            return <><span className={inBand ? "" : "text-destructive"}>{s.toFixed(2)}x</span><div className={`font-sans text-[10px] ${inBand ? "text-muted-foreground" : "text-destructive"}`}>{inBand ? "In band" : `Outside ${range.lo.toFixed(2)}-${range.hi.toFixed(2)}x`}</div></>;
+          })()}</td>
+          <td className="px-3 py-2" data-testid="dash-latest">{latestRuns[r.p.id] ? <><div>{new Date(latestRuns[r.p.id].at).toLocaleDateString()}</div><div className="text-[10px] text-muted-foreground">{latestRuns[r.p.id].source}{latestRuns[r.p.id].rirrStrength != null ? ` · ${latestRuns[r.p.id].rirrStrength.toFixed(2)}x` : ""}</div></> : <span className="text-muted-foreground">No runs yet</span>}</td>
           <td className="px-3 py-2 font-mono" data-testid="dash-lp"><span className={r.p.values.lactatePyruvate > 25 ? "text-destructive" : ""}>{r.p.values.lactatePyruvate.toFixed(1)}</span><div className="font-sans text-[10px] text-muted-foreground" title={r.lp.note}>{r.lp.nadhRatio !== undefined ? `Mapped: NADH ${r.lp.nadhRatio.toFixed(2)}` : "Not mapped"}</div></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.atpFlux)} <span className="text-muted-foreground">{pct(r.out.atpFlux, r.healthy.atpFlux)}</span></td>
           <td className="px-3 py-2 font-mono">{fmt(r.out.superoxide)} <span className="text-muted-foreground">{pct(r.out.superoxide, r.healthy.superoxide)}</span><div className={`font-sans text-[10px] ${r.matchedProfileSo > r.matchedHealthySo ? "text-destructive" : "text-muted-foreground"}`} data-testid="dash-so-matched" title="Profile vs healthy adult at the same membrane potential, labile iron and L:P (held at healthy); the gap reflects only antioxidant capacity and ROS-induced ROS release.">Defences only: {pct(r.matchedProfileSo, r.matchedHealthySo)}</div></td>
