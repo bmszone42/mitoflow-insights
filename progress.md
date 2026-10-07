@@ -1,3 +1,5 @@
+- ✅ Paste measurements also schedules one snap per date (checkbox, on by default), shown on the Timeline snap strip.
+
 ## Paste-your-measurements panel (2026-10-06)
 
 - ✅ New "Paste your measurements" panel on the Progress page: one line per entry (date, therapy, dose x, aconitase %, MitoSOX, optional strength x), with a preview table that flags bad lines.
