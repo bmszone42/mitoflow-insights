@@ -60,6 +60,8 @@ function Dashboard() {
   const [strengthEpoch, setStrengthEpoch] = useState(0);
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
+  // Flag filter: "all" shows every profile; "flagged" only profiles with at least one lab, assay or model flag; "unflagged" only profiles with none.
+  const [flagFilter, setFlagFilter] = useState<"all" | "flagged" | "unflagged">("all");
   // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
   const [dose, setDose] = useState(1);
   // Charts stay unmounted (and their code unloaded) until the user opens them.
@@ -146,12 +148,14 @@ function Dashboard() {
     for (const r of simulated) recordRun(r.p.id, "dashboard", dose, therapies.map((t) => t.id), profileInputs(r.p).rirrStrength);
   }, [simulated, dose]);
 
-  const rows = useMemo(() => simulated.map((r) => ({
+  const rows = useMemo(() => simulated
+    .filter((r) => flagFilter === "all" || (flagFilter === "flagged" ? r.labFlags + r.assayFlags + r.modelFlags > 0 : r.labFlags + r.assayFlags + r.modelFlags === 0))
+    .map((r) => ({
     ...r,
     resp: r.respAll === null ? null : readoutOnly
       ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
       : r.respAll,
-  })), [simulated, readoutOnly]);
+  })), [simulated, readoutOnly, flagFilter]);
 
   const compareRow = rows.find((r) => r.p.id === compareId) ?? rows[0];
 
@@ -244,9 +248,18 @@ function Dashboard() {
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Patient dashboard</h1>
-        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Projected H2O2 scales the measured peroxide (or the model value if not measured) by the model's peroxide change under the Batch therapy pick, or the strongest peroxide-lowering therapy when "All therapies" is picked; a model estimate, not a measurement. Projected MitoSOX does the same for the measured MitoSOX fold using the model's superoxide change, since MitoSOX reports superoxide. The therapy count lists model therapies that target a strong cause and move ATP, superoxide or peroxide by 1% or more; it is not an abnormal flag and is not part of the total. Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at the chosen model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
+        <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. The flag filter shows only profiles with at least one lab, assay or model flag (Flagged only) or none (Not flagged only); CSV exports follow the filter. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Projected H2O2 scales the measured peroxide (or the model value if not measured) by the model's peroxide change under the Batch therapy pick, or the strongest peroxide-lowering therapy when "All therapies" is picked; a model estimate, not a measurement. Projected MitoSOX does the same for the measured MitoSOX fold using the model's superoxide change, since MitoSOX reports superoxide. The therapy count lists model therapies that target a strong cause and move ATP, superoxide or peroxide by 1% or more; it is not an abnormal flag and is not part of the total. Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at the chosen model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
       </div>
       <div className="flex flex-col items-end gap-2">
+        <label className="flex items-center gap-2 text-xs" data-testid="dash-flag-filter-label">
+          Flag filter
+          <select value={flagFilter} onChange={(e) => setFlagFilter(e.target.value as typeof flagFilter)} data-testid="dash-flag-filter" className="rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+            <option value="all">All profiles</option>
+            <option value="flagged">Flagged only</option>
+            <option value="unflagged">Not flagged only</option>
+          </select>
+          <span className="text-muted-foreground" data-testid="dash-flag-filter-count">({flagFilter === "all" ? `${rows.length}` : `${rows.length} of ${simulated.length}`})</span>
+        </label>
         <label className="flex items-center gap-2 text-xs" data-testid="dash-dose-label">
           Model dose
           <select value={dose} onChange={(e) => setDose(Number(e.target.value))} data-testid="dash-dose" className="rounded border border-border bg-background px-1.5 py-0.5 text-xs">
@@ -286,7 +299,7 @@ function Dashboard() {
     <p className="px-1 text-xs text-muted-foreground" data-testid="dash-band-summary">{(() => {
       const inBand = rows.filter((r) => { const s = profileInputs(r.p).rirrStrength; return s >= range.lo && s <= range.hi; }).length;
       return <>
-        <span className="font-medium text-foreground">{inBand} of {rows.length} profiles</span> sit inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); {rows.length - inBand} outside.{" "}
+        <span className="font-medium text-foreground">{inBand} of {simulated.length} profiles</span> sit inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); {simulated.length - inBand} outside.{" "}
         <button type="button" data-testid="dash-band-edit" className="text-primary underline underline-offset-2" onClick={() => document.querySelector<HTMLElement>('[data-testid="header-band"]')?.click()}>Edit the band</button>
         <span className="text-muted-foreground"> The same band colors the Band column and every chart that marks inside or outside.</span>
       </>;
