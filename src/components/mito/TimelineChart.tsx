@@ -36,9 +36,9 @@ export default function TimelineChart({ chart, mLabel, isH2o2, isMitosox }: { ch
     {isH2o2 && <ReferenceLine yAxisId="v" y={100} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "100 nM", fontSize: 9, fill: "var(--destructive)" }} />}
     {isMitosox && <ReferenceLine yAxisId="v" y={1.5} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "1.5x", fontSize: 9, fill: "var(--destructive)" }} />}
     {isMitosox && <ReferenceLine yAxisId="v" y={0.59} stroke="var(--destructive)" strokeDasharray="4 3" label={{ value: "0.59x", fontSize: 9, fill: "var(--destructive)" }} />}
-    <Line yAxisId="v" dataKey="value" name={mLabel} stroke="var(--primary)" strokeWidth={2} dot={(gapDot as any)((p) => p.gapBefore)} connectNulls={false} />
-    <Line yAxisId="v" dataKey="real" name="Real-world visit" stroke="none" dot={(gapDot as any)((p) => p.gapBefore, { stroke: "var(--background)" })} isAnimationActive={false} legendType="circle" />
-    <Line yAxisId="v" dataKey="plan" name="Plan row" stroke="none" dot={(gapDot as any)((p) => p.gapAfter ?? p.gapBefore, { stroke: "var(--muted-foreground)", dashed: true })} isAnimationActive={false} legendType="circle" />
+    <Line yAxisId="v" dataKey="value" name={mLabel} stroke="var(--primary)" strokeWidth={2} dot={(gapDot as any)((p: TimelineChartPoint) => p.gapBefore)} connectNulls={false} />
+    <Line yAxisId="v" dataKey="real" name="Real-world visit" stroke="none" dot={(gapDot as any)((p: TimelineChartPoint) => p.gapBefore, { stroke: "var(--background)" })} isAnimationActive={false} legendType="circle" />
+    <Line yAxisId="v" dataKey="plan" name="Plan row" stroke="none" dot={(gapDot as any)((p: TimelineChartPoint) => p.gapAfter ?? p.gapBefore, { stroke: "var(--muted-foreground)", dashed: true })} isAnimationActive={false} legendType="circle" />
     <Line yAxisId="s" dataKey="top" name="Top mechanism score" stroke="var(--muted-foreground)" strokeDasharray="4 3" dot={false} />
   </LineChart></ResponsiveContainer></div>;
 }
