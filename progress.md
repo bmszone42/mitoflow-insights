@@ -1,3 +1,10 @@
+## Dashboard band, progress and Snap plan link (2026-10-07)
+
+- ✅ Dashboard table gains a Band column: each profile's effective strength vs the saved band (same store as the Progress sliders), red when outside.
+- ✅ Dashboard table gains a Latest progress column: newest run per profile from the local run log (date, source, strength), or "No runs yet".
+- ✅ Snap plan button next to Therapy plan in the Dashboard header, opening /therapy-plan?tab=schedule.
+- ✅ Verified live: 18 rows render both columns, Snap plan link navigates to the Schedule tab, no page errors, build green.
+
 ## Timeline visits persist in this browser (2026-10-07)
 
 - ✅ Timeline visits (user, real and plan rows) now persist in IndexedDB ("cristae-lab-visits"), like runs; baseline and synthetic rows are still regenerated from demo data.
