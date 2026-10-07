@@ -56,6 +56,10 @@ function RunsPage() {
   const [range] = useStrengthRange();
   // ?profile= jumps straight to one profile's runs, e.g. from the Dashboard table.
   const only = Route.useSearch().profile;
+  // On such a jump the tall tool panels start hidden so the profile's rows land in view.
+  const [toolsOpen, setToolsOpen] = useState(() => !only);
+  useEffect(() => { setToolsOpen(!only); }, [only]);
+
 
   useEffect(() => { listRuns().then(setRuns); }, []);
 
@@ -93,11 +97,20 @@ function RunsPage() {
     </header>
 
     {runs === null && <p className="text-sm text-muted-foreground">Loading…</p>}
-    {runs !== null && <RecalibrateStrength pool={pool} onRan={() => listRuns().then(setRuns)} />}
-    {runs !== null && <StrengthHistory />}
-    {runs !== null && <StrengthRange pool={pool} onRan={() => listRuns().then(setRuns)} />}
-    {runs !== null && <PasteMeasurements pool={pool} onRan={() => listRuns().then(setRuns)} />}
-    {runs !== null && <NotYetRun pool={pool} runs={runs} onRan={() => listRuns().then(setRuns)} />}
+    {runs !== null && (toolsOpen ? (
+      <>
+        <RecalibrateStrength pool={pool} onRan={() => listRuns().then(setRuns)} />
+        <StrengthHistory />
+        <StrengthRange pool={pool} onRan={() => listRuns().then(setRuns)} />
+        <PasteMeasurements pool={pool} onRan={() => listRuns().then(setRuns)} />
+        <NotYetRun pool={pool} runs={runs} onRan={() => listRuns().then(setRuns)} />
+      </>
+    ) : (
+      <p className="text-xs text-muted-foreground" data-testid="runs-tools-collapsed">
+        Showing <span className="font-medium text-foreground">{profileOf(only ?? "")?.label ?? only}</span>'s logged runs, with the tools hidden so they stay in view. <button type="button" className="text-primary underline underline-offset-2" data-testid="runs-tools-open" onClick={() => setToolsOpen(true)}>Show the tools</button>
+      </p>
+    ))}
+
     {runs !== null && runs.length === 0 && (
       <p className="text-sm text-muted-foreground" data-testid="runs-empty">Nothing logged yet. Open the <Link className="text-primary underline underline-offset-2" to="/dashboard">Dashboard</Link>, <Link className="text-primary underline underline-offset-2" to="/therapy-tools">Therapy tools</Link> or <Link className="text-primary underline underline-offset-2" to="/therapy-plan">Therapy plan</Link> and each combination you run appears here.</p>
     )}
