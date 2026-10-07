@@ -266,6 +266,7 @@ function Dashboard() {
             </select>
           </label>
           <Button asChild variant="outline" size="sm"><Link to="/therapy-plan" data-testid="dash-plan-link">Therapy plan</Link></Button>
+          <Button asChild variant="outline" size="sm"><Link to="/therapy-plan" search={{ tab: "schedule" }} data-testid="dash-snap-link">Snap plan</Link></Button>
           <Button variant="outline" size="sm" onClick={downloadCsv} data-testid="dash-csv"><Download className="size-4" aria-hidden />Download CSV</Button>
           <Button variant="outline" size="sm" onClick={downloadBatchCsv} data-testid="dash-batch-csv"><Download className="size-4" aria-hidden />Batch therapy CSV</Button>
         </div>
