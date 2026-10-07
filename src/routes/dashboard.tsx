@@ -157,7 +157,16 @@ function Dashboard() {
     resp: r.respAll === null ? null : readoutOnly
       ? r.respMatrix.filter((x) => x.hasReadout).slice(0, 3).map((x) => ({ ...x, parts: x.readoutParts }))
       : r.respAll,
-  })), [simulated, readoutOnly, flagFilter]);
+  }))
+    // "flags" keeps the simulated order (most-flagged first); "latest" sorts by the newest
+    // logged run per profile, with profiles that have no runs last (then alphabetical).
+    .sort((a, b) => {
+      if (sortKey !== "latest") return 0;
+      const ra = latestRuns[a.p.id], rb = latestRuns[b.p.id];
+      if (ra && rb && ra.at !== rb.at) return rb.at - ra.at;
+      if (!!ra !== !!rb) return ra ? -1 : 1;
+      return a.p.label.localeCompare(b.p.label);
+    }), [simulated, readoutOnly, flagFilter, sortKey, latestRuns]);
 
   const compareRow = rows.find((r) => r.p.id === compareId) ?? rows[0];
 
