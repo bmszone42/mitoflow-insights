@@ -64,7 +64,7 @@ export function RecalibrateCurve({ target, melovFitted, williamsFitted, williams
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
           <XAxis dataKey="s" type="number" domain={[S_MIN, S_MAX]} tick={{ fontSize: 11 }} label={{ value: "ROS-induced strength (x)", position: "insideBottomRight", offset: -2, fontSize: 11 }} />
           <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} label={{ value: "Aconitase % of normal", angle: -90, position: "insideLeft", fontSize: 11 }} />
-          <Tooltip formatter={(v: any, name: any) => [`${v}%`, name]} labelFormatter={(s: number) => `Strength ${s}x`} />
+          <Tooltip formatter={(v: any, name: any) => [`${v}%`, name]} labelFormatter={(s: any) => `Strength ${s}x`} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           {range && <ReferenceArea x1={range.lo} x2={range.hi} fill="var(--primary)" fillOpacity={0.12} stroke="var(--primary)" strokeOpacity={0.35} strokeDasharray="4 4" label={{ value: `range ${range.lo.toFixed(2)}x-${range.hi.toFixed(2)}x`, position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />}
           <Line type="monotone" dataKey="melov" name="Melov 1999 (0.2x defences)" stroke="var(--primary)" dot={false} strokeWidth={2} isAnimationActive={false} />
