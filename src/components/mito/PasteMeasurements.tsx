@@ -7,6 +7,8 @@ import { recordRun } from "@/lib/mito/runs";
 import { setStrengthRange } from "@/lib/mito/rangeState";
 import { logStrength } from "@/lib/mito/rirrDefault";
 import { fitStrength } from "./RecalibrateStrength";
+import { addSnaps } from "@/lib/mito/snapPlan";
+import { useProfileRirr, useSavedRirr } from "@/lib/mito/rirrDefault";
 
 // Aconitase-to-strength fit for pasted lines reads at 0.6x defences (the
 // Williams-style moderate level): the 0.2x Sod2-null stand-in cannot reach
@@ -67,6 +69,9 @@ export function PasteMeasurements({ pool, onRan }: { pool: DemoPatient[]; onRan?
   const [raw, setRaw] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [schedule, setSchedule] = useState(true);
+  const saved = useSavedRirr();
+  const [overrides] = useProfileRirr();
 
   const parsed = useMemo(() => {
     const lines = raw.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
@@ -101,8 +106,21 @@ export function PasteMeasurements({ pool, onRan }: { pool: DemoPatient[]; onRan?
       logStrength("batch-run", r.strength, `Pasted measurement ${r.date}: ${r.therapyName} ${r.dose}x (${r.strengthFrom})`);
     }
     setStrengthRange(band.lo, band.hi);
+    // One planned snap per measurement date, from the previous strength to
+    // the strength in that line; applies only on confirm at /snap-plan.
+    let snapped = 0;
+    if (schedule) {
+      let prev = overrides[prof.id] ?? saved ?? 1.0;
+      const byDate = [...okRows].sort((a, b) => a.date.localeCompare(b.date));
+      addSnaps(byDate.map((r) => {
+        const item = { profileId: prof.id, label: `${prof.label} (measured ${r.therapyName} ${r.dose}x)`, from: prev, to: r.strength, date: r.date };
+        prev = r.strength;
+        return item;
+      }));
+      snapped = byDate.length;
+    }
     setMsg(
-      `Added ${okRows.length} real visits to the Timeline for ${prof.label} and logged them on this page. Band set to ${band.lo.toFixed(2)}x-${band.hi.toFixed(2)}x from your data${badCount ? `; ${badCount} line(s) skipped` : ""}.`,
+      `Added ${okRows.length} real visits to the Timeline for ${prof.label} and logged them on this page. Band set to ${band.lo.toFixed(2)}x-${band.hi.toFixed(2)}x from your data${snapped ? `; scheduled ${snapped} snap(s) on Snap plan, shown on the Timeline snap strip` : ""}${badCount ? `; ${badCount} line(s) skipped` : ""}.`,
     );
     setBusy(false);
     onRan?.();
@@ -174,6 +192,7 @@ export function PasteMeasurements({ pool, onRan }: { pool: DemoPatient[]; onRan?
         <Button size="sm" data-testid="paste-apply" disabled={!okRows.length || busy} onClick={apply}>
           {busy ? "Applying…" : `Add ${okRows.length || ""} to Timeline and set band${band ? ` ${band.lo.toFixed(2)}x-${band.hi.toFixed(2)}x` : ""}`}
         </Button>
+        <label className="flex items-center gap-1 text-sm"><input type="checkbox" data-testid="paste-schedule" checked={schedule} onChange={(e) => setSchedule(e.target.checked)} />Also schedule a snap per date</label>
         {badCount > 0 && <span className="text-sm text-destructive">{badCount} line(s) have problems and will be skipped.</span>}
       </div>
       {msg && <p className="text-sm" data-testid="paste-msg">{msg}</p>}
