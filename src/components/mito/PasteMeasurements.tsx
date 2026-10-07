@@ -107,7 +107,8 @@ export function PasteMeasurements({ pool, onRan }: { pool: DemoPatient[]; onRan?
     }
     setStrengthRange(band.lo, band.hi);
     // One planned snap per measurement date, from the previous strength to
-    // the strength in that line; applies only on confirm at /snap-plan.
+    // the strength in that line; applies only on confirm on the Therapy plan
+    // Schedule tab.
     let snapped = 0;
     if (schedule) {
       let prev = overrides[prof.id] ?? saved ?? 1.0;

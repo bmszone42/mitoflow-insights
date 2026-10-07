@@ -17,15 +17,10 @@ import { Route as LabRangesRouteImport } from './routes/lab-ranges'
 import { Route as PatientBaselineRouteImport } from './routes/patient-baseline'
 import { Route as ReferencesRouteImport } from './routes/references'
 import { Route as RunsRouteImport } from './routes/runs'
-import { Route as SnapPlanRouteImport } from './routes/snap-plan'
-import { Route as StrengthPlanRouteImport } from './routes/strength-plan'
-import { Route as TherapyCalculatorRouteImport } from './routes/therapy-calculator'
-import { Route as TherapyCompareRouteImport } from './routes/therapy-compare'
 import { Route as TherapyPlanRouteImport } from './routes/therapy-plan'
 import { Route as TherapyToolsRouteImport } from './routes/therapy-tools'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as TreatmentRouteImport } from './routes/treatment'
-import { Route as TreatmentPlanRouteImport } from './routes/treatment-plan'
 import { Route as ApiAnalyzeImageRouteImport } from './routes/api/analyze-image'
 import { Route as ApiExplainSensitivityRouteImport } from './routes/api/explain-sensitivity'
 import { Route as ApiExtractLabsRouteImport } from './routes/api/extract-labs'
@@ -72,26 +67,6 @@ const RunsRoute = RunsRouteImport.update({
   path: '/runs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SnapPlanRoute = SnapPlanRouteImport.update({
-  id: '/snap-plan',
-  path: '/snap-plan',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StrengthPlanRoute = StrengthPlanRouteImport.update({
-  id: '/strength-plan',
-  path: '/strength-plan',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TherapyCalculatorRoute = TherapyCalculatorRouteImport.update({
-  id: '/therapy-calculator',
-  path: '/therapy-calculator',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TherapyCompareRoute = TherapyCompareRouteImport.update({
-  id: '/therapy-compare',
-  path: '/therapy-compare',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TherapyPlanRoute = TherapyPlanRouteImport.update({
   id: '/therapy-plan',
   path: '/therapy-plan',
@@ -110,11 +85,6 @@ const TimelineRoute = TimelineRouteImport.update({
 const TreatmentRoute = TreatmentRouteImport.update({
   id: '/treatment',
   path: '/treatment',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TreatmentPlanRoute = TreatmentPlanRouteImport.update({
-  id: '/treatment-plan',
-  path: '/treatment-plan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAnalyzeImageRoute = ApiAnalyzeImageRouteImport.update({
@@ -152,15 +122,10 @@ export interface FileRoutesByFullPath {
   '/patient-baseline': typeof PatientBaselineRoute
   '/references': typeof ReferencesRoute
   '/runs': typeof RunsRoute
-  '/snap-plan': typeof SnapPlanRoute
-  '/strength-plan': typeof StrengthPlanRoute
-  '/therapy-calculator': typeof TherapyCalculatorRoute
-  '/therapy-compare': typeof TherapyCompareRoute
   '/therapy-plan': typeof TherapyPlanRoute
   '/therapy-tools': typeof TherapyToolsRoute
   '/timeline': typeof TimelineRoute
   '/treatment': typeof TreatmentRoute
-  '/treatment-plan': typeof TreatmentPlanRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/extract-labs': typeof ApiExtractLabsRoute
@@ -176,15 +141,10 @@ export interface FileRoutesByTo {
   '/patient-baseline': typeof PatientBaselineRoute
   '/references': typeof ReferencesRoute
   '/runs': typeof RunsRoute
-  '/snap-plan': typeof SnapPlanRoute
-  '/strength-plan': typeof StrengthPlanRoute
-  '/therapy-calculator': typeof TherapyCalculatorRoute
-  '/therapy-compare': typeof TherapyCompareRoute
   '/therapy-plan': typeof TherapyPlanRoute
   '/therapy-tools': typeof TherapyToolsRoute
   '/timeline': typeof TimelineRoute
   '/treatment': typeof TreatmentRoute
-  '/treatment-plan': typeof TreatmentPlanRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/extract-labs': typeof ApiExtractLabsRoute
@@ -201,15 +161,10 @@ export interface FileRoutesById {
   '/patient-baseline': typeof PatientBaselineRoute
   '/references': typeof ReferencesRoute
   '/runs': typeof RunsRoute
-  '/snap-plan': typeof SnapPlanRoute
-  '/strength-plan': typeof StrengthPlanRoute
-  '/therapy-calculator': typeof TherapyCalculatorRoute
-  '/therapy-compare': typeof TherapyCompareRoute
   '/therapy-plan': typeof TherapyPlanRoute
   '/therapy-tools': typeof TherapyToolsRoute
   '/timeline': typeof TimelineRoute
   '/treatment': typeof TreatmentRoute
-  '/treatment-plan': typeof TreatmentPlanRoute
   '/api/analyze-image': typeof ApiAnalyzeImageRoute
   '/api/explain-sensitivity': typeof ApiExplainSensitivityRoute
   '/api/extract-labs': typeof ApiExtractLabsRoute
@@ -227,15 +182,10 @@ export interface FileRouteTypes {
     | '/patient-baseline'
     | '/references'
     | '/runs'
-    | '/snap-plan'
-    | '/strength-plan'
-    | '/therapy-calculator'
-    | '/therapy-compare'
     | '/therapy-plan'
     | '/therapy-tools'
     | '/timeline'
     | '/treatment'
-    | '/treatment-plan'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/extract-labs'
@@ -251,15 +201,10 @@ export interface FileRouteTypes {
     | '/patient-baseline'
     | '/references'
     | '/runs'
-    | '/snap-plan'
-    | '/strength-plan'
-    | '/therapy-calculator'
-    | '/therapy-compare'
     | '/therapy-plan'
     | '/therapy-tools'
     | '/timeline'
     | '/treatment'
-    | '/treatment-plan'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/extract-labs'
@@ -275,15 +220,10 @@ export interface FileRouteTypes {
     | '/patient-baseline'
     | '/references'
     | '/runs'
-    | '/snap-plan'
-    | '/strength-plan'
-    | '/therapy-calculator'
-    | '/therapy-compare'
     | '/therapy-plan'
     | '/therapy-tools'
     | '/timeline'
     | '/treatment'
-    | '/treatment-plan'
     | '/api/analyze-image'
     | '/api/explain-sensitivity'
     | '/api/extract-labs'
@@ -300,15 +240,10 @@ export interface RootRouteChildren {
   PatientBaselineRoute: typeof PatientBaselineRoute
   ReferencesRoute: typeof ReferencesRoute
   RunsRoute: typeof RunsRoute
-  SnapPlanRoute: typeof SnapPlanRoute
-  StrengthPlanRoute: typeof StrengthPlanRoute
-  TherapyCalculatorRoute: typeof TherapyCalculatorRoute
-  TherapyCompareRoute: typeof TherapyCompareRoute
   TherapyPlanRoute: typeof TherapyPlanRoute
   TherapyToolsRoute: typeof TherapyToolsRoute
   TimelineRoute: typeof TimelineRoute
   TreatmentRoute: typeof TreatmentRoute
-  TreatmentPlanRoute: typeof TreatmentPlanRoute
   ApiAnalyzeImageRoute: typeof ApiAnalyzeImageRoute
   ApiExplainSensitivityRoute: typeof ApiExplainSensitivityRoute
   ApiExtractLabsRoute: typeof ApiExtractLabsRoute
@@ -374,34 +309,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RunsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/snap-plan': {
-      id: '/snap-plan'
-      path: '/snap-plan'
-      fullPath: '/snap-plan'
-      preLoaderRoute: typeof SnapPlanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/strength-plan': {
-      id: '/strength-plan'
-      path: '/strength-plan'
-      fullPath: '/strength-plan'
-      preLoaderRoute: typeof StrengthPlanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/therapy-calculator': {
-      id: '/therapy-calculator'
-      path: '/therapy-calculator'
-      fullPath: '/therapy-calculator'
-      preLoaderRoute: typeof TherapyCalculatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/therapy-compare': {
-      id: '/therapy-compare'
-      path: '/therapy-compare'
-      fullPath: '/therapy-compare'
-      preLoaderRoute: typeof TherapyCompareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/therapy-plan': {
       id: '/therapy-plan'
       path: '/therapy-plan'
@@ -428,13 +335,6 @@ declare module '@tanstack/react-router' {
       path: '/treatment'
       fullPath: '/treatment'
       preLoaderRoute: typeof TreatmentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/treatment-plan': {
-      id: '/treatment-plan'
-      path: '/treatment-plan'
-      fullPath: '/treatment-plan'
-      preLoaderRoute: typeof TreatmentPlanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/analyze-image': {
@@ -484,15 +384,10 @@ const rootRouteChildren: RootRouteChildren = {
   PatientBaselineRoute: PatientBaselineRoute,
   ReferencesRoute: ReferencesRoute,
   RunsRoute: RunsRoute,
-  SnapPlanRoute: SnapPlanRoute,
-  StrengthPlanRoute: StrengthPlanRoute,
-  TherapyCalculatorRoute: TherapyCalculatorRoute,
-  TherapyCompareRoute: TherapyCompareRoute,
   TherapyPlanRoute: TherapyPlanRoute,
   TherapyToolsRoute: TherapyToolsRoute,
   TimelineRoute: TimelineRoute,
   TreatmentRoute: TreatmentRoute,
-  TreatmentPlanRoute: TreatmentPlanRoute,
   ApiAnalyzeImageRoute: ApiAnalyzeImageRoute,
   ApiExplainSensitivityRoute: ApiExplainSensitivityRoute,
   ApiExtractLabsRoute: ApiExtractLabsRoute,
