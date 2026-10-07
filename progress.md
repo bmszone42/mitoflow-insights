@@ -517,3 +517,8 @@
 - ✅ The count beside the filter shows "17 of 18" when filtered; the band summary line keeps counting all 18 profiles so the "in band / outside" split stays truthful under a filter.
 - ✅ CSV and batch CSV exports follow the filter (they export the table's rows).
 - ✅ Verified live: flagged shows 17 rows (all except healthy Demo 02), unflagged shows Demo 02 alone, order stays flag-descending in every view, no page errors, build clean.
+
+## Leftover cloud-auth code removed (2026-10-07) ✅
+- ✅ Uninstalled @lovable.dev/cloud-auth-js and @supabase/supabase-js; deleted the generated src/integrations/supabase and src/integrations/lovable folders. No app code imported them.
+- ✅ .env.example no longer lists cloud backend keys; only the optional LOVABLE_API_KEY for AI buttons remains.
+- ✅ Verified: no source references to supabase/cloud-auth remain, build OK, home page responds 200.
