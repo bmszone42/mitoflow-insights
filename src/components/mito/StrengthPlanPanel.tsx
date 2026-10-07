@@ -133,7 +133,8 @@ export function StrengthPlanPanel({ view }: { view: "suggestions" | "pairs" }) {
   };
 
   // Schedules a snap for today to the band edge where the #1 pair works best,
-  // so the target always sits inside the band. Applies only on confirm at /snap-plan.
+  // so the target always sits inside the band. Applies only on confirm on the
+  // Therapy plan Schedule tab.
   const [snapMsg, setSnapMsg] = useState("");
   const addTopToSnap = () => {
     const r = topPairs[0];
