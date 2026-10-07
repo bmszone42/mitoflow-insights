@@ -72,10 +72,16 @@ function RunsPage() {
   const shownRuns = useMemo(() => (only ? (runs ?? []).filter((r) => r.patientId === only) : runs ?? []), [runs, only]);
   const shownPatients = useMemo(() => new Map([...byPatient].filter(([pid]) => !only || pid === only)), [byPatient, only]);
 
-  // Land on the profile the link named once its rows exist.
+  // Land on the profile the link named once its rows exist. Repeated briefly
+  // because the router's own scroll restore runs right after navigation.
   useEffect(() => {
-    if (only && runs !== null) requestAnimationFrame(() => document.getElementById(`runs-profile-${only}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    if (!only || runs === null) return;
+    const timers = [40, 160, 320].map((ms) => setTimeout(() => {
+      document.getElementById(`runs-profile-${only}`)?.scrollIntoView({ behavior: "auto", block: "start" });
+    }, ms));
+    return () => timers.forEach(clearTimeout);
   }, [only, runs]);
+
 
   const profileOf = (id: string): DemoPatient | undefined => pool.find((p) => p.id === id);
 
