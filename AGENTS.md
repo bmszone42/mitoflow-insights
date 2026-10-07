@@ -11,7 +11,7 @@
 
 ## Project rules
 
-- Redox math lives in `model/` behind the `model.ts` barrel (import the barrel); ATP/P/O bands in `reference.ts`; fuel changes flux, not P/O.
+- Redox math in `model/` via the `model.ts` barrel; ATP/P/O bands in `reference.ts`; fuel changes flux, not P/O.
 - State in `index.tsx`; scenarios use owner-only Cloud or signed-out IndexedDB with legacy geometry defaults.
 - AI interpretation streams through `api/interpret.ts`; key stays server-side.
 - AI routes share an in-memory limiter; use database limits for strict enforcement.
