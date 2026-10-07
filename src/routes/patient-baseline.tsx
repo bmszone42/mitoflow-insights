@@ -1,3 +1,4 @@
+import { useSelectedProfile } from "@/lib/mito/selectedProfile";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, AlertTriangle, CheckCircle2, CircleHelp } from "lucide-react";
@@ -28,7 +29,7 @@ function patientState(psi: number): Inputs {
 }
 
 function PatientBaselinePage() {
-  const [selectedId, setSelectedId] = useState("demo-15");
+  const [selectedId, setSelectedId] = useSelectedProfile("demo-15");
   const selected = demoPatients.find((patient) => patient.id === selectedId) ?? demoPatients[0];
   if (!healthy || !selected) return null;
 

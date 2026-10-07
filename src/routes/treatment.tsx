@@ -1,3 +1,4 @@
+import { useSelectedProfile } from "@/lib/mito/selectedProfile";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { TherapyOverlap } from "@/components/mito/TherapyOverlap";
 import { useMemo, useState } from "react";
@@ -27,7 +28,7 @@ const delta = (a: number, b: number) => (a === 0 ? "" : ` (${b >= a ? "+" : ""}$
 function TreatmentPage() {
   const search = Route.useSearch();
   const all = useMemo(() => diagnoseAll(), []);
-  const [id, setId] = useState(search.profile ?? "demo-04");
+  const [id, setId] = useSelectedProfile("demo-04", search.profile);
   const [openTx, setOpenTx] = useState<string | null>(null);
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const ranked = useMemo(() => rankTherapies(d), [d]);

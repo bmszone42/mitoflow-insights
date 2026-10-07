@@ -1,3 +1,4 @@
+import { useSelectedProfile } from "@/lib/mito/selectedProfile";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { demoPatients } from "@/lib/mito/patientReference";
@@ -27,7 +28,7 @@ const DOSES = [0.5, 1, 1.5, 2];
 const pct = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}%`;
 
 function StrengthPlan() {
-  const [pid, setPid] = useState(demoPatients[0].id);
+  const [pid, setPid] = useSelectedProfile(demoPatients[0].id);
   const [{ lo, hi }] = useStrengthRange();
   const saved = useSavedRirr();
   const [own] = useProfileRirr();
