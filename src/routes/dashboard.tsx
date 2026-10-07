@@ -60,6 +60,8 @@ function Dashboard() {
   const [strengthEpoch, setStrengthEpoch] = useState(0);
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
+  // Flag filter: "all" shows every profile; "flagged" only profiles with at least one lab, assay or model flag; "unflagged" only profiles with none.
+  const [flagFilter, setFlagFilter] = useState<"all" | "flagged" | "unflagged">("all");
   // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
   const [dose, setDose] = useState(1);
   // Charts stay unmounted (and their code unloaded) until the user opens them.
