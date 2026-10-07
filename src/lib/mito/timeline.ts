@@ -1,10 +1,12 @@
 import { useSyncExternalStore } from "react";
+import { openDB, type IDBPDatabase } from "idb";
 import { demoPatients, patientMetrics, projectedMitoSox, projectedH2o2, mitoSoxBand, h2o2NmBand, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
 import { defaultGeometry, melovHeartCheck, simulate } from "./model";
 
-// Timeline visits live in module memory only (tab-only, never persisted or sent anywhere).
+// Timeline visits persist in this browser via IndexedDB ("cristae-lab-visits"), like runs.
+// Baseline and synthetic visits are regenerated from the demo data; only user/real/plan rows are stored.
 /** origin "real": a real-world visit with measured labs and the actual doses taken (free text, e.g. "20 mg/day"); actualDoses are recorded only, the model still uses `doses`. */
 export type Visit = { id: string; patientId: string; date: string; values: Record<PatientMetricKey, number>; h2o2Nm?: number | undefined; therapies: string[]; doses?: Record<string, number> | undefined; actualDoses?: Record<string, string> | undefined; origin: "baseline" | "synthetic" | "user" | "plan" | "real" };
 
