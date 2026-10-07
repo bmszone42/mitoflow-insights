@@ -53,6 +53,27 @@ export const addPlan = (v: Pick<Visit, "patientId" | "date" | "therapies" | "dos
 };
 export const removeVisit = (id: string) => { visits = visits.filter((v) => v.id !== id); unpersist(id); emit(); };
 
+const visitKey = (v: Visit) => `${v.patientId}|${v.date}|${[...v.therapies].sort().join("+")}|${v.origin}`;
+/** Saved visits (user, real, plan) as a portable file payload. */
+export const exportVisits = () => ({ app: "cristae-lab", kind: "timeline-visits", version: 1, exportedAt: new Date().toISOString(), visits: visits.filter((v) => v.origin === "user" || v.origin === "real" || v.origin === "plan") });
+/** Merge visits from a file; skips duplicates (same profile, date, therapies, type). Returns counts. */
+export function importVisits(data: unknown): { added: number; skipped: number; invalid: number } {
+  const list = Array.isArray(data) ? data : (data as { visits?: unknown })?.visits;
+  if (!Array.isArray(list)) throw new Error("No visits found in this file.");
+  const seen = new Set(visits.map(visitKey));
+  let added = 0, skipped = 0, invalid = 0;
+  for (const raw of list as Partial<Visit>[]) {
+    const ok = raw && typeof raw.patientId === "string" && typeof raw.date === "string" && Array.isArray(raw.therapies) && (raw.origin === "user" || raw.origin === "real" || raw.origin === "plan") && typeof raw.values === "object";
+    if (!ok) { invalid++; continue; }
+    const v: Visit = { ...(raw as Visit), id: `${raw.origin === "plan" ? "p" : "v"}-${Date.now()}-${Math.round(Math.random() * 1e6)}` };
+    const k = visitKey(v);
+    if (seen.has(k)) { skipped++; continue; }
+    seen.add(k); visits.push(v); persist(v); added++;
+  }
+  if (added) emit();
+  return { added, skipped, invalid };
+}
+
 /** L:P is derived: lactate (mmol/L) x 1000 / pyruvate (µmol/L). */
 export const withDerived = (values: Record<PatientMetricKey, number>) => ({ ...values, lactatePyruvate: values.pyruvate > 0 ? Math.round((values.lactate * 1000 / values.pyruvate) * 10) / 10 : values.lactatePyruvate });
 
