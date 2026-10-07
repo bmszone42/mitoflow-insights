@@ -251,6 +251,15 @@ function Dashboard() {
         <p className="text-sm text-muted-foreground">Each profile run through the model from its measured baseline (membrane potential, labile iron, inverse MitoSOX, and lactate:pyruvate as the NADH ratio when lactate is at least 2.5 mmol/L and the ratio is measured). Sorted by total flag count, most flagged first. Peroxide above 100 nM (Sies 2017, measured or model) adds one assay flag, and so does a MitoSOX value outside the Gonzalo 2019 band (0.59-1.5x control; an adult study, applied to children with caution). Projected H2O2 scales the measured peroxide (or the model value if not measured) by the model's peroxide change under the Batch therapy pick, or the strongest peroxide-lowering therapy when "All therapies" is picked; a model estimate, not a measurement. Projected MitoSOX does the same for the measured MitoSOX fold using the model's superoxide change, since MitoSOX reports superoxide. The therapy count lists model therapies that target a strong cause and move ATP, superoxide or peroxide by 1% or more; it is not an abnormal flag and is not part of the total. Percentages compare with the healthy adult (demo-01). Top disorders are profiles sharing the most same-direction flags, not likelihoods. "Responds to" lists up to three therapies at the chosen model dose, ranked by flags cleared first, then by readout change; a slider move, not a drug dose or efficacy claim. With "Only therapies that change ATP, superoxide or peroxide" checked, therapies whose only model effect is clearing flags are hidden and only readout changes are shown. Research model, not a diagnosis. Synthetic values are invented.</p>
       </div>
       <div className="flex flex-col items-end gap-2">
+        <label className="flex items-center gap-2 text-xs" data-testid="dash-flag-filter-label">
+          Flag filter
+          <select value={flagFilter} onChange={(e) => setFlagFilter(e.target.value as typeof flagFilter)} data-testid="dash-flag-filter" className="rounded border border-border bg-background px-1.5 py-0.5 text-xs">
+            <option value="all">All profiles</option>
+            <option value="flagged">Flagged only</option>
+            <option value="unflagged">Not flagged only</option>
+          </select>
+          <span className="text-muted-foreground" data-testid="dash-flag-filter-count">({flagFilter === "all" ? `${rows.length}` : `${rows.length} of ${simulated.length}`})</span>
+        </label>
         <label className="flex items-center gap-2 text-xs" data-testid="dash-dose-label">
           Model dose
           <select value={dose} onChange={(e) => setDose(Number(e.target.value))} data-testid="dash-dose" className="rounded border border-border bg-background px-1.5 py-0.5 text-xs">
