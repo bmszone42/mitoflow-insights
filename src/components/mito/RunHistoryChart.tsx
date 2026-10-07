@@ -64,8 +64,8 @@ export function RunHistoryChart({ runs, range }: { runs: RunRecord[]; range?: { 
             />
           )}
           <Tooltip
-            labelFormatter={(t: number) => fmtTime(t)}
-            formatter={(v: number, _name: string, item: { payload?: { label?: string; strength?: number } }) => [
+            labelFormatter={(t: any) => fmtTime(t)}
+            formatter={(v: any, _name: any, item: any) => [
               `${v.toFixed(1)}%${item.payload?.strength != null ? ` at ${item.payload.strength}x` : ""}`,
               item.payload?.label ?? "run",
             ]}

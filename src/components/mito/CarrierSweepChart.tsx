@@ -9,7 +9,7 @@ export default function CarrierSweepChart({ data, at }: { data: { r: number; atp
           <XAxis dataKey="r" tickFormatter={(v) => `${v}x`} fontSize={11} />
           <YAxis yAxisId="a" fontSize={11} />
           <YAxis yAxisId="s" orientation="right" fontSize={11} />
-          <Tooltip formatter={(v: number) => v.toFixed(2)} labelFormatter={(v) => `${v}x`} />
+          <Tooltip formatter={(v: any) => v.toFixed(2)} labelFormatter={(v) => `${v}x`} />
           <Line yAxisId="a" type="monotone" dataKey="atp" name="ATP flux (µM/s)" stroke="var(--primary)" dot={false} />
           <Line yAxisId="s" type="monotone" dataKey="so" name="Superoxide (nM)" stroke="var(--destructive)" dot={false} />
           <ReferenceDot yAxisId="a" x={at.r} y={at.atp} r={5} fill="var(--primary)" />

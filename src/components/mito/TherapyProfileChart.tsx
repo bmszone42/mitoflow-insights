@@ -45,7 +45,7 @@ export function TherapyProfileChart({ profiles, dose, flaggedIds }: { profiles: 
           <XAxis dataKey="name" interval={0} angle={-35} textAnchor="end" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
           <YAxis yAxisId="pct" unit="%" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
           <YAxis yAxisId="str" orientation="right" domain={[0, 1.5]} tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} tickFormatter={(v: number) => `${v}x`} />
-          <Tooltip formatter={(v: number, name: string) => (name === "ROS-induced strength" ? [`${v.toFixed(2)}x`, name] : `${v > 0 ? "+" : ""}${v}%`)} labelFormatter={(l, p) => `${l}${p?.[0] ? ` (${p[0].payload.profile})` : ""}`} contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", fontSize: 11 }} />
+          <Tooltip formatter={(v: any, name: any) => (name === "ROS-induced strength" ? [`${v.toFixed(2)}x`, name] : `${v > 0 ? "+" : ""}${v}%`)} labelFormatter={(l, p) => `${l}${p?.[0] ? ` (${p[0].payload.profile})` : ""}`} contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", fontSize: 11 }} />
           <Legend verticalAlign="top" wrapperStyle={{ fontSize: 11 }} />
           <ReferenceLine yAxisId="pct" y={0} stroke="var(--muted-foreground)" />
           <Bar yAxisId="pct" dataKey="atp" name="ATP" fill="var(--chart-1)" />

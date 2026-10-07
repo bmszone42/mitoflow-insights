@@ -129,10 +129,10 @@ export function WarburgDashboard({
               <BarChart data={split} layout="vertical" stackOffset="expand" margin={{ left: 10, right: 76 }}>
                 <XAxis type="number" hide />
                 <YAxis type="category" dataKey="name" width={130} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-                <Tooltip formatter={(v: number) => `${v.toFixed(1)} µM/s`} />
+                <Tooltip formatter={(v: any) => `${v.toFixed(1)} µM/s`} />
                 <Bar dataKey="respiration" stackId="a" fill="var(--primary)" />
                 <Bar dataKey="glycolysis" stackId="a" fill="var(--accent)">
-                  <LabelList dataKey="pct" position="right" formatter={(v: number) => `${v.toFixed(0)}% glycolysis`} style={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
+                  <LabelList dataKey="pct" position="right" formatter={(v: any) => `${v.toFixed(0)}% glycolysis`} style={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -150,7 +150,7 @@ export function WarburgDashboard({
                 <BarChart data={bars} layout="vertical" margin={{ left: 10, right: 44 }}>
                   <XAxis type="number" hide />
                   <YAxis type="category" dataKey="name" width={130} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-                  <Tooltip formatter={(v: number, _n, p) => [`${v.toFixed(0)}% share, ${(p.payload as { label: string }).label}`, "Driver"]} />
+                  <Tooltip formatter={(v: any, _n, p) => [`${v.toFixed(0)}% share, ${(p.payload as { label: string }).label}`, "Driver"]} />
                   <Bar dataKey="share">
                     {bars.map((b) => <Cell key={b.name} fill={b.up ? "var(--primary)" : "var(--destructive)"} />)}
                     <LabelList dataKey="label" position="right" style={{ fontSize: 10, fill: "var(--muted-foreground)" }} />

@@ -38,7 +38,7 @@ export function ScenarioGapChart({ rows }: { rows: GapBar[] }) {
             />
             <Tooltip
               {...tooltipProps()}
-              formatter={(v: number) => [`${v >= 0 ? "+" : ""}${v.toFixed(0)}%`, "defences-only gap"]}
+              formatter={(v: any) => [`${v >= 0 ? "+" : ""}${v.toFixed(0)}%`, "defences-only gap"]}
             />
             <ReferenceLine
               x={0}
@@ -53,7 +53,7 @@ export function ScenarioGapChart({ rows }: { rows: GapBar[] }) {
               <LabelList
                 dataKey="gap"
                 position="right"
-                formatter={(v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}%`}
+                formatter={(v: any) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}%`}
                 style={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
               />
             </Bar>

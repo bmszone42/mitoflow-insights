@@ -9,7 +9,7 @@ export default function MitophagyChart({ data, at, healthySo }: { data: { r: num
           <XAxis dataKey="r" tickFormatter={(v) => `${v}mg`} fontSize={11} />
           <YAxis yAxisId="a" fontSize={11} />
           <YAxis yAxisId="s" orientation="right" fontSize={11} />
-          <Tooltip formatter={(v: number) => v.toFixed(4)} labelFormatter={(v) => `${v} mg/day`} />
+          <Tooltip formatter={(v: any) => v.toFixed(4)} labelFormatter={(v) => `${v} mg/day`} />
           <Line yAxisId="a" type="monotone" dataKey="atp" name="ATP flux (µM/s)" stroke="var(--primary)" dot={false} />
           <Line yAxisId="s" type="monotone" dataKey="so" name="Superoxide (nM)" stroke="var(--destructive)" dot={false} />
           <ReferenceDot yAxisId="a" x={at.r} y={at.atp} r={5} fill="var(--primary)" />

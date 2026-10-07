@@ -53,8 +53,8 @@ export function OaaSupplyExplorer({ inputs, geo, out }: { inputs: Inputs; geo: G
             <YAxis yAxisId="atp" tick={{ fontSize: 10 }} className="fill-muted-foreground" width={44} />
             <YAxis yAxisId="so" orientation="right" tick={{ fontSize: 10 }} className="fill-muted-foreground" width={44} />
             <Tooltip
-              formatter={(value: number, name: string) => [name === "atp" ? `${value.toFixed(1)} µM/s` : value.toFixed(4), name === "atp" ? "ATP flux" : "Superoxide"]}
-              labelFormatter={(v: number) => `${v} ${A.unit}`}
+              formatter={(value: any, name: any) => [name === "atp" ? `${value.toFixed(1)} µM/s` : value.toFixed(4), name === "atp" ? "ATP flux" : "Superoxide"]}
+              labelFormatter={(v: any) => `${v} ${A.unit}`}
             />
             <Line yAxisId="atp" type="monotone" dataKey="atp" stroke="var(--primary)" dot={false} strokeWidth={2} name="atp" />
             <Line yAxisId="so" type="monotone" dataKey="so" stroke="var(--destructive)" dot={false} strokeWidth={2} name="so" />

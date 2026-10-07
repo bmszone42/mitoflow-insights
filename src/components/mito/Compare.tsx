@@ -354,7 +354,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                   <XAxis type="number" stroke="var(--muted-foreground)" fontSize={10} tickFormatter={(v) => `${Math.round(v * 100)}%`} />
                   <YAxis type="category" dataKey="name" width={150} stroke="var(--muted-foreground)" fontSize={10} />
-                  <Tooltip {...tip} formatter={(v: number, n) => [Number(v).toPrecision(3), n]} />
+                  <Tooltip {...tip} formatter={(v: any, n) => [Number(v).toPrecision(3), n]} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Bar dataKey="respiration" name="Respiration ATP" stackId="s" fill="var(--primary)" radius={[0, 0, 0, 0]} />
                   <Bar dataKey="glycolysis" name="Glycolysis ATP" stackId="s" fill="var(--accent)" radius={[0, 3, 3, 0]}>
@@ -451,7 +451,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                       <XAxis type="number" domain={[0, 100]} stroke="var(--muted-foreground)" fontSize={10} unit="%" />
                       <YAxis type="category" dataKey="name" width={112} stroke="var(--muted-foreground)" fontSize={10} />
-                      <Tooltip {...tip} formatter={(v: number, _n, item) => [`${v.toFixed(0)}% share, ${(item?.payload as { pctLabel?: string } | undefined)?.pctLabel ?? ""} B vs A`, "Driver share"]} />
+                      <Tooltip {...tip} formatter={(v: any, _n, item) => [`${v.toFixed(0)}% share, ${(item?.payload as { pctLabel?: string } | undefined)?.pctLabel ?? ""} B vs A`, "Driver share"]} />
                       <Bar dataKey="share" radius={[0, 3, 3, 0]}>
                         {etcRows.rows
                           .map((r) => {
@@ -524,7 +524,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={11} />
                   <YAxis scale="log" domain={["auto", "auto"]} allowDataOverflow stroke="var(--muted-foreground)" fontSize={11} tickFormatter={(v) => Number(v).toPrecision(2)} />
-                  <Tooltip {...tip} formatter={(v: number) => Number(v).toPrecision(3)} />
+                  <Tooltip {...tip} formatter={(v: any) => Number(v).toPrecision(3)} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Bar dataKey="A" name={a.name} fill="var(--primary)" />
                   <Bar dataKey="B" name={b.name} fill="var(--accent)" />
@@ -538,7 +538,7 @@ export function Compare({ refreshKey, onViewShape }: { refreshKey: number; onVie
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={11} />
                   <YAxis stroke="var(--muted-foreground)" fontSize={11} />
-                  <Tooltip {...tip} formatter={(v: number) => Number(v).toPrecision(3)} />
+                  <Tooltip {...tip} formatter={(v: any) => Number(v).toPrecision(3)} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Bar dataKey="A" name={a.name} fill="var(--primary)" />
                   <Bar dataKey="B" name={b.name} fill="var(--accent)" />
