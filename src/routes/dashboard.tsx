@@ -299,7 +299,7 @@ function Dashboard() {
     <p className="px-1 text-xs text-muted-foreground" data-testid="dash-band-summary">{(() => {
       const inBand = rows.filter((r) => { const s = profileInputs(r.p).rirrStrength; return s >= range.lo && s <= range.hi; }).length;
       return <>
-        <span className="font-medium text-foreground">{inBand} of {rows.length} profiles</span> sit inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); {rows.length - inBand} outside.{" "}
+        <span className="font-medium text-foreground">{inBand} of {simulated.length} profiles</span> sit inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); {simulated.length - inBand} outside.{" "}
         <button type="button" data-testid="dash-band-edit" className="text-primary underline underline-offset-2" onClick={() => document.querySelector<HTMLElement>('[data-testid="header-band"]')?.click()}>Edit the band</button>
         <span className="text-muted-foreground"> The same band colors the Band column and every chart that marks inside or outside.</span>
       </>;
