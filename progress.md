@@ -480,3 +480,4 @@
 - ✅ Hide button remembers the choice in this browser (localStorage cristae-lab-start-here); a one-line "What do strength, band and gap mean?" link brings the card back.
 - ✅ Verified live: card renders on the Simulator tab, Hide collapses it, it stays collapsed after a reload, the link restores it, and the band chip follows a saved band (1.10x-1.40x) after reload; no page errors, build clean.
 - ✅ Timeline visits export/import as a JSON file (dedupe on profile, date, therapies, type)
+- [x] Move everything file (Timeline): visits, runs, snaps, band, strengths in one download/load
