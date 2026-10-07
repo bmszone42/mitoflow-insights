@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Trash2 } from "lucide-react";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import { demoPatients, type DemoPatient } from "@/lib/mito/patientReference";
 import { useUserPatients } from "@/lib/mito/userPatients";
@@ -19,8 +21,10 @@ const RunHistoryChart = lazy(() =>
 );
 
 export const Route = createFileRoute("/runs")({
+  validateSearch: (s) => z.object({ profile: z.string().optional() }).parse(s),
   head: () => ({
     meta: [
+
       { title: "Scenario progress - Cristae Lab" },
       { name: "description", content: "Local log of which patient profiles, therapies and model doses have been simulated, so runs are not repeated. Stored in this browser only." },
       { property: "og:title", content: "Scenario progress - Cristae Lab" },
@@ -50,6 +54,8 @@ function RunsPage() {
   const pool = useMemo(() => [...users, ...demoPatients], [users]);
   const [runs, setRuns] = useState<RunRecord[] | null>(null);
   const [range] = useStrengthRange();
+  // ?profile= jumps straight to one profile's runs, e.g. from the Dashboard table.
+  const only = Route.useSearch().profile;
 
   useEffect(() => { listRuns().then(setRuns); }, []);
 
@@ -63,7 +69,16 @@ function RunsPage() {
     return m;
   }, [runs]);
 
+  const shownRuns = useMemo(() => (only ? (runs ?? []).filter((r) => r.patientId === only) : runs ?? []), [runs, only]);
+  const shownPatients = useMemo(() => new Map([...byPatient].filter(([pid]) => !only || pid === only)), [byPatient, only]);
+
+  // Land on the profile the link named once its rows exist.
+  useEffect(() => {
+    if (only && runs !== null) requestAnimationFrame(() => document.getElementById(`runs-profile-${only}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }, [only, runs]);
+
   const profileOf = (id: string): DemoPatient | undefined => pool.find((p) => p.id === id);
+
 
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
     <header className="space-y-1">
@@ -81,13 +96,18 @@ function RunsPage() {
       <p className="text-sm text-muted-foreground" data-testid="runs-empty">Nothing logged yet. Open the <Link className="text-primary underline underline-offset-2" to="/dashboard">Dashboard</Link>, <Link className="text-primary underline underline-offset-2" to="/therapy-tools">Therapy tools</Link> or <Link className="text-primary underline underline-offset-2" to="/therapy-plan">Therapy plan</Link> and each combination you run appears here.</p>
     )}
 
-    {runs !== null && runs.length > 0 && (
+    {runs !== null && only && shownRuns.length === 0 && (
+      <p className="text-sm text-muted-foreground" data-testid="runs-only-empty">No runs logged for {profileOf(only)?.label ?? only} yet. <Link className="text-primary underline underline-offset-2" to="/runs" search={{ profile: undefined }} data-testid="runs-show-all">Show all profiles</Link></p>
+    )}
+    {runs !== null && shownRuns.length > 0 && (
       <>
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-muted-foreground" data-testid="runs-count">{runs.length} unique combinations across {byPatient.size} profiles.</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-sm text-muted-foreground" data-testid="runs-count">{shownRuns.length} unique combinations across {shownPatients.size} profiles.</p>
           <p className="text-xs text-muted-foreground" data-testid="runs-band-count">
-            {runs.filter((r) => r.rirrStrength != null && r.rirrStrength >= range.lo && r.rirrStrength <= range.hi).length} of {runs.length} runs inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); rows are green inside and red outside or with no strength noted.
+            {shownRuns.filter((r) => r.rirrStrength != null && r.rirrStrength >= range.lo && r.rirrStrength <= range.hi).length} of {shownRuns.length} runs inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); rows are green inside and red outside or with no strength noted.
           </p>
+          {only && <p className="text-xs" data-testid="runs-only-note">Showing <span className="font-medium text-foreground">{profileOf(only)?.label ?? only}</span> only. <Link className="text-primary underline underline-offset-2" to="/runs" search={{ profile: undefined }} data-testid="runs-show-all">Show all profiles</Link></p>}
+
           <Button variant="outline" size="sm" data-testid="runs-clear" onClick={async () => { await clearRuns(); setRuns([]); }}>
             <Trash2 className="size-4" aria-hidden /> Clear log
           </Button>
@@ -97,14 +117,15 @@ function RunsPage() {
           <h2 className="text-lg font-medium">Superoxide change over time</h2>
           <p className="text-xs text-muted-foreground">Each dot is a logged run with a recorded superoxide change. Green means the run's ROS-induced strength sat inside your saved range, red means outside or not noted.</p>
           <Suspense fallback={<p className="text-sm text-muted-foreground">Loading chart…</p>}>
-            <RunHistoryChart runs={runs} range={range} />
+            <RunHistoryChart runs={shownRuns} range={range} />
           </Suspense>
         </section>
 
-        {[...byPatient.entries()].map(([pid, list]) => {
+        {[...shownPatients.entries()].map(([pid, list]) => {
           const p = profileOf(pid);
           return (
-            <section key={pid} className="space-y-2" data-testid={`runs-profile-${pid}`}>
+            <section key={pid} id={`runs-profile-${pid}`} className="space-y-2" data-testid={`runs-profile-${pid}`}>
+
               <h2 className="text-lg font-medium">{p ? p.label : pid} <span className="text-sm font-normal text-muted-foreground">({list.length} combinations)</span></h2>
               <table className="w-full text-sm">
                 <thead><tr className="text-left text-muted-foreground">
