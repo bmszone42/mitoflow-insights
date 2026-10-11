@@ -556,3 +556,4 @@
 - ✅ Verified: no source references to supabase/cloud-auth remain, build OK, home page responds 200.
 
 - ✅ Model lock test: snapshots default run, every input at min/max, 48 h course and all 18 demo profiles flags (run: bun run test; accept intended changes: bunx vitest run -u)
+- ✅ reference.ts split into reference/ (ros, fes, etc, atp, notes) behind a barrel
