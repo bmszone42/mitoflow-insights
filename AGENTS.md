@@ -35,8 +35,8 @@
 - Mitophagy is the model input mitoHalfLife (published turnover half-lives) handled by qualityControl in model.ts, neutral at the 17.2 d default; the urolithin A card in mitophagy.ts only shortens it locally. Why: turnover must change the model math while defaults keep cited outputs stable.
 - Scheduled strength snaps live in src/lib/mito/snapPlan.ts (localStorage cristae-lab-snap-plan) and only apply on user confirm on the Therapy plan Schedule tab, writing per-profile overrides via saveProfileRirr; why: dates mark snaps due without silently changing model strength.
 - Timeline visit-gap chart orders rows by date and breaks the combined-gap line at visits without a pair; why: connecting gap-ranked or missing-pair visits would imply a false time trend.
-- Timeline visits persist in IndexedDB "cristae-lab-visits" (user/real/plan rows only, fire-and-forget writes, hydrate on first useVisits); why: pasted measurements must survive a reload like runs do.
+- Timeline visits persist in IndexedDB "cristae-lab-visits" (user/real/plan rows only); why: pasted measurements survive reload.
 - Selected profile is shared via useSelectedProfile (localStorage, ?profile= wins); why: a profile picked on one page must carry to every page.
-- Start here explainer is one shared component (StartHereCard.tsx) with per-page storageKey, steps and strengthWhere; why: definitions must match everywhere while each page names only its own controls.
+- Start here explainer is one shared StartHereCard.tsx with per-page storageKey and steps; why: definitions match everywhere.
 - /runs?profile= shows one profile's logged runs only and hides the tool panels until "Show the tools"; why: a Dashboard row click must land on that profile's rows.
-
+- Model outputs locked by src/lib/mito/model.lock.test.ts (update: bunx vitest run -u); why: no silent shifts.

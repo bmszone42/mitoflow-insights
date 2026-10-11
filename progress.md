@@ -554,3 +554,5 @@
 - ✅ Uninstalled @lovable.dev/cloud-auth-js and @supabase/supabase-js; deleted the generated src/integrations/supabase and src/integrations/lovable folders. No app code imported them.
 - ✅ .env.example no longer lists cloud backend keys; only the optional LOVABLE_API_KEY for AI buttons remains.
 - ✅ Verified: no source references to supabase/cloud-auth remain, build OK, home page responds 200.
+
+- ✅ Model lock test: snapshots default run, every input at min/max, 48 h course and all 18 demo profiles flags (run: bun run test; accept intended changes: bunx vitest run -u)
