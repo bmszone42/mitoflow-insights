@@ -237,7 +237,11 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // the 3Fe cluster is reactivated fast (~1 min t1/2, rounded assumption)
   // or degraded further by H2O2 to apo (all 4 Fe lost), rebuilt slowly by ISC.
   const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // apo -> [4Fe-4S], ISCU/NFS1/frataxin
-  const kReact = 1.2e-2; // [3Fe-4S] -> [4Fe-4S], fast reactivation (~1 min t1/2)
+  // Reactivation needs Fe2+ and a reductant (Holm & Lo 2016; Beinert 1997):
+  // scale with labile iron and antioxidant (GSH/ascorbate) supply, both
+  // normalized so the healthy defaults keep the ~1 min rate. Assumed shape.
+  const reactSupply = Math.max(0.1, Math.sqrt((i.labileIron / 2) * i.antioxidantCapacity));
+  const kReact = 1.2e-2 * reactSupply; // [3Fe-4S] -> [4Fe-4S], fast reactivation
   const a3 = kAcon * superoxideM + kOnooFes * onooM; // [4Fe-4S] -> [3Fe-4S] + 1 Fe
   const aApo = kH2o2Fes * h2o2; // [4Fe-4S] -> apo + 4 Fe
   const d3 = kH2o2Fes * h2o2; // [3Fe-4S] -> apo + 3 Fe
@@ -247,6 +251,22 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const fes3Fe = fesIntact * t3PerI;
   const fesApo = fesIntact * apoPerI;
   void clusterAttack;
+  // Separate pools (Beinert, Holm & Munck 1997): aconitase's cluster is
+  // solvent-exposed with a free Fe site; respiratory-chain clusters are
+  // buried in protein. Relative exposure factors are ASSUMED, not fitted;
+  // aconitase uses factor 1 so the shared readouts above stay unchanged.
+  const pool = (exposure: number) => {
+    const t = (a3 * exposure) / (kReact + d3 * exposure);
+    const apo = (aApo * exposure + d3 * exposure * t) / kRepair;
+    const intact = 1 / (1 + t + apo);
+    return { intact, threeFe: intact * t, apo: intact * apo };
+  };
+  const fesPools = {
+    aconitase: { intact: fesIntact, threeFe: fes3Fe, apo: fesApo },
+    complexI: pool(0.15),
+    complexII: pool(0.3),
+    complexIII: pool(0.05),
+  };
   // ~6 µM cluster protein: 1 Fe freed per 3Fe cluster, 4 Fe per apo protein
   const ironFromClusters = 6 * (fes3Fe + 4 * fesApo);
   const freeIron = i.labileIron * qc.iron + ironFromClusters;
@@ -362,6 +382,9 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
     singletOxygen: singlet * 1e3,
     lipidPeroxyl,
     fesIntact,
+    fes3Fe,
+    fesApo,
+    fesPools,
     aconitaseActivity: fesIntact * 100,
     freeIron,
     emission71THz,
