@@ -81,7 +81,7 @@ export function EverythingFile() {
       </div>
       <p className="mt-2 text-[11px] text-muted-foreground" data-testid="everything-summary">
         {summary
-          ? `This file holds ${n(summary.visits, "saved visit")}, ${n(summary.runs, "logged run")}, ${n(summary.snaps, "snap plan row")}, a band of ${summary.band.lo.toFixed(2)}x-${summary.band.hi.toFixed(2)}x, ${summary.defaultStrength == null ? "no default strength" : `default strength ${summary.defaultStrength.toFixed(2)}x`}, ${n(summary.profileStrengths, "profile strength")}, ${n(summary.history, "strength history entry", "strength history entries")}${summary.selected ? `, selected profile ${summary.selected}` : ""}. Format version ${summary.version}, reference data version ${summary.referenceVersion}.`
+          ? `Download saves what this browser holds now: ${list(items)}. File format version ${summary.version}, reference data version ${summary.referenceVersion}.`
           : "Counting what this file would carry..."}
       </p>
     </section>
