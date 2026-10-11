@@ -4,6 +4,8 @@ import { openDB } from "idb";
 import { exportVisits, importVisits } from "./timeline";
 import { listRuns, type RunRecord } from "./runs";
 import { REFERENCE_VERSION } from "./reference";
+import { strengthRange } from "./rangeState";
+import { savedRirrStrength } from "./rirrDefault";
 
 export const BACKUP_VERSION = 1;
 
