@@ -61,9 +61,29 @@ function Dashboard() {
   // On: only therapies that actually move ATP, superoxide or H2O2 show in "Responds to"; therapies that only clear flags are hidden.
   const [readoutOnly, setReadoutOnly] = useState(true);
   // Table order: "flags" is most-flagged first (the old default); "latest" puts recently run profiles at the top, no runs last.
-  const [sortKey, setSortKey] = useState<"flags" | "latest">("flags");
+  const [sortKey, setSortKeyState] = useState<"flags" | "latest">("flags");
   // Flag filter: "all" shows every profile; "flagged" only profiles with at least one lab, assay or model flag; "unflagged" only profiles with none.
-  const [flagFilter, setFlagFilter] = useState<"all" | "flagged" | "unflagged">("all");
+  const [flagFilter, setFlagFilterState] = useState<"all" | "flagged" | "unflagged">("all");
+  // Both persist in this browser (read after mount so SSR hydration matches).
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem("cristae-lab-dash-sort");
+      if (s === "flags" || s === "latest") setSortKeyState(s);
+      const f = localStorage.getItem("cristae-lab-dash-flag-filter");
+      if (f === "all" || f === "flagged" || f === "unflagged") setFlagFilterState(f);
+    } catch { /* storage unavailable */ }
+  }, []);
+  const setSortKey = (v: "flags" | "latest" | ((k: "flags" | "latest") => "flags" | "latest")) => {
+    setSortKeyState((prev) => {
+      const next = typeof v === "function" ? v(prev) : v;
+      try { localStorage.setItem("cristae-lab-dash-sort", next); } catch { /* storage unavailable */ }
+      return next;
+    });
+  };
+  const setFlagFilter = (v: "all" | "flagged" | "unflagged") => {
+    setFlagFilterState(v);
+    try { localStorage.setItem("cristae-lab-dash-flag-filter", v); } catch { /* storage unavailable */ }
+  };
   // Model dose for the "Responds to" column (fraction of each therapy's slider move; never a drug dose).
   const [dose, setDose] = useState(1);
   // Charts stay unmounted (and their code unloaded) until the user opens them.
