@@ -3,7 +3,7 @@ import { openDB, type IDBPDatabase } from "idb";
 import { demoPatients, patientMetrics, projectedMitoSox, projectedH2o2, mitoSoxBand, h2o2NmBand, type DemoPatient, type PatientMetricKey } from "./patientReference";
 import { diagnoseProfile } from "./diagnosis";
 import { rankTherapies, therapies, applyTherapyDose, profileInputs, metrics } from "./treatment";
-import { defaultGeometry, melovHeartCheck, simulate } from "./model";
+import { defaultGeometry, melovHeartCheckSplit, simulate } from "./model";
 
 // Timeline visits persist in this browser via IndexedDB ("cristae-lab-visits"), like runs.
 // Baseline and synthetic visits are regenerated from the demo data; only user/real/plan rows are stored.
