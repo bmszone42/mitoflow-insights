@@ -20,5 +20,8 @@ export const inputRanges: Record<keyof Inputs, { min: number; max: number; label
   fsp1: { min: 0, max: 2, label: "FSP1 / CoQ10H2 capacity", unit: "rel" },
   cardiolipinPufa: { min: 0.2, max: 1, label: "Cardiolipin PUFA fraction", unit: "fraction" },
   mitoHalfLife: { min: 2, max: 60, label: "Mitochondrial turnover half-life", unit: "days" },
+  fesExposureCI: { min: 0, max: 1, label: "Complex I cluster exposure (assumed)", unit: "x aconitase" },
+  fesExposureCII: { min: 0, max: 1, label: "Complex II cluster exposure (assumed)", unit: "x aconitase" },
+  fesExposureCIII: { min: 0, max: 1, label: "Complex III cluster exposure (assumed)", unit: "x aconitase" },
   rirrStrength: { min: 0, max: 1.5, label: "ROS-induced ROS release strength", unit: "exponent" },
 };
