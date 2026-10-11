@@ -52,7 +52,7 @@ export function EverythingFile() {
     if (input.current) input.current.value = "";
   };
 
-  const fmt = (n: number) => `${n} ${n === 1 ? "entry" : "entries"}`;
+  const n = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
   return (
     <section className="mt-6 rounded-md border border-border p-3" data-testid="everything-file">
