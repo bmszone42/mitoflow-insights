@@ -406,6 +406,7 @@
 
 ## 2026-10-05: Healthy-adult reference row on the Timeline
 - ✅ Timeline table now leads with a "Healthy adult (model)" reference row (data-testid `tl-healthy`): model-default ATP, superoxide, peroxide, Defences only 0%, Heart check %, so every gap column has its baseline in view. The scenario compare table already had its healthy row.
+- ✅ Heart check split per enzyme (2026-10-11): Diagnosis and Timeline show A / I / II / III intact %s from the per-pool Fe-S model; each is tested against its own Melov 1999 figure (complex I 59%, complex II 24%) with a ±5-point window (my tolerance choice, not published); aconitase and complex III have no Melov figure. Shared cell component `HeartSplit.tsx`; old single-number band check kept in `melovHeartCheck` for compatibility.
 - ✅ Verified live on demo-04: reference reads ATP 45.4, superoxide 0.0124 nM, H2O2 32.9 nM; the Leigh visit reads +134% defences-only against it. Typecheck clean.
 
 ## 2026-10-05: "Partly published" source note under the Dashboard superoxide column

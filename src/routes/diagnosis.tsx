@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
 import { profileInputs, therapies } from "@/lib/mito/treatment";
 import { useSavedRirr } from "@/lib/mito/rirrDefault";
-import { defaultGeometry, melovHeartCheck, simulate } from "@/lib/mito/model";
+import { defaultGeometry, melovHeartCheckSplit, simulate } from "@/lib/mito/model";
+import { HeartSplit, HEART_SPLIT_TITLE } from "@/components/mito/HeartSplit";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
@@ -46,8 +47,16 @@ function DiagnosisPage() {
   // Projected-flag therapy pick: "best" uses the strongest therapy; a therapy id pins it, matching the dashboard's Batch therapy choice.
   const [projTherapy, setProjTherapy] = useState("best");
   const all = useMemo(() => diagnoseAll(users, dose, projTherapy === "best" ? undefined : projTherapy), [users, dose, projTherapy, rirr]);
-  // Heart check per profile: model Fe-S intact % at the profile's own settings vs the Melov 1999 Sod2-null heart band.
-  const hearts = useMemo(() => new Map(all.map((x) => [x.patient.id, melovHeartCheck(simulate(profileInputs(x.patient), defaultGeometry).aconitaseActivity)])), [all]);
+  // Heart check per profile: model per-enzyme Fe-S intact %s at the profile's own settings vs the Melov 1999 Sod2-null heart figures.
+  const hearts = useMemo(() => new Map(all.map((x) => {
+    const o = simulate(profileInputs(x.patient), defaultGeometry);
+    return [x.patient.id, melovHeartCheckSplit({
+      aconitase: o.fesPools.aconitase.intact * 100,
+      complexI: o.fesPools.complexI.intact * 100,
+      complexII: o.fesPools.complexII.intact * 100,
+      complexIII: o.fesPools.complexIII.intact * 100,
+    })];
+  })), [all]);
   const [id, setId] = useSelectedProfile("demo-04", Route.useSearch().profile);
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
@@ -81,13 +90,13 @@ function DiagnosisPage() {
         </tr></thead>
         <tbody>{all.map((x) => <tr key={x.patient.id} data-testid="dx-row" onClick={() => setId(x.patient.id)} className={`cursor-pointer border-t border-border/60 hover:bg-muted/30 ${x.patient.id === id ? "bg-primary/10" : ""}`}>
           <th scope="row" className="px-3 py-2 font-medium">{x.patient.phenotype}<span className="block text-[10px] font-normal text-muted-foreground">{x.patient.label} · {x.patient.age}y · {Math.round(x.realShare * 100)}% real data</span></th>
-          <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-therapy-count">{x.therapyFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-heart" title="Model Fe-S intact % at this profile's own settings vs the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal). Red: inside that band, as damaged as the knockout heart."><span className={hearts.get(x.patient.id)?.inBand ? "text-destructive" : ""}>{hearts.get(x.patient.id)?.pct.toFixed(0)}%</span></td>
+          <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-therapy-count">{x.therapyFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-heart" title={HEART_SPLIT_TITLE}><HeartSplit h={hearts.get(x.patient.id)!} /></td>
           <td className="px-3 py-2" data-testid="dx-top">{x.top ? `${x.top.name} (${x.top.score.toFixed(2)})` : <span className="text-muted-foreground">No strong cause</span>}</td>
           <td className={`px-3 py-2 ${x.patient.source === "user" ? "text-muted-foreground" : fitStyle[x.fit]}`}>{x.patient.source === "user" ? "no label to check" : x.fit}</td>
         </tr>)}</tbody>
       </table>
       <p className="px-3 py-2 text-[11px] leading-relaxed text-muted-foreground" data-testid="dx-heart-note">
-        Heart check source: Melov et al. 1999 (PNAS 96(3):846), Sod2-null mouse heart, found complex I at 59% and complex II at 24% of normal activity; the model's Fe-S intact % is flagged red when it falls inside that 24 to 59% band. It is a severity reference only, never a calibration target, and it is not counted in the flag totals. <Link to="/references" className="underline">Source details</Link>
+        Heart check source: Melov et al. 1999 (PNAS 96(3):846), Sod2-null mouse heart, found complex I at 59% and complex II at 24% of normal activity; each enzyme's model intact % is tested against its own figure and flagged red within ±5 points of it (my tolerance choice, not published). Aconitase and complex III have no published Melov figure. The check is a severity reference only, never a calibration target, and it is not counted in the flag totals. <Link to="/references" className="underline">Source details</Link>
       </p>
     </section>
 

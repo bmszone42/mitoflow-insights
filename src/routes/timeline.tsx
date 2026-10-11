@@ -17,7 +17,8 @@ import { VisitsFile } from "@/components/mito/VisitsFile";
 import { EverythingFile } from "@/components/mito/EverythingFile";
 import { useSavedRirr } from "@/lib/mito/rirrDefault";
 import { useStrengthRange } from "@/lib/mito/rangeState";
-import { defaultGeometry, defaultInputs, melovHeartCheck, simulate } from "@/lib/mito/model";
+import { defaultGeometry, defaultInputs, melovHeartCheckSplit, simulate } from "@/lib/mito/model";
+import { HeartSplit, HEART_SPLIT_TITLE } from "@/components/mito/HeartSplit";
 
 const TimelineChart = lazy(() => import("@/components/mito/TimelineChart"));
 const TimelineGapChart = lazy(() => import("@/components/mito/TimelineGapChart"));
@@ -44,7 +45,12 @@ const originText = { baseline: "Profile values", synthetic: "Invented follow-up"
 // Healthy-adult baseline for the reference row: model defaults, so every gap
 // column has the normal level it is read against.
 const healthyOut = simulate(defaultInputs, defaultGeometry);
-const healthyHeart = melovHeartCheck(healthyOut.aconitaseActivity);
+const healthyHeart = melovHeartCheckSplit({
+  aconitase: healthyOut.fesPools.aconitase.intact * 100,
+  complexI: healthyOut.fesPools.complexI.intact * 100,
+  complexII: healthyOut.fesPools.complexII.intact * 100,
+  complexIII: healthyOut.fesPools.complexIII.intact * 100,
+});
 
 function TimelinePage() {
   const users = useUserPatients();
@@ -195,7 +201,7 @@ function TimelinePage() {
             <td className="tabular-nums">{fmt(healthyOut.atpFlux)}</td>
             <td className="tabular-nums">{fmt(healthyOut.superoxide)}</td>
             <td className="tabular-nums" title="The Defences only gap is measured against this level.">0%</td>
-            <td className="tabular-nums" title="Fe-S intact % at model defaults; the Melov 1999 knockout-heart band is 24-59%.">{healthyHeart.pct.toFixed(0)}%</td>
+            <td className="tabular-nums" title="Per-enzyme Fe-S intact % at model defaults; Melov 1999 Sod2-null heart: complex I 59%, complex II 24% of normal."><HeartSplit h={healthyHeart} /></td>
             <td className="tabular-nums">{fmt(healthyOut.hydrogenPeroxide)}</td>
             <td>None</td>
             <td>—</td>
@@ -214,9 +220,9 @@ function TimelinePage() {
               <span className={gap.before > 0 ? "text-destructive" : ""}>{gap.before > 0 ? "+" : ""}{gap.before.toFixed(0)}%</span>
               {gap.after !== null && <span> → <span className={gap.after > 0 ? "text-destructive" : "text-primary"}>{gap.after > 0 ? "+" : ""}{gap.after.toFixed(0)}%</span></span>}
             </td>
-            <td className="tabular-nums" data-testid="tl-heart" title="Model Fe-S intact % at this visit's own settings vs the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal). Red: inside that band, as damaged as the knockout heart. After the arrow: with this visit's therapies at their model doses.">
-              <span className={hc.before.inBand ? "text-destructive" : ""}>{hc.before.pct.toFixed(0)}%</span>
-              {hc.after !== null && <span> → <span className={hc.after.inBand ? "text-destructive" : "text-primary"}>{hc.after.pct.toFixed(0)}%</span></span>}
+            <td className="tabular-nums" data-testid="tl-heart" title={HEART_SPLIT_TITLE + " After the arrow: with this visit's therapies at their model doses."}>
+              <HeartSplit h={hc.before} />
+              {hc.after !== null && <span> → <HeartSplit h={hc.after} after /></span>}
             </td>
             <td className="tabular-nums">{fmt(r.h2o2)}</td>
             <td>{v.therapies.length ? v.therapies.map((t) => `${tName(t)} ${v.doses?.[t] ?? 1}x${v.actualDoses?.[t] ? ` (taken: ${v.actualDoses[t]})` : ""}`).join(", ") : "None"}</td>
@@ -248,7 +254,7 @@ function TimelinePage() {
         )}
         {pairSnapMessage && <p role="status" className="mt-2 text-xs text-primary">{pairSnapMessage} <Link to="/therapy-plan" search={{ tab: "schedule" }} className="underline">Open Schedule</Link></p>}
       </div>
-      <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Defences only is the superoxide gap vs the healthy adult at the same membrane potential, with labile iron and L:P held at healthy (same comparison as the Dashboard); after the arrow it applies the visit's therapies at their model doses, a model estimate, not a lab result. Heart check is the model's Fe-S intact % at the visit's own settings against the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal); red means inside that band. Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags. With a therapy picked in the Projected flag therapy menu, the column instead shows the Diagnosis projection for that therapy at the 1x model dose, the same pick as the dashboard's Batch therapy, so the pages agree.</p>
+      <p className="mt-1 text-[10px] text-muted-foreground">Flags combine lab, ROS assay, ATP assay and model flags using the Diagnosis rules. Scores are rankings, not probabilities. Defences only is the superoxide gap vs the healthy adult at the same membrane potential, with labile iron and L:P held at healthy (same comparison as the Dashboard); after the arrow it applies the visit's therapies at their model doses, a model estimate, not a lab result. Heart check is the model's per-enzyme Fe-S intact % at the visit's own settings against the Melov 1999 Sod2-null mouse heart (complex I 59%, complex II 24% of normal; red within ±5 points of each figure, a tolerance I chose, not published; aconitase and complex III have no Melov figure). Projected flag scales the visit's measured MitoSOX (and peroxide, if entered) by the model's change from that visit's therapies at their model doses; a model estimate, not a lab result, and not counted in Flags. With a therapy picked in the Projected flag therapy menu, the column instead shows the Diagnosis projection for that therapy at the 1x model dose, the same pick as the dashboard's Batch therapy, so the pages agree.</p>
     </section>
 
     <EverythingFile />

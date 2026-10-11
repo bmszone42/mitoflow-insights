@@ -42,6 +42,35 @@ export function melovHeartCheck(aconitasePct: number) {
   return { pct: aconitasePct, inBand: aconitasePct >= MELOV_HEART_BAND.lo && aconitasePct <= MELOV_HEART_BAND.hi, below: aconitasePct < MELOV_HEART_BAND.lo };
 }
 
+/**
+ * Per-enzyme Melov 1999 figures: complex I 59% and complex II 24% of normal
+ * activity in the Sod2-null mouse heart. Each enzyme is tested against its own
+ * figure, not the 24-59% span. Complex III (Rieske) and aconitase have no
+ * published Melov figure and get none.
+ */
+export const MELOV_HEART_FIGURES = { complexI: 59, complexII: 24 } as const;
+/** ± points around each Melov figure; my own tolerance choice, not published. */
+export const MELOV_WINDOW = 5;
+/** Check one enzyme's intact % against its Melov figure (null = no figure). */
+export function melovHeartCheckEnzyme(pct: number, figure: number | null) {
+  return {
+    pct,
+    figure,
+    inBand: figure !== null && Math.abs(pct - figure) <= MELOV_WINDOW,
+    below: figure !== null && pct < figure - MELOV_WINDOW,
+  };
+}
+export type MelovHeartSplit = ReturnType<typeof melovHeartCheckEnzyme>;
+/** Per-enzyme heart check from the model's per-pool intact %s (0-100 each). */
+export function melovHeartCheckSplit(intact: { aconitase: number; complexI: number; complexII: number; complexIII: number }): Record<"aconitase" | "complexI" | "complexII" | "complexIII", MelovHeartSplit> {
+  return {
+    aconitase: melovHeartCheckEnzyme(intact.aconitase, null),
+    complexI: melovHeartCheckEnzyme(intact.complexI, MELOV_HEART_FIGURES.complexI),
+    complexII: melovHeartCheckEnzyme(intact.complexII, MELOV_HEART_FIGURES.complexII),
+    complexIII: melovHeartCheckEnzyme(intact.complexIII, null),
+  };
+}
+
 // ---------- Ferroptosis time course after acute GPx4 block ----------
 // Integrates dP/dt = vInit + (kProp - kRemove) * P from the pre-block steady
 // state, with GPx4 forced to 0 at t = 0 (RSL3 / ML162-like acute block).
