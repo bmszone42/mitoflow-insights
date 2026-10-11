@@ -561,3 +561,4 @@
 ## Reference data version stamp (2026-10-11) ✅
 - ✅ REFERENCE_VERSION = 1 exported from src/lib/mito/reference.ts; bump it when any cited number changes.
 - ✅ Move everything files now stamp referenceVersion on export; loading a file from a newer reference version is refused with a clear message instead of mixing old results with new reference numbers. Older files (no stamp) load as version 1.
+- ✅ Fe-S three-state chemistry: superoxide/ONOO- frees 1 Fe ([3Fe-4S]), fast reactivation (~1 min), H2O2 to apo frees 4 Fe
