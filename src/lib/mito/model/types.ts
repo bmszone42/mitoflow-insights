@@ -69,6 +69,9 @@ export type Outputs = {
   singletOxygen: number; // pM (relative)
   lipidPeroxyl: number; // nM
   fesIntact: number; // fraction of [4Fe-4S] clusters intact
+  fes3Fe: number; // fraction in the inactive [3Fe-4S]+ state (1 Fe lost)
+  fesApo: number; // fraction fully stripped (apo, 4 Fe lost)
+  fesPools: Record<"aconitase" | "complexI" | "complexII" | "complexIII", { intact: number; threeFe: number; apo: number }>; // exposure factors assumed
   aconitaseActivity: number; // %
   freeIron: number; // µM after cluster loss feedback
   emission71THz: number; // relative units
