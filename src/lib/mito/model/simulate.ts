@@ -246,6 +246,9 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const aApo = kH2o2Fes * h2o2; // [4Fe-4S] -> apo + 4 Fe
   const d3 = kH2o2Fes * h2o2; // [3Fe-4S] -> apo + 3 Fe
   const t3PerI = a3 / (kReact + d3);
+  // Half-life of the [3Fe-4S]+ pool: reactivation (kReact) competes with
+  // H2O2 degradation to apo (d3), so the effective removal rate is the sum.
+  const fesReactHalfLifeS = Math.LN2 / (kReact + d3);
   const apoPerI = (aApo + d3 * t3PerI) / kRepair;
   const fesIntact = 1 / (1 + t3PerI + apoPerI);
   const fes3Fe = fesIntact * t3PerI;
