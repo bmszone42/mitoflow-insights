@@ -1,4 +1,3 @@
-import { defaultInputs, simulate, type Inputs, type Outputs } from "../model";
 export type EtcStep = {
   step: string;
   donor: string;

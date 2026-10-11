@@ -1,4 +1,3 @@
-import { defaultInputs, simulate, type Inputs, type Outputs } from "../model";
 export type FesEntry = {
   cluster: string;
   protein: string;

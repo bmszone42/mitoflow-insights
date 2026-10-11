@@ -1,4 +1,3 @@
-import { defaultInputs, simulate, type Inputs, type Outputs } from "../model";
 
 export type RosEntry = {
   name: string;
