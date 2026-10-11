@@ -55,7 +55,7 @@ function DiagnosisPage() {
       complexI: o.fesPools.complexI.intact * 100,
       complexII: o.fesPools.complexII.intact * 100,
       complexIII: o.fesPools.complexIII.intact * 100,
-    }) as const];
+    })];
   })), [all]);
   const [id, setId] = useSelectedProfile("demo-04", Route.useSearch().profile);
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
