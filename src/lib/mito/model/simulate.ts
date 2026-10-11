@@ -125,7 +125,12 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const vmaxCI = 55;
   const fluxCI = vmaxCI * ge.capacity * i.nadhRatio * (0.35 + 0.65 * adpDrive);
   const fluxCII = 30 * ge.capacity * (i.succinate / (i.succinate + 0.5));
-  const fluxCIV =
+  // Copper sites of complex IV (CuA accepts from cytochrome c; CuB pairs with
+  // heme a3 to bind O2). Copper deficiency lowers COX activity; the saturating
+  // shape (1 at default, ~0.55 at 0.1x) is ASSUMED, not fitted.
+  const cu = i.copperCiv ?? 1;
+  const cuFactor = (cu / (cu + 0.08)) * 1.08;
+  const fluxCIV = cuFactor *
     Math.min(fluxCI + fluxCII, 80 * ge.capacity) * ge.cytcRetention * o2Sat * noInhib * photonGain * (0.4 + 0.6 * adpDrive);
   // Hinkle 2005: 10 H+ per NADH and 6 H+ per succinate-derived electron pair;
   // 4 H+ per ATP including transport -> 2.5 and 1.5 P/O respectively.
@@ -138,7 +143,9 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
 
   // --- Superoxide: site-resolved production (Brand 2016; Quinlan et al. 2013) ---
   // Leak rises steeply with deltaPsi (reduced CoQ pool), damped by uncoupling.
-  const leakPsi = Math.exp((psi - 150) / 22) * (1 - 0.6 * i.uncoupling) * pr.heatLeak * qc.leak;
+  // Electrons back up when copper limits CIV (assumed 1:1 extra leak).
+  const cuBackup = 1 + Math.max(0, 1 - cuFactor);
+  const leakPsi = cuBackup * Math.exp((psi - 150) / 22) * (1 - 0.6 * i.uncoupling) * pr.heatLeak * qc.leak;
   const o2Term = i.oxygen / (i.oxygen + 10);
   // Complex I site IF: reduced FMN, set by NADH/NAD+ ratio (squared, two-electron flavin).
   const vIF = 0.0055 * fluxCI * i.nadhRatio ** 2 * leakPsi * o2Term * pr.flavinLeak * ge.leak;
@@ -240,7 +247,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // Reactivation needs Fe2+ and a reductant (Holm & Lo 2016; Beinert 1997):
   // scale with labile iron and antioxidant (GSH/ascorbate) supply, both
   // normalized so the healthy defaults keep the ~1 min rate. Assumed shape.
-  const reactSupply = Math.max(0.1, Math.sqrt((i.labileIron / 2) * i.antioxidantCapacity));
+  const reactSupply = Math.max(0.1, Math.sqrt(((i.labileIron * (1 - (i.chelatorBound ?? 0))) / 2) * i.antioxidantCapacity));
   const kReact = 1.2e-2 * reactSupply; // [3Fe-4S] -> [4Fe-4S], fast reactivation
   const a3 = kAcon * superoxideM + kOnooFes * onooM; // [4Fe-4S] -> [3Fe-4S] + 1 Fe
   const aApo = kH2o2Fes * h2o2; // [4Fe-4S] -> apo + 4 Fe
@@ -278,7 +285,9 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // --- Hydroxyl radical: Fenton, Haber-Weiss recycling, ONOOH homolysis ---
   const kFeRed = 0.5 * ac + 1 * superoxideM * 1e3; // ascorbate/GSH + O2•- reduction of Fe3+
   const kFeOx = 0.05 * (i.oxygen / 30);
-  const kFenton = 1e-3; // µM-1 s-1 (1e3 M-1 s-1)
+  // Ligand-dependent Fenton reactivity: chelator-bound iron (e.g. DFO-Fe) is
+  // largely redox-inert (Halliwell & Gutteridge). 95% suppression is ASSUMED.
+  const kFenton = 1e-3 * (1 - 0.95 * (i.chelatorBound ?? 0)); // µM-1 s-1 (1e3 M-1 s-1)
   const fe2Fraction = kFeRed / (kFeRed + kFeOx + kFenton * h2o2);
   const vFenton = kFenton * freeIron * fe2Fraction * h2o2;
   const vOHfromPN = 0.3 * kPnHomolysis * onooM;
