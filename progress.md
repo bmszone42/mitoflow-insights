@@ -1,3 +1,9 @@
+## Dashboard sort and flag filter persist (2026-10-11)
+
+- ✅ The Dashboard's Sort by choice (Flag count or Latest progress) and Flag filter (All, Flagged only, Not flagged only) are saved in this browser (cristae-lab-dash-sort, cristae-lab-dash-flag-filter) and restored after a reload, like the band count already was.
+- ✅ Saved values load after mount so first render still matches the server render (no hydration flicker).
+- ✅ Verified live: set Latest progress + Flagged only, reloaded, both came back and the count read "17 of 18"; build OK.
+
 ## Redirect stub routes deleted (2026-10-07)
 
 - ✅ Removed the five leftover redirect-only route files: /therapy-calculator, /therapy-compare, /treatment-plan, /snap-plan, /strength-plan. Nothing in the app linked to them (only docs and the generated route tree), and the app is local-only and unpublished, so no old bookmarks needed keeping.
