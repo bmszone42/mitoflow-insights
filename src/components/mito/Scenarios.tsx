@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { HOLM_SCENARIOS, holmInputs } from "@/lib/mito/holmScenarios";
+import { simulate as simHolm, defaultGeometry as holmGeo } from "@/lib/mito/model";
 import { toast } from "sonner";
 import { recordRun } from "@/lib/mito/runs";
 import { demoPatients } from "@/lib/mito/patientReference";
@@ -89,6 +91,21 @@ export function Scenarios({
     onChanged?.();
   };
 
+  // Adds the five Holm iron-sulfur scenarios once (skips names already saved); click a name to load it.
+  const addHolm = async () => {
+    const now = Date.now();
+    let n = 0;
+    for (const h of HOLM_SCENARIOS) {
+      if (items.some((i) => i.name === h.name)) continue;
+      const inp = holmInputs(h.inputs, inputs.rirrStrength);
+      await putScenario({ id: crypto.randomUUID(), name: h.name, notes: h.notes, inputs: inp, geometry: { ...holmGeo }, snapshot: snapshotOf(simHolm(inp, holmGeo)), preset: h.key, createdAt: now, updatedAt: now });
+      n++;
+    }
+    toast.success(n ? `Added ${n} Holm scenarios` : "Holm scenarios already saved");
+    refresh();
+    onChanged?.();
+  };
+
   const rename = async (s: Scenario) => {
     const n = window.prompt("Rename scenario", s.name)?.trim();
     if (!n) return;
@@ -167,6 +184,9 @@ export function Scenarios({
         </Button>
         <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()}>
           Import JSON
+        </Button>
+        <Button size="sm" variant="outline" onClick={addHolm} data-testid="add-holm">
+          Add Holm scenarios
         </Button>
         <input
           ref={fileRef}
