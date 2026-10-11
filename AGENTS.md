@@ -40,3 +40,5 @@
 - Start here explainer is one shared component (StartHereCard.tsx) with per-page storageKey, steps and strengthWhere; why: definitions must match everywhere while each page names only its own controls.
 - /runs?profile= shows one profile's logged runs only and hides the tool panels until "Show the tools"; why: a Dashboard row click must land on that profile's rows.
 
+
+- Model results are locked by snapshot test src/lib/mito/model.lock.test.ts; intended science changes update it with `bunx vitest run -u`. Why: no silent output shifts.
