@@ -3,6 +3,7 @@
 import { openDB } from "idb";
 import { exportVisits, importVisits } from "./timeline";
 import { listRuns, type RunRecord } from "./runs";
+import { REFERENCE_VERSION } from "./reference";
 
 export const BACKUP_VERSION = 1;
 
@@ -34,14 +35,16 @@ const LS_KEYS = [
 export async function exportEverything() {
   const settings: Record<string, string> = {};
   for (const k of LS_KEYS) { const v = localStorage.getItem(k); if (v != null) settings[k] = v; }
-  return { app: "cristae-lab", kind: "everything", version: BACKUP_VERSION, exportedAt: new Date().toISOString(), visits: exportVisits().visits, runs: await listRuns(), settings };
+  return { app: "cristae-lab", kind: "everything", version: BACKUP_VERSION, referenceVersion: REFERENCE_VERSION, exportedAt: new Date().toISOString(), visits: exportVisits().visits, runs: await listRuns(), settings };
 }
 
 export async function importEverything(data: unknown) {
-  let d = data as { kind?: string; version?: unknown; visits?: unknown; runs?: unknown; settings?: Record<string, unknown> };
+  let d = data as { kind?: string; version?: unknown; referenceVersion?: unknown; visits?: unknown; runs?: unknown; settings?: Record<string, unknown> };
   if (!d || d.kind !== "everything") throw new Error("This is not a Move everything file.");
   const version = typeof d.version === "number" ? d.version : 1;
   if (version > BACKUP_VERSION) throw new Error(`This file is version ${version}; this app reads up to version ${BACKUP_VERSION}. Update the app, then load it again.`);
+  const refVersion = typeof d.referenceVersion === "number" ? d.referenceVersion : 1;
+  if (refVersion > REFERENCE_VERSION) throw new Error(`This file was saved with newer reference data (version ${refVersion}); this app has version ${REFERENCE_VERSION}. Update the app, then load it again.`);
   d = migrate(d as Record<string, unknown>, version) as typeof d;
   const v = Array.isArray(d.visits) ? importVisits(d.visits) : { added: 0, skipped: 0, invalid: 0 };
   let runs = 0;

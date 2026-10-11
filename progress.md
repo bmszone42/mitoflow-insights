@@ -557,3 +557,7 @@
 
 - ✅ Model lock test: snapshots default run, every input at min/max, 48 h course and all 18 demo profiles flags (run: bun run test; accept intended changes: bunx vitest run -u)
 - ✅ reference.ts split into reference/ (ros, fes, etc, atp, notes) behind a barrel
+
+## Reference data version stamp (2026-10-11) ✅
+- ✅ REFERENCE_VERSION = 1 exported from src/lib/mito/reference.ts; bump it when any cited number changes.
+- ✅ Move everything files now stamp referenceVersion on export; loading a file from a newer reference version is refused with a clear message instead of mixing old results with new reference numbers. Older files (no stamp) load as version 1.
