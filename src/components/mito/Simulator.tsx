@@ -98,6 +98,17 @@ export function Simulator({
                 tone="warning"
               />
             </div>
+            <div className="mt-3 rounded-md border border-border bg-muted/30 p-3 text-xs">
+              <div className="mb-1 font-medium text-foreground">
+                Cluster states: {(out.fes3Fe * 100).toFixed(2)}% 3-iron (1 Fe lost, fast repair), {(out.fesApo * 100).toFixed(2)}% stripped (4 Fe lost)
+              </div>
+              <div className="grid grid-cols-2 gap-1 text-muted-foreground sm:grid-cols-4">
+                {([["aconitase", "Aconitase"], ["complexI", "Complex I"], ["complexII", "Complex II"], ["complexIII", "Complex III (Rieske)"]] as const).map(([k, l]) => (
+                  <span key={k}>{l}: {(out.fesPools[k].intact * 100).toFixed(1)}% intact</span>
+                ))}
+              </div>
+              <p className="mt-1 text-muted-foreground">Exposure of each enzyme's cluster is assumed (aconitase exposed, chain clusters buried), after Beinert, Holm and Münck 1997.</p>
+            </div>
           </div>
 
           <WarburgSummaryCard inputs={inputs} out={out} geo={geo} />
