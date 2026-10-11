@@ -231,15 +231,22 @@ export function pairGapCorridor(p: DemoPatient, v: Visit, lo: number, hi: number
 
 /**
  * Heart check at a visit (Melov 1999 Sod2-null heart: complex I 59%, complex II
- * 24% of normal): the model's Fe-S intact % at the visit's own settings, flagged
- * when it falls inside that band. "after" applies the visit's therapies at their
- * model doses. Profile as-is, not the defences-only matched comparison.
+ * 24% of normal): the model's per-enzyme Fe-S intact %s at the visit's own
+ * settings, each flagged red when it falls within ±5 points of its Melov
+ * figure. Complex III and aconitase have no published Melov figure. "after"
+ * applies the visit's therapies at their model doses. Profile as-is, not the
+ * defences-only matched comparison.
  */
 export function heartCheck(p: DemoPatient, v: Visit) {
   const vi = profileInputs(visitProfile(p, v));
-  const before = simulate(vi, defaultGeometry).aconitaseActivity;
+  const split = (o: ReturnType<typeof simulate>) =>
+    melovHeartCheckSplit({
+      aconitase: o.fesPools.aconitase.intact * 100,
+      complexI: o.fesPools.complexI.intact * 100,
+      complexII: o.fesPools.complexII.intact * 100,
+      complexIII: o.fesPools.complexIII.intact * 100,
+    });
   let ti = vi;
   for (const id of v.therapies) { const t = therapies.find((x) => x.id === id); if (t) ti = applyTherapyDose(ti, t, v.doses?.[id] ?? 1); }
-  const after = v.therapies.length ? simulate(ti, defaultGeometry).aconitaseActivity : null;
-  return { before: melovHeartCheck(before), after: after === null ? null : melovHeartCheck(after) };
+  return { before: split(simulate(vi, defaultGeometry)), after: v.therapies.length ? split(simulate(ti, defaultGeometry)) : null };
 }
