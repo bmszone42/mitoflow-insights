@@ -104,8 +104,12 @@ export function Simulator({
               </div>
               <div className="grid grid-cols-2 gap-1 text-muted-foreground sm:grid-cols-4">
                 {([["aconitase", "Aconitase"], ["complexI", "Complex I"], ["complexII", "Complex II"], ["complexIII", "Complex III (Rieske)"]] as const).map(([k, l]) => (
-                  <span key={k}>{l}: {(out.fesPools[k].intact * 100).toFixed(1)}% intact</span>
+                  <span key={k}>{l}: {(out.fesPools[k].intact * 100).toFixed(1)}% intact, {(out.fesPools[k].threeFe * 100).toFixed(2)}% 3-iron</span>
                 ))}
+              </div>
+              <div className="mt-1 font-medium text-foreground">
+                3-iron reactivation half-life: {out.fesReactHalfLifeS < 60 ? `${out.fesReactHalfLifeS.toFixed(1)} s` : `${(out.fesReactHalfLifeS / 60).toFixed(2)} min`}
+                <span className="font-normal text-muted-foreground"> — labile iron and antioxidant supply speed it up; peroxide steals 3-iron clusters for stripping instead of repair.</span>
               </div>
               <p className="mt-1 text-muted-foreground">Exposure of each enzyme's cluster is assumed (aconitase exposed, chain clusters buried), after Beinert, Holm and Münck 1997.</p>
             </div>
