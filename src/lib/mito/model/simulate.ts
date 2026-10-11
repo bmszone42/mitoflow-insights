@@ -227,9 +227,24 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const kH2o2Fes = 1e4 * 1e-6; // µM-1 s-1 effective, H2O2-specific
   const kOnooFes = 1e7 * 1e-6; // µM-1 s-1 effective, ONOO- specific (scaled up: model ONOO- steady state is nM-scale)
   const clusterAttack = kAcon * superoxideM + kH2o2Fes * h2o2 + kOnooFes * onooM; // s-1
-  const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // ISC assembly (ISCU/NFS1/frataxin)
-  const fesIntact = kRepair / (kRepair + clusterAttack);
-  const ironFromClusters = 4 * 6 * (1 - fesIntact); // ~6 µM cluster protein x 4 Fe
+  // Three cluster states (Holm/Beinert chemistry; Flint 1993, Gardner &
+  // Fridovich 1992, Gardner 1995): superoxide and ONOO- oxidize [4Fe-4S]
+  // to [3Fe-4S]+, releasing ONE Fe; the 3Fe cluster is reactivated fast
+  // (Fe re-insertion, t1/2 ~ minutes in cells) or degraded further by
+  // H2O2 to the apo protein (all 4 Fe lost), rebuilt slowly by ISC assembly.
+  const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // apo -> [4Fe-4S], ISCU/NFS1/frataxin
+  const kReact = 1.2e-2; // [3Fe-4S] -> [4Fe-4S], fast reactivation (~1 min t1/2)
+  const a3 = kAcon * superoxideM + kOnooFes * onooM; // [4Fe-4S] -> [3Fe-4S] + 1 Fe
+  const aApo = kH2o2Fes * h2o2; // [4Fe-4S] -> apo + 4 Fe
+  const d3 = kH2o2Fes * h2o2; // [3Fe-4S] -> apo + 3 Fe
+  const t3PerI = a3 / (kReact + d3);
+  const apoPerI = (aApo + d3 * t3PerI) / kRepair;
+  const fesIntact = 1 / (1 + t3PerI + apoPerI);
+  const fes3Fe = fesIntact * t3PerI;
+  const fesApo = fesIntact * apoPerI;
+  void clusterAttack;
+  // ~6 µM cluster protein: 1 Fe freed per 3Fe cluster, 4 Fe per apo protein
+  const ironFromClusters = 6 * (fes3Fe + 4 * fesApo);
   const freeIron = i.labileIron * qc.iron + ironFromClusters;
 
 
