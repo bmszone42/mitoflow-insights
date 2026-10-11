@@ -22,6 +22,7 @@ export const realDoses: RealDose[] = [
   { id: "coq", drug: "CoQ10", min: 100, max: 300, unit: "mg/day", step: 10 },
   { id: "cardiolipin", drug: "Elamipretide", min: 40, max: 40, unit: "mg/day", step: 5 },
   { id: "mb", drug: "Methylene blue", min: 1, max: 2, unit: "mg/kg", step: 0.25 },
+  { id: "copper", drug: "Copper", min: 1, max: 2, unit: "mg/day", step: 0.25 },
 ].filter((r) => therapies.some((t) => t.id === r.id));
 
 export const realDoseFor = (id: string) => realDoses.find((r) => r.id === id);

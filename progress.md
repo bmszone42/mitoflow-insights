@@ -591,3 +591,7 @@
 - ✅ Complex IV copper sites: copperCiv input scales CIV flux (assumed saturating curve) and backs electrons into leak.
 - ✅ Melov heart per-enzyme check on Diagnosis (already in place).
 - ✅ simulate.ts split into model/atp.ts (chain flux, copper, ATP), model/ros.ts (superoxide, H2O2, peroxynitrite, hydroxyl, ROS budget), model/fes.ts (cluster states, per-enzyme pools, free iron); locked results identical.
+
+## 2026-10-11: Copper supplement therapy
+- ✅ New therapy "Copper supplement" (id copper) sets copperCiv to 1.25; appears on the Cluster protection tab, Therapy plan and real-dose sliders (1-2 mg/day anchor, NIH ODS fact sheet). Occupancy mapping assumed, not published.
+- ✅ Model lock snapshot updated; only change is the new therapy flag line.
