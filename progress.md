@@ -586,3 +586,4 @@
 - ❌ Copper sites (CuA, CuB)
 
 - ✅ Per-enzyme Fe-S exposure sliders (complex I, II, III; assumed, defaults 0.15/0.3/0.05) on the Simulator iron group; 18 demo profiles re-checked unchanged.
+- ✅ Therapy plan Cluster protection tab: ranks therapies by aconitase Fe-S intact, weakest complex, free iron and 3-iron repair half-life per model dose; schedules dated doses as Timeline plan visits and logs runs.
