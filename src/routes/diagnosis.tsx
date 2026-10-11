@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
 import { profileInputs, therapies } from "@/lib/mito/treatment";
 import { useSavedRirr } from "@/lib/mito/rirrDefault";
-import { defaultGeometry, melovHeartCheck, simulate } from "@/lib/mito/model";
+import { defaultGeometry, melovHeartCheckSplit, simulate } from "@/lib/mito/model";
+import { HeartSplit, HEART_SPLIT_TITLE } from "@/components/mito/HeartSplit";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
@@ -46,8 +47,16 @@ function DiagnosisPage() {
   // Projected-flag therapy pick: "best" uses the strongest therapy; a therapy id pins it, matching the dashboard's Batch therapy choice.
   const [projTherapy, setProjTherapy] = useState("best");
   const all = useMemo(() => diagnoseAll(users, dose, projTherapy === "best" ? undefined : projTherapy), [users, dose, projTherapy, rirr]);
-  // Heart check per profile: model Fe-S intact % at the profile's own settings vs the Melov 1999 Sod2-null heart band.
-  const hearts = useMemo(() => new Map(all.map((x) => [x.patient.id, melovHeartCheck(simulate(profileInputs(x.patient), defaultGeometry).aconitaseActivity)])), [all]);
+  // Heart check per profile: model per-enzyme Fe-S intact %s at the profile's own settings vs the Melov 1999 Sod2-null heart figures.
+  const hearts = useMemo(() => new Map(all.map((x) => {
+    const o = simulate(profileInputs(x.patient), defaultGeometry);
+    return [x.patient.id, melovHeartCheckSplit({
+      aconitase: o.fesPools.aconitase.intact * 100,
+      complexI: o.fesPools.complexI.intact * 100,
+      complexII: o.fesPools.complexII.intact * 100,
+      complexIII: o.fesPools.complexIII.intact * 100,
+    }) as const];
+  })), [all]);
   const [id, setId] = useSelectedProfile("demo-04", Route.useSearch().profile);
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
