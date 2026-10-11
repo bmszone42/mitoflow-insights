@@ -562,3 +562,8 @@
 - ✅ REFERENCE_VERSION = 1 exported from src/lib/mito/reference.ts; bump it when any cited number changes.
 - ✅ Move everything files now stamp referenceVersion on export; loading a file from a newer reference version is refused with a clear message instead of mixing old results with new reference numbers. Older files (no stamp) load as version 1.
 - ✅ Fe-S three-state chemistry: superoxide/ONOO- frees 1 Fe ([3Fe-4S]), fast reactivation (~1 min), H2O2 to apo frees 4 Fe
+
+## Holm Fe-S reviews added to the References library (2026-10-11) ✅
+- ✅ Holm & Lo 2016, Chemical Reviews 116:13685 (10.1021/acs.chemrev.6b00276): structural conversions of synthetic and protein-bound Fe-S clusters; anchors the 1-iron release and fast [3Fe-4S] reactivation steps. Score 88/100 (relevance 38, evidence 26, usability 24).
+- ✅ Beinert, Holm & Münck 1997, Science 277:653 (10.1126/science.277.5326.653): classic review of Fe-S cluster types, redox states and modular assembly; framing for the cluster-intact fraction. Score 80/100 (36/26/18).
+- ✅ Both verified against Crossref before entry; section "ROS, iron and assays".

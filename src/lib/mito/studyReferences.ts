@@ -537,6 +537,28 @@ export const studyReferences: StudyReference[] = [
     section: "ATP and respiratory controls",
     locator: "UCP1 proton leak in brown fat; no transferable rate",
   },
+  {
+    "doi": "10.1021/acs.chemrev.6b00276",
+    "authors": "R. H. Holm, Wayne Lo",
+    "title": "Structural Conversions of Synthetic and Protein-Bound Iron–Sulfur Clusters",
+    "journal": "Chemical Reviews 116(22)",
+    "year": 2016,
+    "location": "pp. 13685–13713",
+    "url": "https://doi.org/10.1021/acs.chemrev.6b00276",
+    "section": "ROS, iron and assays",
+    "locator": ""
+  },
+  {
+    "doi": "10.1126/science.277.5326.653",
+    "authors": "Helmut Beinert, R. H. Holm, Eckard Münck",
+    "title": "Iron-Sulfur Clusters: Nature's Modular, Multipurpose Structures",
+    "journal": "Science 277(5326)",
+    "year": 1997,
+    "location": "pp. 653–659",
+    "url": "https://doi.org/10.1126/science.277.5326.653",
+    "section": "ROS, iron and assays",
+    "locator": ""
+  },
 ] satisfies StudyReference[];
 
 export const studySections = ["ETC energetics", "ATP and respiratory controls", "ROS, iron and assays", "Light and ferroptosis", "Cristae and membrane geometry"] as const;
