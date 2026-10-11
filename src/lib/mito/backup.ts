@@ -3,6 +3,7 @@
 import { openDB } from "idb";
 import { exportVisits, importVisits } from "./timeline";
 import { listRuns, type RunRecord } from "./runs";
+import { REFERENCE_VERSION } from "./reference";
 
 export const BACKUP_VERSION = 1;
 
