@@ -8,12 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { diagnoseAll, flagOverlaps, type Evidence } from "@/lib/mito/diagnosis";
 import { profileInputs, therapies } from "@/lib/mito/treatment";
 import { useSavedRirr } from "@/lib/mito/rirrDefault";
-import { defaultGeometry, melovHeartCheckSplit, simulate } from "@/lib/mito/model";
+import { defaultGeometry, defaultInputs, melovHeartCheckSplit, simulate } from "@/lib/mito/model";
+import { damageSignature } from "@/lib/mito/holmScenarios";
 import { HeartSplit, HEART_SPLIT_TITLE } from "@/components/mito/HeartSplit";
 import { ScenarioCompareTable } from "@/components/mito/ScenarioCompareTable";
 import { UserLabsPanel } from "@/components/mito/UserLabsPanel";
 import { useUserPatients } from "@/lib/mito/userPatients";
 import { StartHereCard } from "@/components/mito/StartHereCard";
+
+const sigTone = { bad: "text-destructive", warn: "text-foreground", ok: "text-muted-foreground" } as const;
 
 export const Route = createFileRoute("/diagnosis")({
   validateSearch: (s) => z.object({ profile: z.string().optional() }).parse(s),
@@ -57,6 +60,11 @@ function DiagnosisPage() {
       complexIII: o.fesPools.complexIII.intact * 100,
     })];
   })), [all]);
+  // Damage signature per profile: the four Holm cluster patterns vs the healthy default (rule-based, assumed thresholds).
+  const sigs = useMemo(() => {
+    const h = simulate({ ...defaultInputs, rirrStrength: rirr ?? defaultInputs.rirrStrength }, defaultGeometry);
+    return new Map(all.map((x) => [x.patient.id, damageSignature(simulate(profileInputs(x.patient), defaultGeometry), h)]));
+  }, [all, rirr]);
   const [id, setId] = useSelectedProfile("demo-04", Route.useSearch().profile);
   const d = all.find((x) => x.patient.id === id) ?? all[0]!;
   const overlap = useMemo(() => flagOverlaps(d.patient, all.map((x) => x.patient)), [d, all]);
@@ -86,11 +94,11 @@ function DiagnosisPage() {
     <section aria-label="All profiles" className="overflow-x-auto border-y border-border">
       <table className="w-full min-w-[760px] text-left text-xs">
         <thead className="bg-muted/40 text-[10px] uppercase text-muted-foreground"><tr>
-          <th className="px-3 py-2 font-medium">Profile</th><th className="px-3 py-2 font-medium">Patient Data</th><th className="px-3 py-2 font-medium">ROS assay</th><th className="px-3 py-2 font-medium">ATP assay</th><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Therapies</th><th className="px-3 py-2 font-medium">Heart check</th><th className="px-3 py-2 font-medium">Top cause</th><th className="px-3 py-2 font-medium">Label fit</th>
+          <th className="px-3 py-2 font-medium">Profile</th><th className="px-3 py-2 font-medium">Patient Data</th><th className="px-3 py-2 font-medium">ROS assay</th><th className="px-3 py-2 font-medium">ATP assay</th><th className="px-3 py-2 font-medium">Model</th><th className="px-3 py-2 font-medium">Therapies</th><th className="px-3 py-2 font-medium">Heart check</th><th className="px-3 py-2 font-medium">Damage signature</th><th className="px-3 py-2 font-medium">Top cause</th><th className="px-3 py-2 font-medium">Label fit</th>
         </tr></thead>
         <tbody>{all.map((x) => <tr key={x.patient.id} data-testid="dx-row" onClick={() => setId(x.patient.id)} className={`cursor-pointer border-t border-border/60 hover:bg-muted/30 ${x.patient.id === id ? "bg-primary/10" : ""}`}>
           <th scope="row" className="px-3 py-2 font-medium">{x.patient.phenotype}<span className="block text-[10px] font-normal text-muted-foreground">{x.patient.label} · {x.patient.age}y · {Math.round(x.realShare * 100)}% real data</span></th>
-          <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-therapy-count">{x.therapyFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-heart" title={HEART_SPLIT_TITLE}><HeartSplit h={hearts.get(x.patient.id)!} /></td>
+          <td className="px-3 py-2 font-mono">{x.patientFlags.length}</td><td className="px-3 py-2 font-mono">{x.rosAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.atpAssayFlags.length}</td><td className="px-3 py-2 font-mono">{x.modelFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-therapy-count">{x.therapyFlags.length}</td><td className="px-3 py-2 font-mono" data-testid="dx-heart" title={HEART_SPLIT_TITLE}><HeartSplit h={hearts.get(x.patient.id)!} /></td><td className={`px-3 py-2 ${sigTone[sigs.get(x.patient.id)!.tone]}`} data-testid="dx-signature">{sigs.get(x.patient.id)!.label}</td>
           <td className="px-3 py-2" data-testid="dx-top">{x.top ? `${x.top.name} (${x.top.score.toFixed(2)})` : <span className="text-muted-foreground">No strong cause</span>}</td>
           <td className={`px-3 py-2 ${x.patient.source === "user" ? "text-muted-foreground" : fitStyle[x.fit]}`}>{x.patient.source === "user" ? "no label to check" : x.fit}</td>
         </tr>)}</tbody>
@@ -98,6 +106,7 @@ function DiagnosisPage() {
       <p className="px-3 py-2 text-[11px] leading-relaxed text-muted-foreground" data-testid="dx-heart-note">
         Heart check source: Melov et al. 1999 (PNAS 96(3):846), Sod2-null mouse heart, found complex I at 59% and complex II at 24% of normal activity; each enzyme's model intact % is tested against its own figure and flagged red within ±5 points of it (my tolerance choice, not published). Aconitase and complex III have no published Melov figure. The check is a severity reference only, never a calibration target, and it is not counted in the flag totals. <Link to="/references" className="underline">Source details</Link>
       </p>
+      <p className="px-3 pb-2 text-[11px] leading-relaxed text-muted-foreground">Damage signature: Holm-style cluster patterns vs the healthy default. Clusters more than 10 points below healthy with more stripped than 3-iron = peroxide; more 3-iron = superoxide with slow repair; free iron over 2x healthy with intact clusters = iron overload; ATP under 90% with intact clusters = copper or oxygen end. Thresholds are my own choice, not published; a model pattern, not a diagnosis.</p>
     </section>
 
     <UserLabsPanel onAdded={setId} />
