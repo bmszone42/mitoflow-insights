@@ -111,7 +111,7 @@ export function Simulator({
                 3-iron reactivation half-life: {out.fesReactHalfLifeS < 60 ? `${out.fesReactHalfLifeS.toFixed(1)} s` : `${(out.fesReactHalfLifeS / 60).toFixed(2)} min`}
                 <span className="font-normal text-muted-foreground"> — labile iron and antioxidant supply speed it up; peroxide steals 3-iron clusters for stripping instead of repair.</span>
               </div>
-              <p className="mt-1 text-muted-foreground">Exposure of each enzyme's cluster is assumed (aconitase exposed, chain clusters buried), after Beinert, Holm and Münck 1997.</p>
+              <p className="mt-1 text-muted-foreground">Exposure of each enzyme's cluster is assumed (aconitase exposed, chain clusters buried). Sources: <a href="https://doi.org/10.1021/acs.chemrev.6b00276" target="_blank" rel="noreferrer" className="text-foreground underline decoration-border underline-offset-2">Holm &amp; Lo 2016, Chem Rev</a> (1-iron loss and fast [3Fe-4S] reactivation) and <a href="https://doi.org/10.1126/science.277.5326.653" target="_blank" rel="noreferrer" className="text-foreground underline decoration-border underline-offset-2">Beinert, Holm and Münck 1997, Science</a>.</p>
             </div>
           </div>
 
