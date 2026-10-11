@@ -4,6 +4,8 @@ import { openDB } from "idb";
 import { exportVisits, importVisits } from "./timeline";
 import { listRuns, type RunRecord } from "./runs";
 import { REFERENCE_VERSION } from "./reference";
+import { strengthRange } from "./rangeState";
+import { savedRirrStrength } from "./rirrDefault";
 
 export const BACKUP_VERSION = 1;
 
@@ -31,6 +33,46 @@ const LS_KEYS = [
   "cristae-lab-rirr-history",
   "cristae-lab-profile",
 ];
+
+// What a "Download everything" file would carry right now, so the page can
+// state it before the user clicks. Reads the same sources as exportEverything.
+export async function describeBackup() {
+  const visits = exportVisits().visits;
+  const runs = await listRuns();
+  const snapRaw = localStorage.getItem("cristae-lab-snap-plan");
+  let snaps = 0;
+  try {
+    const a = snapRaw ? JSON.parse(snapRaw) : [];
+    snaps = Array.isArray(a) ? a.length : 0;
+  } catch { /* unreadable snap plan counts as none */ }
+  const profileRaw = localStorage.getItem("cristae-lab-rirr-profiles");
+  let profileStrengths = 0;
+  try {
+    const o = profileRaw ? JSON.parse(profileRaw) : {};
+    profileStrengths = o && typeof o === "object" ? Object.keys(o).length : 0;
+  } catch { /* unreadable profile strengths count as none */ }
+  const historyRaw = localStorage.getItem("cristae-lab-rirr-history");
+  let history = 0;
+  try {
+    const a = historyRaw ? JSON.parse(historyRaw) : [];
+    history = Array.isArray(a) ? a.length : 0;
+  } catch { /* unreadable history counts as none */ }
+  const band = strengthRange();
+  const defaultStrength = savedRirrStrength();
+  const selected = localStorage.getItem("cristae-lab-profile");
+  return {
+    visits: visits.length,
+    runs: runs.length,
+    snaps,
+    profileStrengths,
+    history,
+    band,
+    defaultStrength,
+    selected: selected ?? null,
+    version: BACKUP_VERSION,
+    referenceVersion: REFERENCE_VERSION,
+  };
+}
 
 export async function exportEverything() {
   const settings: Record<string, string> = {};

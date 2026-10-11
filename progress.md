@@ -527,6 +527,7 @@
 - ✅ Timeline visits export/import as a JSON file (dedupe on profile, date, therapies, type)
 - [x] Move everything file (Timeline): visits, runs, snaps, band, strengths in one download/load; two-browser round trip verified (visits, runs, band, profile strengths, history, snap plan, selected profile all carried over)
 - [x] Backup version stamp: files carry version: 1; import rejects newer files with a clear message and migrates older ones through a step-by-step path in backup.ts
+- [x] "What's in this file" line under Download everything (Timeline): live counts of saved visits, logged runs, scheduled snaps, the band, default and per-profile strengths, strength history, selected profile, plus file format and reference data versions; updates as data changes (verified: adding a visit, run, snap, band change, strength and history entry all showed up)
 - [x] Dependency security scan: 61 packages clean; 3 high findings in nested build packages (source-map-js, js-yaml) fixed via package.json overrides; @supabase/supabase-js reinstalled because the platform regenerates its client files
 
 ## "Start here" card on Diagnosis (2026-10-07) ✅
