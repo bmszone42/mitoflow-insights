@@ -559,6 +559,39 @@ export const studyReferences: StudyReference[] = [
     "section": "ROS, iron and assays",
     "locator": ""
   },
+  {
+    "doi": "10.1021/cr9500390",
+    "authors": "R. H. Holm, Pierre Kennepohl, Edward I. Solomon",
+    "title": "Structural and Functional Aspects of Metal Sites in Biology",
+    "journal": "Chemical Reviews 96(7)",
+    "year": 1996,
+    "location": "pp. 2239–2314",
+    "url": "https://doi.org/10.1021/cr9500390",
+    "section": "ROS, iron and assays",
+    "locator": ""
+  },
+  {
+    "doi": "10.1016/s0898-8838(08)60061-6",
+    "authors": "R. H. Holm",
+    "title": "Trinuclear Cuboidal and Heterometallic Cubane-Type Iron-Sulfur Clusters: New Structural and Reactivity Themes in Chemistry and Biology",
+    "journal": "Advances in Inorganic Chemistry 38",
+    "year": 1992,
+    "location": "pp. 1–71",
+    "url": "https://doi.org/10.1016/s0898-8838(08)60061-6",
+    "section": "ROS, iron and assays",
+    "locator": ""
+  },
+  {
+    "doi": "10.1016/s0076-6879(78)53032-2",
+    "authors": "W. H. Orme-Johnson, R. H. Holm",
+    "title": "Identification of iron-sulfur clusters in proteins",
+    "journal": "Methods in Enzymology 53",
+    "year": 1978,
+    "location": "pp. 268–274",
+    "url": "https://doi.org/10.1016/s0076-6879(78)53032-2",
+    "section": "ROS, iron and assays",
+    "locator": ""
+  },
 ] satisfies StudyReference[];
 
 export const studySections = ["ETC energetics", "ATP and respiratory controls", "ROS, iron and assays", "Light and ferroptosis", "Cristae and membrane geometry"] as const;
