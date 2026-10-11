@@ -9,20 +9,21 @@ import { buildPlan, modelDoses, profileInputs } from "@/lib/mito/treatment";
 import { recordRun } from "@/lib/mito/runs";
 import { ScenarioTherapyPlan } from "@/components/mito/ScenarioTherapyPlan";
 import { StrengthPlanPanel } from "@/components/mito/StrengthPlanPanel";
+import { ClusterPlanPanel } from "@/components/mito/ClusterPlanPanel";
 import { SnapPlanPanel } from "@/components/mito/SnapPlanPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type PlanTab = "suggestions" | "pairs" | "schedule";
+type PlanTab = "suggestions" | "pairs" | "schedule" | "clusters";
 type Diagnosed = ReturnType<typeof diagnoseProfile>;
 
 export const Route = createFileRoute("/therapy-plan")({
   validateSearch: (s: Record<string, unknown>): { profile?: string | undefined; tab?: PlanTab | undefined } => ({
     profile: typeof s["profile"] === "string" ? s["profile"] : undefined,
-    tab: s["tab"] === "pairs" || s["tab"] === "schedule" || s["tab"] === "suggestions" ? s["tab"] : undefined,
+    tab: s["tab"] === "pairs" || s["tab"] === "schedule" || s["tab"] === "suggestions" || s["tab"] === "clusters" ? s["tab"] : undefined,
   }),
   head: () => ({ meta: [
     { title: "Therapy plan: flagged therapies and projected clearance | Cristae Lab" },
-    { name: "description", content: "Therapy suggestions, ranked pairs and a snap schedule, plus flagged model therapies for each profile at a chosen model dose, with ATP and ROS changes and projected MitoSOX and peroxide flag clearance. Research only." },
+    { name: "description", content: "Therapy suggestions, ranked pairs, a snap schedule and cluster protection dosing, plus flagged model therapies for each profile at a chosen model dose, with ATP and ROS changes and projected MitoSOX and peroxide flag clearance. Research only." },
     { property: "og:title", content: "Therapy plan | Cristae Lab" },
     { property: "og:description", content: "Per-profile flagged therapies, model dose, readout changes and projected flag clearance. Model estimates, not a prescription." },
     { property: "og:type", content: "website" },
@@ -49,6 +50,7 @@ function TherapyPlan() {
         <TabsTrigger value="suggestions" data-testid="tab-suggestions">Suggestions</TabsTrigger>
         <TabsTrigger value="pairs" data-testid="tab-pairs">Pairs</TabsTrigger>
         <TabsTrigger value="schedule" data-testid="tab-schedule">Schedule</TabsTrigger>
+        <TabsTrigger value="clusters" data-testid="tab-clusters">Cluster protection</TabsTrigger>
       </TabsList>
       <TabsContent value="suggestions" className="space-y-8">
         <StrengthPlanPanel view="suggestions" />
@@ -56,6 +58,7 @@ function TherapyPlan() {
       </TabsContent>
       <TabsContent value="pairs"><StrengthPlanPanel view="pairs" /></TabsContent>
       <TabsContent value="schedule"><SnapPlanPanel /></TabsContent>
+      <TabsContent value="clusters"><ClusterPlanPanel /></TabsContent>
     </Tabs>
   </main>;
 }
