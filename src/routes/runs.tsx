@@ -122,15 +122,23 @@ function RunsPage() {
       <>
         <div className="flex flex-wrap items-center gap-3">
           <p className="text-sm text-muted-foreground" data-testid="runs-count">{shownRuns.length} unique combinations across {shownPatients.size} profiles.</p>
-          <p className="text-xs text-muted-foreground" data-testid="runs-band-count">
-            {shownRuns.filter((r) => r.rirrStrength != null && r.rirrStrength >= range.lo && r.rirrStrength <= range.hi).length} of {shownRuns.length} runs inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); rows are green inside and red outside or with no strength noted.
-          </p>
           {only && <p className="text-xs" data-testid="runs-only-note">Showing <span className="font-medium text-foreground">{profileOf(only)?.label ?? only}</span> only. <Link className="text-primary underline underline-offset-2" to="/runs" search={{ profile: undefined }} data-testid="runs-show-all">Show all profiles</Link></p>}
 
           <Button variant="outline" size="sm" data-testid="runs-clear" onClick={async () => { await clearRuns(); setRuns([]); }}>
             <Trash2 className="size-4" aria-hidden /> Clear log
           </Button>
         </div>
+
+        <p className="px-1 text-xs text-muted-foreground" data-testid="runs-band-summary">{(() => {
+          const inBand = shownRuns.filter((r) => r.rirrStrength != null && r.rirrStrength >= range.lo && r.rirrStrength <= range.hi).length;
+          const noStrength = shownRuns.filter((r) => r.rirrStrength == null).length;
+          return <>
+            <span className="font-medium text-foreground">{inBand} of {shownRuns.length} runs</span> sit inside the band ({range.lo.toFixed(2)}x-{range.hi.toFixed(2)}x); {shownRuns.length - inBand} outside{noStrength > 0 ? ` (${noStrength} with no strength noted)` : ""}.{" "}
+            <button type="button" data-testid="runs-band-edit" className="text-primary underline underline-offset-2" onClick={() => document.querySelector<HTMLElement>('[data-testid="header-band"]')?.click()}>Edit the band</button>
+            <span className="text-muted-foreground"> The same band colors the run rows and every chart that marks inside or outside.</span>
+          </>;
+        })()}</p>
+
 
         <section className="space-y-2" data-testid="runs-chart-section">
           <h2 className="text-lg font-medium">Superoxide change over time</h2>
