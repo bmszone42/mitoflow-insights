@@ -62,7 +62,7 @@ function DiagnosisPage() {
   })), [all]);
   // Damage signature per profile: the four Holm cluster patterns vs the healthy default (rule-based, assumed thresholds).
   const sigs = useMemo(() => {
-    const h = simulate({ ...defaultInputs, rirrStrength: rirr }, defaultGeometry);
+    const h = simulate({ ...defaultInputs, rirrStrength: rirr ?? defaultInputs.rirrStrength }, defaultGeometry);
     return new Map(all.map((x) => [x.patient.id, damageSignature(simulate(profileInputs(x.patient), defaultGeometry), h)]));
   }, [all, rirr]);
   const [id, setId] = useSelectedProfile("demo-04", Route.useSearch().profile);

@@ -2730,203 +2730,203 @@ exports[`model lock > each input at its min and max 1`] = `
   "chelatorBound@max": {
     "aconitaseActivity": 84.0405,
     "atpFlux": 45.3607,
-    "cardiolipinOx": 5.64179,
+    "cardiolipinOx": 5.15136,
     "coherence": {
-      "coherentFraction": 0.258361,
+      "coherentFraction": 0.282508,
       "lossBase": 0.4,
-      "lossCardiolipin": 0.0940298,
+      "lossCardiolipin": 0.0858559,
       "lossHeat": 0,
       "lossLipid": 0.0000215055,
       "pumpMetabolic": 0.431534,
       "pumpPhoton": 0,
-      "pumpRatio": 0.873459,
+      "pumpRatio": 0.888154,
     },
-    "coherentFraction": 0.258361,
-    "emission71THz": 41.5008,
+    "coherentFraction": 0.282508,
+    "emission71THz": 42.9597,
     "emissionSpectrum": [
       {
         "freqTHz": 60,
-        "intensity": 2.12728,
+        "intensity": 2.14933,
       },
       {
         "freqTHz": 60.5,
-        "intensity": 2.52465,
+        "intensity": 2.56066,
       },
       {
         "freqTHz": 61,
-        "intensity": 3.08946,
+        "intensity": 3.14534,
       },
       {
         "freqTHz": 61.5,
-        "intensity": 3.8415,
+        "intensity": 3.92381,
       },
       {
         "freqTHz": 62,
-        "intensity": 4.77572,
+        "intensity": 4.89086,
       },
       {
         "freqTHz": 62.5,
-        "intensity": 5.85197,
+        "intensity": 6.00495,
       },
       {
         "freqTHz": 63,
-        "intensity": 6.99075,
+        "intensity": 7.18376,
       },
       {
         "freqTHz": 63.5,
-        "intensity": 8.07879,
+        "intensity": 8.31005,
       },
       {
         "freqTHz": 64,
-        "intensity": 8.98561,
+        "intensity": 9.24875,
       },
       {
         "freqTHz": 64.5,
-        "intensity": 9.58865,
+        "intensity": 9.87298,
       },
       {
         "freqTHz": 65,
-        "intensity": 9.80028,
+        "intensity": 10.092,
       },
       {
         "freqTHz": 65.5,
-        "intensity": 9.58865,
+        "intensity": 9.87299,
       },
       {
         "freqTHz": 66,
-        "intensity": 8.98562,
+        "intensity": 9.24876,
       },
       {
         "freqTHz": 66.5,
-        "intensity": 8.07895,
+        "intensity": 8.31021,
       },
       {
         "freqTHz": 67,
-        "intensity": 6.9929,
+        "intensity": 7.18598,
       },
       {
         "freqTHz": 67.5,
-        "intensity": 5.8736,
+        "intensity": 6.02734,
       },
       {
         "freqTHz": 68,
-        "intensity": 4.9364,
+        "intensity": 5.0572,
       },
       {
         "freqTHz": 68.5,
-        "intensity": 4.71858,
+        "intensity": 4.83172,
       },
       {
         "freqTHz": 69,
-        "intensity": 6.60663,
+        "intensity": 6.78614,
       },
       {
         "freqTHz": 69.5,
-        "intensity": 12.8858,
+        "intensity": 13.286,
       },
       {
         "freqTHz": 70,
-        "intensity": 24.5526,
+        "intensity": 25.363,
       },
       {
         "freqTHz": 70.5,
-        "intensity": 37.5408,
+        "intensity": 38.8077,
       },
       {
         "freqTHz": 71,
-        "intensity": 43.4805,
+        "intensity": 44.9562,
       },
       {
         "freqTHz": 71.5,
-        "intensity": 37.8099,
+        "intensity": 39.0862,
       },
       {
         "freqTHz": 72,
-        "intensity": 25.266,
+        "intensity": 26.1014,
       },
       {
         "freqTHz": 72.5,
-        "intensity": 14.3777,
+        "intensity": 14.8303,
       },
       {
         "freqTHz": 73,
-        "intensity": 9.30983,
+        "intensity": 9.58436,
       },
       {
         "freqTHz": 73.5,
-        "intensity": 9.03099,
+        "intensity": 9.29572,
       },
       {
         "freqTHz": 74,
-        "intensity": 11.0223,
+        "intensity": 11.357,
       },
       {
         "freqTHz": 74.5,
-        "intensity": 13.4705,
+        "intensity": 13.8913,
       },
       {
         "freqTHz": 75,
-        "intensity": 15.3355,
+        "intensity": 15.8218,
       },
       {
         "freqTHz": 75.5,
-        "intensity": 16.0255,
+        "intensity": 16.5361,
       },
       {
         "freqTHz": 76,
-        "intensity": 15.3331,
+        "intensity": 15.8194,
       },
       {
         "freqTHz": 76.5,
-        "intensity": 13.4482,
+        "intensity": 13.8682,
       },
       {
         "freqTHz": 77,
-        "intensity": 10.8599,
+        "intensity": 11.189,
       },
       {
         "freqTHz": 77.5,
-        "intensity": 8.15016,
+        "intensity": 8.38393,
       },
       {
         "freqTHz": 78,
-        "intensity": 5.78529,
+        "intensity": 5.93593,
       },
       {
         "freqTHz": 78.5,
-        "intensity": 4.00447,
+        "intensity": 4.09251,
       },
       {
         "freqTHz": 79,
-        "intensity": 2.82752,
+        "intensity": 2.87419,
       },
       {
         "freqTHz": 79.5,
-        "intensity": 2.1382,
+        "intensity": 2.16063,
       },
       {
         "freqTHz": 80,
-        "intensity": 1.77826,
+        "intensity": 1.78805,
       },
       {
         "freqTHz": 80.5,
-        "intensity": 1.61004,
+        "intensity": 1.61391,
       },
       {
         "freqTHz": 81,
-        "intensity": 1.53947,
+        "intensity": 1.54085,
       },
       {
         "freqTHz": 81.5,
-        "intensity": 1.51284,
+        "intensity": 1.51329,
       },
       {
         "freqTHz": 82,
-        "intensity": 1.50379,
+        "intensity": 1.50392,
       },
       {
         "freqTHz": 82.5,
-        "intensity": 1.50101,
+        "intensity": 1.50105,
       },
       {
         "freqTHz": 83,
@@ -2934,7 +2934,7 @@ exports[`model lock > each input at its min and max 1`] = `
       },
       {
         "freqTHz": 83.5,
-        "intensity": 1.50005,
+        "intensity": 1.50006,
       },
       {
         "freqTHz": 84,
@@ -2989,7 +2989,7 @@ exports[`model lock > each input at its min and max 1`] = `
         "intensity": 1.5,
       },
     ],
-    "ferroptosisRisk": 18.806,
+    "ferroptosisRisk": 17.1712,
     "ferroptosisState": "Protected",
     "fes3Fe": 0.11389,
     "fesApo": 0.0457046,
@@ -3053,13 +3053,13 @@ exports[`model lock > each input at its min and max 1`] = `
       "singletDirect": 0,
       "tempRise": 0,
     },
-    "plooh": 39.8608,
+    "plooh": 36.2076,
     "ploohRemoval": {
       "basal": 0.01,
       "fsp1": 0.03,
       "gpx4": 0.05,
     },
-    "propagationRatio": 0.100807,
+    "propagationRatio": 0.0100807,
     "redoxStress": 22.8706,
     "rosBudget": {
       "fe2Fraction": 0.911089,
