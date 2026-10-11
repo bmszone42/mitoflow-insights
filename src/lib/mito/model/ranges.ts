@@ -24,6 +24,8 @@ export const inputRanges: Record<keyof Inputs, { min: number; max: number; label
   fesExposureCII: { min: 0, max: 1, label: "Complex II cluster exposure (assumed)", unit: "x aconitase" },
   fesExposureCIII: { min: 0, max: 1, label: "Complex III cluster exposure (assumed)", unit: "x aconitase" },
   chelatorBound: { min: 0, max: 0.9, label: "Chelator-bound iron fraction", unit: "fraction" },
+  chelatorFentonSuppression: { min: 0.8, max: 1, label: "Chelator suppression of Fenton reactivity", unit: "fraction" },
+  chelatorLipidSuppression: { min: 0.8, max: 1, label: "Chelator suppression of lipid peroxidation", unit: "fraction" },
   copperCiv: { min: 0.1, max: 1.5, label: "Complex IV copper (CuA/CuB)", unit: "rel" },
   rirrStrength: { min: 0, max: 1.5, label: "ROS-induced ROS release strength", unit: "exponent" },
 };
