@@ -592,6 +592,39 @@ export const studyReferences: StudyReference[] = [
     "section": "ROS, iron and assays",
     "locator": ""
   },
+  {
+    "doi": "10.1016/s0021-9258(17)43139-5",
+    "authors": "E. Graf, J. R. Mahoney, R. G. Bryant, J. W. Eaton",
+    "title": "Iron-catalyzed hydroxyl radical formation. Stringent requirement for free iron coordination site",
+    "journal": "Journal of Biological Chemistry 259",
+    "year": 1984,
+    "location": "pp. 3620–3624",
+    "url": "https://doi.org/10.1016/S0021-9258(17)43139-5",
+    "section": "ROS, iron and assays",
+    "locator": ""
+  },
+  {
+    "doi": "10.1016/j.freeradbiomed.2014.10.513",
+    "authors": "V. A. Timoshnikov, T. V. Kobzeva, N. E. Polyakov, G. J. Kontoghiorghes",
+    "title": "Inhibition of Fe2+- and Fe3+- induced hydroxyl radical production by the iron-chelating drug deferiprone",
+    "journal": "Free Radical Biology and Medicine 78",
+    "year": 2015,
+    "location": "pp. 118–122",
+    "url": "https://doi.org/10.1016/j.freeradbiomed.2014.10.513",
+    "section": "ROS, iron and assays",
+    "locator": ""
+  },
+  {
+    "doi": "10.3390/molecules26165064",
+    "authors": "V. A. Timoshnikov, L. A. Kichigina, O. Yu. Selyutina, N. E. Polyakov, G. J. Kontoghiorghes",
+    "title": "Antioxidant activity of deferasirox and its metal complexes in model systems of oxidative damage: comparison with deferiprone",
+    "journal": "Molecules 26",
+    "year": 2021,
+    "location": "article 5064",
+    "url": "https://doi.org/10.3390/molecules26165064",
+    "section": "ROS, iron and assays",
+    "locator": ""
+  },
 ] satisfies StudyReference[];
 
 export const studySections = ["ETC energetics", "ATP and respiratory controls", "ROS, iron and assays", "Light and ferroptosis", "Cristae and membrane geometry"] as const;

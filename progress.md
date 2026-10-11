@@ -598,3 +598,4 @@
 - ✅ Lipid damage uses only unbound iron (chelation lowers ferroptosis)
 - ✅ Five Holm scenarios added in one click on Scenarios
 - ✅ Damage signature column on Diagnosis
+- ✅ Chelator suppression from published data (Graf 1984, Timoshnikov 2015/2021), separate Fenton and lipid values
