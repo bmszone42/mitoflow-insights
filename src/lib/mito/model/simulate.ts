@@ -76,23 +76,11 @@ import { defaultInputs, THZ_CAL } from "./types";
 const LOO_CAL = 1.15;
 import { photoreceptor } from "./photoreceptor";
 import { geometryEffects, defaultGeometry, type Geometry } from "./geometry";
+import { chainFlux } from "./atp";
+import { rosChemistry, hydroxylAndBudget } from "./ros";
+import { ironSulfur } from "./fes";
 
 
-// Smallest positive root of a steady-state balance f(x) = production - removal.
-function solveSteady(f: (x: number) => number) {
-  let lo = 0;
-  let hi = 1e-7;
-  while (f(hi) > 0 && hi < 1e6) {
-    lo = hi;
-    hi *= 1.5;
-  }
-  for (let k = 0; k < 60; k++) {
-    const mid = (lo + hi) / 2;
-    if (f(mid) > 0) lo = mid;
-    else hi = mid;
-  }
-  return (lo + hi) / 2;
-}
 
 export const MITO_DAMAGED_AT_DEFAULT = 0.1;
 export function qualityControl(halfLife: number) {
@@ -113,213 +101,12 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   // 10% of mitochondria are damaged at the default 17.2 d, making dD = 0 there.
   const qc = qualityControl(i.mitoHalfLife);
   const psi = i.deltaPsi + ge.psiShift + pr.psiShift - 15 * qc.dD; // damaged mitochondria are depolarized
-  const photonGain = 1 + pr.civGain;
-  const noEff = i.nitricOxide * (1 - pr.noReleased);
-
-  // --- Electron transport (lumped Michaelis-Menten with backpressure) ---
-  const psiBrake = 1 / (1 + Math.exp((psi - 175) / 12)); // Q-cycle reverse pressure
-  const adpDrive = i.adp / (i.adp + 40); // ANT/ATP synthase control
-  const o2Sat = i.oxygen / (i.oxygen + 0.8); // CIV Km ~ 0.5-1 µM O2
-  const noInhib = 1 / (1 + noEff / 120); // competitive NO inhibition of CIV
-
-  const vmaxCI = 55;
-  const fluxCI = vmaxCI * ge.capacity * i.nadhRatio * (0.35 + 0.65 * adpDrive);
-  const fluxCII = 30 * ge.capacity * (i.succinate / (i.succinate + 0.5));
-  // Copper sites of complex IV (CuA accepts from cytochrome c; CuB pairs with
-  // heme a3 to bind O2). Copper deficiency lowers COX activity; the saturating
-  // shape (1 at default, ~0.55 at 0.1x) is ASSUMED, not fitted.
-  const cu = i.copperCiv ?? 1;
-  const cuFactor = (cu / (cu + 0.08)) * 1.08;
-  const fluxCIV = cuFactor *
-    Math.min(fluxCI + fluxCII, 80 * ge.capacity) * ge.cytcRetention * o2Sat * noInhib * photonGain * (0.4 + 0.6 * adpDrive);
-  // Hinkle 2005: 10 H+ per NADH and 6 H+ per succinate-derived electron pair;
-  // 4 H+ per ATP including transport -> 2.5 and 1.5 P/O respectively.
-  // Route the CIV electron-pair flux proportionally to CI/CII supply after
-  // oxygen/NO inhibition, rather than assigning NADH yield to every pair.
-  const chainSupply = fluxCI + fluxCII;
-  const mixedPo = chainSupply > 0 ? (fluxCI * 2.5 + fluxCII * 1.5) / chainSupply : 0;
-  // ADP / geometry multipliers remain unfitted: this is not a measured rate.
-  const atpFlux = fluxCIV * mixedPo * (1 - i.uncoupling) * (0.5 + 0.5 * adpDrive) * ge.atpEfficiency * qc.atp;
-
-  // --- Superoxide: site-resolved production (Brand 2016; Quinlan et al. 2013) ---
-  // Leak rises steeply with deltaPsi (reduced CoQ pool), damped by uncoupling.
-  // Electrons back up when copper limits CIV (assumed 1:1 extra leak).
-  const cuBackup = 1 + Math.max(0, 1 - cuFactor);
-  const leakPsi = cuBackup * Math.exp((psi - 150) / 22) * (1 - 0.6 * i.uncoupling) * pr.heatLeak * qc.leak;
-  const o2Term = i.oxygen / (i.oxygen + 10);
-  // Complex I site IF: reduced FMN, set by NADH/NAD+ ratio (squared, two-electron flavin).
-  const vIF = 0.0055 * fluxCI * i.nadhRatio ** 2 * leakPsi * o2Term * pr.flavinLeak * ge.leak;
-  // Complex I site IQ, reverse electron transport: needs succinate-reduced CoQ and high deltaPsi.
-  const retDrive = 1 / (1 + Math.exp(-(i.succinate - 0.9) / 0.15));
-  const vIQ = 0.012 * fluxCII * retDrive * Math.exp((psi - 160) / 10) * (1 - 0.8 * i.uncoupling) * o2Term;
-  // Complex III site IIIQo: unstable semiquinone, backpressure from high deltaPsi; half to IMS.
-  const vIIIQo = 0.003 * (fluxCI + fluxCII) * psiBrake * leakPsi * o2Term * pr.semiquinoneLeak * ge.leak;
-  // Complex II site IIF: flavin, highest at low succinate occupancy.
-  const vIIF = 0.0015 * fluxCII * (1 - i.succinate / (i.succinate + 0.3)) * o2Term;
-  // 2-oxoglutarate dehydrogenase (DLD flavin), NADH driven; ~40% leaves as O2•-, 60% as H2O2.
-  const vOGDHtotal = 0.0012 * fluxCI * i.nadhRatio ** 2 * o2Term * pr.flavinLeak;
-  const vOGDH = 0.4 * vOGDHtotal;
-  // ROS-induced ROS release (Zorov 2014): weak thiol defenses let oxidized
-  // Complex I/III leak more. Model tuning exponent; 1x capacity = no change.
-  // Strength is user-tunable (rirrStrength, default 1.0 fitted to Melov 1999 Sod2-null brain aconitase 24-33% of control); legacy states lack it and keep 0.5.
-  const redoxFb = i.antioxidantCapacity ** -(i.rirrStrength ?? 0.5);
-  const vMatrixO2 = redoxFb * (vIF + vIQ + 0.5 * vIIIQo + vIIF + vOGDH);
-  const vImsO2 = redoxFb * 0.5 * vIIIQo;
-
-  // Matrix sinks: SOD2 (2.3e9 M-1 s-1 x 10 µM), NO (1e10 M-1 s-1), aconitase [4Fe-4S] (1e7 M-1 s-1 x ~6 µM).
-  // SOD_AC_EXP: how strongly antioxidant capacity scales SOD clearance. Model tuning
-  // choice (no tissue-general published value); 1x capacity is unaffected by it.
-  const SOD_AC_EXP = 1.0;
-  const kSod = 1e4 * i.antioxidantCapacity ** SOD_AC_EXP; // s-1
-  const kNoO2 = 1e4 * (noEff / 1000); // s-1
-  const kAconSink = 10 * 6; // s-1
-  const superoxideM = vMatrixO2 / (kSod + kNoO2 + kAconSink); // µM
-  // IMS sinks: SOD1 and cytochrome c reoxidation.
-  const kSod1 = 5e3 * i.antioxidantCapacity ** SOD_AC_EXP;
-  const superoxideIMS = vImsO2 / (kSod1 + 2e3 + kNoO2);
-
-  // --- H2O2: sources and reduced-Prx3-dependent clearance ---
-  const vDismutation = 0.5 * kSod * superoxideM + 0.25 * kSod1 * superoxideIMS; // 2 O2•- -> H2O2
-  const vOGDHh2o2 = 0.6 * vOGDHtotal;
-  const vH2O2Photo = pr.h2o2Direct * o2Term; // flavin photosensitization
-  const vH2O2 = vDismutation + vOGDHh2o2 + vH2O2Photo;
-  const ac = i.antioxidantCapacity;
-  // Cox et al. Biochemistry 2009, doi:10.1021/bi900558g measured
-  // k(Prx3 + H2O2) = 2e7 M-1 s-1 in purified human protein.
-  // Active reduced Prx3 (0.075 µM here) is an unfitted accessible-pool
-  // assumption, NOT a measured whole-matrix Prx3 concentration.
-  // 2e7 M-1 s-1 * 1e-6 M/µM * 0.075 µM = 1.5 s-1.
-  const prx3SecondOrder = 2e7 * 1e-6; // µM-1 s-1
-  const prx3Accessible = 0.075 * ac; // µM, effective reduced pool (assumed)
-  const prxVmax = 3 * ac; // µM/s, assumed recycling cap from TrxR2 / NADPH
-  const prxKm = 2; // µM, effective cap transition (assumed)
-  const hyper = (h: number) => 1 / (1 + (h / 5) ** 2); // Prx3 hyperoxidation above ~5 µM
-  const kGpx1 = 0.3 * ac;
-  const kCat = 0.02;
-  const kEfflux = 0.3; // diffusion to cytosol
-  // GPx4 also reduces H2O2 weakly (it is primarily a lipid peroxidase),
-  // so the GPx4 slider modulates matrix H2O2 and thereby Fe-S attack.
-  const kGpx4h2o2 = 0.2 * i.gpx4;
-  const prx3Removal = (h: number) => Math.min(prx3SecondOrder * prx3Accessible * h, prxVmax * h / (prxKm + h)) * hyper(h);
-  const h2o2Removal = (h: number) => prx3Removal(h) + (kGpx1 + kGpx4h2o2 + kCat + kEfflux) * h;
-  const h2o2 = solveSteady((h) => vH2O2 - h2o2Removal(h));
-  const prxReduced = hyper(h2o2) * (1 - h2o2 / (prxKm + h2o2) * 0.5);
-
-
-  // --- Peroxynitrite: formation and competing sinks (Radi 2013) ---
-  const vPN = kNoO2 * superoxideM; // µM s-1
-  const kPnCO2 = 0.046 * 1300; // 4.6e4 M-1 s-1 x 1.3 mM CO2
-  const kPnPrx = 300 * ac * prxReduced;
-  const kPnGpx = 10 * ac;
-  const kPnThiol = 30;
-  const kPnHomolysis = 0.9; // ONOOH isomerization / homolysis
-  const kPnTotal = kPnCO2 + kPnPrx + kPnGpx + kPnThiol + kPnHomolysis;
-  const onooM = vPN / kPnTotal; // µM
-  const peroxynitrite = onooM * 1e3; // nM
-
-  // Fe-S cluster attack and labile iron feedback.
-  // Superoxide term: effective rate for attack on aconitase (Flint 1993,
-  // ~1e7 M-1 s-1), strengthened 3.5x so light-driven superoxide visibly
-  // erodes clusters at photobiomodulation doses.
-  // H2O2 term: measured attack on dehydratase [4Fe-4S] clusters is
-  // ~5e3 M-1 s-1 (Jang & Imlay 2007); scaled up here as an effective rate
-  // for the wider cluster pool so antioxidant capacity (Prx3, GPx1, GPx4)
-  // modulates cluster loss.
-  // Peroxynitrite term: ONOO- oxidizes and inactivates aconitase [4Fe-4S]
-  // with k ~1e5 M-1 s-1 (Castro 1994, Hausladen & Fridovich 1994); used
-  // here as an effective rate on the cluster pool so NO availability
-  // modulates cluster loss through the ONOO- branch. All terms unfitted;
-  // shapes follow Imlay 2003 and Radi 2013.
-  const kAcon = 3.5e7 * 1e-6; // µM-1 s-1 effective
-  const kH2o2Fes = 1e4 * 1e-6; // µM-1 s-1 effective, H2O2-specific
-  const kOnooFes = 1e7 * 1e-6; // µM-1 s-1 effective, ONOO- specific (scaled up: model ONOO- steady state is nM-scale)
-  const clusterAttack = kAcon * superoxideM + kH2o2Fes * h2o2 + kOnooFes * onooM; // s-1
-  // Three cluster states. Cluster conversion chemistry cited from:
-  //   Holm & Lo 2016, Chem Rev, doi:10.1021/acs.chemrev.6b00276
-  //     ([4Fe-4S] <-> [3Fe-4S] conversion, single Fe loss and re-insertion)
-  //   Beinert, Holm & Munck 1997, Science, doi:10.1126/science.277.5326.653
-  //     (cluster types, aconitase [3Fe-4S] inactive form)
-  // Rates from Flint 1993, Gardner & Fridovich 1992, Gardner 1995:
-  // superoxide and ONOO- oxidize [4Fe-4S] to [3Fe-4S]+, releasing ONE Fe;
-  // the 3Fe cluster is reactivated fast (~1 min t1/2, rounded assumption)
-  // or degraded further by H2O2 to apo (all 4 Fe lost), rebuilt slowly by ISC.
-  const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // apo -> [4Fe-4S], ISCU/NFS1/frataxin
-  // Reactivation needs Fe2+ and a reductant (Holm & Lo 2016; Beinert 1997):
-  // scale with labile iron and antioxidant (GSH/ascorbate) supply, both
-  // normalized so the healthy defaults keep the ~1 min rate. Assumed shape.
-  const reactSupply = Math.max(0.1, Math.sqrt(((i.labileIron * (1 - (i.chelatorBound ?? 0))) / 2) * i.antioxidantCapacity));
-  const kReact = 1.2e-2 * reactSupply; // [3Fe-4S] -> [4Fe-4S], fast reactivation
-  const a3 = kAcon * superoxideM + kOnooFes * onooM; // [4Fe-4S] -> [3Fe-4S] + 1 Fe
-  const aApo = kH2o2Fes * h2o2; // [4Fe-4S] -> apo + 4 Fe
-  const d3 = kH2o2Fes * h2o2; // [3Fe-4S] -> apo + 3 Fe
-  const t3PerI = a3 / (kReact + d3);
-  // Half-life of the [3Fe-4S]+ pool: reactivation (kReact) competes with
-  // H2O2 degradation to apo (d3), so the effective removal rate is the sum.
-  const fesReactHalfLifeS = Math.LN2 / (kReact + d3);
-  const apoPerI = (aApo + d3 * t3PerI) / kRepair;
-  const fesIntact = 1 / (1 + t3PerI + apoPerI);
-  const fes3Fe = fesIntact * t3PerI;
-  const fesApo = fesIntact * apoPerI;
-  void clusterAttack;
-  // Separate pools (Beinert, Holm & Munck 1997): aconitase's cluster is
-  // solvent-exposed with a free Fe site; respiratory-chain clusters are
-  // buried in protein. Relative exposure factors are ASSUMED, not fitted;
-  // aconitase uses factor 1 so the shared readouts above stay unchanged.
-  const pool = (exposure: number) => {
-    const t = (a3 * exposure) / (kReact + d3 * exposure);
-    const apo = (aApo * exposure + d3 * exposure * t) / kRepair;
-    const intact = 1 / (1 + t + apo);
-    return { intact, threeFe: intact * t, apo: intact * apo };
-  };
-  const fesPools = {
-    aconitase: { intact: fesIntact, threeFe: fes3Fe, apo: fesApo },
-    complexI: pool(i.fesExposureCI ?? 0.15),
-    complexII: pool(i.fesExposureCII ?? 0.3),
-    complexIII: pool(i.fesExposureCIII ?? 0.05),
-  };
-  // ~6 µM cluster protein: 1 Fe freed per 3Fe cluster, 4 Fe per apo protein
-  const ironFromClusters = 6 * (fes3Fe + 4 * fesApo);
-  const freeIron = i.labileIron * qc.iron + ironFromClusters;
-
-
-  // --- Hydroxyl radical: Fenton, Haber-Weiss recycling, ONOOH homolysis ---
-  const kFeRed = 0.5 * ac + 1 * superoxideM * 1e3; // ascorbate/GSH + O2•- reduction of Fe3+
-  const kFeOx = 0.05 * (i.oxygen / 30);
-  // Ligand-dependent Fenton reactivity: chelator-bound iron (e.g. DFO-Fe) is
-  // largely redox-inert (Halliwell & Gutteridge). 95% suppression is ASSUMED.
-  const kFenton = 1e-3 * (1 - 0.95 * (i.chelatorBound ?? 0)); // µM-1 s-1 (1e3 M-1 s-1)
-  const fe2Fraction = kFeRed / (kFeRed + kFeOx + kFenton * h2o2);
-  const vFenton = kFenton * freeIron * fe2Fraction * h2o2;
-  const vOHfromPN = 0.3 * kPnHomolysis * onooM;
-  const vOH = vFenton + vOHfromPN;
-  const hydroxyl = vOH / 1e9; // µM, quenched within ~1 ns diffusion radius
-
-  const rosBudget: RosBudget = {
-    superoxideSources: { "CI IF": vIF, "CI IQ (RET)": vIQ, "CIII Qo": vIIIQo, "CII IIF": vIIF, OGDH: vOGDH },
-    superoxideSinks: {
-      SOD2: kSod * superoxideM,
-      "NO (to ONOO-)": kNoO2 * superoxideM,
-      "Aconitase Fe-S": kAconSink * superoxideM,
-    },
-    superoxideIMS: superoxideIMS * 1e3,
-    h2o2Sources: { Dismutation: vDismutation, OGDH: vOGDHh2o2, "Flavin photo": vH2O2Photo },
-    h2o2Sinks: {
-      Prx3: prx3Removal(h2o2),
-      GPx1: kGpx1 * h2o2,
-      Catalase: kCat * h2o2,
-      Efflux: kEfflux * h2o2,
-    },
-    prxHyperoxidized: 1 - hyper(h2o2),
-    peroxynitriteSinks: {
-      CO2: kPnCO2 * onooM,
-      Prx3: kPnPrx * onooM,
-      GPx: kPnGpx * onooM,
-      Thiols: kPnThiol * onooM,
-      Homolysis: kPnHomolysis * onooM,
-    },
-    hydroxylSources: { Fenton: vFenton, "ONOOH homolysis": vOHfromPN },
-    fe2Fraction,
-  };
+  const c = chainFlux(i, ge, pr, qc, psi);
+  const { photonGain, adpDrive, fluxCI, fluxCII, fluxCIV, atpFlux } = c;
+  const r = rosChemistry(i, ge, pr, qc, psi, c);
+  const { o2Term, superoxideM, h2o2, onooM, peroxynitrite } = r;
+  const { fesIntact, fes3Fe, fesApo, fesPools, fesReactHalfLifeS, freeIron } = ironSulfur(i, qc, adpDrive, superoxideM, h2o2, onooM);
+  const { hydroxyl, rosBudget } = hydroxylAndBudget(i, r, freeIron);
 
   // Singlet oxygen: photosensitized (porphyrin/flavin) plus O2•- recombination.
   const singlet =
