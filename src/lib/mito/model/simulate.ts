@@ -124,7 +124,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const kRemove = kGpx4 + kFsp1 + kBasal;
   // Fe2+-driven autocatalysis, s-1. Only unbound iron cleaves lipid hydroperoxides;
   // chelator-held iron is excluded (same ligand rule as Fenton in ros.ts, assumed).
-  const kProp = 0.004 * freeIron * (1 - (i.chelatorBound ?? 0)) * pufa;
+  const kProp = 0.004 * freeIron * (1 - (i.chelatorLipidSuppression ?? 1) * (i.chelatorBound ?? 0)) * pufa;
   const propagationRatio = kProp / kRemove;
   const plooh = vInit / Math.max(kRemove - kProp, 0.02 * kRemove);
   const cardiolipinOx = (100 * plooh * pufa) / (plooh * pufa + 400);

@@ -21,7 +21,9 @@ export type Inputs = {
   fesExposureCI: number; // 0-1 complex I cluster exposure vs aconitase (assumed)
   fesExposureCII: number; // 0-1 complex II exposure (assumed)
   fesExposureCIII: number; // 0-1 complex III exposure (assumed)
-  chelatorBound: number; // 0-0.9 fraction of labile iron held by a chelator (lower Fenton reactivity, assumed)
+  chelatorBound: number; // 0-0.9 fraction of labile iron held by a chelator
+  chelatorFentonSuppression: number; // 0.8-1 fraction of Fenton reactivity removed from bound iron (published, chelators.ts)
+  chelatorLipidSuppression: number; // 0.8-1 fraction of lipid-peroxidation reactivity removed from bound iron (published, chelators.ts)
   copperCiv: number; // 0.1-1.5 relative CuA/CuB occupancy of complex IV
   mitoHalfLife: number; // days, mitochondrial turnover half-life (Kim 2012: heart 17.2, liver 4.3)
 };
@@ -48,6 +50,8 @@ export const defaultInputs: Inputs = {
   fesExposureCII: 0.3,
   fesExposureCIII: 0.05,
   chelatorBound: 0,
+  chelatorFentonSuppression: 0.99, // deferoxamine, Graf 1984
+  chelatorLipidSuppression: 0.99, // deferoxamine, Graf 1984
   copperCiv: 1,
   rirrStrength: 1, // fitted to Melov 1999 brain aconitase loss (partly published)
 };

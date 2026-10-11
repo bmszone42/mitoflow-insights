@@ -113,7 +113,10 @@ export function hydroxylAndBudget(i: Inputs, r: RosChemistry, freeIron: number) 
   const kFeOx = 0.05 * (i.oxygen / 30);
   // Ligand-dependent Fenton reactivity: chelator-bound iron (e.g. DFO-Fe) is
   // largely redox-inert (Halliwell & Gutteridge). 95% suppression is ASSUMED.
-  const kFenton = 1e-3 * (1 - 0.95 * (i.chelatorBound ?? 0)); // µM-1 s-1 (1e3 M-1 s-1)
+  // µM-1 s-1 (1e3 M-1 s-1). Chelator-held iron keeps only the published residual reactivity:
+  // Graf 1984 (Fe-Desferal, no open coordination site, no detectable OH) and Timoshnikov 2015/2021.
+  // Scenarios saved before the published table fall back to the old flat 95%.
+  const kFenton = 1e-3 * (1 - (i.chelatorFentonSuppression ?? 0.95) * (i.chelatorBound ?? 0));
   const fe2Fraction = kFeRed / (kFeRed + kFeOx + kFenton * r.h2o2);
   const vFenton = kFenton * freeIron * fe2Fraction * r.h2o2;
   const vOHfromPN = 0.3 * r.kPnHomolysis * r.onooM;
