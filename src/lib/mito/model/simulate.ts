@@ -266,9 +266,9 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   };
   const fesPools = {
     aconitase: { intact: fesIntact, threeFe: fes3Fe, apo: fesApo },
-    complexI: pool(0.15),
-    complexII: pool(0.3),
-    complexIII: pool(0.05),
+    complexI: pool(i.fesExposureCI ?? 0.15),
+    complexII: pool(i.fesExposureCII ?? 0.3),
+    complexIII: pool(i.fesExposureCIII ?? 0.05),
   };
   // ~6 µM cluster protein: 1 Fe freed per 3Fe cluster, 4 Fe per apo protein
   const ironFromClusters = 6 * (fes3Fe + 4 * fesApo);

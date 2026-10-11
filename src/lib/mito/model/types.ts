@@ -18,6 +18,9 @@ export type Inputs = {
   fsp1: number; // 0-2 relative FSP1/CoQ10H2 capacity
   cardiolipinPufa: number; // 0.2-1 fraction of PUFA acyl chains (ACSL4-driven)
   rirrStrength: number; // 0-1.5 ROS-induced ROS release exponent (Zorov 2014 mechanism; strength fitted to Melov 1999, partly published)
+  fesExposureCI: number; // 0-1 complex I cluster exposure vs aconitase (assumed)
+  fesExposureCII: number; // 0-1 complex II exposure (assumed)
+  fesExposureCIII: number; // 0-1 complex III exposure (assumed)
   mitoHalfLife: number; // days, mitochondrial turnover half-life (Kim 2012: heart 17.2, liver 4.3)
 };
 
@@ -39,6 +42,9 @@ export const defaultInputs: Inputs = {
   fsp1: 1,
   cardiolipinPufa: 0.6,
   mitoHalfLife: 17.2,
+  fesExposureCI: 0.15,
+  fesExposureCII: 0.3,
+  fesExposureCIII: 0.05,
   rirrStrength: 1, // fitted to Melov 1999 brain aconitase loss (partly published)
 };
 

@@ -584,3 +584,5 @@
 - ✅ Fast repair depends on iron and reductant supply (neutral at defaults)
 - ❌ Fenton rate by iron-binding partner
 - ❌ Copper sites (CuA, CuB)
+
+- ✅ Per-enzyme Fe-S exposure sliders (complex I, II, III; assumed, defaults 0.15/0.3/0.05) on the Simulator iron group; 18 demo profiles re-checked unchanged.
