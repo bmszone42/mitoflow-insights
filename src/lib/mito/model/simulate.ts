@@ -227,11 +227,15 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
   const kH2o2Fes = 1e4 * 1e-6; // µM-1 s-1 effective, H2O2-specific
   const kOnooFes = 1e7 * 1e-6; // µM-1 s-1 effective, ONOO- specific (scaled up: model ONOO- steady state is nM-scale)
   const clusterAttack = kAcon * superoxideM + kH2o2Fes * h2o2 + kOnooFes * onooM; // s-1
-  // Three cluster states (Holm/Beinert chemistry; Flint 1993, Gardner &
-  // Fridovich 1992, Gardner 1995): superoxide and ONOO- oxidize [4Fe-4S]
-  // to [3Fe-4S]+, releasing ONE Fe; the 3Fe cluster is reactivated fast
-  // (Fe re-insertion, t1/2 ~ minutes in cells) or degraded further by
-  // H2O2 to the apo protein (all 4 Fe lost), rebuilt slowly by ISC assembly.
+  // Three cluster states. Cluster conversion chemistry cited from:
+  //   Holm & Lo 2016, Chem Rev, doi:10.1021/acs.chemrev.6b00276
+  //     ([4Fe-4S] <-> [3Fe-4S] conversion, single Fe loss and re-insertion)
+  //   Beinert, Holm & Munck 1997, Science, doi:10.1126/science.277.5326.653
+  //     (cluster types, aconitase [3Fe-4S] inactive form)
+  // Rates from Flint 1993, Gardner & Fridovich 1992, Gardner 1995:
+  // superoxide and ONOO- oxidize [4Fe-4S] to [3Fe-4S]+, releasing ONE Fe;
+  // the 3Fe cluster is reactivated fast (~1 min t1/2, rounded assumption)
+  // or degraded further by H2O2 to apo (all 4 Fe lost), rebuilt slowly by ISC.
   const kRepair = 5e-3 * (1 + 0.5 * adpDrive); // apo -> [4Fe-4S], ISCU/NFS1/frataxin
   const kReact = 1.2e-2; // [3Fe-4S] -> [4Fe-4S], fast reactivation (~1 min t1/2)
   const a3 = kAcon * superoxideM + kOnooFes * onooM; // [4Fe-4S] -> [3Fe-4S] + 1 Fe
