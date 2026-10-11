@@ -567,3 +567,9 @@
 - ✅ Holm & Lo 2016, Chemical Reviews 116:13685 (10.1021/acs.chemrev.6b00276): structural conversions of synthetic and protein-bound Fe-S clusters; anchors the 1-iron release and fast [3Fe-4S] reactivation steps. Score 88/100 (relevance 38, evidence 26, usability 24).
 - ✅ Beinert, Holm & Münck 1997, Science 277:653 (10.1126/science.277.5326.653): classic review of Fe-S cluster types, redox states and modular assembly; framing for the cluster-intact fraction. Score 80/100 (36/26/18).
 - ✅ Both verified against Crossref before entry; section "ROS, iron and assays".
+
+## More Holm references added (2026-10-11) ✅
+- ✅ Holm, Kennepohl & Solomon 1996, Chem Rev 96:2239 (10.1021/cr9500390): metal sites in biology, Fe-S electronic structure and redox couples. Score 78/100 (36/24/18).
+- ✅ Holm 1992, Adv Inorg Chem 38:1 (10.1016/s0898-8838(08)60061-6): [3Fe-4S] cuboidal and heterometallic cubane clusters; documents the 3-iron intermediate. Score 78/100 (34/24/20).
+- ✅ Orme-Johnson & Holm 1978, Methods Enzymol 53:268 (10.1016/s0076-6879(78)53032-2): identifying Fe-S clusters in proteins; assay background. Score 66/100 (30/22/14).
+- ✅ All verified against Crossref; Holm now has 5 entries in the library.
