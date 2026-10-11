@@ -53,6 +53,21 @@ export function EverythingFile() {
   };
 
   const n = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
+  const list = (parts: string[]) =>
+    parts.length <= 1 ? parts[0] ?? "" : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+
+  const items = summary
+    ? [
+        n(summary.visits, "saved visit"),
+        n(summary.runs, "logged run"),
+        n(summary.snaps, "scheduled snap"),
+        `a band of ${summary.band.lo.toFixed(2)}x-${summary.band.hi.toFixed(2)}x`,
+        summary.defaultStrength == null ? "no default strength yet" : `a default strength of ${summary.defaultStrength.toFixed(2)}x`,
+        n(summary.profileStrengths, "profile strength"),
+        n(summary.history, "strength history entry", "strength history entries"),
+        ...(summary.selected ? [`profile ${summary.selected} selected`] : []),
+      ]
+    : [];
 
   return (
     <section className="mt-6 rounded-md border border-border p-3" data-testid="everything-file">
