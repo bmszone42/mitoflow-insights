@@ -1,5 +1,5 @@
 import { defaultInputs, simulate, type Inputs, type Outputs } from "../model";
-import { type EtcStep } from "./etc";
+import { etcSteps, type EtcStep } from "./etc";
 export const H_PER_ATP = 4;
 export const ATP_COST_EV = 0.52;
 // Literature-informed ATP synthesis energy band (eV/ATP), used as a visual
