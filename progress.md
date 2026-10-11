@@ -590,3 +590,4 @@
 - ✅ Ligand-dependent Fenton: chelatorBound input (chelation therapies set it) cuts Fenton reactivity (95% assumed) and cluster repair supply.
 - ✅ Complex IV copper sites: copperCiv input scales CIV flux (assumed saturating curve) and backs electrons into leak.
 - ✅ Melov heart per-enzyme check on Diagnosis (already in place).
+- ✅ simulate.ts split into model/atp.ts (chain flux, copper, ATP), model/ros.ts (superoxide, H2O2, peroxynitrite, hydroxyl, ROS budget), model/fes.ts (cluster states, per-enzyme pools, free iron); locked results identical.
