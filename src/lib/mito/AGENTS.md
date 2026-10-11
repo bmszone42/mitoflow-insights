@@ -38,3 +38,5 @@
 - The Progress grid "Clear log and re-run" button wipes the whole run log, then logs every cell for the picked profile at its current strength; why: recalibrating the strength must not mix old and new runs.
 
 - The Heart check column (Diagnosis table, Timeline per visit) compares the model's Fe-S intact % at the profile's own settings with the Melov 1999 Sod2-null heart band (complex I 59%, complex II 24% of normal) via MELOV_HEART_BAND and melovHeartCheck in model.ts; it is a severity reference, never a calibration target, and never counted in flag totals.
+- Ferroptosis propagation (kProp) uses only unbound iron, freeIron x (1 - chelatorBound), matching the Fenton ligand rule; why: chelation must lower lipid damage, not just iron level.
+- Holm teaching scenarios and the rule-based damageSignature live in holmScenarios.ts; Diagnosis shows the signature as a column, never counted in flag totals; why: one place for the four cluster patterns.

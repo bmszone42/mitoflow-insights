@@ -595,3 +595,6 @@
 ## 2026-10-11: Copper supplement therapy
 - ✅ New therapy "Copper supplement" (id copper) sets copperCiv to 1.25; appears on the Cluster protection tab, Therapy plan and real-dose sliders (1-2 mg/day anchor, NIH ODS fact sheet). Occupancy mapping assumed, not published.
 - ✅ Model lock snapshot updated; only change is the new therapy flag line.
+- ✅ Lipid damage uses only unbound iron (chelation lowers ferroptosis)
+- ✅ Five Holm scenarios added in one click on Scenarios
+- ✅ Damage signature column on Diagnosis
