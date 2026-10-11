@@ -587,3 +587,6 @@
 
 - ✅ Per-enzyme Fe-S exposure sliders (complex I, II, III; assumed, defaults 0.15/0.3/0.05) on the Simulator iron group; 18 demo profiles re-checked unchanged.
 - ✅ Therapy plan Cluster protection tab: ranks therapies by aconitase Fe-S intact, weakest complex, free iron and 3-iron repair half-life per model dose; schedules dated doses as Timeline plan visits and logs runs.
+- ✅ Ligand-dependent Fenton: chelatorBound input (chelation therapies set it) cuts Fenton reactivity (95% assumed) and cluster repair supply.
+- ✅ Complex IV copper sites: copperCiv input scales CIV flux (assumed saturating curve) and backs electrons into leak.
+- ✅ Melov heart per-enzyme check on Diagnosis (already in place).
