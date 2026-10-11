@@ -54,7 +54,7 @@ export function ClusterPlanPanel() {
     <div className="flex flex-wrap items-end gap-3 text-sm">
       <label className="flex flex-col gap-1">Profile
         <select className="rounded border bg-background px-2 py-1" value={p.id} onChange={(e) => setPid(e.target.value)}>
-          {demoPatients.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          {demoPatients.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
         </select>
       </label>
       <label className="flex flex-col gap-1">Schedule date
@@ -78,7 +78,7 @@ export function ClusterPlanPanel() {
     </div>
     <p className="text-[11px] text-muted-foreground">Lower free iron can slow 3-iron repair (repair needs iron), so a therapy may protect clusters overall while lengthening the half-life. Model estimates, not a prescription.</p>
     <div>
-      <h3 className="text-sm font-semibold">Scheduled for {p.name}</h3>
+      <h3 className="text-sm font-semibold">Scheduled for {p.label}</h3>
       {planned.length === 0 ? <p className="text-xs text-muted-foreground">Nothing scheduled yet. Scheduled doses also appear on the Timeline as plan visits.</p> :
         <ul className="mt-1 space-y-1 text-xs">{planned.map((v) => {
           const inputs = v.therapies.reduce((acc, id) => { const t = therapies.find((x) => x.id === id); return t ? applyTherapyDose(acc, t, v.doses?.[id] ?? 1) : acc; }, profileInputs(p));
