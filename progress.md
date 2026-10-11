@@ -577,6 +577,7 @@
 
 ## Holm review pass 2
 - ✅ Cluster states readout (3-iron vs stripped) on Simulator
+- ✅ 3-iron reactivation half-life readout on Simulator (fesReactHalfLifeS = ln2/(kReact + H2O2 degradation); per-pool 3-iron shares shown); snapshots updated additively
 - ✅ Separate Fe-S pools: aconitase, complexes I, II, III (assumed exposure)
 - ✅ Fast repair depends on iron and reductant supply (neutral at defaults)
 - ❌ Fenton rate by iron-binding partner
