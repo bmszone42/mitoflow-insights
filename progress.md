@@ -574,3 +574,10 @@
 - ✅ Holm 1992, Adv Inorg Chem 38:1 (10.1016/s0898-8838(08)60061-6): [3Fe-4S] cuboidal and heterometallic cubane clusters; documents the 3-iron intermediate. Score 78/100 (34/24/20).
 - ✅ Orme-Johnson & Holm 1978, Methods Enzymol 53:268 (10.1016/s0076-6879(78)53032-2): identifying Fe-S clusters in proteins; assay background. Score 66/100 (30/22/14).
 - ✅ All verified against Crossref; Holm now has 5 entries in the library.
+
+## Holm review pass 2
+- ✅ Cluster states readout (3-iron vs stripped) on Simulator
+- ✅ Separate Fe-S pools: aconitase, complexes I, II, III (assumed exposure)
+- ✅ Fast repair depends on iron and reductant supply (neutral at defaults)
+- ❌ Fenton rate by iron-binding partner
+- ❌ Copper sites (CuA, CuB)
