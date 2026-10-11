@@ -2727,6 +2727,1514 @@ exports[`model lock > each input at its min and max 1`] = `
     "superoxide": 0.0124074,
     "tempRise": 0,
   },
+  "chelatorBound@max": {
+    "aconitaseActivity": 84.0405,
+    "atpFlux": 45.3607,
+    "cardiolipinOx": 5.64179,
+    "coherence": {
+      "coherentFraction": 0.258361,
+      "lossBase": 0.4,
+      "lossCardiolipin": 0.0940298,
+      "lossHeat": 0,
+      "lossLipid": 0.0000215055,
+      "pumpMetabolic": 0.431534,
+      "pumpPhoton": 0,
+      "pumpRatio": 0.873459,
+    },
+    "coherentFraction": 0.258361,
+    "emission71THz": 41.5008,
+    "emissionSpectrum": [
+      {
+        "freqTHz": 60,
+        "intensity": 2.12728,
+      },
+      {
+        "freqTHz": 60.5,
+        "intensity": 2.52465,
+      },
+      {
+        "freqTHz": 61,
+        "intensity": 3.08946,
+      },
+      {
+        "freqTHz": 61.5,
+        "intensity": 3.8415,
+      },
+      {
+        "freqTHz": 62,
+        "intensity": 4.77572,
+      },
+      {
+        "freqTHz": 62.5,
+        "intensity": 5.85197,
+      },
+      {
+        "freqTHz": 63,
+        "intensity": 6.99075,
+      },
+      {
+        "freqTHz": 63.5,
+        "intensity": 8.07879,
+      },
+      {
+        "freqTHz": 64,
+        "intensity": 8.98561,
+      },
+      {
+        "freqTHz": 64.5,
+        "intensity": 9.58865,
+      },
+      {
+        "freqTHz": 65,
+        "intensity": 9.80028,
+      },
+      {
+        "freqTHz": 65.5,
+        "intensity": 9.58865,
+      },
+      {
+        "freqTHz": 66,
+        "intensity": 8.98562,
+      },
+      {
+        "freqTHz": 66.5,
+        "intensity": 8.07895,
+      },
+      {
+        "freqTHz": 67,
+        "intensity": 6.9929,
+      },
+      {
+        "freqTHz": 67.5,
+        "intensity": 5.8736,
+      },
+      {
+        "freqTHz": 68,
+        "intensity": 4.9364,
+      },
+      {
+        "freqTHz": 68.5,
+        "intensity": 4.71858,
+      },
+      {
+        "freqTHz": 69,
+        "intensity": 6.60663,
+      },
+      {
+        "freqTHz": 69.5,
+        "intensity": 12.8858,
+      },
+      {
+        "freqTHz": 70,
+        "intensity": 24.5526,
+      },
+      {
+        "freqTHz": 70.5,
+        "intensity": 37.5408,
+      },
+      {
+        "freqTHz": 71,
+        "intensity": 43.4805,
+      },
+      {
+        "freqTHz": 71.5,
+        "intensity": 37.8099,
+      },
+      {
+        "freqTHz": 72,
+        "intensity": 25.266,
+      },
+      {
+        "freqTHz": 72.5,
+        "intensity": 14.3777,
+      },
+      {
+        "freqTHz": 73,
+        "intensity": 9.30983,
+      },
+      {
+        "freqTHz": 73.5,
+        "intensity": 9.03099,
+      },
+      {
+        "freqTHz": 74,
+        "intensity": 11.0223,
+      },
+      {
+        "freqTHz": 74.5,
+        "intensity": 13.4705,
+      },
+      {
+        "freqTHz": 75,
+        "intensity": 15.3355,
+      },
+      {
+        "freqTHz": 75.5,
+        "intensity": 16.0255,
+      },
+      {
+        "freqTHz": 76,
+        "intensity": 15.3331,
+      },
+      {
+        "freqTHz": 76.5,
+        "intensity": 13.4482,
+      },
+      {
+        "freqTHz": 77,
+        "intensity": 10.8599,
+      },
+      {
+        "freqTHz": 77.5,
+        "intensity": 8.15016,
+      },
+      {
+        "freqTHz": 78,
+        "intensity": 5.78529,
+      },
+      {
+        "freqTHz": 78.5,
+        "intensity": 4.00447,
+      },
+      {
+        "freqTHz": 79,
+        "intensity": 2.82752,
+      },
+      {
+        "freqTHz": 79.5,
+        "intensity": 2.1382,
+      },
+      {
+        "freqTHz": 80,
+        "intensity": 1.77826,
+      },
+      {
+        "freqTHz": 80.5,
+        "intensity": 1.61004,
+      },
+      {
+        "freqTHz": 81,
+        "intensity": 1.53947,
+      },
+      {
+        "freqTHz": 81.5,
+        "intensity": 1.51284,
+      },
+      {
+        "freqTHz": 82,
+        "intensity": 1.50379,
+      },
+      {
+        "freqTHz": 82.5,
+        "intensity": 1.50101,
+      },
+      {
+        "freqTHz": 83,
+        "intensity": 1.50025,
+      },
+      {
+        "freqTHz": 83.5,
+        "intensity": 1.50005,
+      },
+      {
+        "freqTHz": 84,
+        "intensity": 1.50001,
+      },
+      {
+        "freqTHz": 84.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 85,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 85.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 86,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 86.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 87,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 87.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 88,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 88.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 89,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 89.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 90,
+        "intensity": 1.5,
+      },
+    ],
+    "ferroptosisRisk": 18.806,
+    "ferroptosisState": "Protected",
+    "fes3Fe": 0.11389,
+    "fesApo": 0.0457046,
+    "fesIntact": 0.840405,
+    "fesPools": {
+      "aconitase": {
+        "apo": 0.0457046,
+        "intact": 0.840405,
+        "threeFe": 0.11389,
+      },
+      "complexI": {
+        "apo": 0.00713279,
+        "intact": 0.971677,
+        "threeFe": 0.02119,
+      },
+      "complexII": {
+        "apo": 0.0141645,
+        "intact": 0.945136,
+        "threeFe": 0.0406995,
+      },
+      "complexIII": {
+        "apo": 0.00238896,
+        "intact": 0.99035,
+        "threeFe": 0.00726128,
+      },
+    },
+    "fesReactHalfLifeS": 168.076,
+    "fluxCI": 25.3344,
+    "fluxCII": 16.3636,
+    "fluxCIV": 25.892,
+    "freeIron": 3.78025,
+    "hydrogenPeroxide": 32.9268,
+    "hydroxylRadical": 1.98083e-8,
+    "lipidPeroxyl": 0.00215055,
+    "noReleased": 0,
+    "peroxynitrite": 0.0124617,
+    "photonGain": 1,
+    "photoreceptor": {
+      "absorbed": {
+        "cuA": 0,
+        "flavin": 0,
+        "hemeA": 0,
+        "porphyrin": 0,
+      },
+      "civActivation": 0,
+      "civGain": 0,
+      "exposureTime": 0,
+      "flavinLeak": 1,
+      "fluence": {
+        "nir": 0,
+        "red": 0,
+      },
+      "h2o2Direct": 0,
+      "heatLeak": 1,
+      "noReleased": 0,
+      "photoinhibition": 1,
+      "photonPump": 0,
+      "psiShift": 0,
+      "saturation": 0,
+      "semiquinoneLeak": 1,
+      "singletDirect": 0,
+      "tempRise": 0,
+    },
+    "plooh": 39.8608,
+    "ploohRemoval": {
+      "basal": 0.01,
+      "fsp1": 0.03,
+      "gpx4": 0.05,
+    },
+    "propagationRatio": 0.100807,
+    "redoxStress": 22.8706,
+    "rosBudget": {
+      "fe2Fraction": 0.911089,
+      "h2o2Sinks": {
+        "Catalase": 0.000658536,
+        "Efflux": 0.00987804,
+        "GPx1": 0.00987804,
+        "Prx3": 0.0485881,
+      },
+      "h2o2Sources": {
+        "Dismutation": 0.0714497,
+        "Flavin photo": 0,
+        "OGDH": 0.00413837,
+      },
+      "hydroxylSources": {
+        "Fenton": 0.0000164437,
+        "ONOOH homolysis": 0.00000336466,
+      },
+      "peroxynitriteSinks": {
+        "CO2": 0.000745209,
+        "GPx": 0.000124617,
+        "Homolysis": 0.0000112155,
+        "Prx3": 0.00370807,
+        "Thiols": 0.000373851,
+      },
+      "prxHyperoxidized": 0.0000433651,
+      "superoxideIMS": 0.00753014,
+      "superoxideSinks": {
+        "Aconitase Fe-S": 0.000744445,
+        "NO (to ONOO-)": 0.00496296,
+        "SOD2": 0.124074,
+      },
+      "superoxideSources": {
+        "CI IF": 0.0483101,
+        "CI IQ (RET)": 0.0168531,
+        "CII IIF": 0.00613636,
+        "CIII Qo": 0.111446,
+        "OGDH": 0.00275891,
+      },
+    },
+    "singletOxygen": 0.0744445,
+    "superoxide": 0.0124074,
+    "tempRise": 0,
+  },
+  "chelatorBound@min": {
+    "aconitaseActivity": 91.2914,
+    "atpFlux": 45.3607,
+    "cardiolipinOx": 5.58338,
+    "coherence": {
+      "coherentFraction": 0.261124,
+      "lossBase": 0.4,
+      "lossCardiolipin": 0.0930563,
+      "lossHeat": 0,
+      "lossLipid": 0.0000215441,
+      "pumpMetabolic": 0.431534,
+      "pumpPhoton": 0,
+      "pumpRatio": 0.875184,
+    },
+    "coherentFraction": 0.261124,
+    "emission71THz": 41.6678,
+    "emissionSpectrum": [
+      {
+        "freqTHz": 60,
+        "intensity": 2.12981,
+      },
+      {
+        "freqTHz": 60.5,
+        "intensity": 2.52877,
+      },
+      {
+        "freqTHz": 61,
+        "intensity": 3.09586,
+      },
+      {
+        "freqTHz": 61.5,
+        "intensity": 3.85092,
+      },
+      {
+        "freqTHz": 62,
+        "intensity": 4.78889,
+      },
+      {
+        "freqTHz": 62.5,
+        "intensity": 5.86947,
+      },
+      {
+        "freqTHz": 63,
+        "intensity": 7.01284,
+      },
+      {
+        "freqTHz": 63.5,
+        "intensity": 8.10525,
+      },
+      {
+        "freqTHz": 64,
+        "intensity": 9.01572,
+      },
+      {
+        "freqTHz": 64.5,
+        "intensity": 9.62119,
+      },
+      {
+        "freqTHz": 65,
+        "intensity": 9.83366,
+      },
+      {
+        "freqTHz": 65.5,
+        "intensity": 9.62119,
+      },
+      {
+        "freqTHz": 66,
+        "intensity": 9.01573,
+      },
+      {
+        "freqTHz": 66.5,
+        "intensity": 8.10541,
+      },
+      {
+        "freqTHz": 67,
+        "intensity": 7.01499,
+      },
+      {
+        "freqTHz": 67.5,
+        "intensity": 5.89119,
+      },
+      {
+        "freqTHz": 68,
+        "intensity": 4.95022,
+      },
+      {
+        "freqTHz": 68.5,
+        "intensity": 4.73153,
+      },
+      {
+        "freqTHz": 69,
+        "intensity": 6.62717,
+      },
+      {
+        "freqTHz": 69.5,
+        "intensity": 12.9316,
+      },
+      {
+        "freqTHz": 70,
+        "intensity": 24.6453,
+      },
+      {
+        "freqTHz": 70.5,
+        "intensity": 37.6858,
+      },
+      {
+        "freqTHz": 71,
+        "intensity": 43.6493,
+      },
+      {
+        "freqTHz": 71.5,
+        "intensity": 37.9559,
+      },
+      {
+        "freqTHz": 72,
+        "intensity": 25.3615,
+      },
+      {
+        "freqTHz": 72.5,
+        "intensity": 14.4295,
+      },
+      {
+        "freqTHz": 73,
+        "intensity": 9.34124,
+      },
+      {
+        "freqTHz": 73.5,
+        "intensity": 9.06129,
+      },
+      {
+        "freqTHz": 74,
+        "intensity": 11.0606,
+      },
+      {
+        "freqTHz": 74.5,
+        "intensity": 13.5187,
+      },
+      {
+        "freqTHz": 75,
+        "intensity": 15.3911,
+      },
+      {
+        "freqTHz": 75.5,
+        "intensity": 16.084,
+      },
+      {
+        "freqTHz": 76,
+        "intensity": 15.3888,
+      },
+      {
+        "freqTHz": 76.5,
+        "intensity": 13.4963,
+      },
+      {
+        "freqTHz": 77,
+        "intensity": 10.8976,
+      },
+      {
+        "freqTHz": 77.5,
+        "intensity": 8.17691,
+      },
+      {
+        "freqTHz": 78,
+        "intensity": 5.80253,
+      },
+      {
+        "freqTHz": 78.5,
+        "intensity": 4.01455,
+      },
+      {
+        "freqTHz": 79,
+        "intensity": 2.83286,
+      },
+      {
+        "freqTHz": 79.5,
+        "intensity": 2.14076,
+      },
+      {
+        "freqTHz": 80,
+        "intensity": 1.77938,
+      },
+      {
+        "freqTHz": 80.5,
+        "intensity": 1.61048,
+      },
+      {
+        "freqTHz": 81,
+        "intensity": 1.53962,
+      },
+      {
+        "freqTHz": 81.5,
+        "intensity": 1.51289,
+      },
+      {
+        "freqTHz": 82,
+        "intensity": 1.5038,
+      },
+      {
+        "freqTHz": 82.5,
+        "intensity": 1.50102,
+      },
+      {
+        "freqTHz": 83,
+        "intensity": 1.50025,
+      },
+      {
+        "freqTHz": 83.5,
+        "intensity": 1.50005,
+      },
+      {
+        "freqTHz": 84,
+        "intensity": 1.50001,
+      },
+      {
+        "freqTHz": 84.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 85,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 85.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 86,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 86.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 87,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 87.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 88,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 88.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 89,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 89.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 90,
+        "intensity": 1.5,
+      },
+    ],
+    "ferroptosisRisk": 18.6113,
+    "ferroptosisState": "Protected",
+    "fes3Fe": 0.0413817,
+    "fesApo": 0.0457046,
+    "fesIntact": 0.912914,
+    "fesPools": {
+      "aconitase": {
+        "apo": 0.0457046,
+        "intact": 0.912914,
+        "threeFe": 0.0413817,
+      },
+      "complexI": {
+        "apo": 0.00713279,
+        "intact": 0.986007,
+        "threeFe": 0.00685997,
+      },
+      "complexII": {
+        "apo": 0.0141645,
+        "intact": 0.972361,
+        "threeFe": 0.0134748,
+      },
+      "complexIII": {
+        "apo": 0.00238896,
+        "intact": 0.995297,
+        "threeFe": 0.00231452,
+      },
+    },
+    "fesReactHalfLifeS": 56.2197,
+    "fluxCI": 25.3344,
+    "fluxCII": 16.3636,
+    "fluxCIV": 25.892,
+    "freeIron": 3.3452,
+    "hydrogenPeroxide": 32.9268,
+    "hydroxylRadical": 1.03713e-7,
+    "lipidPeroxyl": 0.00215441,
+    "noReleased": 0,
+    "peroxynitrite": 0.0124617,
+    "photonGain": 1,
+    "photoreceptor": {
+      "absorbed": {
+        "cuA": 0,
+        "flavin": 0,
+        "hemeA": 0,
+        "porphyrin": 0,
+      },
+      "civActivation": 0,
+      "civGain": 0,
+      "exposureTime": 0,
+      "flavinLeak": 1,
+      "fluence": {
+        "nir": 0,
+        "red": 0,
+      },
+      "h2o2Direct": 0,
+      "heatLeak": 1,
+      "noReleased": 0,
+      "photoinhibition": 1,
+      "photonPump": 0,
+      "psiShift": 0,
+      "saturation": 0,
+      "semiquinoneLeak": 1,
+      "singletDirect": 0,
+      "tempRise": 0,
+    },
+    "plooh": 39.4237,
+    "ploohRemoval": {
+      "basal": 0.01,
+      "fsp1": 0.03,
+      "gpx4": 0.05,
+    },
+    "propagationRatio": 0.0892053,
+    "redoxStress": 18.5201,
+    "rosBudget": {
+      "fe2Fraction": 0.911043,
+      "h2o2Sinks": {
+        "Catalase": 0.000658536,
+        "Efflux": 0.00987804,
+        "GPx1": 0.00987804,
+        "Prx3": 0.0485881,
+      },
+      "h2o2Sources": {
+        "Dismutation": 0.0714497,
+        "Flavin photo": 0,
+        "OGDH": 0.00413837,
+      },
+      "hydroxylSources": {
+        "Fenton": 0.000100348,
+        "ONOOH homolysis": 0.00000336466,
+      },
+      "peroxynitriteSinks": {
+        "CO2": 0.000745209,
+        "GPx": 0.000124617,
+        "Homolysis": 0.0000112155,
+        "Prx3": 0.00370807,
+        "Thiols": 0.000373851,
+      },
+      "prxHyperoxidized": 0.0000433651,
+      "superoxideIMS": 0.00753014,
+      "superoxideSinks": {
+        "Aconitase Fe-S": 0.000744445,
+        "NO (to ONOO-)": 0.00496296,
+        "SOD2": 0.124074,
+      },
+      "superoxideSources": {
+        "CI IF": 0.0483101,
+        "CI IQ (RET)": 0.0168531,
+        "CII IIF": 0.00613636,
+        "CIII Qo": 0.111446,
+        "OGDH": 0.00275891,
+      },
+    },
+    "singletOxygen": 0.0744445,
+    "superoxide": 0.0124074,
+    "tempRise": 0,
+  },
+  "copperCiv@max": {
+    "aconitaseActivity": 91.2914,
+    "atpFlux": 46.509,
+    "cardiolipinOx": 5.58338,
+    "coherence": {
+      "coherentFraction": 0.298281,
+      "lossBase": 0.4,
+      "lossCardiolipin": 0.0930563,
+      "lossHeat": 0,
+      "lossLipid": 0.0000215441,
+      "pumpMetabolic": 0.442459,
+      "pumpPhoton": 0,
+      "pumpRatio": 0.89734,
+    },
+    "coherentFraction": 0.298281,
+    "emission71THz": 45.0243,
+    "emissionSpectrum": [
+      {
+        "freqTHz": 60,
+        "intensity": 2.18054,
+      },
+      {
+        "freqTHz": 60.5,
+        "intensity": 2.61164,
+      },
+      {
+        "freqTHz": 61,
+        "intensity": 3.22441,
+      },
+      {
+        "freqTHz": 61.5,
+        "intensity": 4.0403,
+      },
+      {
+        "freqTHz": 62,
+        "intensity": 5.05383,
+      },
+      {
+        "freqTHz": 62.5,
+        "intensity": 6.22145,
+      },
+      {
+        "freqTHz": 63,
+        "intensity": 7.45692,
+      },
+      {
+        "freqTHz": 63.5,
+        "intensity": 8.63733,
+      },
+      {
+        "freqTHz": 64,
+        "intensity": 9.62114,
+      },
+      {
+        "freqTHz": 64.5,
+        "intensity": 10.2754,
+      },
+      {
+        "freqTHz": 65,
+        "intensity": 10.505,
+      },
+      {
+        "freqTHz": 65.5,
+        "intensity": 10.2754,
+      },
+      {
+        "freqTHz": 66,
+        "intensity": 9.62115,
+      },
+      {
+        "freqTHz": 66.5,
+        "intensity": 8.6375,
+      },
+      {
+        "freqTHz": 67,
+        "intensity": 7.45925,
+      },
+      {
+        "freqTHz": 67.5,
+        "intensity": 6.24492,
+      },
+      {
+        "freqTHz": 68,
+        "intensity": 5.22815,
+      },
+      {
+        "freqTHz": 68.5,
+        "intensity": 4.99184,
+      },
+      {
+        "freqTHz": 69,
+        "intensity": 7.04019,
+      },
+      {
+        "freqTHz": 69.5,
+        "intensity": 13.8525,
+      },
+      {
+        "freqTHz": 70,
+        "intensity": 26.5098,
+      },
+      {
+        "freqTHz": 70.5,
+        "intensity": 40.6007,
+      },
+      {
+        "freqTHz": 71,
+        "intensity": 47.0447,
+      },
+      {
+        "freqTHz": 71.5,
+        "intensity": 40.8926,
+      },
+      {
+        "freqTHz": 72,
+        "intensity": 27.2837,
+      },
+      {
+        "freqTHz": 72.5,
+        "intensity": 15.471,
+      },
+      {
+        "freqTHz": 73,
+        "intensity": 9.9729,
+      },
+      {
+        "freqTHz": 73.5,
+        "intensity": 9.67038,
+      },
+      {
+        "freqTHz": 74,
+        "intensity": 11.8308,
+      },
+      {
+        "freqTHz": 74.5,
+        "intensity": 14.4868,
+      },
+      {
+        "freqTHz": 75,
+        "intensity": 16.5101,
+      },
+      {
+        "freqTHz": 75.5,
+        "intensity": 17.2588,
+      },
+      {
+        "freqTHz": 76,
+        "intensity": 16.5076,
+      },
+      {
+        "freqTHz": 76.5,
+        "intensity": 14.4626,
+      },
+      {
+        "freqTHz": 77,
+        "intensity": 11.6546,
+      },
+      {
+        "freqTHz": 77.5,
+        "intensity": 8.71477,
+      },
+      {
+        "freqTHz": 78,
+        "intensity": 6.14912,
+      },
+      {
+        "freqTHz": 78.5,
+        "intensity": 4.21711,
+      },
+      {
+        "freqTHz": 79,
+        "intensity": 2.94023,
+      },
+      {
+        "freqTHz": 79.5,
+        "intensity": 2.19238,
+      },
+      {
+        "freqTHz": 80,
+        "intensity": 1.80189,
+      },
+      {
+        "freqTHz": 80.5,
+        "intensity": 1.61938,
+      },
+      {
+        "freqTHz": 81,
+        "intensity": 1.54282,
+      },
+      {
+        "freqTHz": 81.5,
+        "intensity": 1.51393,
+      },
+      {
+        "freqTHz": 82,
+        "intensity": 1.50411,
+      },
+      {
+        "freqTHz": 82.5,
+        "intensity": 1.5011,
+      },
+      {
+        "freqTHz": 83,
+        "intensity": 1.50027,
+      },
+      {
+        "freqTHz": 83.5,
+        "intensity": 1.50006,
+      },
+      {
+        "freqTHz": 84,
+        "intensity": 1.50001,
+      },
+      {
+        "freqTHz": 84.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 85,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 85.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 86,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 86.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 87,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 87.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 88,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 88.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 89,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 89.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 90,
+        "intensity": 1.5,
+      },
+    ],
+    "ferroptosisRisk": 18.6113,
+    "ferroptosisState": "Protected",
+    "fes3Fe": 0.0413817,
+    "fesApo": 0.0457046,
+    "fesIntact": 0.912914,
+    "fesPools": {
+      "aconitase": {
+        "apo": 0.0457046,
+        "intact": 0.912914,
+        "threeFe": 0.0413817,
+      },
+      "complexI": {
+        "apo": 0.00713279,
+        "intact": 0.986007,
+        "threeFe": 0.00685997,
+      },
+      "complexII": {
+        "apo": 0.0141645,
+        "intact": 0.972361,
+        "threeFe": 0.0134748,
+      },
+      "complexIII": {
+        "apo": 0.00238896,
+        "intact": 0.995297,
+        "threeFe": 0.00231452,
+      },
+    },
+    "fesReactHalfLifeS": 56.2197,
+    "fluxCI": 25.3344,
+    "fluxCII": 16.3636,
+    "fluxCIV": 26.5475,
+    "freeIron": 3.3452,
+    "hydrogenPeroxide": 32.9268,
+    "hydroxylRadical": 1.03713e-7,
+    "lipidPeroxyl": 0.00215441,
+    "noReleased": 0,
+    "peroxynitrite": 0.0124617,
+    "photonGain": 1,
+    "photoreceptor": {
+      "absorbed": {
+        "cuA": 0,
+        "flavin": 0,
+        "hemeA": 0,
+        "porphyrin": 0,
+      },
+      "civActivation": 0,
+      "civGain": 0,
+      "exposureTime": 0,
+      "flavinLeak": 1,
+      "fluence": {
+        "nir": 0,
+        "red": 0,
+      },
+      "h2o2Direct": 0,
+      "heatLeak": 1,
+      "noReleased": 0,
+      "photoinhibition": 1,
+      "photonPump": 0,
+      "psiShift": 0,
+      "saturation": 0,
+      "semiquinoneLeak": 1,
+      "singletDirect": 0,
+      "tempRise": 0,
+    },
+    "plooh": 39.4237,
+    "ploohRemoval": {
+      "basal": 0.01,
+      "fsp1": 0.03,
+      "gpx4": 0.05,
+    },
+    "propagationRatio": 0.0892053,
+    "redoxStress": 18.5201,
+    "rosBudget": {
+      "fe2Fraction": 0.911043,
+      "h2o2Sinks": {
+        "Catalase": 0.000658536,
+        "Efflux": 0.00987804,
+        "GPx1": 0.00987804,
+        "Prx3": 0.0485881,
+      },
+      "h2o2Sources": {
+        "Dismutation": 0.0714497,
+        "Flavin photo": 0,
+        "OGDH": 0.00413837,
+      },
+      "hydroxylSources": {
+        "Fenton": 0.000100348,
+        "ONOOH homolysis": 0.00000336466,
+      },
+      "peroxynitriteSinks": {
+        "CO2": 0.000745209,
+        "GPx": 0.000124617,
+        "Homolysis": 0.0000112155,
+        "Prx3": 0.00370807,
+        "Thiols": 0.000373851,
+      },
+      "prxHyperoxidized": 0.0000433651,
+      "superoxideIMS": 0.00753014,
+      "superoxideSinks": {
+        "Aconitase Fe-S": 0.000744445,
+        "NO (to ONOO-)": 0.00496296,
+        "SOD2": 0.124074,
+      },
+      "superoxideSources": {
+        "CI IF": 0.0483101,
+        "CI IQ (RET)": 0.0168531,
+        "CII IIF": 0.00613636,
+        "CIII Qo": 0.111446,
+        "OGDH": 0.00275891,
+      },
+    },
+    "singletOxygen": 0.0744445,
+    "superoxide": 0.0124074,
+    "tempRise": 0,
+  },
+  "copperCiv@min": {
+    "aconitaseActivity": 88.7923,
+    "atpFlux": 27.2164,
+    "cardiolipinOx": 7.33731,
+    "coherence": {
+      "coherentFraction": 0.0147395,
+      "lossBase": 0.4,
+      "lossCardiolipin": 0.122288,
+      "lossHeat": 0,
+      "lossLipid": 0.0000285137,
+      "pumpMetabolic": 0.25892,
+      "pumpPhoton": 0,
+      "pumpRatio": 0.495715,
+    },
+    "coherentFraction": 0.0147395,
+    "emission71THz": 16.0695,
+    "emissionSpectrum": [
+      {
+        "freqTHz": 60,
+        "intensity": 1.7429,
+      },
+      {
+        "freqTHz": 60.5,
+        "intensity": 1.89676,
+      },
+      {
+        "freqTHz": 61,
+        "intensity": 2.11547,
+      },
+      {
+        "freqTHz": 61.5,
+        "intensity": 2.40668,
+      },
+      {
+        "freqTHz": 62,
+        "intensity": 2.76843,
+      },
+      {
+        "freqTHz": 62.5,
+        "intensity": 3.18517,
+      },
+      {
+        "freqTHz": 63,
+        "intensity": 3.62614,
+      },
+      {
+        "freqTHz": 63.5,
+        "intensity": 4.04745,
+      },
+      {
+        "freqTHz": 64,
+        "intensity": 4.39859,
+      },
+      {
+        "freqTHz": 64.5,
+        "intensity": 4.6321,
+      },
+      {
+        "freqTHz": 65,
+        "intensity": 4.71404,
+      },
+      {
+        "freqTHz": 65.5,
+        "intensity": 4.6321,
+      },
+      {
+        "freqTHz": 66,
+        "intensity": 4.39859,
+      },
+      {
+        "freqTHz": 66.5,
+        "intensity": 4.04751,
+      },
+      {
+        "freqTHz": 67,
+        "intensity": 3.62697,
+      },
+      {
+        "freqTHz": 67.5,
+        "intensity": 3.19355,
+      },
+      {
+        "freqTHz": 68,
+        "intensity": 2.83065,
+      },
+      {
+        "freqTHz": 68.5,
+        "intensity": 2.74629,
+      },
+      {
+        "freqTHz": 69,
+        "intensity": 3.47735,
+      },
+      {
+        "freqTHz": 69.5,
+        "intensity": 5.9087,
+      },
+      {
+        "freqTHz": 70,
+        "intensity": 10.4262,
+      },
+      {
+        "freqTHz": 70.5,
+        "intensity": 15.4553,
+      },
+      {
+        "freqTHz": 71,
+        "intensity": 17.7552,
+      },
+      {
+        "freqTHz": 71.5,
+        "intensity": 15.5595,
+      },
+      {
+        "freqTHz": 72,
+        "intensity": 10.7024,
+      },
+      {
+        "freqTHz": 72.5,
+        "intensity": 6.48635,
+      },
+      {
+        "freqTHz": 73,
+        "intensity": 4.52404,
+      },
+      {
+        "freqTHz": 73.5,
+        "intensity": 4.41607,
+      },
+      {
+        "freqTHz": 74,
+        "intensity": 5.18712,
+      },
+      {
+        "freqTHz": 74.5,
+        "intensity": 6.13509,
+      },
+      {
+        "freqTHz": 75,
+        "intensity": 6.85723,
+      },
+      {
+        "freqTHz": 75.5,
+        "intensity": 7.12442,
+      },
+      {
+        "freqTHz": 76,
+        "intensity": 6.85631,
+      },
+      {
+        "freqTHz": 76.5,
+        "intensity": 6.12645,
+      },
+      {
+        "freqTHz": 77,
+        "intensity": 5.12425,
+      },
+      {
+        "freqTHz": 77.5,
+        "intensity": 4.075,
+      },
+      {
+        "freqTHz": 78,
+        "intensity": 3.1593,
+      },
+      {
+        "freqTHz": 78.5,
+        "intensity": 2.46976,
+      },
+      {
+        "freqTHz": 79,
+        "intensity": 2.01403,
+      },
+      {
+        "freqTHz": 79.5,
+        "intensity": 1.74712,
+      },
+      {
+        "freqTHz": 80,
+        "intensity": 1.60775,
+      },
+      {
+        "freqTHz": 80.5,
+        "intensity": 1.54261,
+      },
+      {
+        "freqTHz": 81,
+        "intensity": 1.51528,
+      },
+      {
+        "freqTHz": 81.5,
+        "intensity": 1.50497,
+      },
+      {
+        "freqTHz": 82,
+        "intensity": 1.50147,
+      },
+      {
+        "freqTHz": 82.5,
+        "intensity": 1.50039,
+      },
+      {
+        "freqTHz": 83,
+        "intensity": 1.5001,
+      },
+      {
+        "freqTHz": 83.5,
+        "intensity": 1.50002,
+      },
+      {
+        "freqTHz": 84,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 84.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 85,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 85.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 86,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 86.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 87,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 87.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 88,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 88.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 89,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 89.5,
+        "intensity": 1.5,
+      },
+      {
+        "freqTHz": 90,
+        "intensity": 1.5,
+      },
+    ],
+    "ferroptosisRisk": 24.4577,
+    "ferroptosisState": "Protected",
+    "fes3Fe": 0.0527302,
+    "fesApo": 0.0593471,
+    "fesIntact": 0.887923,
+    "fesPools": {
+      "aconitase": {
+        "apo": 0.0593471,
+        "intact": 0.887923,
+        "threeFe": 0.0527302,
+      },
+      "complexI": {
+        "apo": 0.00937498,
+        "intact": 0.981614,
+        "threeFe": 0.00901133,
+      },
+      "complexII": {
+        "apo": 0.0185758,
+        "intact": 0.963823,
+        "threeFe": 0.0176011,
+      },
+      "complexIII": {
+        "apo": 0.00314465,
+        "intact": 0.993803,
+        "threeFe": 0.00305205,
+      },
+    },
+    "fesReactHalfLifeS": 55.7472,
+    "fluxCI": 25.3344,
+    "fluxCII": 16.3636,
+    "fluxCIV": 15.5352,
+    "freeIron": 3.74071,
+    "hydrogenPeroxide": 43.3753,
+    "hydroxylRadical": 1.52371e-7,
+    "lipidPeroxyl": 0.00285137,
+    "noReleased": 0,
+    "peroxynitrite": 0.0164891,
+    "photonGain": 1,
+    "photoreceptor": {
+      "absorbed": {
+        "cuA": 0,
+        "flavin": 0,
+        "hemeA": 0,
+        "porphyrin": 0,
+      },
+      "civActivation": 0,
+      "civGain": 0,
+      "exposureTime": 0,
+      "flavinLeak": 1,
+      "fluence": {
+        "nir": 0,
+        "red": 0,
+      },
+      "h2o2Direct": 0,
+      "heatLeak": 1,
+      "noReleased": 0,
+      "photoinhibition": 1,
+      "photonPump": 0,
+      "psiShift": 0,
+      "saturation": 0,
+      "semiquinoneLeak": 1,
+      "singletDirect": 0,
+      "tempRise": 0,
+    },
+    "plooh": 52.7886,
+    "ploohRemoval": {
+      "basal": 0.01,
+      "fsp1": 0.03,
+      "gpx4": 0.05,
+    },
+    "propagationRatio": 0.0997523,
+    "redoxStress": 24.2388,
+    "rosBudget": {
+      "fe2Fraction": 0.911651,
+      "h2o2Sinks": {
+        "Catalase": 0.000867506,
+        "Efflux": 0.0130126,
+        "GPx1": 0.0130126,
+        "Prx3": 0.063677,
+      },
+      "h2o2Sources": {
+        "Dismutation": 0.0951064,
+        "Flavin photo": 0,
+        "OGDH": 0.00413837,
+      },
+      "hydroxylSources": {
+        "Fenton": 0.000147919,
+        "ONOOH homolysis": 0.00000445205,
+      },
+      "peroxynitriteSinks": {
+        "CO2": 0.000986046,
+        "GPx": 0.000164891,
+        "Homolysis": 0.0000148402,
+        "Prx3": 0.00489385,
+        "Thiols": 0.000494672,
+      },
+      "prxHyperoxidized": 0.000075251,
+      "superoxideIMS": 0.0105422,
+      "superoxideSinks": {
+        "Aconitase Fe-S": 0.000983144,
+        "NO (to ONOO-)": 0.00655429,
+        "SOD2": 0.163857,
+      },
+      "superoxideSources": {
+        "CI IF": 0.0676341,
+        "CI IQ (RET)": 0.0168531,
+        "CII IIF": 0.00613636,
+        "CIII Qo": 0.156025,
+        "OGDH": 0.00275891,
+      },
+    },
+    "singletOxygen": 0.0983144,
+    "superoxide": 0.0163857,
+    "tempRise": 0,
+  },
   "deltaPsi@max": {
     "aconitaseActivity": 28.0661,
     "atpFlux": 45.3607,
