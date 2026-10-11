@@ -1,4 +1,12 @@
+## Progress band summary line (2026-10-11)
+
+- ✅ The Scenario progress page now opens with the same style of summary line the Dashboard has: "18 of 19 runs sit inside the band (0.50x-1.00x); 1 outside (1 with no strength noted)." It counts the runs currently shown, so a ?profile= jump counts only that profile's rows.
+- ✅ "Edit the band" in that line opens the header band popover (the same single band control), so the band is never edited in two places.
+- ✅ Runs with no strength noted are counted as outside and named in parentheses, matching the red row tint and the "not noted" cell.
+- ✅ Verified live: default band reads 18 of 18 in / 0 outside while all 18 run rows are green; dragging the band's top edge to 0.45x-0.50x through the in-page link flips it to 0 of 18 / 18 outside; a run logged without strength reads "1 outside (1 with no strength noted)"; /runs?profile=demo-07 reads "1 of 1"; no page errors, build OK.
+
 ## Dashboard sort and flag filter persist (2026-10-11)
+
 
 - ✅ The Dashboard's Sort by choice (Flag count or Latest progress) and Flag filter (All, Flagged only, Not flagged only) are saved in this browser (cristae-lab-dash-sort, cristae-lab-dash-flag-filter) and restored after a reload, like the band count already was.
 - ✅ Saved values load after mount so first render still matches the server render (no hydration flicker).
