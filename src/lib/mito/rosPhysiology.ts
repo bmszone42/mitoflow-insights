@@ -21,7 +21,7 @@ export const rosInputNames: Record<keyof Inputs, string> = {
   adp: "ADP", labileIron: "Labile iron", nitricOxide: "Nitric oxide", redDose: "Red-light dose",
   nirDose: "Near-infrared dose", irradiance: "Irradiance", tissueDepth: "Tissue depth",
   antioxidantCapacity: "Antioxidant capacity", uncoupling: "Uncoupling", gpx4: "GPx4",
-  fsp1: "FSP1", cardiolipinPufa: "Cardiolipin PUFA", mitoHalfLife: "Turnover half-life", rirrStrength: "ROS-induced ROS release", chelatorBound: "Chelator-bound iron", copperCiv: "Complex IV copper", fesExposureCI: "Complex I cluster exposure", fesExposureCII: "Complex II cluster exposure", fesExposureCIII: "Complex III cluster exposure",
+  fsp1: "FSP1", cardiolipinPufa: "Cardiolipin PUFA", mitoHalfLife: "Turnover half-life", rirrStrength: "ROS-induced ROS release", chelatorBound: "Chelator-bound iron", chelatorFentonSuppression: "Chelator Fenton suppression", chelatorLipidSuppression: "Chelator lipid suppression", copperCiv: "Complex IV copper", fesExposureCI: "Complex I cluster exposure", fesExposureCII: "Complex II cluster exposure", fesExposureCIII: "Complex III cluster exposure",
 };
 
 // Published quantities below describe mechanisms or reaction constants, not
