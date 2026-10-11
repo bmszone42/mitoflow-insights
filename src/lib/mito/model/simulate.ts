@@ -388,6 +388,7 @@ export function simulate(i: Inputs, geo?: Geometry): Outputs {
     fes3Fe,
     fesApo,
     fesPools,
+    fesReactHalfLifeS,
     aconitaseActivity: fesIntact * 100,
     freeIron,
     emission71THz,
