@@ -9,11 +9,9 @@ const hits = new Map<string, number[]>();
 let global: number[] = [];
 
 export function clientKey(request: Request) {
-  return (
-    request.headers.get("cf-connecting-ip") ??
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown"
-  );
+  const forwarded =
+    request.headers.get("x-vercel-forwarded-for") ?? request.headers.get("x-forwarded-for");
+  return forwarded?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
 }
 
 export function checkLimit(key: string) {
@@ -27,9 +25,11 @@ export function checkLimit(key: string) {
     remaining: 0,
     message: `${why} Try again in ${Math.max(1, Math.ceil(retryMs / 60_000))} minute(s).`,
   });
-  if (global.length >= GLOBAL_DAY_MAX) return deny(DAY - (now - global[0]!), "Daily AI capacity for this app is used up.");
+  if (global.length >= GLOBAL_DAY_MAX)
+    return deny(DAY - (now - global[0]!), "Daily AI capacity for this app is used up.");
   if (list.length >= DAY_MAX) return deny(DAY - (now - list[0]!), "Daily limit reached.");
-  if (recent.length >= SHORT_MAX) return deny(SHORT_WINDOW - (now - recent[0]!), "Limit of 10 requests per 10 minutes reached.");
+  if (recent.length >= SHORT_MAX)
+    return deny(SHORT_WINDOW - (now - recent[0]!), "Limit of 10 requests per 10 minutes reached.");
 
   list.push(now);
   global.push(now);

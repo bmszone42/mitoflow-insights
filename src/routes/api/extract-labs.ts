@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import { z } from "zod";
-import { createLovableAiGatewayRunIdFetch } from "@/lib/mito/run-id.server";
+import { aiConfigured, aiModelId, aiNotConfiguredResponse } from "@/lib/ai-gateway.server";
 import { checkLimit, clientKey, readLimitedJson } from "@/lib/mito/rate-limit.server";
 
 const MAX = 6_000_000;
@@ -49,16 +48,7 @@ export const Route = createFileRoute("/api/extract-labs")({
         if (!parsed.success) return Response.json({ error: "Upload a PDF, PNG, JPEG or WebP file under about 4 MB." }, { status: 400 });
         const lim = checkLimit(clientKey(request));
         if (!lim.ok) return Response.json({ error: lim.message }, { status: 429 });
-        const apiKey = process.env["LOVABLE_API_KEY"];
-        if (!apiKey) return Response.json({ error: "AI is not configured" }, { status: 500 });
-
-        const runIdFetch = createLovableAiGatewayRunIdFetch(request.headers.get("X-Lovable-AIG-Run-ID") ?? undefined);
-        const provider = createOpenAI({
-          baseURL: "https://ai.gateway.lovable.dev/v1",
-          apiKey,
-          headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-          fetch: runIdFetch.fetch,
-        });
+        if (!aiConfigured()) return aiNotConfiguredResponse();
         const { file, filename } = parsed.data;
         const isPdf = file.startsWith("data:application/pdf");
         const part = isPdf
@@ -66,12 +56,12 @@ export const Route = createFileRoute("/api/extract-labs")({
           : ({ type: "image", image: new URL(file) } as const);
         try {
           const res = await generateText({
-            model: provider.responses("openai/gpt-6-astra"),
+            model: aiModelId(),
+            reasoning: "low",
             system: SYSTEM,
             messages: [{ role: "user", content: [{ type: "text", text: "Extract the lab values from this report." }, part] }],
             abortSignal: request.signal,
             maxRetries: 0,
-            providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", store: false, include: ["reasoning.encrypted_content"] } },
           });
           const text = res.text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
           let json: unknown;
@@ -82,7 +72,7 @@ export const Route = createFileRoute("/api/extract-labs")({
         } catch (error) {
           const e = error as { statusCode?: number; message?: string };
           const status = e.statusCode ?? 500;
-          const msg = status === 429 ? "Rate limited. Please wait a moment and try again." : status === 402 ? "AI credits are used up. Add credits in Settings, Plans and credits." : "Reading the file failed. Please try again.";
+          const msg = status === 429 ? "Rate limited. Please wait a moment and try again." : status === 402 ? "AI Gateway credits are used up. Add credits in the Vercel project, then try again." : "Reading the file failed. Please try again.";
           return Response.json({ error: msg }, { status });
         }
       },
