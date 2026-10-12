@@ -1,64 +1,40 @@
-# Welcome to your Lovable project
+# Cristae Lab
 
-This project was built with [Lovable](https://lovable.dev).
+Mitochondrial modeling workspace. The simulator, demo profiles, Diagnosis, Dashboard, Timeline, therapy pages, and CSV exports run in the browser. Scenarios, timeline visits, and the run log stay in IndexedDB and localStorage.
 
-## Build with Lovable
+## Run locally
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
-
-## Run locally (fully offline)
-
-Cristae Lab is a single-user, local-first app. The simulator, all 18 demo
-patient profiles, Diagnosis, Dashboard, Timeline, Therapy plan, Therapy
-tools, Scenario progress and every CSV export run entirely in your browser.
-Scenarios, timeline visits and the run log are stored in your browser's
-IndexedDB / localStorage. No account, no cloud keys, no network needed.
-
-You need [bun](https://bun.sh) (or Node.js 20+ with npm):
+Node.js 22 or newer:
 
 ```sh
-# 1. Get the code (Settings > Export/Download in Lovable, or clone the repo)
-git clone <this-repository-url>
-cd <repository-name>
-
-# 2. Install dependencies
-bun install        # or: npm install
-
-# 3. Start the dev server
-bun run dev        # or: npm run dev
+npm install
+npm run dev
 ```
 
-Open the printed URL (usually http://localhost:5173). That is the whole
-setup: there is no `.env` to create. `.env.example` documents the two
-optional values, neither of which is needed offline.
+Open the printed URL (usually http://localhost:5173). No environment file is required for the model.
 
-### What needs the internet
-
-Only the optional AI interpretation buttons (they call a hosted AI service
-through `/api/interpret`, which expects a `LOVABLE_API_KEY` on the server).
-Without a key those buttons show an error; everything else is unaffected.
-
-### Production build
+Optional AI buttons (interpretation, suggestions, sensitivity explanation, micrograph analysis, and lab extraction) call [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) from the server routes under `src/routes/api/`. Copy `.env.example` to `.env` and set `AI_GATEWAY_API_KEY` for local AI. On Vercel, those routes authenticate with the deployment OIDC token, so the key is only needed off-platform. Without a credential the buttons report that AI is not configured; the rest of the app still works.
 
 ```sh
-bun run build && bun run preview
+npm run build
+npm run preview
 ```
 
-### Notes
+`npm test` runs the model lock suite.
 
-- Data never leaves your machine except for the optional AI calls.
-- Clearing your browser's site data deletes saved scenarios, visits and the
-  run log. Use the CSV downloads to keep copies.
-- The app is a research model. Every readout, flag and projection is a model
-  estimate, not a measurement, and nothing here is medical advice.
+## Deploy on Vercel
 
-## Built with
+This repo is set up for Vercel and is not published from here.
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+1. Import the Git repository at [vercel.com/new](https://vercel.com/new).
+2. Confirm the framework preset is **TanStack Start** (`vercel.json` sets `framework` to `tanstack-start`). The build command is `npm run build`. Nitro writes the Vercel output during that build.
+3. Leave `AI_GATEWAY_API_KEY` unset if the project should use [AI Gateway OIDC](https://vercel.com/docs/ai-gateway/authentication-and-byok/oidc). Set it only for a local or non-Vercel runtime. `AI_GATEWAY_MODEL` is optional and defaults to `openai/gpt-6-astra`.
+4. Deploy from the Vercel dashboard or CLI when you are ready. Do not commit `.env` or `.vercel`.
+
+Server functions run on Vercel Functions with Fluid compute. AI routes allow up to 60 seconds. The in-memory rate limit is per instance.
+
+## Notes
+
+- Data stays in the browser except for optional AI calls.
+- Clearing site data deletes saved scenarios, visits, and the run log. Use the CSV downloads to keep copies.
+- Every readout is a model estimate, not a measurement, and nothing here is medical advice.

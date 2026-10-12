@@ -1,19 +1,8 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history: force pushing, or rebasing/amending/squashing commits
-> that are already pushed: as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
-
 ## Project rules
 
 - Redox math in `model/` via the `model.ts` barrel; reference data (ATP/P/O bands etc.) in `reference/` via the `reference.ts` barrel; fuel changes flux, not P/O.
-- State in `index.tsx`; scenarios use owner-only Cloud or signed-out IndexedDB with legacy geometry defaults.
-- AI interpretation streams through `api/interpret.ts`; key stays server-side.
+- State in `index.tsx`; scenarios persist in the browser's IndexedDB with legacy geometry defaults.
+- AI interpretation streams through `api/interpret.ts` and the Vercel AI Gateway (`aiModelId` in `src/lib/ai-gateway.server.ts`); the key stays server-side.
 - AI routes share an in-memory limiter; use database limits for strict enforcement.
 - `inputRanges` in `model.ts` supplies slider bounds for AI clamping and comparison labels.
 - Micrographs are resized JPEGs sent inline and never stored server-side; `geometryRanges` clamps AI suggestions.

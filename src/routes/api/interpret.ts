@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { z } from "zod";
-import { createLovableAiGatewayRunIdFetch } from "@/lib/mito/run-id.server";
+import { aiConfigured, aiModelId, aiNotConfiguredResponse } from "@/lib/ai-gateway.server";
 import { checkLimit, clientKey, readLimitedJson } from "@/lib/mito/rate-limit.server";
 import { etcSteps } from "@/lib/mito/reference";
 
@@ -94,18 +93,7 @@ export const Route = createFileRoute("/api/interpret")({
         const lim = checkLimit(clientKey(request));
         const rlHeaders = { "X-RateLimit-Remaining": String(lim.remaining) };
         if (!lim.ok) return Response.json({ error: lim.message }, { status: 429, headers: rlHeaders });
-        const apiKey = process.env["LOVABLE_API_KEY"];
-        if (!apiKey) return Response.json({ error: "AI is not configured" }, { status: 500 });
-
-        const runIdFetch = createLovableAiGatewayRunIdFetch(
-          request.headers.get("X-Lovable-AIG-Run-ID") ?? undefined,
-        );
-        const provider = createOpenAI({
-          baseURL: "https://ai.gateway.lovable.dev/v1",
-          apiKey,
-          headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-          fetch: runIdFetch.fetch,
-        });
+        if (!aiConfigured()) return aiNotConfiguredResponse(rlHeaders);
         const { condition, inputs, outputs, compare, narrative } = parsed.data;
         const fmt = (o: Record<string, number>) =>
           Object.entries(o)
@@ -114,7 +102,8 @@ export const Route = createFileRoute("/api/interpret")({
 
         let upstreamError: { status: number; message: string } | null = null;
         const result = streamText({
-          model: provider.responses("openai/gpt-6-astra"),
+          model: aiModelId(),
+          reasoning: "medium",
           system: narrative ? NARRATIVE_SYSTEM : compare ? SYSTEM + COMPARE_SYSTEM : SYSTEM,
           prompt: narrative ? `Model flag facts:\n${narrative}\n\nCurrent inputs:\n${fmt(inputs)}` : `Experimental condition:\n${condition}\n\nModel inputs:\n${fmt(inputs)}\n\nModel outputs:\n${fmt(outputs)}${
             compare
@@ -129,15 +118,6 @@ export const Route = createFileRoute("/api/interpret")({
           }`,
           abortSignal: request.signal,
           maxRetries: 0,
-          providerOptions: {
-            openai: {
-              forceReasoning: true,
-              reasoningEffort: "medium",
-              reasoningSummary: "auto",
-              store: false,
-              include: ["reasoning.encrypted_content"],
-            },
-          },
           onError: ({ error }) => {
             const e = error as { statusCode?: number; message?: string };
             upstreamError = { status: e.statusCode ?? 500, message: e.message ?? "AI request failed" };
@@ -153,7 +133,7 @@ export const Route = createFileRoute("/api/interpret")({
             status === 429
               ? "Rate limited. Please wait a moment and try again."
               : status === 402
-                ? "AI credits are used up. Add credits in Settings, Plans and credits."
+                ? "AI Gateway credits are used up. Add credits in the Vercel project, then try again."
                 : message;
           return Response.json({ error: friendly }, { status, headers: rlHeaders });
         }
@@ -179,8 +159,6 @@ export const Route = createFileRoute("/api/interpret")({
           "Cache-Control": "no-cache, no-transform",
           ...rlHeaders,
         });
-        const rid = runIdFetch.getRunId();
-        if (rid) headers.set("X-Lovable-AIG-Run-ID", rid);
         return new Response(body, { headers });
       },
     },

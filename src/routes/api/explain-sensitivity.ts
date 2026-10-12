@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { z } from "zod";
-import { createLovableAiGatewayRunIdFetch } from "@/lib/mito/run-id.server";
+import { aiConfigured, aiModelId, aiNotConfiguredResponse } from "@/lib/ai-gateway.server";
 import { checkLimit, clientKey, readLimitedJson } from "@/lib/mito/rate-limit.server";
 
 const Cell = z.record(z.string(), z.number());
@@ -135,18 +134,7 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
         const lim = checkLimit(clientKey(request));
         const rlHeaders = { "X-RateLimit-Remaining": String(lim.remaining) };
         if (!lim.ok) return Response.json({ error: lim.message }, { status: 429, headers: rlHeaders });
-        const apiKey = process.env["LOVABLE_API_KEY"];
-        if (!apiKey) return Response.json({ error: "AI is not configured" }, { status: 500 });
-
-        const runIdFetch = createLovableAiGatewayRunIdFetch(
-          request.headers.get("X-Lovable-AIG-Run-ID") ?? undefined,
-        );
-        const provider = createOpenAI({
-          baseURL: "https://ai.gateway.lovable.dev/v1",
-          apiKey,
-          headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-          fetch: runIdFetch.fetch,
-        });
+        if (!aiConfigured()) return aiNotConfiguredResponse(rlHeaders);
         const { delta, inputs, rows, map } = parsed.data;
         if (!map && rows.length === 0)
           return Response.json({ error: "Nothing to explain." }, { status: 400 });
@@ -184,7 +172,8 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
 
         let upstreamError: { status: number; message: string } | null = null;
         const result = streamText({
-          model: provider.responses("openai/gpt-6-astra"),
+          model: aiModelId(),
+          reasoning: "medium",
           system: map ? MAP_SYSTEM : SYSTEM,
           prompt: map
             ? `x input: ${map.xLabel} from ${map.xRange[0]} to ${map.xRange[1]} (baseline ${map.baseline.x})\ny input: ${map.yLabel} from ${map.yRange[0]} to ${map.yRange[1]} (baseline ${map.baseline.y})\n\nBaseline inputs:\n${fmt(inputs)}\n\nStudy-control halo: ${map.referenceBand ? `${map.referenceBand.label}; model band ${map.referenceBand.loPct.toFixed(1)}–${map.referenceBand.hiPct.toFixed(1)}% maps to ${map.referenceBand.assayLo}–${map.referenceBand.assayHi} ${map.referenceBand.assayUnit}; ${map.referenceBand.flaggedCells} of ${map.referenceBand.totalCells} cells outside; source ${map.referenceBand.source}, ${map.referenceBand.cohort}, specimen ${map.referenceBand.specimen}; Fe-S proxy ${map.referenceBand.proxy}` : "none for this displayed output"}.\n\nPer-output interaction summary:\n${map.outputs
@@ -196,15 +185,6 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
             : `Perturbation step: plus or minus ${(delta * 100).toFixed(0)}% of each driver's full range.\n\nBaseline inputs:\n${fmt(inputs)}\n\nSensitivity results (percent change per output):\n${table}`,
           abortSignal: request.signal,
           maxRetries: 0,
-          providerOptions: {
-            openai: {
-              forceReasoning: true,
-              reasoningEffort: "medium",
-              reasoningSummary: "auto",
-              store: false,
-              include: ["reasoning.encrypted_content"],
-            },
-          },
           onError: ({ error }) => {
             const e = error as { statusCode?: number; message?: string };
             upstreamError = { status: e.statusCode ?? 500, message: e.message ?? "AI request failed" };
@@ -220,7 +200,7 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
             status === 429
               ? "Rate limited. Please wait a moment and try again."
               : status === 402
-                ? "AI credits are used up. Add credits in Settings, Plans and credits."
+                ? "AI Gateway credits are used up. Add credits in the Vercel project, then try again."
                 : message;
           return Response.json({ error: friendly }, { status, headers: rlHeaders });
         }
@@ -246,8 +226,6 @@ export const Route = createFileRoute("/api/explain-sensitivity")({
           "Cache-Control": "no-cache, no-transform",
           ...rlHeaders,
         });
-        const rid = runIdFetch.getRunId();
-        if (rid) headers.set("X-Lovable-AIG-Run-ID", rid);
         return new Response(body, { headers });
       },
     },
